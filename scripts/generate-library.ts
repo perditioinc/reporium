@@ -42,7 +42,22 @@ import {
   fetchLanguageBreakdown,
   fetchLatestRelease,
   ForkInfo,
+  GitHubRateLimitError,
 } from '../src/lib/github';
+
+/** Wrap a fetch call with a single retry on 429 — waits 10s before retrying. */
+async function withRetryOn429<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof GitHubRateLimitError) {
+      console.warn('   ⚠️  Rate limited (429) — waiting 10s before retry...');
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
+      return await fn();
+    }
+    throw err;
+  }
+}
 import { enrichRepo } from '../src/lib/enrichRepo';
 import { buildTagMetrics } from '../src/lib/buildTagMetrics';
 import { buildCategories } from '../src/lib/buildCategories';
@@ -139,8 +154,8 @@ async function generateLibrary(): Promise<void> {
   const syncResults = await batchFetch(
     syncTargets,
     ({ repo, upstreamOwner, upstreamBranch }) =>
-      fetchForkSyncStatus(username, repo.name, upstreamOwner, upstreamBranch, token),
-    5, 100
+      withRetryOn429(() => fetchForkSyncStatus(username, repo.name, upstreamOwner, upstreamBranch, token)),
+    2, 500
   );
 
   const syncMap = new Map<string, typeof syncResults[0]>();
@@ -171,8 +186,8 @@ async function generateLibrary(): Promise<void> {
   // Fetch 90-day commits (superset — filter for shorter windows)
   const commits90 = await batchFetch(
     commitTargets,
-    ({ owner, repo }) => fetchCommitsSince(owner, repo, d90, token, 100),
-    5, 100
+    ({ owner, repo }) => withRetryOn429(() => fetchCommitsSince(owner, repo, d90, token, 100)),
+    2, 300
   );
 
   repos = repos.map((repo, i) => {
