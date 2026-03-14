@@ -236,6 +236,17 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       )}
 
+      {/* PM Skills row */}
+      {repo.pmSkills && repo.pmSkills.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {repo.pmSkills.slice(0, 3).map(skill => (
+            <span key={skill} className="rounded-full bg-indigo-900/40 border border-indigo-700/40 px-2 py-0.5 text-xs text-indigo-400">
+              {skill}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5">
         {repo.enrichedTags.slice(0, 8).map((tag) =>
