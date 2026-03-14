@@ -2,8 +2,8 @@ name: Refresh Library Data
 
 on:
   schedule:
-    - cron: '0 6 * * *'    # Daily at 6am UTC  → quick run
-    - cron: '0 4 * * 0'    # Sunday at 4am UTC → full run
+    - cron: '0 6 * * *'    # Daily at 6am UTC  → quick run (Mon-Sat)
+    - cron: '0 4 * * 0'    # Sunday at 4am UTC → weekly run (tier 2+3 refresh)
   workflow_dispatch:         # Manual trigger
 
 jobs:
@@ -20,20 +20,23 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm install
-      - name: Generate library data (quick on daily, full on Sunday)
+      - name: Generate library data (quick on weekdays, weekly on Sunday)
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          # Detect which cron fired: Sunday = full run, otherwise quick run.
+          # Detect which cron fired: Sunday = weekly run, otherwise quick run.
+          # --full is reserved as a manual-only option (trigger workflow_dispatch with full flag if needed).
           DAY=$(date -u +%u)  # 1=Mon … 7=Sun
           if [ "$DAY" = "7" ]; then
-            echo "Sunday — running full generate"
-            npm run generate:full
+            echo "Sunday — running weekly generate (tier 2 + tier 3 refresh)"
+            npm run generate:weekly
           else
-            echo "Weekday — running quick generate"
+            echo "Weekday — running quick generate (tier 3 only)"
             npm run generate:quick
           fi
+      - name: Validate library data
+        run: npm run validate
       - name: Detect trends
         run: npm run detect-trends
       - name: Build gap analysis
