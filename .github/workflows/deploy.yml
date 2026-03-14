@@ -36,8 +36,8 @@ jobs:
       - name: Build static export
         run: npm run build
         env:
-          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
-          NEXT_PUBLIC_GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          NEXT_PUBLIC_GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
           NEXT_PUBLIC_BASE_PATH: /reporium
 
       - name: Upload Pages artifact
