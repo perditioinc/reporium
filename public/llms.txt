@@ -1,0 +1,14 @@
+# Reporium
+
+Reporium is a GitHub knowledge library that enriches and visualizes public repos for any GitHub username.
+
+## API
+GET /api/repos/{username}
+Returns enriched JSON with all public repos, tags, stats, and metadata for any GitHub username.
+No authentication required. Rate limited by GitHub API (60/hour unauthenticated).
+
+## Live Example
+https://reporium.com/api/repos/perditioinc
+
+## Data Shape
+See TypeScript types at: https://github.com/perditioinc/reporium/blob/main/src/types/repo.ts

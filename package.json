@@ -1,26 +1,50 @@
 {
   "name": "reporium",
   "version": "0.1.0",
+  "description": "Your GitHub knowledge library — visualize and explore all your public repos",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "generate": "npx tsx scripts/generate-library.ts",
+    "generate:build": "npm run generate && npm run build",
+    "detect-trends": "npx tsx scripts/detect-trends.ts",
+    "gap-analysis": "npx tsx scripts/build-gap-analysis.ts",
+    "digest": "npx tsx scripts/generate-digest.ts",
+    "refresh": "npm run generate && npm run detect-trends && npm run gap-analysis && npm run digest",
+    "rebuild": "powershell -ExecutionPolicy Bypass -File scripts/rebuild.ps1",
+    "rebuild:full": "powershell -ExecutionPolicy Bypass -File scripts/rebuild.ps1 -full",
+    "rebuild:dev": "powershell -ExecutionPolicy Bypass -File scripts/rebuild.ps1 -dev",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "type-check": "tsc --noEmit",
+    "mcp": "npx tsx src/mcp/index.ts",
+    "cli": "npx tsx src/cli/index.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@tailwindcss/oxide-win32-x64-msvc": "^4.2.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "tailwindcss": "^4",
+    "ts-jest": "^29.4.6",
     "typescript": "^5"
   }
 }

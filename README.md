@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reporium
 
-## Getting Started
+Reporium is your GitHub knowledge library — visualize and explore all your public repos.
 
-First, run the development server:
+![Screenshot](public/screenshot-placeholder.png)
+
+## Fork & Run Your Own Instance
+
+1. Fork this repo
+2. Go to: your fork → Settings → Secrets and variables → Actions
+3. Add secret: `GITHUB_USERNAME` = your-github-username
+4. Go to: Settings → Pages → Source: GitHub Actions
+5. Push any commit to main (or manually trigger the deploy workflow)
+6. Your library is live at: `yourusername.github.io/reporium`
+
+## Local Development
 
 ```bash
+npm install
+cp .env.example .env.local
+# Edit .env.local: set GITHUB_USERNAME and optionally GITHUB_TOKEN
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+GET /api/repos/{username}
+```
 
-## Learn More
+Returns enriched `LibraryData` JSON with all public repos, tags, stats, and metadata for any GitHub username. No authentication required.
 
-To learn more about Next.js, take a look at the following resources:
+Example: `https://reporium.com/api/repos/perditioinc`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Response shape: See [src/types/repo.ts](src/types/repo.ts)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Custom Domain (Vercel)
 
-## Deploy on Vercel
+Deploy to Vercel for automatic Next.js support and connect your custom domain in the Vercel dashboard.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT
