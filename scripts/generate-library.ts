@@ -9,8 +9,8 @@
  * Or via npm: npm run generate
  *
  * Required env vars:
- *   GITHUB_USERNAME - whose repos to fetch (default: perditioinc)
- *   GITHUB_TOKEN    - GitHub PAT for 5000 req/hour rate limit
+ *   GH_USERNAME - whose repos to fetch (default: perditioinc)
+ *   GH_TOKEN    - GitHub PAT for 5000 req/hour rate limit
  */
 
 import * as fs from 'fs';
@@ -51,8 +51,8 @@ import { buildBuilder, assignDimension, buildBuilderStats, buildSkillStats, AI_D
 import { batchFetch } from '../src/lib/rateLimit';
 import { LibraryData, LibraryStats, EnrichedRepo } from '../src/types/repo';
 
-const username = process.env.GITHUB_USERNAME || 'perditioinc';
-const token = process.env.GITHUB_TOKEN || undefined;
+const username = process.env.GH_USERNAME || 'perditioinc';
+const token = process.env.GH_TOKEN || undefined;
 
 /** Calculate percentage breakdown from bytes map */
 function computePercentages(breakdown: Record<string, number>): Record<string, number> {
