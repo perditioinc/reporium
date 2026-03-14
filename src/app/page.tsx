@@ -61,7 +61,8 @@ export default function HomePage() {
       setError(null);
       setData(null);
       try {
-        const res = await fetch('/data/library.json');
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+        const res = await fetch(`${basePath}/data/library.json`);
         if (!res.ok) {
           if (res.status === 404) {
             if (!cancelled) setError('Library data not found. Run `npm run generate` to generate it.');
@@ -73,7 +74,7 @@ export default function HomePage() {
         const d = (await res.json()) as LibraryData;
         if (!cancelled) setData(d);
         // Fetch trends.json non-blocking
-        fetch('/data/trends.json')
+        fetch(`${basePath}/data/trends.json`)
           .then(r => r.ok ? r.json() : null)
           .then(t => { if (!cancelled && t) setTrends(t as TrendData); })
           .catch(() => {}); // trends are optional
