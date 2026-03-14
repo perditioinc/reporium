@@ -1,42 +1,26 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 13, 2026
-
----
-
-## Today's Activity
-**2631 commits** across **196 repos** in your library
-
-| Repo | Commits | Category |
-|------|---------|----------|
-| openclaw | 711 | Dev Tools & Automation |
-| pinchtab | 69 | Dev Tools & Automation |
-| weaviate | 66 | RAG & Retrieval |
-| voicebox | 60 | Dev Tools & Automation |
-| litellm | 57 | Foundation Models |
-| tensorflow | 57 | Inference & Serving |
+**perditioinc's GitHub Knowledge Library** · Generated March 14, 2026
 
 ---
 
 ## Gaps in Your Library
 Based on your collection, you might want to explore:
 
-**Observability & Monitoring** — You have 30 repos covering Observability & Monitoring.
+**Observability & Monitoring** — You have 29 repos covering Observability & Monitoring.
 
-**Evals & Benchmarking** — You have 202 repos covering Evals & Benchmarking.
+**Evals & Benchmarking** — You have 201 repos covering Evals & Benchmarking.
 
-**Inference & Serving** — You have 159 repos covering Inference & Serving.
+**Inference & Serving** — You have 157 repos covering Inference & Serving.
 
 ---
 
 ## Library Health
-- **687 repos** · **21 categories** · **251 unique tags**
-- **490 forks** up to date · **185 forks** behind upstream
-- Most outdated: `transformerlab-app` (behind 4178 commits)
+- **688 repos** · **21 categories** · **248 unique tags**
+- **0 forks** up to date · **0 forks** behind upstream
 
 ---
 
 ## 30-Day Summary
-- **🛠️ Dev Tools & Automation** most active category (71508 commits across 591 repos)
 
 ---
 
