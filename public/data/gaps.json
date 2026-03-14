@@ -1,4 +1,453 @@
 {
-  "generatedAt": "2026-03-14T03:05:03.625Z",
-  "gaps": []
+  "generatedAt": "2026-03-14T07:42:48.226Z",
+  "gaps": [
+    {
+      "skill": "Observability & Monitoring",
+      "severity": "strong",
+      "repoCount": 29,
+      "strongThreshold": 3,
+      "why": "You cannot optimize or debug production AI without observability. This is the #1 gap in most AI teams.",
+      "trend": "LLM observability is the fastest growing AI infra category in 2025-2026.",
+      "essentialRepos": [
+        {
+          "owner": "langfuse",
+          "repo": "langfuse",
+          "reason": "Standard for LLM tracing and prompt management"
+        },
+        {
+          "owner": "Arize-ai",
+          "repo": "phoenix",
+          "reason": "Open source LLM observability and evals"
+        },
+        {
+          "owner": "openlit",
+          "repo": "openlit",
+          "reason": "OpenTelemetry-native, one line integration"
+        }
+      ],
+      "yourRepos": [
+        "ai-engineer-handbook",
+        "ART",
+        "arxiv-paper-curator",
+        "awesome-datascience",
+        "awesome-generative-ai"
+      ],
+      "category": "Observability & Monitoring",
+      "yourRepoCount": 29,
+      "description": "You have 29 repos covering Observability & Monitoring.",
+      "suggestedTags": [
+        "Langfuse",
+        "Phoenix",
+        "OpenLIT",
+        "OpenLLMetry",
+        "Helicone",
+        "Monitoring",
+        "Tracing",
+        "LLM Monitoring",
+        "Observability"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Evals & Benchmarking",
+      "severity": "strong",
+      "repoCount": 201,
+      "strongThreshold": 4,
+      "why": "Without evals, you are shipping AI blindly. Production AI teams run evals in CI on every deploy.",
+      "trend": "Evals moved from research to standard engineering practice in 2025. Every serious team uses them.",
+      "essentialRepos": [
+        {
+          "owner": "confident-ai",
+          "repo": "deepeval",
+          "reason": "pytest for LLMs — run in CI pipeline"
+        },
+        {
+          "owner": "explodinggradients",
+          "repo": "ragas",
+          "reason": "RAG-specific evaluation, critical for RAG pipelines"
+        },
+        {
+          "owner": "openai",
+          "repo": "evals",
+          "reason": "Standard eval framework from OpenAI"
+        },
+        {
+          "owner": "EleutherAI",
+          "repo": "lm-evaluation-harness",
+          "reason": "Standard for benchmarking open models"
+        }
+      ],
+      "yourRepos": [
+        "100-Days-Of-ML-Code",
+        "a-curated-list-of-ml-system-design-case-studies",
+        "agency-agents",
+        "agent-skills-for-context-engineering",
+        "agent-starter-pack"
+      ],
+      "category": "Evals & Benchmarking",
+      "yourRepoCount": 201,
+      "description": "You have 201 repos covering Evals & Benchmarking.",
+      "suggestedTags": [
+        "Evals",
+        "DeepEval",
+        "RAGAS",
+        "Benchmarking",
+        "LM Eval Harness",
+        "Model Evaluation"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Inference & Serving",
+      "severity": "strong",
+      "repoCount": 157,
+      "strongThreshold": 4,
+      "why": "vLLM changed inference. PagedAttention and continuous batching are now table stakes for serving LLMs.",
+      "trend": "Inference optimization is the hottest AI infra topic of early 2026. Token throughput is the new benchmark.",
+      "essentialRepos": [
+        {
+          "owner": "vllm-project",
+          "repo": "vllm",
+          "reason": "Fastest open source LLM inference. Industry standard."
+        },
+        {
+          "owner": "ggerganov",
+          "repo": "llama.cpp",
+          "reason": "Run any model locally. Foundation of local AI."
+        },
+        {
+          "owner": "ollama",
+          "repo": "ollama",
+          "reason": "150k stars. Easiest way to run models locally."
+        }
+      ],
+      "yourRepos": [
+        "agent-lightning",
+        "agentops",
+        "agents",
+        "ai-engineer-handbook",
+        "ai-engineering-hub"
+      ],
+      "category": "Inference & Serving",
+      "yourRepoCount": 157,
+      "description": "You have 157 repos covering Inference & Serving.",
+      "suggestedTags": [
+        "vLLM",
+        "llama.cpp",
+        "Ollama",
+        "TGI",
+        "SGLang",
+        "LLM Serving",
+        "Inference",
+        "Quantization"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Structured Output & Reliability",
+      "severity": "strong",
+      "repoCount": 48,
+      "strongThreshold": 3,
+      "why": "Getting reliable structured data from LLMs is unsolved for most teams. Instructor and Outlines solve this.",
+      "trend": "Structured outputs became critical in 2025 as agents need reliable JSON. Pydantic + LLMs is now standard.",
+      "essentialRepos": [
+        {
+          "owner": "jxnl",
+          "repo": "instructor",
+          "reason": "Structured outputs using Pydantic. 9.5k stars."
+        },
+        {
+          "owner": "dottxt-ai",
+          "repo": "outlines",
+          "reason": "Guaranteed structured generation. 11k stars."
+        },
+        {
+          "owner": "microsoft",
+          "repo": "guidance",
+          "reason": "Control LLM output structure. From Microsoft."
+        }
+      ],
+      "yourRepos": [
+        "ade-python",
+        "agent-skills-for-context-engineering",
+        "AgentGPT",
+        "ai-engineer-handbook",
+        "ai_scheduler"
+      ],
+      "category": "Structured Output & Reliability",
+      "yourRepoCount": 48,
+      "description": "You have 48 repos covering Structured Output & Reliability.",
+      "suggestedTags": [
+        "Instructor",
+        "Outlines",
+        "Guidance",
+        "Structured Output",
+        "Guardrails",
+        "Pydantic"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Agent Memory & Context",
+      "severity": "strong",
+      "repoCount": 69,
+      "strongThreshold": 3,
+      "why": "Stateful agents require persistent memory. This is the core unsolved problem for production agents in 2026.",
+      "trend": "Agent memory frameworks are the #1 accelerating category in commit velocity in early 2026.",
+      "essentialRepos": [
+        {
+          "owner": "mem0ai",
+          "repo": "mem0",
+          "reason": "Memory layer for AI. 26k stars and growing fast."
+        },
+        {
+          "owner": "letta-ai",
+          "repo": "letta",
+          "reason": "Stateful agents with persistent memory (MemGPT)."
+        }
+      ],
+      "yourRepos": [
+        "Acontext",
+        "adk-python",
+        "agent-skills-for-context-engineering",
+        "agent-squad",
+        "agent-zero"
+      ],
+      "category": "Agent Memory & Context",
+      "yourRepoCount": 69,
+      "description": "You have 69 repos covering Agent Memory & Context.",
+      "suggestedTags": [
+        "Agent Memory",
+        "Letta / MemGPT",
+        "Mem0",
+        "Context Engineering",
+        "Long Context"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Model Fine-tuning",
+      "severity": "strong",
+      "repoCount": 76,
+      "strongThreshold": 4,
+      "why": "Generic models are not good enough for production. Fine-tuning on domain data is becoming standard practice.",
+      "trend": "Unsloth made fine-tuning 2x faster with 70% less memory. Barrier to fine-tuning dropped significantly in 2025.",
+      "essentialRepos": [
+        {
+          "owner": "unslothai",
+          "repo": "unsloth",
+          "reason": "2x faster fine-tuning, 70% less memory. 28k stars."
+        },
+        {
+          "owner": "OpenAccess-AI-Collective",
+          "repo": "axolotl",
+          "reason": "Production fine-tuning toolkit."
+        },
+        {
+          "owner": "huggingface",
+          "repo": "trl",
+          "reason": "RLHF, DPO, GRPO training from HuggingFace."
+        }
+      ],
+      "yourRepos": [
+        "agent-skills-for-context-engineering",
+        "ai-engineer-handbook",
+        "ai-engineering-hub",
+        "AReaL",
+        "ART"
+      ],
+      "category": "Model Fine-tuning",
+      "yourRepoCount": 76,
+      "description": "You have 76 repos covering Model Fine-tuning.",
+      "suggestedTags": [
+        "Unsloth",
+        "Axolotl",
+        "TRL",
+        "Fine-Tuning",
+        "LoRA / PEFT",
+        "RLHF",
+        "DPO"
+      ],
+      "popularMissingRepos": [
+        {
+          "name": "axolotl",
+          "stars": 0,
+          "url": "https://github.com/OpenAccess-AI-Collective/axolotl",
+          "description": "Production fine-tuning toolkit."
+        }
+      ]
+    },
+    {
+      "skill": "Security & AI Safety",
+      "severity": "strong",
+      "repoCount": 196,
+      "strongThreshold": 3,
+      "why": "Prompt injection and jailbreaks are real attack vectors. AI security is now a production concern, not just research.",
+      "trend": "Enterprises are requiring AI security audits before deployment. Red teaming tools are seeing rapid adoption.",
+      "essentialRepos": [
+        {
+          "owner": "leondz",
+          "repo": "garak",
+          "reason": "LLM vulnerability scanner. Standard red team tool."
+        },
+        {
+          "owner": "Azure",
+          "repo": "PyRIT",
+          "reason": "Microsoft's Python Risk Identification Toolkit."
+        }
+      ],
+      "yourRepos": [
+        "a-curated-list-of-ml-system-design-case-studies",
+        "A2UI",
+        "agency-agents",
+        "agent-browser",
+        "agent-squad"
+      ],
+      "category": "Security & AI Safety",
+      "yourRepoCount": 196,
+      "description": "You have 196 repos covering Security & AI Safety.",
+      "suggestedTags": [
+        "AI Safety",
+        "Red Teaming",
+        "Garak",
+        "PyRIT",
+        "Prompt Injection",
+        "Guardrails",
+        "Security"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "MLOps & Experiment Tracking",
+      "severity": "strong",
+      "repoCount": 57,
+      "strongThreshold": 3,
+      "why": "Reproducibility and experiment tracking are essential for iterating on models in production.",
+      "trend": "MLflow became the default open source experiment tracker. Integration with LLM workflows is now standard.",
+      "essentialRepos": [
+        {
+          "owner": "mlflow",
+          "repo": "mlflow",
+          "reason": "Experiment tracking and model registry. 19k stars."
+        },
+        {
+          "owner": "wandb",
+          "repo": "wandb",
+          "reason": "Weights & Biases SDK. Training visualization."
+        },
+        {
+          "owner": "iterative",
+          "repo": "dvc",
+          "reason": "Git for ML datasets. 14k stars."
+        }
+      ],
+      "yourRepos": [
+        "ai-engineer-handbook",
+        "ART",
+        "awesome-bigdata",
+        "awesome-claude-code-subagents",
+        "awesome-datascience"
+      ],
+      "category": "MLOps & Experiment Tracking",
+      "yourRepoCount": 57,
+      "description": "You have 57 repos covering MLOps & Experiment Tracking.",
+      "suggestedTags": [
+        "MLflow",
+        "Weights & Biases",
+        "DVC",
+        "MLOps",
+        "Experiment Tracking",
+        "ZenML"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Coding Assistants",
+      "severity": "strong",
+      "repoCount": 85,
+      "strongThreshold": 3,
+      "why": "AI coding agents are the fastest productivity multiplier for engineers in 2026. Essential for any AI-native team.",
+      "trend": "OpenHands (50k stars), Cline (40k), and Aider (25k) are transforming how engineers work.",
+      "essentialRepos": [
+        {
+          "owner": "All-Hands-AI",
+          "repo": "OpenHands",
+          "reason": "Open source Devin. 50k stars. Fastest growing."
+        },
+        {
+          "owner": "cline",
+          "repo": "cline",
+          "reason": "Autonomous coding in VS Code. 40k stars."
+        },
+        {
+          "owner": "paul-gauthier",
+          "repo": "aider",
+          "reason": "Pair programming with LLMs. 25k stars."
+        }
+      ],
+      "yourRepos": [
+        "Acontext",
+        "agency-agents",
+        "agent-browser",
+        "agent-orchestrator",
+        "agent-skills-for-context-engineering"
+      ],
+      "category": "Coding Assistants",
+      "yourRepoCount": 85,
+      "description": "You have 85 repos covering Coding Assistants.",
+      "suggestedTags": [
+        "OpenHands",
+        "Cline",
+        "Continue.dev",
+        "Aider",
+        "Claude Code",
+        "Coding Assistant"
+      ],
+      "popularMissingRepos": []
+    },
+    {
+      "skill": "Reasoning Models",
+      "severity": "strong",
+      "repoCount": 136,
+      "strongThreshold": 2,
+      "why": "DeepSeek-R1 and OpenAI o3 changed what reasoning models can do. Understanding this space is essential for AI PMs.",
+      "trend": "Reasoning models are the defining AI story of early 2026. Open source reasoning now matches closed models.",
+      "essentialRepos": [
+        {
+          "owner": "deepseek-ai",
+          "repo": "DeepSeek-R1",
+          "reason": "Open reasoning model that shocked the industry."
+        },
+        {
+          "owner": "huggingface",
+          "repo": "open-r1",
+          "reason": "Open source DeepSeek-R1 reproduction from HuggingFace."
+        }
+      ],
+      "yourRepos": [
+        "agency-agents",
+        "agent-squad",
+        "agent-zero",
+        "agents",
+        "ai-agents-for-beginners"
+      ],
+      "category": "Reasoning Models",
+      "yourRepoCount": 136,
+      "description": "You have 136 repos covering Reasoning Models.",
+      "suggestedTags": [
+        "Reasoning Models",
+        "DeepSeek",
+        "Chain of Thought",
+        "Planning / CoT"
+      ],
+      "popularMissingRepos": [
+        {
+          "name": "DeepSeek-R1",
+          "stars": 0,
+          "url": "https://github.com/deepseek-ai/DeepSeek-R1",
+          "description": "Open reasoning model that shocked the industry."
+        }
+      ]
+    }
+  ]
 }
