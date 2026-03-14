@@ -37,7 +37,12 @@ jobs:
         run: npm test
 
       - name: Generate library data
-        run: npm run generate
+        run: |
+          if [ ! -f public/data/library.json ]; then
+            npm run generate
+          else
+            echo 'library.json already exists, skipping generate'
+          fi
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
