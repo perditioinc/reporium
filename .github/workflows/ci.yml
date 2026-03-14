@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci --ignore-optional
+      - run: npm install
       - name: Type check
         run: npm run type-check
       - name: Run tests
