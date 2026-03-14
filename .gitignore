@@ -46,4 +46,5 @@ next-env.d.ts
 
 # generated data cache (incremental build artefacts)
 public/data/cache.json
+public/data/repo-cache.json
 public/data/meta.json
