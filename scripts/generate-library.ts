@@ -239,10 +239,9 @@ async function generateLibrary(): Promise<void> {
   // ── Step 8.5: Assign taxonomy dimensions ────────────────────────────────────
   console.log('🏗️  Assigning taxonomy dimensions...');
   repos = repos.map((repo) => {
-    const originalOwner = repo.forkedFrom?.split('/')[0] ?? username;
     return {
       ...repo,
-      builders: [buildBuilder(originalOwner)],
+      builders: [buildBuilder(repo)],
       aiDevSkills: assignDimension(repo.enrichedTags, AI_DEV_SKILLS),
       pmSkills: assignDimension(repo.enrichedTags, PM_SKILLS),
       industries: assignDimension(repo.enrichedTags, INDUSTRIES),
