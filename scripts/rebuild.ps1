@@ -1,10 +1,13 @@
 # Reporium rebuild script for PowerShell
 # Usage: .\scripts\rebuild.ps1
-# Options: .\scripts\rebuild.ps1 -full   (force regenerate everything)
-#          .\scripts\rebuild.ps1 -dev    (rebuild then start dev server)
+# Options: .\scripts\rebuild.ps1 -full    (force regenerate everything — full four-tier refresh)
+#          .\scripts\rebuild.ps1 -weekly  (weekly tier 2+3 refresh)
+#          .\scripts\rebuild.ps1 -dev     (rebuild then start dev server)
+# Default: --quick on weekdays, --weekly on Sundays
 
 param(
   [switch]$full,
+  [switch]$weekly,
   [switch]$dev
 )
 
@@ -22,10 +25,21 @@ function NeedsRegenerate($file, $maxAgeMinutes) {
 
 Write-Host "Reporium rebuild starting..." -ForegroundColor Cyan
 
+# ── Determine generate mode ───────────────────────────────────────────────────
+$dayOfWeek = (Get-Date).DayOfWeek  # 0=Sunday, 1=Monday ... 6=Saturday
+
 # ── 1. Generate library.json ──────────────────────────────────────────────────
 if ($full -or (NeedsRegenerate $libraryJson 60)) {
-  Write-Host "Generating library data..." -ForegroundColor Yellow
-  npm run generate
+  if ($full) {
+    Write-Host "Generating library data (full — all tiers)..." -ForegroundColor Yellow
+    npm run generate:full
+  } elseif ($weekly -or $dayOfWeek -eq 0) {
+    Write-Host "Generating library data (weekly — tier 2+3 refresh)..." -ForegroundColor Yellow
+    npm run generate:weekly
+  } else {
+    Write-Host "Generating library data (quick — tier 3 only)..." -ForegroundColor Yellow
+    npm run generate:quick
+  }
   if ($LASTEXITCODE -ne 0) { Write-Host "Generate failed" -ForegroundColor Red; exit 1 }
 } else {
   Write-Host "Library data is fresh, skipping generate" -ForegroundColor Green

@@ -8,6 +8,12 @@
  * Run: npx tsx scripts/generate-library.ts
  * Or via npm: npm run generate
  *
+ * Flags:
+ *   --quick   Skip fork sync for all repos; only fetch commits for repos updated
+ *             in last 7 days; skip README fetch for unchanged repos.
+ *   --weekly  Refresh tier 2 (weekly) + tier 3 (daily) data; skip tier 1 (permanent).
+ *   --full    Full run (default behaviour when no flag is supplied).
+ *
  * Required env vars:
  *   GH_USERNAME - whose repos to fetch (default: perditioinc)
  *   GH_TOKEN    - GitHub PAT for 5000 req/hour rate limit
@@ -42,7 +48,22 @@ import {
   fetchLanguageBreakdown,
   fetchLatestRelease,
   ForkInfo,
+  GitHubRateLimitError,
 } from '../src/lib/github';
+
+/** Wrap a fetch call with a single retry on 429 — waits 10s before retrying. */
+async function withRetryOn429<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof GitHubRateLimitError) {
+      console.warn('   ⚠️  Rate limited (429) — waiting 10s before retry...');
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
+      return await fn();
+    }
+    throw err;
+  }
+}
 import { enrichRepo } from '../src/lib/enrichRepo';
 import { buildTagMetrics } from '../src/lib/buildTagMetrics';
 import { buildCategories } from '../src/lib/buildCategories';
@@ -50,9 +71,90 @@ import { buildGapAnalysis } from '../src/lib/buildGapAnalysis';
 import { buildBuilder, assignDimension, buildBuilderStats, buildSkillStats, AI_DEV_SKILLS, PM_SKILLS, INDUSTRIES } from '../src/lib/buildTaxonomy';
 import { batchFetch } from '../src/lib/rateLimit';
 import { LibraryData, LibraryStats, EnrichedRepo } from '../src/types/repo';
+import { isStale, makeCacheEntry, LibraryCache, RepoCache } from '../src/lib/cacheManager';
 
 const username = process.env.GH_USERNAME || 'perditioinc';
 const token = process.env.GH_TOKEN || undefined;
+
+// ── Flag detection ───────────────────────────────────────────────────────────
+const isQuickRun = process.argv.includes('--quick');
+const isWeeklyRun = process.argv.includes('--weekly');
+const isFullRun = process.argv.includes('--full') || (!isQuickRun && !isWeeklyRun);
+
+// ── Cache paths ──────────────────────────────────────────────────────────────
+interface Meta {
+  lastFullRun: string | null;
+  lastQuickRun: string | null;
+  lastWeeklyRun: string | null;
+  rateLimitRemaining: number | null;
+}
+
+const OUT_DIR = path.join(process.cwd(), 'public', 'data');
+// Legacy cache path — kept for backward compat reads; new writes go to REPO_CACHE_PATH
+const CACHE_PATH = path.join(OUT_DIR, 'cache.json');
+const REPO_CACHE_PATH = path.join(OUT_DIR, 'repo-cache.json');
+const META_PATH = path.join(OUT_DIR, 'meta.json');
+
+const FORK_SYNC_ACTIVE_DAYS = 30;
+
+/** Load the four-tier repo cache. Falls back to legacy cache.json shape if repo-cache.json is absent. */
+function loadLibraryCache(): LibraryCache {
+  // Prefer new repo-cache.json
+  if (fs.existsSync(REPO_CACHE_PATH)) {
+    try {
+      return JSON.parse(fs.readFileSync(REPO_CACHE_PATH, 'utf-8')) as LibraryCache;
+    } catch {
+      console.warn('   ⚠️  Could not parse repo-cache.json — starting fresh');
+    }
+  }
+  return {};
+}
+
+/** Load the on-disk meta file. */
+function loadMeta(): Meta {
+  if (!fs.existsSync(META_PATH)) return { lastFullRun: null, lastQuickRun: null, lastWeeklyRun: null, rateLimitRemaining: null };
+  try {
+    const parsed = JSON.parse(fs.readFileSync(META_PATH, 'utf-8')) as Partial<Meta>;
+    return {
+      lastFullRun: null,
+      lastQuickRun: null,
+      lastWeeklyRun: null,
+      rateLimitRemaining: null,
+      ...parsed,
+    };
+  } catch {
+    return { lastFullRun: null, lastQuickRun: null, lastWeeklyRun: null, rateLimitRemaining: null };
+  }
+}
+
+/** Return true if a raw updated_at timestamp is within the last N days. */
+function isRecentlyUpdated(updatedAt: string, days: number): boolean {
+  return new Date(updatedAt).getTime() > Date.now() - days * 24 * 60 * 60 * 1000;
+}
+
+// ── Legacy cache helpers (kept for backward compat during transition) ─────────
+interface LegacyRepoCacheEntry {
+  cachedAt: string;
+  updatedAt: string;
+  forkSync: object | null;
+  languageBreakdown: Record<string, number>;
+  parentStats: object | null;
+  readmeSummary: string | null;
+}
+interface LegacyRepoCache { [fullName: string]: LegacyRepoCacheEntry; }
+
+function loadLegacyCache(): LegacyRepoCache {
+  if (!fs.existsSync(CACHE_PATH)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8')) as LegacyRepoCache;
+  } catch {
+    return {};
+  }
+}
+function isLegacyCacheFresh(entry: LegacyRepoCacheEntry): boolean {
+  const ageMs = Date.now() - new Date(entry.cachedAt).getTime();
+  return ageMs < 7 * 24 * 60 * 60 * 1000;
+}
 
 /** Calculate percentage breakdown from bytes map */
 function computePercentages(breakdown: Record<string, number>): Record<string, number> {
@@ -67,7 +169,23 @@ function computePercentages(breakdown: Record<string, number>): Record<string, n
 
 async function generateLibrary(): Promise<void> {
   const startTime = Date.now();
-  console.log(`🔍 Fetching repos for ${username}...`);
+
+  const runMode = isQuickRun ? 'QUICK' : isWeeklyRun ? 'WEEKLY' : 'FULL';
+  console.log(`🔍 Fetching repos for ${username}... [${runMode} run]`);
+
+  // ── Load cache & meta ────────────────────────────────────────────────────
+  const libraryCache = loadLibraryCache();
+  const legacyCache = loadLegacyCache();
+  const meta = loadMeta();
+  const cacheEntries = Object.keys(libraryCache).length;
+  if (cacheEntries > 0) {
+    console.log(`📂 Loaded four-tier cache with ${cacheEntries} entries`);
+  }
+
+  // Cache hit/miss counters for summary
+  let fullyCachedCount = 0;
+  let partiallyUpdatedCount = 0;
+  let fullyRefetchedCount = 0;
 
   // ── Step 1: Fetch all public repos ──────────────────────────────────────────
   const rawRepos = await fetchAllRepos(username, token);
@@ -83,6 +201,10 @@ async function generateLibrary(): Promise<void> {
 
   // ── Step 3: Fetch READMEs ────────────────────────────────────────────────────
   console.log('📖 Fetching READMEs...');
+
+  // Determine which repos need a fresh README fetch.
+  // In quick mode: skip if cache is fresh and updatedAt matches.
+  // In full mode: always fetch fresh.
   const readmeTargets = rawRepos.map((raw) => {
     if (raw.fork) {
       const parentFullName = forkInfoMap.get(raw.full_name)?.parentFullName ?? null;
@@ -93,9 +215,63 @@ async function generateLibrary(): Promise<void> {
     }
     return { owner: username, repo: raw.name };
   });
-  const readmes = await batchFetch(readmeTargets, ({ owner, repo }) => fetchReadme(owner, repo), 8, 100);
-  const readmeFetched = readmes.filter((r) => r !== null).length;
-  console.log(`   ↳ ${readmeFetched}/${rawRepos.length} READMEs fetched`);
+
+  // Build a set of indices where we can use the cached README summary.
+  // Use four-tier cache (daily tier for readme), fall back to legacy cache.
+  const readmeCachedIndices = new Set<number>();
+  if (isQuickRun || isWeeklyRun) {
+    rawRepos.forEach((raw, i) => {
+      const tierEntry = libraryCache[raw.full_name]?.readme;
+      if (tierEntry && !isStale(tierEntry, 'daily') && tierEntry.repoUpdatedAt === raw.updated_at) {
+        readmeCachedIndices.add(i);
+        return;
+      }
+      // Fall back to legacy cache on quick runs
+      if (isQuickRun) {
+        const legacy = legacyCache[raw.full_name];
+        if (legacy && isLegacyCacheFresh(legacy) && legacy.updatedAt === raw.updated_at) {
+          readmeCachedIndices.add(i);
+        }
+      }
+    });
+  }
+
+  // Only fetch for repos that need fresh data.
+  const readmeFetchTargets = readmeTargets.map((t, i) =>
+    readmeCachedIndices.has(i) ? null : t
+  );
+
+  const readmes: (string | null)[] = new Array(rawRepos.length).fill(null);
+
+  // Restore cached summaries for skipped repos.
+  rawRepos.forEach((raw, i) => {
+    if (readmeCachedIndices.has(i)) {
+      // Prefer four-tier cache, fall back to legacy
+      const tierReadme = libraryCache[raw.full_name]?.readme?.data;
+      if (tierReadme !== undefined) {
+        readmes[i] = tierReadme;
+      } else {
+        readmes[i] = legacyCache[raw.full_name]?.readmeSummary ?? null;
+      }
+    }
+  });
+
+  // Batch-fetch the ones that need it.
+  const activeFetchTargets = readmeFetchTargets.filter((t): t is { owner: string; repo: string } => t !== null);
+  const activeIndices = readmeFetchTargets
+    .map((t, i) => (t !== null ? i : -1))
+    .filter((i) => i !== -1);
+
+  if (activeFetchTargets.length > 0) {
+    const freshReadmes = await batchFetch(activeFetchTargets, ({ owner, repo }) => fetchReadme(owner, repo), 8, 100);
+    activeIndices.forEach((repoIdx, fetchIdx) => {
+      readmes[repoIdx] = freshReadmes[fetchIdx] ?? null;
+    });
+  }
+
+  const readmeFetched = activeIndices.length;
+  const readmeCached = readmeCachedIndices.size;
+  console.log(`   ↳ ${readmeFetched} fetched, ${readmeCached} from cache (${rawRepos.length} total)`);
 
   // ── Step 4: Build initial enriched repos ────────────────────────────────────
   let repos: EnrichedRepo[] = rawRepos.map((raw, i) => {
@@ -107,49 +283,132 @@ async function generateLibrary(): Promise<void> {
 
   // ── Step 5: Fetch language breakdowns ───────────────────────────────────────
   console.log('💻 Fetching language breakdowns...');
-  const langTargets = repos.map((repo) => {
+
+  // Determine which repos need fresh language data.
+  // Language breakdown is weekly tier — skip if fresh and repo unchanged.
+  const langCacheIndices = new Set<number>();
+  rawRepos.forEach((raw, i) => {
+    // In full run, always re-fetch
+    if (isFullRun) return;
+    // Check four-tier cache (weekly tier)
+    const tierEntry = libraryCache[raw.full_name]?.languageBreakdown;
+    if (tierEntry && !isStale(tierEntry, 'weekly') && tierEntry.repoUpdatedAt === raw.updated_at) {
+      langCacheIndices.add(i);
+      return;
+    }
+    // On quick run only: also accept legacy cache
+    if (isQuickRun) {
+      const legacy = legacyCache[raw.full_name];
+      if (legacy && isLegacyCacheFresh(legacy) && legacy.updatedAt === raw.updated_at) {
+        langCacheIndices.add(i);
+      }
+    }
+  });
+
+  const langTargets = repos.map((repo, i) => {
+    if (langCacheIndices.has(i)) return null;
     if (repo.isFork && repo.forkedFrom) {
       const [parentOwner, parentRepo] = repo.forkedFrom.split('/');
       return { owner: parentOwner, repo: parentRepo };
     }
     return { owner: username, repo: repo.name };
   });
-  const langResults = await batchFetch(
-    langTargets,
-    ({ owner, repo }) => fetchLanguageBreakdown(owner, repo, token),
-    8, 100
-  );
+
+  const activeLangTargets = langTargets.filter((t): t is { owner: string; repo: string } => t !== null);
+  const activeLangIndices = langTargets.map((t, i) => (t !== null ? i : -1)).filter((i) => i !== -1);
+
+  const freshLangResults = activeLangTargets.length > 0
+    ? await batchFetch(activeLangTargets, ({ owner, repo }) => fetchLanguageBreakdown(owner, repo, token), 8, 100)
+    : [];
+
   repos = repos.map((repo, i) => {
-    const breakdown = langResults[i] ?? {};
+    let breakdown: Record<string, number>;
+    if (langCacheIndices.has(i)) {
+      // Prefer four-tier cache, fall back to legacy
+      const tierData = libraryCache[rawRepos[i].full_name]?.languageBreakdown?.data;
+      if (tierData !== undefined) {
+        breakdown = tierData;
+      } else {
+        breakdown = legacyCache[rawRepos[i].full_name]?.languageBreakdown ?? {};
+      }
+    } else {
+      const fetchIdx = activeLangIndices.indexOf(i);
+      breakdown = (fetchIdx >= 0 ? freshLangResults[fetchIdx] : null) ?? {};
+    }
     return { ...repo, languageBreakdown: breakdown, languagePercentages: computePercentages(breakdown) };
   });
-  console.log(`   ↳ Language breakdowns fetched`);
+
+  const langFetched = activeLangIndices.length;
+  const langCached = langCacheIndices.size;
+  console.log(`   ↳ ${langFetched} fetched, ${langCached} from cache`);
 
   // ── Step 6: Fetch fork sync status ──────────────────────────────────────────
   console.log('🔄 Fetching fork sync status...');
-  const syncTargets = repos
+
+  // In quick mode, skip fork sync entirely.
+  // In full mode, skip if repo is inactive AND cached forkSync state was not 'behind'.
+  const syncTargets: Array<{ repo: EnrichedRepo; upstreamOwner: string; upstreamBranch: string }> = [];
+  const syncCacheMap = new Map<string, object | null>(); // fullName -> cached value to reuse
+
+  repos
     .filter((repo) => repo.isFork && repo.forkedFrom)
-    .map((repo) => {
-      const forkInfo = forkInfoMap.get(repo.fullName);
-      const upstreamOwner = repo.forkedFrom!.split('/')[0];
-      const upstreamBranch = forkInfo?.upstreamDefaultBranch ?? 'main';
-      return { repo, upstreamOwner, upstreamBranch };
+    .forEach((repo) => {
+      const raw = rawRepos.find((r) => r.full_name === repo.fullName)!;
+      const legacyEntry = legacyCache[repo.fullName];
+      const cachedForkSync = legacyEntry?.forkSync as { state?: string } | null | undefined;
+      const cachedState = cachedForkSync?.state;
+
+      const shouldFetch = (() => {
+        if (isQuickRun) return false;
+        // Weekly run: re-fetch fork sync for recently active repos (daily tier)
+        if (isWeeklyRun) {
+          const tierEntry = libraryCache[repo.fullName]?.forkSyncStatus;
+          if (tierEntry && !isStale(tierEntry, 'daily') && tierEntry.repoUpdatedAt === raw.updated_at) return false;
+          return isRecentlyUpdated(raw.updated_at, FORK_SYNC_ACTIVE_DAYS);
+        }
+        if (isRecentlyUpdated(raw.updated_at, FORK_SYNC_ACTIVE_DAYS)) return true;
+        if (cachedState === 'behind') return true;
+        return false;
+      })();
+
+      if (shouldFetch) {
+        const forkInfo = forkInfoMap.get(repo.fullName);
+        const upstreamOwner = repo.forkedFrom!.split('/')[0];
+        const upstreamBranch = forkInfo?.upstreamDefaultBranch ?? 'main';
+        syncTargets.push({ repo, upstreamOwner, upstreamBranch });
+      } else {
+        // Reuse cached value — prefer four-tier cache, fall back to legacy
+        const tierSync = libraryCache[repo.fullName]?.forkSyncStatus?.data;
+        if (tierSync !== undefined) {
+          syncCacheMap.set(repo.fullName, tierSync as object | null);
+        } else {
+          syncCacheMap.set(repo.fullName, legacyEntry?.forkSync ?? null);
+        }
+      }
     });
 
-  const syncResults = await batchFetch(
-    syncTargets,
-    ({ repo, upstreamOwner, upstreamBranch }) =>
-      fetchForkSyncStatus(username, repo.name, upstreamOwner, upstreamBranch, token),
-    5, 100
-  );
+  const syncResults = syncTargets.length > 0
+    ? await batchFetch(
+        syncTargets,
+        ({ repo, upstreamOwner, upstreamBranch }) =>
+          withRetryOn429(() => fetchForkSyncStatus(username, repo.name, upstreamOwner, upstreamBranch, token)),
+        2, 500
+      )
+    : [];
 
-  const syncMap = new Map<string, typeof syncResults[0]>();
-  syncTargets.forEach((t, i) => syncMap.set(t.repo.fullName, syncResults[i]));
-  repos = repos.map((repo) => ({
-    ...repo,
-    forkSync: repo.isFork ? (syncMap.get(repo.fullName) ?? null) : null,
-  }));
-  console.log(`   ↳ Sync status fetched for ${syncTargets.length} forks`);
+  const syncFetchMap = new Map<string, typeof syncResults[0]>();
+  syncTargets.forEach((t, i) => syncFetchMap.set(t.repo.fullName, syncResults[i]));
+
+  repos = repos.map((repo) => {
+    if (!repo.isFork) return { ...repo, forkSync: null };
+    const fresh = syncFetchMap.get(repo.fullName);
+    if (fresh !== undefined) return { ...repo, forkSync: fresh };
+    return { ...repo, forkSync: (syncCacheMap.get(repo.fullName) as EnrichedRepo['forkSync']) ?? null };
+  });
+
+  const syncFetched = syncTargets.length;
+  const syncSkipped = repos.filter((r) => r.isFork).length - syncFetched;
+  console.log(`   ↳ ${syncFetched} fetched, ${syncSkipped} from cache/skipped`);
 
   // ── Step 7: Fetch commit history (7d, 30d, 90d) ─────────────────────────────
   console.log('📝 Fetching commit history...');
@@ -160,7 +419,19 @@ async function generateLibrary(): Promise<void> {
   const d30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const d90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  const commitTargets = repos.map((repo) => {
+  // In quick mode, only fetch commits for repos updated in last 7 days.
+  // In weekly mode, only fetch commits for repos where the daily cache is stale.
+  const commitTargets = repos.map((repo, i) => {
+    const raw = rawRepos[i];
+    if (isQuickRun && !isRecentlyUpdated(raw.updated_at, 7)) {
+      return null; // skip
+    }
+    if (isWeeklyRun) {
+      const tierEntry = libraryCache[repo.fullName]?.recentCommits;
+      if (tierEntry && !isStale(tierEntry, 'daily') && tierEntry.repoUpdatedAt === raw.updated_at) {
+        return null; // skip — daily cache still fresh
+      }
+    }
     if (repo.isFork && repo.forkedFrom) {
       const [parentOwner, parentRepo] = repo.forkedFrom.split('/');
       return { owner: parentOwner, repo: parentRepo };
@@ -168,21 +439,33 @@ async function generateLibrary(): Promise<void> {
     return { owner: username, repo: repo.name };
   });
 
+  const activeCommitTargets = commitTargets.filter((t): t is { owner: string; repo: string } => t !== null);
+  const activeCommitIndices = commitTargets.map((t, i) => (t !== null ? i : -1)).filter((i) => i !== -1);
+
   // Fetch 90-day commits (superset — filter for shorter windows)
-  const commits90 = await batchFetch(
-    commitTargets,
-    ({ owner, repo }) => fetchCommitsSince(owner, repo, d90, token, 100),
-    5, 100
-  );
+  const freshCommits90 = activeCommitTargets.length > 0
+    ? await batchFetch(
+        activeCommitTargets,
+        ({ owner, repo }) => withRetryOn429(() => fetchCommitsSince(owner, repo, d90, token, 100)),
+        2, 300
+      )
+    : [];
 
   repos = repos.map((repo, i) => {
-    const all90 = commits90[i] ?? [];
+    let all90: import('../src/types/repo').CommitSummary[];
+    if (activeCommitIndices.includes(i)) {
+      const fetchIdx = activeCommitIndices.indexOf(i);
+      all90 = freshCommits90[fetchIdx] ?? [];
+    } else {
+      // Skipped in quick mode — produce empty arrays (no commit data this run)
+      all90 = [];
+    }
     const all30 = all90.filter((c) => new Date(c.date) >= d30);
     const all7 = all90.filter((c) => new Date(c.date) >= d7);
     const allToday = all90.filter((c) => new Date(c.date) >= startOfToday);
     return {
       ...repo,
-      recentCommits: all90.slice(0, 3),        // top 3 for card display (keep backward compat)
+      recentCommits: all90.slice(0, 3),
       commitsLast7Days: all7,
       commitsLast30Days: all30,
       commitsLast90Days: all90,
@@ -197,9 +480,12 @@ async function generateLibrary(): Promise<void> {
       },
     };
   });
+
+  const commitsFetched = activeCommitIndices.length;
+  const commitsSkipped = repos.length - commitsFetched;
   const activeToday = repos.filter((r) => r.commitStats.today > 0).length;
   const activeThisWeek = repos.filter((r) => r.commitStats.last7Days > 0).length;
-  console.log(`   ↳ ${activeToday} repos active today, ${activeThisWeek} this week`);
+  console.log(`   ↳ ${commitsFetched} fetched, ${commitsSkipped} skipped — ${activeToday} active today, ${activeThisWeek} this week`);
 
   // ── Step 7.5: Fetch latest releases ─────────────────────────────────────────
   console.log('🏷️  Fetching latest releases...');
@@ -239,10 +525,9 @@ async function generateLibrary(): Promise<void> {
   // ── Step 8.5: Assign taxonomy dimensions ────────────────────────────────────
   console.log('🏗️  Assigning taxonomy dimensions...');
   repos = repos.map((repo) => {
-    const originalOwner = repo.forkedFrom?.split('/')[0] ?? username;
     return {
       ...repo,
-      builders: [buildBuilder(originalOwner)],
+      builders: [buildBuilder(repo)],
       aiDevSkills: assignDimension(repo.enrichedTags, AI_DEV_SKILLS),
       pmSkills: assignDimension(repo.enrichedTags, PM_SKILLS),
       industries: assignDimension(repo.enrichedTags, INDUSTRIES),
@@ -290,14 +575,109 @@ async function generateLibrary(): Promise<void> {
     pmSkillStats,
   };
 
-  const outDir = path.join(process.cwd(), 'public', 'data');
-  fs.mkdirSync(outDir, { recursive: true });
-  const outPath = path.join(outDir, 'library.json');
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  const outPath = path.join(OUT_DIR, 'library.json');
   fs.writeFileSync(outPath, JSON.stringify(output, null, 2));
 
+  // ── Step 11: Write four-tier cache ──────────────────────────────────────────
+  const now2 = new Date().toISOString();
+
+  // Merge updates into the four-tier library cache
+  const updatedLibraryCache: LibraryCache = { ...libraryCache };
+
+  rawRepos.forEach((raw, i) => {
+    const repo = repos[i];
+    const repoUpdatedAt = raw.updated_at;
+    const existing = libraryCache[raw.full_name] ?? {} as Partial<RepoCache>;
+
+    // Determine what was cached vs re-fetched for stats
+    const wasReadmeCached = readmeCachedIndices.has(i);
+    const wasLangCached = langCacheIndices.has(i);
+    const wasCommitSkipped = !activeCommitIndices.includes(i);
+
+    const isFullyCached = wasReadmeCached && wasLangCached && wasCommitSkipped;
+    const isPartiallyUpdated = !isFullyCached && (wasReadmeCached || wasLangCached || wasCommitSkipped);
+
+    if (isFullyCached) {
+      fullyCachedCount++;
+    } else if (isPartiallyUpdated) {
+      partiallyUpdatedCount++;
+    } else {
+      fullyRefetchedCount++;
+    }
+
+    // Build updated RepoCache entry — preserve tiers that weren't re-fetched
+    const updatedEntry: RepoCache = {
+      lastFullFetch: isFullRun ? now2 : (existing.lastFullFetch ?? now2),
+      repoUpdatedAt,
+
+      // Tier 1 — permanent: only overwrite on full run or if missing
+      upstreamCreatedAt: (isFullRun || !existing.upstreamCreatedAt)
+        ? makeCacheEntry(repo.upstreamCreatedAt ?? null, 'permanent', repoUpdatedAt)
+        : existing.upstreamCreatedAt,
+
+      forkedFrom: (isFullRun || !existing.forkedFrom)
+        ? makeCacheEntry(repo.forkedFrom ?? null, 'permanent', repoUpdatedAt)
+        : existing.forkedFrom,
+
+      // Tier 2 — weekly: overwrite on full or weekly run, or if stale
+      languageBreakdown: wasLangCached
+        ? (existing.languageBreakdown ?? makeCacheEntry(repo.languageBreakdown ?? {}, 'weekly', repoUpdatedAt))
+        : makeCacheEntry(repo.languageBreakdown ?? {}, 'weekly', repoUpdatedAt),
+
+      parentStats: (isFullRun || isWeeklyRun || !existing.parentStats)
+        ? makeCacheEntry(repo.parentStats ?? null, 'weekly', repoUpdatedAt)
+        : existing.parentStats,
+
+      forkInfo: existing.forkInfo,
+
+      // Tier 3 — daily
+      readme: wasReadmeCached
+        ? (existing.readme ?? makeCacheEntry(repo.readmeSummary ?? null, 'daily', repoUpdatedAt))
+        : makeCacheEntry(repo.readmeSummary ?? null, 'daily', repoUpdatedAt),
+
+      forkSyncStatus: repo.isFork
+        ? makeCacheEntry(repo.forkSync ?? null, 'daily', repoUpdatedAt)
+        : existing.forkSyncStatus,
+
+      recentCommits: wasCommitSkipped
+        ? (existing.recentCommits ?? makeCacheEntry(repo.recentCommits ?? [], 'daily', repoUpdatedAt))
+        : makeCacheEntry(repo.recentCommits ?? [], 'daily', repoUpdatedAt),
+
+      latestRelease: makeCacheEntry(
+        repo.latestRelease ? { tagName: repo.latestRelease.version, publishedAt: repo.latestRelease.releasedAt, url: repo.latestRelease.url } : null,
+        'daily',
+        repoUpdatedAt
+      ),
+    };
+
+    updatedLibraryCache[raw.full_name] = updatedEntry;
+  });
+
+  fs.writeFileSync(REPO_CACHE_PATH, JSON.stringify(updatedLibraryCache, null, 2));
+
+  // ── Step 12: Write meta ──────────────────────────────────────────────────────
+  const updatedMeta: Meta = {
+    ...meta,
+    rateLimitRemaining: null, // Could be wired up from response headers in future
+  };
+  if (isQuickRun) {
+    updatedMeta.lastQuickRun = now2;
+  } else if (isWeeklyRun) {
+    updatedMeta.lastWeeklyRun = now2;
+  } else {
+    updatedMeta.lastFullRun = now2;
+  }
+  fs.writeFileSync(META_PATH, JSON.stringify(updatedMeta, null, 2));
+
+  // ── Summary ──────────────────────────────────────────────────────────────────
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-  console.log(`\n✅ Library generated in ${elapsed}s`);
-  console.log(`📊 ${repos.length} repos · ${tagMetrics.length} tags · ${categories.length} categories`);
+  console.log(`\n✅ Library generated in ${elapsed}s [${runMode}]`);
+  console.log(`📊 ${repos.length} repos · API calls saved with cache:`);
+  console.log(`   · ${fullyCachedCount} repos fully cached`);
+  console.log(`   · ${partiallyUpdatedCount} repos partially updated (tier 3 only)`);
+  console.log(`   · ${fullyRefetchedCount} repos fully re-fetched`);
+  console.log(`📊 ${tagMetrics.length} tags · ${categories.length} categories`);
   console.log(`📁 Output: ${outPath}`);
   console.log(`📈 Most active this week:`);
   repos

@@ -15,7 +15,7 @@ Based on your collection, you might want to explore:
 ---
 
 ## Library Health
-- **688 repos** · **21 categories** · **248 unique tags**
+- **688 repos** · **21 categories** · **247 unique tags**
 - **0 forks** up to date · **0 forks** behind upstream
 
 ---

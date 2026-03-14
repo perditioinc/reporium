@@ -174,10 +174,14 @@ export function assignDimension(tags: string[], dimensionMap: Record<string, str
 }
 
 /**
- * Build a Builder object for a repo based on its original owner.
- * @param originalOwner - github login of the original repo owner (from forkedFrom)
+ * Build a Builder object for a repo.
+ * For forked repos the builder is the upstream owner (from forkedFrom).
+ * For built repos the builder is derived from fullName.
  */
-export function buildBuilder(originalOwner: string): Builder {
+export function buildBuilder(repo: Pick<EnrichedRepo, 'isFork' | 'forkedFrom' | 'fullName'>): Builder {
+  const originalOwner = repo.isFork && repo.forkedFrom
+    ? repo.forkedFrom.split('/')[0]
+    : repo.fullName.split('/')[0];
   const key = originalOwner.toLowerCase();
   const knownOrg = KNOWN_ORGS[key];
   return {
