@@ -49,6 +49,9 @@ jobs:
           NEXT_PUBLIC_GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
           NEXT_PUBLIC_BASE_PATH: /reporium
 
+      - name: Verify out/data contents
+        run: ls -la out/data/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
