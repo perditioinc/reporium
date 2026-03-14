@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,6 +35,12 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Generate library data
+        run: npm run generate
+        env:
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Build static export
         run: npm run build
