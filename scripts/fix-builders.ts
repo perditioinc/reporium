@@ -13,7 +13,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { KNOWN_ORGS } from '../src/lib/buildTaxonomy';
+import { KNOWN_ORGS, buildBuilderStats } from '../src/lib/buildTaxonomy';
 import { LibraryData, Builder } from '../src/types/repo';
 
 const libraryPath = path.join(process.cwd(), 'public', 'data', 'library.json');
@@ -52,6 +52,10 @@ data.repos = data.repos.map((repo) => {
   return { ...repo, builders: [builder] };
 });
 
+// Recompute builderStats from the corrected builders
+data.builderStats = buildBuilderStats(data.repos);
+
 fs.writeFileSync(libraryPath, JSON.stringify(data, null, 2));
 
 console.log(`✅ fix-builders complete — ${fixed} repos corrected, ${data.repos.length - fixed} already correct`);
+console.log(`   ↳ builderStats recomputed: ${data.builderStats.length} unique builders`);
