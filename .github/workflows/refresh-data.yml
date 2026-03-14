@@ -2,8 +2,9 @@ name: Refresh Library Data
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Daily at 6am UTC
-  workflow_dispatch:       # Manual trigger
+    - cron: '0 6 * * *'    # Daily at 6am UTC  → quick run
+    - cron: '0 4 * * 0'    # Sunday at 4am UTC → full run
+  workflow_dispatch:         # Manual trigger
 
 jobs:
   refresh:
@@ -19,11 +20,20 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm install
-      - name: Generate library data
+      - name: Generate library data (quick on daily, full on Sunday)
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run generate
+        run: |
+          # Detect which cron fired: Sunday = full run, otherwise quick run.
+          DAY=$(date -u +%u)  # 1=Mon … 7=Sun
+          if [ "$DAY" = "7" ]; then
+            echo "Sunday — running full generate"
+            npm run generate:full
+          else
+            echo "Weekday — running quick generate"
+            npm run generate:quick
+          fi
       - name: Detect trends
         run: npm run detect-trends
       - name: Build gap analysis
