@@ -10,6 +10,9 @@ import { RepoGrid } from '@/components/RepoGrid';
 import { LoadingState } from '@/components/LoadingState';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
+import { createDataProvider } from '@/lib/dataProvider';
+
+const provider = createDataProvider();
 
 /** Main library page */
 export default function HomePage() {
@@ -17,6 +20,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
+  const [liteNudgeDismissed, setLiteNudgeDismissed] = useState(false);
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -61,23 +65,14 @@ export default function HomePage() {
       setError(null);
       setData(null);
       try {
-        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-        const res = await fetch(`${basePath}/data/library.json`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            if (!cancelled) setError('Library data not found. Run `npm run generate` to generate it.');
-          } else {
-            if (!cancelled) setError(`Error loading library data: ${res.status}`);
-          }
-          return;
-        }
-        const d = (await res.json()) as LibraryData;
+        const d = await provider.getLibrary();
         if (!cancelled) setData(d);
-        // Fetch trends.json non-blocking
-        fetch(`${basePath}/data/trends.json`)
-          .then(r => r.ok ? r.json() : null)
-          .then(t => { if (!cancelled && t) setTrends(t as TrendData); })
+        // Fetch trends non-blocking
+        provider.getTrends()
+          .then(t => { if (!cancelled && t) setTrends(t); })
           .catch(() => {}); // trends are optional
+        // Fetch gaps non-blocking (ignored in UI for now, available via provider)
+        provider.getGaps().catch(() => {});
       } catch (e) {
         if (!cancelled) setError((e as Error).message);
       } finally {
@@ -297,6 +292,10 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {/* API connected badge — production mode only */}
+              {provider.mode === 'production' && (
+                <span className="text-xs text-zinc-500 border border-zinc-700 rounded px-2 py-0.5">API connected</span>
+              )}
               {/* Mobile sidebar toggle */}
               <button
                 onClick={() => setSidebarOpen((v) => !v)}
@@ -311,6 +310,20 @@ export default function HomePage() {
           {error && (
             <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
               {error}
+            </div>
+          )}
+
+          {/* Lite-mode nudge banner — shown when in lite mode with >50 repos */}
+          {provider.mode === 'lite' && data && data.repos.length > 50 && !liteNudgeDismissed && (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-700/50 bg-zinc-900/50 px-4 py-2.5 text-xs text-zinc-400">
+              <span>Running in lite mode with {data.repos.length} repos. Set <code className="font-mono text-zinc-300">NEXT_PUBLIC_REPORIUM_API_URL</code> to connect to the API for real-time data.</span>
+              <button
+                onClick={() => setLiteNudgeDismissed(true)}
+                className="shrink-0 text-zinc-500 hover:text-zinc-300 transition-colors"
+                aria-label="Dismiss"
+              >
+                ✕
+              </button>
             </div>
           )}
 
