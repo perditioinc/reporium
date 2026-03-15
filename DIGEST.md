@@ -4,16 +4,16 @@
 ---
 
 ## Today's Activity
-**255 commits** across **50 repos** in your library
+**306 commits** across **56 repos** in your library
 
 | Repo | Commits | Category |
 |------|---------|----------|
-| hermes-agent | 84 | Foundation Models |
-| openclaw | 15 | Dev Tools & Automation |
+| hermes-agent | 99 | Foundation Models |
+| openclaw | 22 | Dev Tools & Automation |
 | openfang | 13 | AI Agents |
 | zeroclaw | 13 | Dev Tools & Automation |
 | litellm | 11 | Foundation Models |
-| gh-aw | 9 | AI Agents |
+| OpenViking | 10 | Foundation Models |
 
 ---
 
@@ -30,13 +30,13 @@ Based on your collection, you might want to explore:
 
 ## Library Health
 - **703 repos** · **21 categories** · **252 unique tags**
-- **435 forks** up to date · **182 forks** behind upstream
+- **433 forks** up to date · **184 forks** behind upstream
 - Most outdated: `gh-aw` (behind 1315 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠️ Dev Tools & Automation** most active category (72106 commits across 606 repos)
+- **🛠️ Dev Tools & Automation** most active category (72075 commits across 606 repos)
 
 ---
 
