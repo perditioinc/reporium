@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 15, 2026
+**perditioinc's GitHub Knowledge Library** · Generated March 16, 2026
 
 ---
 
 ## Today's Activity
-**306 commits** across **56 repos** in your library
+**578 commits** across **77 repos** in your library
 
 | Repo | Commits | Category |
 |------|---------|----------|
-| hermes-agent | 99 | Foundation Models |
-| openclaw | 22 | Dev Tools & Automation |
-| openfang | 13 | AI Agents |
-| zeroclaw | 13 | Dev Tools & Automation |
-| litellm | 11 | Foundation Models |
-| OpenViking | 10 | Foundation Models |
+| openclaw | 279 | Dev Tools & Automation |
+| hermes-agent | 25 | Foundation Models |
+| mlflow | 19 | MLOps & Infrastructure |
+| zeroclaw | 19 | Dev Tools & Automation |
+| sglang | 18 | Inference & Serving |
+| deepagents | 15 | AI Agents |
 
 ---
 
@@ -22,21 +22,19 @@ Based on your collection, you might want to explore:
 
 **Observability & Monitoring** — You have 30 repos covering Observability & Monitoring.
 
-**Evals & Benchmarking** — You have 206 repos covering Evals & Benchmarking.
+**Evals & Benchmarking** — You have 210 repos covering Evals & Benchmarking.
 
-**Inference & Serving** — You have 160 repos covering Inference & Serving.
+**Inference & Serving** — You have 163 repos covering Inference & Serving.
 
 ---
 
 ## Library Health
-- **703 repos** · **21 categories** · **252 unique tags**
-- **433 forks** up to date · **184 forks** behind upstream
-- Most outdated: `gh-aw` (behind 1315 commits)
+- **726 repos** · **21 categories** · **252 unique tags**
 
 ---
 
 ## 30-Day Summary
-- **🛠️ Dev Tools & Automation** most active category (72075 commits across 606 repos)
+- **🛠️ Dev Tools & Automation** most active category (65478 commits across 626 repos)
 
 ---
 
