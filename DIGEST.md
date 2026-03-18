@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 17, 2026
+**perditioinc's GitHub Knowledge Library** · Generated March 18, 2026
 
 ---
 
 ## Today's Activity
-**601 commits** across **114 repos** in your library
+**644 commits** across **110 repos** in your library
 
 | Repo | Commits | Category |
 |------|---------|----------|
-| openclaw | 181 | Dev Tools & Automation |
-| sglang | 16 | Inference & Serving |
-| zeroclaw | 16 | Dev Tools & Automation |
-| cursor2api | 15 | Foundation Models |
-| hermes-agent | 15 | Foundation Models |
-| deepagents | 14 | AI Agents |
+| openclaw | 190 | Dev Tools & Automation |
+| sglang | 22 | Inference & Serving |
+| vscode | 22 | Learning Resources |
+| nullclaw | 18 | Foundation Models |
+| deepagents | 16 | AI Agents |
+| TensorRT-LLM | 16 | Inference & Serving |
 
 ---
 
@@ -22,19 +22,19 @@ Based on your collection, you might want to explore:
 
 **Observability & Monitoring** — You have 31 repos covering Observability & Monitoring.
 
-**Evals & Benchmarking** — You have 227 repos covering Evals & Benchmarking.
+**Evals & Benchmarking** — You have 225 repos covering Evals & Benchmarking.
 
 **Inference & Serving** — You have 180 repos covering Inference & Serving.
 
 ---
 
 ## Library Health
-- **810 repos** · **21 categories** · **253 unique tags**
+- **817 repos** · **21 categories** · **253 unique tags**
 
 ---
 
 ## 30-Day Summary
-- **🛠️ Dev Tools & Automation** most active category (71353 commits across 704 repos)
+- **🛠️ Dev Tools & Automation** most active category (72848 commits across 713 repos)
 
 ---
 
