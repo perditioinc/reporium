@@ -1,6 +1,26 @@
 # Changelog
 Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning](https://semver.org).
 
+## [2.0.0] - 2026-03-14
+
+### Added
+- Dual-mode data provider architecture (Lite / Production)
+- `src/lib/dataProvider.ts` — unified data access layer
+- `JsonDataProvider` — reads from static JSON files (default, Lite mode)
+- `ApiDataProvider` — reads from reporium-api with JSON fallback (Production mode)
+- `.env.local.example` with mode documentation
+- "API connected" badge in production mode
+- Lite mode upgrade nudge for libraries > 50 repos
+
+### Changed
+- `page.tsx` now uses `DataProvider` instead of direct fetch calls
+- All data fetching centralized through `createDataProvider()`
+
+### Removed
+- Hardcoded JSON fetch paths from page.tsx
+- Unused `UsernameInput` component
+- Unused `RateLimitBanner` component
+
 ## [1.3.0] - 2026-03-13
 ### Added
 - Gap Analysis v2: `ESSENTIAL_TOOLKIT_2026` with 10 skill areas and severity tiers (`missing` / `weak` / `moderate` / `strong`) replacing the old tool-count approach
