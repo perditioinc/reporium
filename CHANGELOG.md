@@ -1,6 +1,16 @@
 # Changelog
 Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning](https://semver.org).
 
+## [3.1.0] - 2026-03-21
+
+### Fixed
+- Removed "Running in lite mode" banner — no longer visible to users
+- Commit stats populated for 395 repos from GitHub API commit_activity endpoint
+
+### Changed
+- Redis cache enabled on Cloud Run via VPC connector to Memorystore — 2.4x faster /library/full responses
+- ROADMAP.md updated to reflect all outstanding items resolved
+
 ## [3.0.0] - 2026-03-21
 
 ### Added

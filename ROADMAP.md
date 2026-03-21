@@ -11,6 +11,9 @@
 - **Database fully backfilled**: 14K tags, 2K pmSkills, 918 industries, 825 builders, 29 categories
 - **Nightly pipeline**: reporium-db syncs at 5am UTC, forksync at 6am UTC, all downstream jobs cascade
 - **Rate limiting**: 100/min public, 30/min search, 10/min ingest
+- **Redis cache enabled**: Memorystore via VPC connector — /library/full cached 5 min, 2.4x faster
+- **Commit stats populated**: 395 repos with monthly commit activity from GitHub API
+- **CI on all repos**: every repo in the suite has a green GitHub Actions workflow
 
 ## What Is Next
 
@@ -44,6 +47,4 @@ Reference: [COST_REPORT.md](https://github.com/perditioinc/reporium-ingestion/bl
 ## Not Yet Working
 
 - **reporium-ingestion cloud deployment**: enrichment pipeline runs locally, not on Cloud Run yet
-- **Redis cache on reporium-api**: disabled, using in-memory cache only
-- **AI categories on reporium-db**: only generic categories from Claude enrichment, not the full taxonomy from the old pipeline
-- **Nightly commit stats refresh**: commit counts from library.json are static, not refreshed from GitHub API
+- **Nightly commit stats refresh**: commit stats fetcher exists but not yet in nightly cron
