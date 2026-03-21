@@ -37,13 +37,9 @@ jobs:
         run: npm test
 
       - name: Generate library data
-        run: |
-          if [ ! -f public/data/library.json ]; then
-            npm run generate
-          else
-            echo 'library.json already exists, skipping generate'
-          fi
+        run: npm run generate
         env:
+          NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -52,6 +48,7 @@ jobs:
         env:
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
           NEXT_PUBLIC_GITHUB_USERNAME: ${{ secrets.GH_USERNAME }}
+          NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
           NEXT_PUBLIC_BASE_PATH: /reporium
 
       - name: Verify out/data contents
