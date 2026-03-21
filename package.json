@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "generate": "npx tsx scripts/generate-library.ts",
+    "generate": "npx tsx scripts/fetch-library.ts",
+    "generate:legacy": "npx tsx scripts/generate-library.ts",
     "generate:quick": "npx tsx scripts/generate-library.ts --quick",
     "generate:weekly": "npx tsx scripts/generate-library.ts --weekly",
     "generate:full": "npx tsx scripts/generate-library.ts --full",

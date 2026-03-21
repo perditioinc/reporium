@@ -87,7 +87,7 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getLibrary(): Promise<LibraryData> {
-    try { return await this.apiFetch<LibraryData>('/library') }
+    try { return await this.apiFetch<LibraryData>('/library/full') }
     catch { console.warn('API unreachable, falling back to JSON'); return this.fallback.getLibrary() }
   }
 
