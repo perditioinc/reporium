@@ -31,6 +31,14 @@ if (wrongBuilders.length > 0) {
   errors.push(`${wrongBuilders.length} forked repos showing wrong builder (${data.username}): ${wrongBuilders.slice(0, 3).map(r => r.name).join(', ')}...`);
 }
 
+// 1b. Forked repos must have forkedFrom populated (null = fork info fetch failed)
+const nullForkedFrom = data.repos.filter(r => r.isFork && !r.forkedFrom);
+if (nullForkedFrom.length > 10) {
+  errors.push(`${nullForkedFrom.length} forked repos have null forkedFrom — fork info fetch likely failed. Run npm run generate:full`);
+} else if (nullForkedFrom.length > 0) {
+  warnings.push(`${nullForkedFrom.length} forked repos have null forkedFrom`);
+}
+
 // 2. Forked repos should have forkedAt date
 const missingForkedAt = data.repos.filter(r => r.isFork && !r.forkedAt);
 if (missingForkedAt.length > 5) {
