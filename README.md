@@ -1,5 +1,7 @@
 # Reporium
 
+[![Nightly](https://github.com/perditioinc/reporium/actions/workflows/refresh-data.yml/badge.svg)](https://github.com/perditioinc/reporium/actions/workflows/refresh-data.yml)
+
 Reporium is your GitHub knowledge library — visualize and explore all your public repos.
 
 ![Screenshot](public/screenshot-placeholder.png)
