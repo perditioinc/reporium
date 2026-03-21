@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 20, 2026
+**perditioinc's GitHub Knowledge Library** · Generated March 21, 2026
 
 ---
 
 ## Today's Activity
-**279 commits** across **83 repos** in your library
+**170 commits** across **57 repos** in your library
 
 | Repo | Commits | Category |
 |------|---------|----------|
-| TensorRT-LLM | 14 | Inference & Serving |
-| vllm | 14 | Inference & Serving |
-| pytorch | 13 | Model Training |
-| reporium-api | 11 | Dev Tools & Automation |
-| vscode | 10 | Learning Resources |
-| CoPaw | 9 | Foundation Models |
+| get-shit-done | 19 | AI Agents |
+| vscode | 14 | Learning Resources |
+| superset | 13 | Foundation Models |
+| portfolio | 10 | Dev Tools & Automation |
+| clawteam | 8 | Dev Tools & Automation |
+| vllm | 7 | Inference & Serving |
 
 ---
 
@@ -22,19 +22,19 @@ Based on your collection, you might want to explore:
 
 **Observability & Monitoring** — You have 33 repos covering Observability & Monitoring.
 
-**Evals & Benchmarking** — You have 229 repos covering Evals & Benchmarking.
+**Evals & Benchmarking** — You have 228 repos covering Evals & Benchmarking.
 
 **Inference & Serving** — You have 185 repos covering Inference & Serving.
 
 ---
 
 ## Library Health
-- **826 repos** · **21 categories** · **253 unique tags**
+- **831 repos** · **21 categories** · **253 unique tags**
 
 ---
 
 ## 30-Day Summary
-- **🛠️ Dev Tools & Automation** most active category (46940 commits across 722 repos)
+- **🛠️ Dev Tools & Automation** most active category (32062 commits across 727 repos)
 
 ---
 
