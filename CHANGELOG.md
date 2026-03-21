@@ -1,6 +1,29 @@
 # Changelog
 Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning](https://semver.org).
 
+## [3.0.0] - 2026-03-21
+
+### Added
+- Live API data source: frontend now reads from reporium-api `/library/full` instead of static JSON
+- `scripts/fetch-library.ts` — single API call replaces 800+ GitHub API calls (0.7s vs minutes)
+- API fallback: `ApiDataProvider` falls back to static JSON if API is unreachable
+- 826 repos with enriched data: AI-generated summaries, integration tags, knowledge graph edges
+- Semantic search via sentence-transformers embeddings (384-dim, all-MiniLM-L6-v2)
+- Intelligence query endpoint: POST `/intelligence/query` for natural language repo questions
+
+### Changed
+- `dataProvider.ts` `getLibrary()` now calls `/library/full` API endpoint
+- `generate` npm script now runs `fetch-library.ts` (old script preserved as `generate:legacy`)
+- `tsconfig.json` excludes `scripts/` from Next.js build
+- Deploy workflow passes `NEXT_PUBLIC_REPORIUM_API_URL` to generate and build steps
+
+### Removed
+- Lite mode nudge banner — no longer visible to users
+
+### Fixed
+- library.json data restored after API migration exposed missing DB fields
+- Database backfilled with rich tags, pmSkills, builders, industries, categories from library.json
+
 ## [2.0.0] - 2026-03-14
 
 ### Added
