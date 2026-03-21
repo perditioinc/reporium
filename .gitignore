@@ -45,7 +45,8 @@ next-env.d.ts
 # claude
 .claude/
 
-# generated data cache (incremental build artefacts)
+# generated data (fetched from reporium-api at build time)
+public/data/library.json
 public/data/cache.json
 public/data/repo-cache.json
 public/data/meta.json
