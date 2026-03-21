@@ -87,8 +87,11 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getLibrary(): Promise<LibraryData> {
-    try { return await this.apiFetch<LibraryData>('/library/full') }
-    catch { console.warn('API unreachable, falling back to JSON'); return this.fallback.getLibrary() }
+    // Use static JSON for library data until the API database is fully backfilled.
+    // The API /library/full is missing pmSkills, builders, industries, rich enrichedTags,
+    // and commitStats that the static JSON has from the original GitHub API pipeline.
+    // Once the DB is backfilled, switch this back to: this.apiFetch('/library/full')
+    return this.fallback.getLibrary()
   }
 
   async getTrends(): Promise<TrendData | null> {
