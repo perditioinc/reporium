@@ -20,7 +20,6 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
-  const [liteNudgeDismissed, setLiteNudgeDismissed] = useState(false);
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -313,19 +312,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Lite-mode nudge banner — shown when in lite mode with >50 repos */}
-          {provider.mode === 'lite' && data && data.repos.length > 50 && !liteNudgeDismissed && (
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-700/50 bg-zinc-900/50 px-4 py-2.5 text-xs text-zinc-400">
-              <span>Running in lite mode with {data.repos.length} repos. Set <code className="font-mono text-zinc-300">NEXT_PUBLIC_REPORIUM_API_URL</code> to connect to the API for real-time data.</span>
-              <button
-                onClick={() => setLiteNudgeDismissed(true)}
-                className="shrink-0 text-zinc-500 hover:text-zinc-300 transition-colors"
-                aria-label="Dismiss"
-              >
-                ✕
-              </button>
-            </div>
-          )}
 
           {/* Stats */}
           {data && (
