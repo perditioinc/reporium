@@ -411,7 +411,7 @@ export default function HomePage() {
           {/* Desktop sidebar */}
           <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-zinc-800 bg-zinc-950">
             <MetricsSidebar
-              data={data}
+              data={{ ...data, categories: normalizedCategories }}
               selectedTags={selectedTags}
               tagMetrics={data.tagMetrics ?? []}
               intersectionMetrics={intersectionMetrics}
@@ -437,7 +437,7 @@ export default function HomePage() {
               />
               <div className="w-[340px] border-l border-zinc-800 bg-zinc-950 overflow-y-auto">
                 <MetricsSidebar
-                  data={data}
+                  data={{ ...data, categories: normalizedCategories }}
                   selectedTags={selectedTags}
                   tagMetrics={data.tagMetrics ?? []}
                   intersectionMetrics={intersectionMetrics}
