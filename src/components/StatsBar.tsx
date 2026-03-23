@@ -2,8 +2,6 @@
 
 import { LibraryData, TagMetrics } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
-import { AI_DEV_SKILLS } from '@/lib/buildTaxonomy';
-
 interface StatsBarProps {
   data: LibraryData;
   tagMetrics?: TagMetrics[];
@@ -24,8 +22,6 @@ function relativeTime(dateStr: string): string {
 }
 
 const SYSTEM_TAGS = new Set(['Forked', 'Fork', 'Built by Me', 'Active', 'Inactive', 'Archived', 'Popular']);
-
-const AI_DEV_SKILL_NAMES = Object.keys(AI_DEV_SKILLS);
 
 /** Data-rich stats panel for the library */
 export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
@@ -49,7 +45,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
     (r) => new Date(r.lastUpdated) >= thirtyDaysAgo
   ).length;
 
-  // Top 10 languages with counts
+  // Top 6 languages with counts
   const langCounts = new Map<string, number>();
   for (const repo of repos) {
     if (repo.language) langCounts.set(repo.language, (langCounts.get(repo.language) ?? 0) + 1);
@@ -61,13 +57,13 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
   // Always exactly 21 hardcoded categories — never derived from tags
   const categoryCount = CATEGORIES.length;
 
-  // Top builders (up to 25 known orgs by repo count)
+  // Top builders (up to 9 known orgs by repo count)
   const topBuilders = (data.builderStats ?? [])
     .filter(b => b.category !== 'individual')
     .slice(0, 25);
 
-  // AI Dev Coverage
-  const skillStatsMap = new Map((data.aiDevSkillStats ?? []).map(s => [s.skill, s]));
+  // AI Dev Coverage — use raw stats so skill keys always match
+  const aiDevStats = data.aiDevSkillStats ?? [];
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">
@@ -162,30 +158,18 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
       <div className="pt-3 border-t border-zinc-800">
         <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider">AI Dev Coverage</p>
         <div className="flex flex-wrap gap-1.5">
-          {AI_DEV_SKILL_NAMES.map(displayName => {
-            // Try exact match first, then try matching by any key fragment
-            let stat = skillStatsMap.get(displayName);
-            if (!stat) {
-              // Fallback: find by partial match (API may use short keys)
-              for (const [key, s] of skillStatsMap) {
-                if (displayName.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(displayName.toLowerCase())) {
-                  stat = s;
-                  break;
-                }
-              }
-            }
-            const count = stat?.repoCount ?? 0;
-            const icon = count > 0 ? '✅' : '❌';
-            const color = count > 0 ? 'text-emerald-400' : 'text-zinc-500';
+          {aiDevStats.map(stat => {
+            const count = stat.repoCount;
+            const icon = count >= 10 ? '✅' : count >= 3 ? '⚠️' : '❌';
+            const color = count >= 10 ? 'text-emerald-400' : count >= 3 ? 'text-yellow-400' : 'text-red-400';
             return (
               <span
-                key={displayName}
+                key={stat.skill}
                 title={`${count} repos`}
                 className={`flex items-center gap-1 rounded-full bg-zinc-800/60 border border-zinc-700/50 px-2.5 py-1 text-xs ${color}`}
               >
                 <span>{icon}</span>
-                <span className="text-zinc-300">{displayName}</span>
-                {count > 0 && <span className="text-zinc-500">{count}</span>}
+                <span className="text-zinc-300">{stat.skill}</span>
               </span>
             );
           })}
@@ -200,12 +184,8 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
             {(() => {
               const visibleMetrics = tagMetrics.filter((m) => !SYSTEM_TAGS.has(m.tag)).slice(0, 30);
               const maxCount = visibleMetrics[0]?.repoCount ?? 1;
-              const minSize = 12;
-              const maxSize = 48;
               return visibleMetrics.map((m) => {
-                const fontSize = Math.round(
-                  minSize + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * (maxSize - minSize)
-                );
+                const fontSize = Math.min(48, Math.max(12, 12 + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * 36));
                 const opacity = 0.4 + (m.activityScore / 100) * 0.6;
                 return (
                   <button
