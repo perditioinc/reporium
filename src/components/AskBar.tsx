@@ -170,7 +170,7 @@ export function AskBar({ apiUrl }: AskBarProps) {
             onKeyDown={handleKeyDown}
             placeholder="Ask anything about the repo library..."
             maxLength={500}
-            disabled={loading || atMinuteLimit || atDayLimit}
+            disabled={atMinuteLimit || atDayLimit}
             className="w-full rounded-lg border border-zinc-700 bg-zinc-900 py-2.5 pl-8 pr-4 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
           />
         </div>
@@ -189,6 +189,11 @@ export function AskBar({ apiUrl }: AskBarProps) {
           )}
         </button>
       </div>
+
+      {/* Loading status */}
+      {loading && (
+        <p className="text-xs text-zinc-500">Searching repos and generating answer — this takes ~10 seconds…</p>
+      )}
 
       {/* Rate limit warning */}
       {(nearMinuteLimit || nearDayLimit) && !atMinuteLimit && !atDayLimit && (
