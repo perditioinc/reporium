@@ -19,8 +19,9 @@ export interface DataProvider {
 }
 
 export function createDataProvider(): DataProvider {
-  const apiUrl = process.env.NEXT_PUBLIC_REPORIUM_API_URL
-  if (apiUrl) return new ApiDataProvider(apiUrl)
+  // Always use static JSON for the main data load — it's generated from the API
+  // at build time by fetch-library.ts and is always fresh on each Vercel deploy.
+  // Runtime API calls for 3MB+ payloads cause client-side crashes.
   return new JsonDataProvider()
 }
 
