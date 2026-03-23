@@ -17,10 +17,13 @@ describe('createDataProvider', () => {
     expect(provider.mode).toBe('lite')
   })
 
-  test('returns production provider when NEXT_PUBLIC_REPORIUM_API_URL is set', () => {
+  test('always returns lite provider regardless of NEXT_PUBLIC_REPORIUM_API_URL', () => {
+    // createDataProvider always uses static JSON generated at build time.
+    // Runtime API calls for the 3MB+ library payload caused client-side crashes,
+    // so the production API URL is only used during build (fetch-library.ts).
     process.env.NEXT_PUBLIC_REPORIUM_API_URL = 'https://api.example.com'
     const provider = createDataProvider()
-    expect(provider.mode).toBe('production')
+    expect(provider.mode).toBe('lite')
   })
 
   test('lite provider searchRepos filters by name', async () => {
