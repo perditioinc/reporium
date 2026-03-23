@@ -20,21 +20,12 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: npm install
-      - name: Generate library data (quick on weekdays, weekly on Sunday)
+      - name: Generate library data
         env:
-          GH_USERNAME: ${{ secrets.GH_USERNAME }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
         run: |
-          # Detect which cron fired: Sunday = weekly run, otherwise quick run.
-          # --full is reserved as a manual-only option (trigger workflow_dispatch with full flag if needed).
-          DAY=$(date -u +%u)  # 1=Mon … 7=Sun
-          if [ "$DAY" = "7" ]; then
-            echo "Sunday — running weekly generate (tier 2 + tier 3 refresh)"
-            npm run generate:weekly
-          else
-            echo "Weekday — running quick generate (tier 3 only)"
-            npm run generate:quick
-          fi
+          # fetch-library.ts: one API call to /library/full (~3s, no GitHub API rate limit cost)
+          npm run generate
       - name: Validate library data
         run: npm run validate
       - name: Detect trends
