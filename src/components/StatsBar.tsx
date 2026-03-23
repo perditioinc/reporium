@@ -182,7 +182,10 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
           <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider">Tag Cloud</p>
           <div className="flex flex-wrap gap-x-3 gap-y-2">
             {(() => {
-              const visibleMetrics = tagMetrics.filter((m) => !SYSTEM_TAGS.has(m.tag)).slice(0, 30);
+              const visibleMetrics = tagMetrics
+                .filter((m) => !SYSTEM_TAGS.has(m.tag))
+                .sort((a, b) => b.repoCount - a.repoCount)
+                .slice(0, 30);
               const maxCount = visibleMetrics[0]?.repoCount ?? 1;
               return visibleMetrics.map((m) => {
                 const fontSize = Math.min(48, Math.max(12, 12 + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * 36));
