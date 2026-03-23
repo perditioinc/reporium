@@ -19,9 +19,9 @@ export interface DataProvider {
 }
 
 export function createDataProvider(): DataProvider {
-  // Always use static JSON for the main data load — it's generated from the API
-  // at build time by fetch-library.ts and is always fresh on each Vercel deploy.
-  // Runtime API calls for 3MB+ payloads cause client-side crashes.
+  // Always use static JSON generated at build time by fetch-library.ts.
+  // Runtime API calls for the 3MB+ library payload caused client-side crashes.
+  // NEXT_PUBLIC_REPORIUM_API_URL is used only by npm run generate (build step).
   return new JsonDataProvider()
 }
 
