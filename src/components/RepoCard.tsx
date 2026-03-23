@@ -4,6 +4,20 @@ import { useState } from 'react';
 import { EnrichedRepo } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 
+/** Status tags that are not content tags — never show as clickable chips */
+const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
+
+/** Own-account logins — don't render as "builder" since the Built/Forked badge already shows ownership */
+const OWN_LOGINS = new Set(['perditioinc']);
+
+/** Normalize stale category names to current taxonomy names */
+const CATEGORY_NAME_ALIASES: Record<string, string> = {
+  'Audio':       'Industry: Audio & Music',
+  'Fine Tuning': 'Model Training',
+  'Evaluation':  'Evals & Benchmarking',
+  'Deployment':  'MLOps & Infrastructure',
+};
+
 interface RepoCardProps {
   repo: EnrichedRepo;
   similarCount?: number;
@@ -84,7 +98,8 @@ function commitDisplayInfo(dateStr: string): { dotColor: string; textColor: stri
 }
 
 function getCategoryStyle(primaryCategory: string): { borderColor: string; backgroundColor: string } {
-  const cat = CATEGORIES.find(c => c.name === primaryCategory);
+  const resolvedName = CATEGORY_NAME_ALIASES[primaryCategory] ?? primaryCategory;
+  const cat = CATEGORIES.find(c => c.name === resolvedName);
   if (!cat) return { borderColor: '#27272a', backgroundColor: 'transparent' };
   return {
     borderColor: cat.color,
@@ -132,9 +147,10 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       </div>
 
-      {/* Builder badge */}
+      {/* Builder badge — skip if the "builder" is our own account (redundant with Built badge) */}
       {repo.builders && repo.builders.length > 0 && (() => {
-        const builder = repo.builders[0];
+        const builder = repo.builders.find(b => !OWN_LOGINS.has(b.login.toLowerCase()));
+        if (!builder) return null;
         const builderColors: Record<string, string> = {
           google: 'text-blue-400',
           'google-deepmind': 'text-blue-400',
@@ -184,7 +200,10 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
 
       {/* Category badges — primary prominent, secondary outlined, rest subtle */}
       {(repo.allCategories ?? []).length > 0 && (() => {
-        const cats = (repo.allCategories ?? []).map(n => CATEGORIES.find(c => c.name === n)).filter(Boolean) as import('@/types/repo').Category[];
+        const cats = (repo.allCategories ?? [])
+          .map(n => CATEGORY_NAME_ALIASES[n] ?? n)
+          .map(n => CATEGORIES.find(c => c.name === n))
+          .filter(Boolean) as import('@/types/repo').Category[];
         const [primary, secondary, ...rest] = cats;
         return (
           <div className="flex flex-wrap gap-1.5">
@@ -239,9 +258,12 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       )}
 
-      {/* Tags — deduplicated from enrichedTags + aiDevSkills */}
+      {/* Tags — system status tags excluded */}
       <div className="flex flex-wrap gap-1.5">
-        {[...new Set([...(repo.enrichedTags || []), ...(repo.aiDevSkills || [])])].slice(0, 8).map((tag) =>
+        {[...new Set([...(repo.enrichedTags || []), ...(repo.aiDevSkills || [])])]
+          .filter(t => !SYSTEM_TAGS.has(t))
+          .slice(0, 8)
+          .map((tag) =>
           onTagClick ? (
             <button
               key={tag}
@@ -318,14 +340,21 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         );
       })()}
 
-      {/* Timeline — fork date metadata */}
-      {repo.isFork && (repo.upstreamCreatedAt || repo.forkedAt || repo.yourLastPushAt || repo.upstreamLastPushAt) && (
+      {/* Timeline — fork date metadata.
+          upstreamCreatedAt is only shown if it differs from createdAt (the ingestion date),
+          which avoids showing the wrong "Project created" date before backfill runs. */}
+      {repo.isFork && (() => {
+        const realUpstream = repo.upstreamCreatedAt && repo.upstreamCreatedAt !== repo.createdAt
+          ? repo.upstreamCreatedAt : null;
+        const hasAnyDate = realUpstream || repo.forkedAt || repo.yourLastPushAt || repo.upstreamLastPushAt;
+        if (!hasAnyDate) return null;
+        return (
         <div className="border-t border-zinc-800 pt-3 space-y-1.5">
           <p className="text-xs font-medium text-zinc-500">📅 Timeline</p>
-          {repo.upstreamCreatedAt && (
+          {realUpstream && (
             <div className="flex justify-between text-xs">
               <span className="text-zinc-600">Project created</span>
-              <span className="text-zinc-400">{formatMonthYear(repo.upstreamCreatedAt)}</span>
+              <span className="text-zinc-400">{formatMonthYear(realUpstream)}</span>
             </div>
           )}
           {repo.forkedAt && (
@@ -333,9 +362,9 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
               <span className="text-zinc-600">You forked</span>
               <span className="text-zinc-400">
                 {formatMonthYear(repo.forkedAt)}
-                {repo.upstreamCreatedAt && (
+                {realUpstream && (
                   <span className="text-zinc-600 ml-1">
-                    ({monthsBetween(repo.upstreamCreatedAt, repo.forkedAt)}mo later)
+                    ({monthsBetween(realUpstream, repo.forkedAt)}mo later)
                   </span>
                 )}
               </span>
@@ -354,7 +383,8 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
 
       {/* Sync Status + Commit activity */}
       {(repo.forkSync || (repo.commitStats?.last30Days ?? 0) > 0) && (
