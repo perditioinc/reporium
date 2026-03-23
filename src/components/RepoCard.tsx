@@ -13,9 +13,12 @@ interface RepoCardProps {
 
 /** Returns a relative time string like "2 months ago" */
 function relativeTime(dateStr: string): string {
+  if (!dateStr || dateStr.trim() === '') return '—';
   const now = Date.now();
   const then = new Date(dateStr).getTime();
+  if (isNaN(then)) return '—';
   const diffDays = Math.floor((now - then) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return '—';
 
   if (diffDays === 0) return 'today';
   if (diffDays === 1) return 'yesterday';
@@ -225,17 +228,6 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         );
       })()}
 
-      {/* AI Dev Skills row */}
-      {repo.aiDevSkills && repo.aiDevSkills.length > 0 && (
-        <div className="flex flex-wrap gap-1">
-          {repo.aiDevSkills.slice(0, 3).map(skill => (
-            <span key={skill} className="rounded-full bg-zinc-800/80 border border-zinc-700/50 px-2 py-0.5 text-xs text-zinc-500">
-              {skill}
-            </span>
-          ))}
-        </div>
-      )}
-
       {/* PM Skills row */}
       {repo.pmSkills && repo.pmSkills.length > 0 && (
         <div className="flex flex-wrap gap-1">
@@ -247,9 +239,9 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       )}
 
-      {/* Tags */}
+      {/* Tags — deduplicated from enrichedTags + aiDevSkills */}
       <div className="flex flex-wrap gap-1.5">
-        {repo.enrichedTags.slice(0, 8).map((tag) =>
+        {[...new Set([...(repo.enrichedTags || []), ...(repo.aiDevSkills || [])])].slice(0, 8).map((tag) =>
           onTagClick ? (
             <button
               key={tag}
