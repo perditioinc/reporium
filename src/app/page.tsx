@@ -85,6 +85,29 @@ export default function HomePage() {
 
   const allLanguages = useMemo(() => data?.stats.languages ?? [], [data]);
 
+  /** Map stale DB category names → current taxonomy names.
+   *  Keeps the filter bar clean until the DB/API backfill corrects the source data. */
+  const CATEGORY_ALIASES: Record<string, string> = {
+    'Audio':       'Industry: Audio & Music',
+    'Fine Tuning': 'Model Training',
+    'Evaluation':  'Evals & Benchmarking',
+    'Deployment':  'MLOps & Infrastructure',
+  };
+
+  /** Categories with stale names merged into their canonical equivalents. */
+  const normalizedCategories = useMemo(() => {
+    if (!data?.categories) return [];
+    const catMap = new Map(data.categories.map(c => ({ ...c })).map(c => [c.name, c]));
+    for (const [stale, canonical] of Object.entries(CATEGORY_ALIASES)) {
+      const staleEntry = catMap.get(stale);
+      if (!staleEntry) continue;
+      catMap.delete(stale);
+      const canonicalEntry = catMap.get(canonical);
+      if (canonicalEntry) canonicalEntry.repoCount += staleEntry.repoCount;
+    }
+    return Array.from(catMap.values());
+  }, [data]);
+
   const industryStats = useMemo(() => {
     if (!data) return [];
     const counts = new Map<string, number>();
@@ -178,10 +201,13 @@ export default function HomePage() {
         if (!repo.forkSync || repo.forkSync.behindBy === 0) return false;
       }
 
-      // Category filter
+      // Category filter — normalize stale allCategories names before comparing
       if (selectedCategory) {
-        const categoryName = data.categories.find(c => c.id === selectedCategory)?.name;
-        if (categoryName && !repo.allCategories.includes(categoryName)) return false;
+        const categoryName = normalizedCategories.find(c => c.id === selectedCategory)?.name;
+        if (categoryName) {
+          const normalizedRepoCats = repo.allCategories.map(c => CATEGORY_ALIASES[c] ?? c);
+          if (!normalizedRepoCats.includes(categoryName)) return false;
+        }
       }
 
       // AI Dev Skills filter
@@ -341,7 +367,7 @@ export default function HomePage() {
                 selectedActivity={selectedActivity}
                 selectedSyncStatus={selectedSyncStatus}
                 sortBy={sortBy}
-                categories={data.categories ?? []}
+                categories={normalizedCategories}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
                 onTypeChange={setSelectedType}
