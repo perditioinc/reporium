@@ -276,6 +276,69 @@ export const CATEGORIES: Category[] = [
       'Data Science', 'Analytics', 'Visualization', 'Statistics',
       'Pandas', 'NumPy', 'Jupyter', 'Data Engineering'
     ]
+  },
+  {
+    id: 'audio',
+    name: 'Audio',
+    icon: '🔊',
+    color: '#a855f7',
+    repoCount: 0,
+    description: 'Speech, music, and audio processing AI',
+    tags: ['Audio', 'Speech', 'TTS', 'ASR', 'Music AI', 'Voice']
+  },
+  {
+    id: 'code-generation',
+    name: 'Code Generation',
+    icon: '💻',
+    color: '#3b82f6',
+    repoCount: 0,
+    description: 'AI-powered code generation and coding assistants',
+    tags: ['Code Generation', 'Coding Assistant', 'Copilot', 'Code Review']
+  },
+  {
+    id: 'datasets',
+    name: 'Datasets',
+    icon: '📦',
+    color: '#10b981',
+    repoCount: 0,
+    description: 'Training datasets, data curation, and data tools',
+    tags: ['Datasets', 'Training Data', 'Data Curation', 'Benchmarks']
+  },
+  {
+    id: 'deployment',
+    name: 'Deployment',
+    icon: '📤',
+    color: '#f59e0b',
+    repoCount: 0,
+    description: 'Model deployment, packaging, and production serving',
+    tags: ['Deployment', 'Packaging', 'Edge AI', 'Mobile AI', 'ONNX']
+  },
+  {
+    id: 'evaluation',
+    name: 'Evaluation',
+    icon: '✅',
+    color: '#6366f1',
+    repoCount: 0,
+    description: 'Model evaluation and quality assessment',
+    tags: ['Evaluation', 'Testing', 'Quality', 'Metrics']
+  },
+  {
+    id: 'fine-tuning',
+    name: 'Fine Tuning',
+    icon: '🎯',
+    color: '#ef4444',
+    repoCount: 0,
+    description: 'Model fine-tuning, adaptation, and transfer learning',
+    tags: ['Fine Tuning', 'LoRA', 'PEFT', 'Transfer Learning', 'Adaptation']
+  },
+  {
+    id: 'uncategorized',
+    name: 'Uncategorized',
+    icon: '📁',
+    color: '#94a3b8',
+    repoCount: 0,
+    description: 'Repos not yet categorized',
+    tags: []
   }
 ];
 
