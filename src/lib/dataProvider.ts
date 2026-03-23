@@ -11,6 +11,7 @@ export type DataMode = 'lite' | 'production'
 
 export interface DataProvider {
   mode: DataMode
+  getOwnedLibrary(): Promise<LibraryData | null>
   getLibrary(): Promise<LibraryData>
   getTrends(): Promise<TrendData | null>
   getGaps(): Promise<GapAnalysis | null>
@@ -27,6 +28,15 @@ export function createDataProvider(): DataProvider {
 
 class JsonDataProvider implements DataProvider {
   mode: DataMode = 'lite'
+
+  async getOwnedLibrary(): Promise<LibraryData | null> {
+    try {
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+      const res = await fetch(`${basePath}/data/owned.json`)
+      if (!res.ok) return null
+      return res.json()
+    } catch { return null }
+  }
 
   async getLibrary(): Promise<LibraryData> {
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
@@ -85,6 +95,10 @@ class ApiDataProvider implements DataProvider {
     })
     if (!res.ok) throw new Error(`API error: ${res.status}`)
     return res.json()
+  }
+
+  async getOwnedLibrary(): Promise<LibraryData | null> {
+    return this.fallback.getOwnedLibrary()
   }
 
   async getLibrary(): Promise<LibraryData> {
