@@ -49,22 +49,22 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
     (r) => new Date(r.lastUpdated) >= thirtyDaysAgo
   ).length;
 
-  // Top 6 languages with counts
+  // Top 10 languages with counts
   const langCounts = new Map<string, number>();
   for (const repo of repos) {
     if (repo.language) langCounts.set(repo.language, (langCounts.get(repo.language) ?? 0) + 1);
   }
   const topLangs = [...langCounts.entries()]
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6);
+    .slice(0, 10);
 
   // Always exactly 21 hardcoded categories — never derived from tags
   const categoryCount = CATEGORIES.length;
 
-  // Top builders (up to 9 known orgs by repo count)
+  // Top builders (up to 25 known orgs by repo count)
   const topBuilders = (data.builderStats ?? [])
     .filter(b => b.category !== 'individual')
-    .slice(0, 9);
+    .slice(0, 25);
 
   // AI Dev Coverage
   const skillStatsMap = new Map((data.aiDevSkillStats ?? []).map(s => [s.skill, s]));
@@ -162,19 +162,30 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
       <div className="pt-3 border-t border-zinc-800">
         <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider">AI Dev Coverage</p>
         <div className="flex flex-wrap gap-1.5">
-          {AI_DEV_SKILL_NAMES.map(skill => {
-            const stat = skillStatsMap.get(skill);
+          {AI_DEV_SKILL_NAMES.map(displayName => {
+            // Try exact match first, then try matching by any key fragment
+            let stat = skillStatsMap.get(displayName);
+            if (!stat) {
+              // Fallback: find by partial match (API may use short keys)
+              for (const [key, s] of skillStatsMap) {
+                if (displayName.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(displayName.toLowerCase())) {
+                  stat = s;
+                  break;
+                }
+              }
+            }
             const count = stat?.repoCount ?? 0;
-            const icon = count >= 10 ? '✅' : count >= 3 ? '⚠️' : '❌';
-            const color = count >= 10 ? 'text-emerald-400' : count >= 3 ? 'text-yellow-400' : 'text-red-400';
+            const icon = count > 0 ? '✅' : '❌';
+            const color = count > 0 ? 'text-emerald-400' : 'text-zinc-500';
             return (
               <span
-                key={skill}
+                key={displayName}
                 title={`${count} repos`}
                 className={`flex items-center gap-1 rounded-full bg-zinc-800/60 border border-zinc-700/50 px-2.5 py-1 text-xs ${color}`}
               >
                 <span>{icon}</span>
-                <span className="text-zinc-300">{skill}</span>
+                <span className="text-zinc-300">{displayName}</span>
+                {count > 0 && <span className="text-zinc-500">{count}</span>}
               </span>
             );
           })}
