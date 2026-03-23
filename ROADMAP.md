@@ -17,6 +17,15 @@
 
 ## What Is Next
 
+### Taxonomy Expansion — 12 → 28 Skill Areas (Issue #17)
+- **Branch**: `feature/taxonomy-expansion`
+- **Spec**: [docs/TAXONOMY.md](docs/TAXONOMY.md)
+- **Goal**: Expand from 12 AI Dev Coverage badges to 28 skill areas (6 lifecycle groups), 58 categories, ~200 curated tags
+- **Phase 1** (Week 1): DB schema migration — add `lifecycleGroup`, expand `skillAreas` enum
+- **Phase 2** (Week 2): Re-enrich all 1,406 repos with updated Claude prompt (~$4.20)
+- **Phase 3** (Week 3): Frontend — 28-badge grid grouped by lifecycle, 58-category sidebar, curated tag cloud
+- **Phase 4** (Week 4): Prune ~440 noise tags, update API endpoints, add tests, deploy to production
+
 ### Public Query UI
 - Add a search box to reporium.com that calls `/intelligence/query`
 - Requires prompt injection protection before exposing to public traffic
