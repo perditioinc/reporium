@@ -23,7 +23,7 @@ function relativeTime(dateStr: string): string {
   return `${Math.floor(diffDays / 365)}y ago`;
 }
 
-const SYSTEM_TAGS = new Set(['Forked', 'Built by Me', 'Active', 'Inactive', 'Archived', 'Popular']);
+const SYSTEM_TAGS = new Set(['Forked', 'Fork', 'Built by Me', 'Active', 'Inactive', 'Archived', 'Popular']);
 
 const AI_DEV_SKILL_NAMES = Object.keys(AI_DEV_SKILLS);
 
@@ -186,15 +186,15 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
         <div className="pt-4 border-t border-zinc-800">
           <p className="text-xs text-zinc-600 mb-2 uppercase tracking-wider">Tag Cloud</p>
           <div className="flex flex-wrap gap-x-3 gap-y-2">
-            {tagMetrics
-              .filter((m) => !SYSTEM_TAGS.has(m.tag))
-              .slice(0, 30)
-              .map((m) => {
-                const nonSystemMetrics = tagMetrics.filter((x) => !SYSTEM_TAGS.has(x.tag));
-                const maxCount = nonSystemMetrics[0]?.repoCount ?? 1;
-                const minCount = nonSystemMetrics[nonSystemMetrics.length - 1]?.repoCount ?? 1;
-                const range = maxCount - minCount || 1;
-                const fontSize = 11 + Math.round(((m.repoCount - minCount) / range) * 9);
+            {(() => {
+              const visibleMetrics = tagMetrics.filter((m) => !SYSTEM_TAGS.has(m.tag)).slice(0, 30);
+              const maxCount = visibleMetrics[0]?.repoCount ?? 1;
+              const minSize = 12;
+              const maxSize = 48;
+              return visibleMetrics.map((m) => {
+                const fontSize = Math.round(
+                  minSize + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * (maxSize - minSize)
+                );
                 const opacity = 0.4 + (m.activityScore / 100) * 0.6;
                 return (
                   <button
@@ -206,7 +206,8 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
                     {m.tag}
                   </button>
                 );
-              })}
+              });
+            })()}
           </div>
         </div>
       )}
