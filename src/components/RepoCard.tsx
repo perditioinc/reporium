@@ -287,11 +287,13 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           <span>⭐ {repo.stars.toLocaleString()} · 🍴 {repo.forks.toLocaleString()}</span>
         )}
 
-        {/* Last commit date from parent for forks, own updated for built */}
+        {/* Last update date — use lastUpdated (always populated), fallback to parent */}
         <span className="ml-auto">
-          {repo.isFork && ps
-            ? relativeTime(ps.lastCommitDate)
-            : relativeTime(repo.lastUpdated)}
+          {relativeTime(repo.lastUpdated) !== '—'
+            ? relativeTime(repo.lastUpdated)
+            : repo.isFork && ps
+              ? relativeTime(ps.lastCommitDate)
+              : '—'}
         </span>
       </div>
 
@@ -354,8 +356,8 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       )}
 
-      {/* Sync Status + Weekly commits */}
-      {(repo.forkSync || (repo.commitStats?.last7Days ?? 0) > 0) && (
+      {/* Sync Status + Commit activity */}
+      {(repo.forkSync || (repo.commitStats?.last30Days ?? 0) > 0) && (
         <div className="border-t border-zinc-800 pt-3 space-y-1">
           {repo.forkSync && (() => {
             const badge = syncBadge(repo.forkSync);
@@ -368,11 +370,15 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
               </>
             );
           })()}
-          {(repo.commitStats?.last7Days ?? 0) > 0 && (
+          {(repo.commitStats?.last7Days ?? 0) > 0 ? (
             <span className="text-xs text-emerald-400">
               {repo.commitStats!.last7Days} commits/week
             </span>
-          )}
+          ) : (repo.commitStats?.last30Days ?? 0) > 0 ? (
+            <span className="text-xs text-zinc-400">
+              {repo.commitStats!.last30Days} commits/month
+            </span>
+          ) : null}
         </div>
       )}
 
