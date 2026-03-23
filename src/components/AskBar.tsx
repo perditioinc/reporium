@@ -176,7 +176,7 @@ export function AskBar({ apiUrl }: AskBarProps) {
         </div>
         <button
           onClick={handleAsk}
-          disabled={loading || !question.trim() || atMinuteLimit || atDayLimit}
+          disabled={loading || atMinuteLimit || atDayLimit}
           className="shrink-0 rounded-lg bg-zinc-700 px-4 py-2.5 text-sm text-zinc-200 hover:bg-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
