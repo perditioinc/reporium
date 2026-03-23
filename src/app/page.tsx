@@ -9,8 +9,11 @@ import { FilterBar } from '@/components/FilterBar';
 import { RepoGrid } from '@/components/RepoGrid';
 import { LoadingState } from '@/components/LoadingState';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
+import { AskBar } from '@/components/AskBar';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider } from '@/lib/dataProvider';
+
+const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? 'https://reporium-api-573778300586.us-central1.run.app';
 
 const provider = createDataProvider();
 
@@ -338,6 +341,9 @@ export default function HomePage() {
             </div>
           )}
 
+
+          {/* Ask / Intelligence query */}
+          <AskBar apiUrl={API_URL} />
 
           {/* Stats */}
           {data && (
