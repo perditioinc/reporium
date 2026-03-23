@@ -70,19 +70,27 @@ async function main() {
     process.exit(1)
   }
 
-  // Write to public/data/library.json
   const outDir = join(process.cwd(), 'public', 'data')
   mkdirSync(outDir, { recursive: true })
 
+  // Write full library
   const outPath = join(outDir, 'library.json')
   writeFileSync(outPath, JSON.stringify(data, null, 2), 'utf-8')
 
+  // Write owned-only subset for progressive loading.
+  // Keeps full stats/categories so header counts stay accurate on first paint.
+  const ownedRepos = data.repos.filter((r: { isFork?: boolean }) => !r.isFork)
+  const ownedData = { ...data, repos: ownedRepos }
+  const ownedPath = join(outDir, 'owned.json')
+  writeFileSync(ownedPath, JSON.stringify(ownedData, null, 2), 'utf-8')
+
   console.log(`Done in ${elapsed}s`)
-  console.log(`  Repos: ${data.repos.length}`)
+  console.log(`  Repos: ${data.repos.length} (${ownedRepos.length} owned)`)
   console.log(`  Stats: ${JSON.stringify(data.stats)}`)
   console.log(`  Categories: ${data.categories?.length ?? 0}`)
   console.log(`  Tag metrics: ${data.tagMetrics?.length ?? 0}`)
   console.log(`  Written to: ${outPath}`)
+  console.log(`  Owned subset: ${ownedPath}`)
 }
 
 main().catch((err) => {
