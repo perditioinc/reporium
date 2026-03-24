@@ -14,6 +14,7 @@ export interface DataProvider {
   mode: DataMode
   getOwnedLibrary(): Promise<LibraryData | null>
   getLibrary(): Promise<LibraryData>
+  getDegradedState(): boolean
   getTrends(): Promise<TrendData | null>
   getGaps(): Promise<GapAnalysis | null>
   getRepo(name: string): Promise<EnrichedRepo | null>
@@ -32,6 +33,10 @@ export function createDataProvider(): DataProvider {
 
 class JsonDataProvider implements DataProvider {
   mode: DataMode = 'lite'
+
+  getDegradedState(): boolean {
+    return false
+  }
 
   private estimateActivityScore(repo: EnrichedRepo): number {
     const last7 = repo.commitStats?.last7Days ?? 0
@@ -217,6 +222,7 @@ class ApiDataProvider implements DataProvider {
   mode: DataMode = 'production'
   private apiUrl: string
   private fallback: JsonDataProvider
+  private degraded = false
 
   constructor(apiUrl: string) {
     this.apiUrl = apiUrl.replace(/\/$/, '')
@@ -235,8 +241,13 @@ class ApiDataProvider implements DataProvider {
     return this.fallback.getOwnedLibrary()
   }
 
+  getDegradedState(): boolean {
+    return this.degraded
+  }
+
   async getLibrary(): Promise<LibraryData> {
     try {
+      this.degraded = false
       const PAGE_SIZE = 500
       // Fetch page 1 to get totalPages + corpus aggregates
       const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&pageSize=${PAGE_SIZE}`)
@@ -251,6 +262,7 @@ class ApiDataProvider implements DataProvider {
       const allRepos = pages.reduce((acc, p) => acc.concat(p.repos), page1.repos)
       return { ...page1, repos: allRepos }
     } catch {
+      this.degraded = true
       console.warn('API unreachable, falling back to JSON')
       return this.fallback.getLibrary()
     }
@@ -258,16 +270,7 @@ class ApiDataProvider implements DataProvider {
 
   async getTrends(): Promise<TrendData | null> {
     try {
-      const data = await this.apiFetch<unknown>('/trends')
-      // The API returns list[TrendSnapshotOut] (an array), not TrendData.
-      // Only treat it as TrendData if it has the expected `period` object.
-      if (
-        !data ||
-        typeof data !== 'object' ||
-        Array.isArray(data) ||
-        !('period' in (data as Record<string, unknown>))
-      ) return null
-      return data as TrendData
+      return await this.apiFetch<TrendData>('/trends/report')
     } catch { return this.fallback.getTrends() }
   }
 

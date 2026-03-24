@@ -123,10 +123,8 @@ export function HomePageClient() {
         if (!cancelled) {
           setData(full);
           setIsLoadingFull(false);
-          // Degraded: production mode but API fell back to JSON (no totalPages field)
-          if (provider.mode === 'production' && full.totalPages === undefined) {
-            setApiDegraded(true);
-          }
+          // Degraded: production mode but API fell back to JSON
+          setApiDegraded(provider.getDegradedState());
         }
         // Non-blocking extras
         provider.getTrends()
