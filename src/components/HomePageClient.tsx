@@ -106,6 +106,7 @@ export function HomePageClient() {
     async function load() {
       setIsLoading(true);
       setError(null);
+      setApiDegraded(false);
       setData(null);
 
       // Stage 1: load owned repos (~5KB) — shows YOUR repos instantly
@@ -557,8 +558,21 @@ export function HomePageClient() {
             </div>
           )}
 
-          {/* Degraded API banner */}
           {apiDegraded && (
+            <div className="flex items-start justify-between gap-4 rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
+              <p>Live data is unavailable right now — showing your last cached snapshot.</p>
+              <button
+                type="button"
+                onClick={() => setApiDegraded(false)}
+                className="shrink-0 rounded border border-amber-800/60 px-2 py-1 text-xs text-amber-100 transition-colors hover:bg-amber-900/30"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {/* Degraded API banner */}
+          {false && apiDegraded && (
             <div className="rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-2 text-sm text-amber-300">
               ⚠ Live API unavailable — showing cached snapshot. Data may be up to a few days old.
             </div>

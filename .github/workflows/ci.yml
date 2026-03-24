@@ -30,4 +30,4 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Build
-        run: npx next build --webpack
+        run: npm run build
