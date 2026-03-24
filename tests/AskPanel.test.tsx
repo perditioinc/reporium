@@ -4,9 +4,16 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AskPanel } from '@/components/AskPanel';
 
+const getSearchParams = jest.fn(() => new URLSearchParams());
+
+jest.mock('next/navigation', () => ({
+  useSearchParams: () => getSearchParams(),
+}));
+
 describe('AskPanel', () => {
   beforeEach(() => {
     jest.restoreAllMocks();
+    getSearchParams.mockReturnValue(new URLSearchParams());
   });
 
   test('renders input and submits to the API', async () => {
@@ -69,7 +76,9 @@ describe('AskPanel', () => {
       json: async () => ({ detail: 'Boom' }),
     }) as unknown as typeof fetch;
 
-    render(<AskPanel apiUrl="https://api.example.com" initialQuery="bad query" />);
+    getSearchParams.mockReturnValue(new URLSearchParams('q=bad%20query'));
+
+    render(<AskPanel apiUrl="https://api.example.com" />);
 
     expect(await screen.findByText('Boom')).toBeTruthy();
   });
