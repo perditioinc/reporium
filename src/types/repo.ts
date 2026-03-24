@@ -238,6 +238,7 @@ export interface EnrichedRepo {
   stars: number;
   forks: number;
   openIssuesCount?: number;
+  licenseSpdx?: string | null;
   lastUpdated: string;
   url: string;
   isArchived: boolean;
