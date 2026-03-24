@@ -154,6 +154,10 @@ export interface GapEssentialRepo {
 }
 
 export interface Gap {
+  dimension?: string;
+  name?: string;
+  repo_count?: number;
+  gap_score?: number;
   skill: string;
   severity: GapSeverity;
   repoCount: number;

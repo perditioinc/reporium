@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { LibraryData, TagMetrics, IntersectionMetrics, EnrichedRepo, CommitSummary, TrendData } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
+import { GapAnalysisPanel } from '@/components/GapAnalysisPanel';
 
 interface MetricsSidebarProps {
   data: LibraryData;
@@ -653,22 +654,7 @@ function LibraryOverview({ data, tagMetrics, onRepoClick, onViewArchived, onView
 
           {/* Gap Analysis — always show if gaps exist */}
           {data.gapAnalysis && data.gapAnalysis.gaps.length > 0 && (
-            <div>
-              <p className="text-xs font-medium text-zinc-400 mb-1.5">🕳️ Library Gaps</p>
-              <div className="space-y-2">
-                {data.gapAnalysis.gaps.slice(0, 3).map(gap => (
-                  <div key={gap.category} className="rounded-lg border border-zinc-800 p-2.5">
-                    <p className="text-xs font-medium text-zinc-300">{gap.category}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">{gap.description}</p>
-                    {gap.popularMissingRepos.length > 0 && (
-                      <p className="text-xs text-zinc-600 mt-1">
-                        Missing: {gap.popularMissingRepos.slice(0, 2).map(r => r.name).join(', ')}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            <GapAnalysisPanel gaps={data.gapAnalysis.gaps} compact />
           )}
 
           {/* Daily Digest link */}
