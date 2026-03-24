@@ -143,7 +143,7 @@ export default async function SkillPage({ params }: { params: Promise<{ skill: s
 
   const skillTags = AI_DEV_SKILLS[skillName];
   const repos = data.repos
-    .filter(r => (r.aiDevSkills ?? []).includes(skillName))
+    .filter(r => (r.aiDevSkills ?? []).some(a => a.skill === skillName))
     .sort((a, b) => (b.parentStats?.stars ?? 0) - (a.parentStats?.stars ?? 0));
 
   const gapEntry = data.gapAnalysis?.gaps?.find(g => g.skill === skillName || g.category === skillName);
