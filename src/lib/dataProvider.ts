@@ -5,7 +5,7 @@
  * Falls back to JSON if API is unreachable.
  */
 
-import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsights, TaxonomyValueOption, CrossDimensionAnalytics } from '@/types/repo'
+import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsights, TaxonomyValueOption, CrossDimensionAnalytics, SimilarRepo } from '@/types/repo'
 
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
@@ -21,6 +21,7 @@ export interface DataProvider {
   getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]>
   getPortfolioInsights(): Promise<PortfolioInsights | null>
   getCrossDimensionAnalytics(dim1: string, dim2: string, limit?: number): Promise<CrossDimensionAnalytics | null>
+  getSimilarRepos(name: string, limit?: number): Promise<SimilarRepo[]>
 }
 
 export function createDataProvider(): DataProvider {
@@ -202,6 +203,10 @@ class JsonDataProvider implements DataProvider {
         }),
     }
   }
+
+  async getSimilarRepos(_name: string, _limit = 5): Promise<SimilarRepo[]> {
+    return []
+  }
 }
 
 class ApiDataProvider implements DataProvider {
@@ -296,6 +301,14 @@ class ApiDataProvider implements DataProvider {
       )
     } catch {
       return this.fallback.getCrossDimensionAnalytics(dim1, dim2, limit)
+    }
+  }
+
+  async getSimilarRepos(name: string, limit = 5): Promise<SimilarRepo[]> {
+    try {
+      return await this.apiFetch<SimilarRepo[]>(`/repos/${encodeURIComponent(name)}/similar?limit=${limit}`)
+    } catch {
+      return this.fallback.getSimilarRepos(name, limit)
     }
   }
 }
