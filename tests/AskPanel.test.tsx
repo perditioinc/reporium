@@ -4,10 +4,14 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AskPanel } from '@/components/AskPanel';
 
+// useSearchParams() requires a Next.js router context that jsdom doesn't provide.
+// Use a controllable jest.fn() so individual tests can inject URL params.
 const getSearchParams = jest.fn(() => new URLSearchParams());
 
 jest.mock('next/navigation', () => ({
   useSearchParams: () => getSearchParams(),
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+  usePathname: () => '/',
 }));
 
 describe('AskPanel', () => {
@@ -76,6 +80,7 @@ describe('AskPanel', () => {
       json: async () => ({ detail: 'Boom' }),
     }) as unknown as typeof fetch;
 
+    // Simulate navigating to /ask?q=bad+query — triggers auto-submit via useEffect
     getSearchParams.mockReturnValue(new URLSearchParams('q=bad%20query'));
 
     render(<AskPanel apiUrl="https://api.example.com" />);

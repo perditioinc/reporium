@@ -595,14 +595,14 @@ function LibraryOverview({ data, tagMetrics, onRepoClick, onViewArchived, onView
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
           <SectionLabel>⚡ Intelligence</SectionLabel>
 
-          {trends.period.snapshots < 3 ? (
+          {(trends.period?.snapshots ?? 0) < 3 ? (
             <p className="text-xs text-zinc-500 italic">
               Trend data builds up over time. Check back in a few days as daily snapshots accumulate.
             </p>
           ) : (
             <>
               {/* Trending */}
-              {trends.trending.length > 0 && (
+              {(trends.trending?.length ?? 0) > 0 && (
                 <div>
                   <p className="text-xs font-medium text-zinc-400 mb-1">📈 Trending</p>
                   <div className="space-y-1">
@@ -616,7 +616,7 @@ function LibraryOverview({ data, tagMetrics, onRepoClick, onViewArchived, onView
                 </div>
               )}
               {/* Emerging */}
-              {trends.emerging.length > 0 && (
+              {(trends.emerging?.length ?? 0) > 0 && (
                 <div>
                   <p className="text-xs font-medium text-zinc-400 mb-1">🆕 Emerging</p>
                   <div className="flex flex-wrap gap-1">
@@ -627,7 +627,7 @@ function LibraryOverview({ data, tagMetrics, onRepoClick, onViewArchived, onView
                 </div>
               )}
               {/* New releases */}
-              {trends.newReleases.length > 0 && (
+              {(trends.newReleases?.length ?? 0) > 0 && (
                 <div>
                   <p className="text-xs font-medium text-zinc-400 mb-1">🚀 New Releases</p>
                   <div className="space-y-1">
@@ -644,7 +644,7 @@ function LibraryOverview({ data, tagMetrics, onRepoClick, onViewArchived, onView
                 </div>
               )}
               {/* Insights */}
-              {trends.insights.length > 0 && trends.insights[0] !== 'Trend data builds up over time. Check back in a few days.' && (
+              {(trends.insights?.length ?? 0) > 0 && trends.insights[0] !== 'Trend data builds up over time. Check back in a few days.' && (
                 <div className="rounded-lg bg-zinc-800/50 p-2.5">
                   <p className="text-xs text-zinc-400 italic">{trends.insights[0]}</p>
                 </div>
