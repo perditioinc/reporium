@@ -20,9 +20,12 @@ export function WikiNavBar({ title }: WikiNavBarProps) {
         {title ?? 'Reporium Wiki'}
       </span>
 
-      <span className="text-xs text-zinc-500">
-        ☰ <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link>
-      </span>
+      <div className="flex items-center gap-4 text-xs text-zinc-500">
+        <Link href="/ask" className="hover:text-zinc-300 transition-colors">Ask</Link>
+        <Link href="/runs" className="hover:text-zinc-300 transition-colors">Run History</Link>
+        <Link href="/taxonomy" className="hover:text-zinc-300 transition-colors">Taxonomy</Link>
+        <span>☰ <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link></span>
+      </div>
     </nav>
   );
 }
