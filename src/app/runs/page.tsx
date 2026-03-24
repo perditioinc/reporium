@@ -1,5 +1,11 @@
+import type { Metadata } from 'next';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { RunsTable } from '@/components/RunsTable';
+
+export const metadata: Metadata = {
+  title: 'Ingestion Run History | Reporium',
+  description: 'View the history of data ingestion runs that keep the Reporium library up to date.',
+};
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
