@@ -154,6 +154,13 @@ export interface CrossDimensionAnalytics {
   pairs: CrossDimensionCell[];
 }
 
+export interface SimilarRepo {
+  name: string;
+  description: string | null;
+  primary_language?: string | null;
+  similarity?: number;
+}
+
 export type GapSeverity = 'missing' | 'weak' | 'moderate' | 'strong';
 
 export interface GapEssentialRepo {
