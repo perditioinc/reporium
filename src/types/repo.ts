@@ -112,6 +112,7 @@ export interface Category {
   repoCount: number;
   color: string;         // hex color for visualization
   icon: string;         // emoji icon
+  lifecycleGroup?: string; // one of the 6 lifecycle groups (e.g. "Foundation & Training")
 }
 
 /** Summary of a single git commit */
@@ -163,6 +164,7 @@ export interface EnrichedRepo {
   enrichedTags: string[];
   stars: number;
   forks: number;
+  openIssuesCount?: number;
   lastUpdated: string;
   url: string;
   isArchived: boolean;
@@ -205,7 +207,7 @@ export interface EnrichedRepo {
 
   latestRelease: LatestRelease | null;
 
-  aiDevSkills: string[];
+  aiDevSkills: { skill: string; lifecycleGroup: string }[];
   pmSkills: string[];
   industries: string[];
   programmingLanguages: string[];

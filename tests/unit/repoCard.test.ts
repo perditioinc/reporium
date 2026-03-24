@@ -8,6 +8,9 @@
  */
 
 import { buildBuilder } from '@/lib/buildTaxonomy';
+import { RepoCard } from '@/components/RepoCard';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { EnrichedRepo, ForkSyncStatus, ForkSyncState } from '@/types/repo';
 
 /** Shared makeRepo helper matching the pattern in other unit tests */
@@ -24,6 +27,7 @@ function makeRepo(overrides: Partial<EnrichedRepo>): EnrichedRepo {
     enrichedTags: [],
     stars: 0,
     forks: 0,
+    openIssuesCount: 0,
     lastUpdated: new Date().toISOString(),
     url: 'https://github.com/perditioinc/repo',
     isArchived: false,
@@ -273,5 +277,16 @@ describe('RepoCard — forkSync badge status text', () => {
   test('unknown state shows unavailable message', () => {
     const badge = syncBadge(makeForkSync({ state: 'unknown' as ForkSyncState, behindBy: 0, aheadBy: 0 }));
     expect(badge.label).toBe('Sync status unavailable');
+  });
+});
+
+describe('RepoCard - open issues count', () => {
+  test('renders the repo open issues count', () => {
+    const html = renderToStaticMarkup(
+      React.createElement(RepoCard, {
+        repo: makeRepo({ openIssuesCount: 12, stars: 100, forks: 4 }),
+      })
+    );
+    expect(html).toContain('Issues 12');
   });
 });
