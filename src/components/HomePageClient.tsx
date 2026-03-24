@@ -63,6 +63,9 @@ export function HomePageClient() {
   const [modalityValues, setModalityValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
   const [deploymentContextValues, setDeploymentContextValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
 
+  // API degraded state — true when production mode but data came from JSON fallback
+  const [apiDegraded, setApiDegraded] = useState(false);
+
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -119,6 +122,10 @@ export function HomePageClient() {
         if (!cancelled) {
           setData(full);
           setIsLoadingFull(false);
+          // Degraded: production mode but API fell back to JSON (no totalPages field)
+          if (provider.mode === 'production' && full.totalPages === undefined) {
+            setApiDegraded(true);
+          }
         }
         // Non-blocking extras
         provider.getTrends()
@@ -550,6 +557,12 @@ export function HomePageClient() {
             </div>
           )}
 
+          {/* Degraded API banner */}
+          {apiDegraded && (
+            <div className="rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-2 text-sm text-amber-300">
+              ⚠ Live API unavailable — showing cached snapshot. Data may be up to a few days old.
+            </div>
+          )}
 
           {/* Mini Ask — navigates to /ask for full query experience */}
           <MiniAskBar />
