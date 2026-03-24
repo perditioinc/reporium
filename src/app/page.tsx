@@ -12,6 +12,7 @@ import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
 import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
+import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 
@@ -27,6 +28,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
   const [portfolioInsights, setPortfolioInsights] = useState<Awaited<ReturnType<typeof provider.getPortfolioInsights>>>(null);
+  const [crossDimensionAnalytics, setCrossDimensionAnalytics] = useState<Awaited<ReturnType<typeof provider.getCrossDimensionAnalytics>>>(null);
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -35,6 +37,7 @@ export default function HomePage() {
   const [isSearchingSemantic, setIsSearchingSemantic] = useState(false);
   const [selectedType, setSelectedType] = useState<'all' | 'built' | 'forked'>('all');
   const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [selectedLicense, setSelectedLicense] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<'all' | 'active' | 'inactive'>('all');
   const [selectedSyncStatus, setSelectedSyncStatus] = useState<'all' | 'up-to-date' | 'behind' | 'behind-100' | 'ahead' | 'diverged'>('all');
@@ -72,6 +75,23 @@ export default function HomePage() {
       if (tagParam) {
         setSelectedTags([tagParam]);
       }
+      const taxonomyDimension = params.get('taxonomyDimension');
+      const taxonomyValue = params.get('taxonomyValue');
+      if (taxonomyDimension && taxonomyValue) {
+        if (taxonomyDimension === 'skill_area') {
+          setSelectedAiDevSkills([taxonomyValue]);
+        } else if (taxonomyDimension === 'industry') {
+          setSelectedIndustries([taxonomyValue]);
+        } else if (taxonomyDimension === 'use_case') {
+          setSelectedUseCases([taxonomyValue]);
+        } else if (taxonomyDimension === 'modality') {
+          setSelectedModalities([taxonomyValue]);
+        } else if (taxonomyDimension === 'ai_trend') {
+          setSelectedAiTrends([taxonomyValue]);
+        } else if (taxonomyDimension === 'deployment_context') {
+          setSelectedDeploymentContexts([taxonomyValue]);
+        }
+      }
     }
   }, []); // run once on mount
 
@@ -104,6 +124,9 @@ export default function HomePage() {
           .catch(() => {});
         provider.getPortfolioInsights()
           .then(insights => { if (!cancelled) setPortfolioInsights(insights); })
+          .catch(() => {});
+        provider.getCrossDimensionAnalytics('industry', 'ai_trend')
+          .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
         provider.getGaps().catch(() => {});
       } catch (e) {
@@ -244,6 +267,15 @@ export default function HomePage() {
     return counts;
   }, [data]);
 
+  const licenseCounts = useMemo(() => {
+    if (!data) return new Map<string, number>();
+    const counts = new Map<string, number>();
+    for (const repo of data.repos) {
+      if (repo.licenseSpdx) counts.set(repo.licenseSpdx, (counts.get(repo.licenseSpdx) ?? 0) + 1);
+    }
+    return counts;
+  }, [data]);
+
   const allTags = useMemo(() => {
     if (!data) return [];
     const counts = new Map<string, number>();
@@ -285,6 +317,7 @@ export default function HomePage() {
 
       // Language filter
       if (selectedLanguage && repo.language !== selectedLanguage) return false;
+      if (selectedLicense && repo.licenseSpdx !== selectedLicense) return false;
 
       // Tag filter — strictly against enrichedTags only
       if (selectedTags.length > 0) {
@@ -394,7 +427,7 @@ export default function HomePage() {
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       }
     });
-  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders]);
+  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders]);
 
   function clearFilters() {
     setSearch('');
@@ -402,6 +435,7 @@ export default function HomePage() {
     setSemanticResults(null);
     setSelectedType('all');
     setSelectedLanguage('');
+    setSelectedLicense('');
     setSelectedTags([]);
     setSelectedActivity('all');
     setSelectedSyncStatus('all');
@@ -511,6 +545,8 @@ export default function HomePage() {
             onRepoClick={handleRepoClick}
           />
 
+          <CrossDimensionWidget analytics={crossDimensionAnalytics} />
+
           {/* Stats */}
           {data && (
             <StatsBar
@@ -544,6 +580,7 @@ export default function HomePage() {
                 tagMetrics={data.tagMetrics ?? []}
                 selectedType={selectedType}
                 selectedLanguage={selectedLanguage}
+                selectedLicense={selectedLicense}
                 selectedTags={selectedTags}
                 selectedActivity={selectedActivity}
                 selectedSyncStatus={selectedSyncStatus}
@@ -553,6 +590,7 @@ export default function HomePage() {
                 onCategoryChange={setSelectedCategory}
                 onTypeChange={setSelectedType}
                 onLanguageChange={setSelectedLanguage}
+                onLicenseChange={setSelectedLicense}
                 onTagToggle={toggleTag}
                 onTagRemove={removeTag}
                 onActivityChange={setSelectedActivity}
@@ -586,6 +624,7 @@ export default function HomePage() {
                 onBuilderToggle={toggleBuilder}
                 industryStats={industryStats}
                 languageCounts={languageCounts}
+                licenseCounts={licenseCounts}
               />
             </>
           )}

@@ -132,6 +132,19 @@ export interface PortfolioInsights {
   summary: string[];
 }
 
+export interface CrossDimensionCell {
+  dim1_value: string;
+  dim2_value: string;
+  repo_count: number;
+}
+
+export interface CrossDimensionAnalytics {
+  dim1: string;
+  dim2: string;
+  limit: number;
+  pairs: CrossDimensionCell[];
+}
+
 export type GapSeverity = 'missing' | 'weak' | 'moderate' | 'strong';
 
 export interface GapEssentialRepo {
@@ -225,6 +238,7 @@ export interface EnrichedRepo {
   stars: number;
   forks: number;
   openIssuesCount?: number;
+  licenseSpdx?: string | null;
   lastUpdated: string;
   url: string;
   isArchived: boolean;
