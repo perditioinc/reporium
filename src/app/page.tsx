@@ -12,6 +12,7 @@ import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
 import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
+import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 
@@ -27,6 +28,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
   const [portfolioInsights, setPortfolioInsights] = useState<Awaited<ReturnType<typeof provider.getPortfolioInsights>>>(null);
+  const [crossDimensionAnalytics, setCrossDimensionAnalytics] = useState<Awaited<ReturnType<typeof provider.getCrossDimensionAnalytics>>>(null);
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -121,6 +123,9 @@ export default function HomePage() {
           .catch(() => {});
         provider.getPortfolioInsights()
           .then(insights => { if (!cancelled) setPortfolioInsights(insights); })
+          .catch(() => {});
+        provider.getCrossDimensionAnalytics('industry', 'ai_trend')
+          .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
         provider.getGaps().catch(() => {});
       } catch (e) {
@@ -527,6 +532,8 @@ export default function HomePage() {
             insights={portfolioInsights}
             onRepoClick={handleRepoClick}
           />
+
+          <CrossDimensionWidget analytics={crossDimensionAnalytics} />
 
           {/* Stats */}
           {data && (
