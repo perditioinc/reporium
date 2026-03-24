@@ -164,6 +164,7 @@ export interface EnrichedRepo {
   enrichedTags: string[];
   stars: number;
   forks: number;
+  openIssuesCount: number;
   lastUpdated: string;
   url: string;
   isArchived: boolean;

@@ -393,6 +393,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         )}
 
         {/* Last update date — use lastUpdated (always populated), fallback to parent */}
+        <span>Issues {(repo.openIssuesCount ?? 0).toLocaleString()}</span>
         <span className="ml-auto">
           {relativeTime(repo.lastUpdated) !== '—'
             ? relativeTime(repo.lastUpdated)
