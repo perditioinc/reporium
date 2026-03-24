@@ -45,7 +45,16 @@ export default function HomePage() {
   const [selectedAiDevSkills, setSelectedAiDevSkills] = useState<string[]>([]);
   const [selectedPmSkills, setSelectedPmSkills] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [selectedAiTrends, setSelectedAiTrends] = useState<string[]>([]);
+  const [selectedUseCases, setSelectedUseCases] = useState<string[]>([]);
+  const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
+  const [selectedDeploymentContexts, setSelectedDeploymentContexts] = useState<string[]>([]);
   const [selectedBuilders, setSelectedBuilders] = useState<string[]>([]);
+  const [aiTrendValues, setAiTrendValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
+  const [industryValues, setIndustryValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
+  const [useCaseValues, setUseCaseValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
+  const [modalityValues, setModalityValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
+  const [deploymentContextValues, setDeploymentContextValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
 
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -146,6 +155,43 @@ export default function HomePage() {
     };
   }, [data, search, searchMode]);
 
+  useEffect(() => {
+    if (!data) return;
+
+    let cancelled = false;
+
+    async function loadTaxonomyValues() {
+      try {
+        const [aiTrends, industries, useCases, modalities, deploymentContexts] = await Promise.all([
+          provider.getTaxonomyValues('ai_trend'),
+          provider.getTaxonomyValues('industry'),
+          provider.getTaxonomyValues('use_case'),
+          provider.getTaxonomyValues('modality'),
+          provider.getTaxonomyValues('deployment_context'),
+        ]);
+
+        if (cancelled) return;
+        setAiTrendValues(aiTrends);
+        setIndustryValues(industries);
+        setUseCaseValues(useCases);
+        setModalityValues(modalities);
+        setDeploymentContextValues(deploymentContexts);
+      } catch {
+        if (cancelled) return;
+        setAiTrendValues([]);
+        setIndustryValues([]);
+        setUseCaseValues([]);
+        setModalityValues([]);
+        setDeploymentContextValues([]);
+      }
+    }
+
+    loadTaxonomyValues();
+    return () => {
+      cancelled = true;
+    };
+  }, [data]);
+
   const allLanguages = useMemo(() => data?.stats.languages ?? [], [data]);
 
   /** Map stale DB category names → current taxonomy names.
@@ -175,7 +221,7 @@ export default function HomePage() {
     if (!data) return [];
     const counts = new Map<string, number>();
     for (const repo of data.repos) {
-      for (const ind of (repo.industries ?? [])) {
+      for (const ind of (repo.taxonomy ?? []).filter((entry) => entry.dimension === 'industry').map((entry) => entry.value)) {
         counts.set(ind, (counts.get(ind) ?? 0) + 1);
       }
     }
@@ -286,9 +332,30 @@ export default function HomePage() {
       if (selectedPmSkills.length > 0) {
         if (!selectedPmSkills.every(s => (repo.pmSkills ?? []).includes(s))) return false;
       }
-      // Industries filter
+      const taxonomyByDimension = (dimension: string) =>
+        (repo.taxonomy ?? [])
+          .filter((entry) => entry.dimension === dimension)
+          .map((entry) => entry.value);
+      // Taxonomy dimension filters
+      if (selectedAiTrends.length > 0) {
+        const repoAiTrends = taxonomyByDimension('ai_trend');
+        if (!selectedAiTrends.every((value) => repoAiTrends.includes(value))) return false;
+      }
       if (selectedIndustries.length > 0) {
-        if (!selectedIndustries.every(s => (repo.industries ?? []).includes(s))) return false;
+        const repoIndustries = taxonomyByDimension('industry');
+        if (!selectedIndustries.every((value) => repoIndustries.includes(value))) return false;
+      }
+      if (selectedUseCases.length > 0) {
+        const repoUseCases = taxonomyByDimension('use_case');
+        if (!selectedUseCases.every((value) => repoUseCases.includes(value))) return false;
+      }
+      if (selectedModalities.length > 0) {
+        const repoModalities = taxonomyByDimension('modality');
+        if (!selectedModalities.every((value) => repoModalities.includes(value))) return false;
+      }
+      if (selectedDeploymentContexts.length > 0) {
+        const repoDeploymentContexts = taxonomyByDimension('deployment_context');
+        if (!selectedDeploymentContexts.every((value) => repoDeploymentContexts.includes(value))) return false;
       }
       // Builders filter
       if (selectedBuilders.length > 0) {
@@ -322,7 +389,7 @@ export default function HomePage() {
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       }
     });
-  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedIndustries, selectedBuilders]);
+  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders]);
 
   function clearFilters() {
     setSearch('');
@@ -338,7 +405,11 @@ export default function HomePage() {
     setSelectedCategory('');
     setSelectedAiDevSkills([]);
     setSelectedPmSkills([]);
+    setSelectedAiTrends([]);
     setSelectedIndustries([]);
+    setSelectedUseCases([]);
+    setSelectedModalities([]);
+    setSelectedDeploymentContexts([]);
     setSelectedBuilders([]);
   }
 
@@ -362,6 +433,22 @@ export default function HomePage() {
 
   function toggleIndustry(industry: string) {
     setSelectedIndustries(prev => prev.includes(industry) ? prev.filter(s => s !== industry) : [...prev, industry]);
+  }
+
+  function toggleAiTrend(value: string) {
+    setSelectedAiTrends(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  }
+
+  function toggleUseCase(value: string) {
+    setSelectedUseCases(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  }
+
+  function toggleModality(value: string) {
+    setSelectedModalities(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  }
+
+  function toggleDeploymentContext(value: string) {
+    setSelectedDeploymentContexts(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
   }
 
   function toggleBuilder(builder: string) {
@@ -466,13 +553,26 @@ export default function HomePage() {
                 aiDevSkillStats={data.aiDevSkillStats ?? []}
                 pmSkillStats={data.pmSkillStats ?? []}
                 builderStats={data.builderStats ?? []}
+                aiTrendValues={aiTrendValues}
+                industryValues={industryValues}
+                useCaseValues={useCaseValues}
+                modalityValues={modalityValues}
+                deploymentContextValues={deploymentContextValues}
+                selectedAiTrends={selectedAiTrends}
                 selectedAiDevSkills={selectedAiDevSkills}
                 selectedPmSkills={selectedPmSkills}
                 selectedIndustries={selectedIndustries}
+                selectedUseCases={selectedUseCases}
+                selectedModalities={selectedModalities}
+                selectedDeploymentContexts={selectedDeploymentContexts}
                 selectedBuilders={selectedBuilders}
+                onAiTrendToggle={toggleAiTrend}
                 onAiDevSkillToggle={toggleAiDevSkill}
                 onPmSkillToggle={togglePmSkill}
                 onIndustryToggle={toggleIndustry}
+                onUseCaseToggle={toggleUseCase}
+                onModalityToggle={toggleModality}
+                onDeploymentContextToggle={toggleDeploymentContext}
                 onBuilderToggle={toggleBuilder}
                 industryStats={industryStats}
                 languageCounts={languageCounts}
