@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
+import { MiniAskBar } from '@/components/MiniAskBar';
 import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
 import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { TrendingThisWeekWidget } from '@/components/TrendingThisWeekWidget';
@@ -549,6 +550,9 @@ export default function HomePage() {
             </div>
           )}
 
+
+          {/* Mini Ask — navigates to /ask for full query experience */}
+          <MiniAskBar />
 
           {/* Ask / Intelligence query */}
           <AskBar apiUrl={API_URL} />
