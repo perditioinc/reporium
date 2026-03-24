@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { Fragment, useState, useCallback, useEffect } from 'react';
 import type { IngestionRun } from '@/app/runs/page';
 
 interface RunsTableProps {
@@ -49,6 +49,7 @@ function statusColor(status: string): string {
 export function RunsTable({ runs: initialRuns, apiUrl, showRefresh }: RunsTableProps) {
   const [runs, setRuns] = useState<IngestionRun[]>(initialRuns);
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(initialRuns.length === 0);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const refresh = useCallback(async () => {
@@ -66,8 +67,23 @@ export function RunsTable({ runs: initialRuns, apiUrl, showRefresh }: RunsTableP
       // silently ignore — keep stale data
     } finally {
       setRefreshing(false);
+      setLoading(false);
     }
   }, [apiUrl]);
+
+  useEffect(() => {
+    refresh();
+
+    if (!showRefresh) return;
+
+    const intervalId = window.setInterval(() => {
+      refresh();
+    }, 30000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [refresh, showRefresh]);
 
   function toggleRow(runId: string) {
     setExpandedRows((prev) => {
@@ -76,6 +92,17 @@ export function RunsTable({ runs: initialRuns, apiUrl, showRefresh }: RunsTableP
       else next.add(runId);
       return next;
     });
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4 w-full">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+          <div className="mx-auto mb-3 h-5 w-5 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
+          <p className="text-sm text-zinc-400">Loading run history...</p>
+        </div>
+      </div>
+    );
   }
 
   if (runs.length === 0) {
@@ -133,9 +160,8 @@ export function RunsTable({ runs: initialRuns, apiUrl, showRefresh }: RunsTableP
               const hasErrors = run.errors && run.errors.length > 0;
               const isExpanded = expandedRows.has(run.run_id);
               return (
-                <>
+                <Fragment key={run.run_id}>
                   <tr
-                    key={run.run_id}
                     className={`bg-zinc-900/30 hover:bg-zinc-900/60 transition-colors ${hasErrors ? 'cursor-pointer' : ''}`}
                     onClick={() => hasErrors && toggleRow(run.run_id)}
                   >
@@ -174,7 +200,7 @@ export function RunsTable({ runs: initialRuns, apiUrl, showRefresh }: RunsTableP
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               );
             })}
           </tbody>
