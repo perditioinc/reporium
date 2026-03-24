@@ -1,13 +1,13 @@
 # Reporium Roadmap
 
-## What Worked At The 2026-03-21 Snapshot
+## Historical Snapshot: What Worked On 2026-03-21
 
-This document captures a frontend/platform planning snapshot from 2026-03-21.
-Counts below reflect that point-in-time view and should not be read as the current live suite totals.
+This section captures a frontend/platform planning snapshot from 2026-03-21.
+Counts below reflect that March 2026 milestone and should not be read as the current live suite totals.
 
-- **831 repos tracked** across the perditioinc GitHub organization
-- **826 repos enriched** with AI-generated summaries, problem descriptions, and integration tags via Claude Sonnet ($2.52 total)
-- **826 semantic embeddings** (384-dim, all-MiniLM-L6-v2) enabling natural language search
+- **831 repos tracked** across the perditioinc GitHub organization at that time
+- **826 repos enriched** with AI-generated summaries, problem descriptions, and integration tags via Claude Sonnet ($2.52 total) at that time
+- **826 semantic embeddings** (384-dim, all-MiniLM-L6-v2) enabling natural language search at that time
 - **5,418 knowledge graph edges** (COMPATIBLE_WITH, ALTERNATIVE_TO, DEPENDS_ON)
 - **POST /intelligence/query** endpoint live on Cloud Run — ask natural language questions, get answers citing real repos
 - **reporium.com** reads from live API (`/library/full`) with static JSON fallback
@@ -48,9 +48,11 @@ Counts below reflect that point-in-time view and should not be read as the curre
 
 ### Cost Model at Scale
 
+The first row below is a March 2026 historical snapshot. The larger-scale rows are planning estimates, not current live operating totals.
+
 | Scale | Enrichment (one-time) | Nightly new repos | Embeddings | Query endpoint |
 |-------|----------------------|-------------------|------------|----------------|
-| 826 repos | $2.52 (done) | ~$0.01/night | $0 (local) | ~$0.01/query |
+| 826 repos (March 2026 milestone) | $2.52 (done) | ~$0.01/night | $0 (local) | ~$0.01/query |
 | 10K repos | ~$30 | ~$0.30/night | $0 (local) | ~$0.01/query |
 | 100K repos | ~$300 | ~$3/night | $0 (local) | ~$0.01/query |
 
