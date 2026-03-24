@@ -72,6 +72,23 @@ export default function HomePage() {
       if (tagParam) {
         setSelectedTags([tagParam]);
       }
+      const taxonomyDimension = params.get('taxonomyDimension');
+      const taxonomyValue = params.get('taxonomyValue');
+      if (taxonomyDimension && taxonomyValue) {
+        if (taxonomyDimension === 'skill_area') {
+          setSelectedAiDevSkills([taxonomyValue]);
+        } else if (taxonomyDimension === 'industry') {
+          setSelectedIndustries([taxonomyValue]);
+        } else if (taxonomyDimension === 'use_case') {
+          setSelectedUseCases([taxonomyValue]);
+        } else if (taxonomyDimension === 'modality') {
+          setSelectedModalities([taxonomyValue]);
+        } else if (taxonomyDimension === 'ai_trend') {
+          setSelectedAiTrends([taxonomyValue]);
+        } else if (taxonomyDimension === 'deployment_context') {
+          setSelectedDeploymentContexts([taxonomyValue]);
+        }
+      }
     }
   }, []); // run once on mount
 
