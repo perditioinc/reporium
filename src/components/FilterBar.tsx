@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TagMetrics, SortOption, Category, SkillStats, BuilderStats } from '@/types/repo';
+import { TagMetrics, SortOption, Category, SkillStats, BuilderStats, TaxonomyValueOption } from '@/types/repo';
 
 interface FilterBarProps {
   categories: Category[];
@@ -39,6 +39,19 @@ interface FilterBarProps {
   onBuilderToggle?: (builder: string) => void;
   industryStats?: { industry: string; count: number }[];
   languageCounts?: Map<string, number>;
+  aiTrendValues?: TaxonomyValueOption[];
+  industryValues?: TaxonomyValueOption[];
+  useCaseValues?: TaxonomyValueOption[];
+  modalityValues?: TaxonomyValueOption[];
+  deploymentContextValues?: TaxonomyValueOption[];
+  selectedAiTrends?: string[];
+  selectedUseCases?: string[];
+  selectedModalities?: string[];
+  selectedDeploymentContexts?: string[];
+  onAiTrendToggle?: (value: string) => void;
+  onUseCaseToggle?: (value: string) => void;
+  onModalityToggle?: (value: string) => void;
+  onDeploymentContextToggle?: (value: string) => void;
 }
 
 /** Activity indicator dot based on score */
@@ -59,7 +72,17 @@ const SORT_LABELS: Record<SortOption, string> = {
   'fork-newest': 'Forked: Newest',
 };
 
-type TabId = 'categories' | 'ai-dev-skills' | 'pm-skills' | 'industries' | 'builders' | 'languages';
+type TabId =
+  | 'categories'
+  | 'ai-trends'
+  | 'industries'
+  | 'use-cases'
+  | 'modalities'
+  | 'deployment-context'
+  | 'ai-dev-skills'
+  | 'pm-skills'
+  | 'builders'
+  | 'languages';
 
 /** Filter and sort controls for the repo library */
 export function FilterBar({
@@ -91,12 +114,25 @@ export function FilterBar({
   selectedPmSkills = [],
   selectedIndustries = [],
   selectedBuilders = [],
+  selectedAiTrends = [],
+  selectedUseCases = [],
+  selectedModalities = [],
+  selectedDeploymentContexts = [],
   onAiDevSkillToggle,
   onPmSkillToggle,
   onIndustryToggle,
   onBuilderToggle,
   industryStats,
   languageCounts,
+  aiTrendValues = [],
+  industryValues = [],
+  useCaseValues = [],
+  modalityValues = [],
+  deploymentContextValues = [],
+  onAiTrendToggle,
+  onUseCaseToggle,
+  onModalityToggle,
+  onDeploymentContextToggle,
 }: FilterBarProps) {
   const [showAllTags, setShowAllTags] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('categories');
@@ -123,16 +159,24 @@ export function FilterBar({
     selectedTags.length > 0 ||
     selectedActivity !== 'all' ||
     selectedSyncStatus !== 'all' ||
+    selectedAiTrends.length > 0 ||
     selectedAiDevSkills.length > 0 ||
     selectedPmSkills.length > 0 ||
     selectedIndustries.length > 0 ||
+    selectedUseCases.length > 0 ||
+    selectedModalities.length > 0 ||
+    selectedDeploymentContexts.length > 0 ||
     selectedBuilders.length > 0;
 
   const tabs: { id: TabId; label: string }[] = [
     { id: 'categories', label: 'Categories' },
+    { id: 'ai-trends', label: 'AI Trends' },
+    { id: 'industries', label: 'Industries' },
+    { id: 'use-cases', label: 'Use Cases' },
+    { id: 'modalities', label: 'Modalities' },
+    { id: 'deployment-context', label: 'Deployment' },
     { id: 'ai-dev-skills', label: 'AI Dev Skills' },
     { id: 'pm-skills', label: 'PM Skills' },
-    { id: 'industries', label: 'Industries' },
     { id: 'builders', label: 'Builders' },
     { id: 'languages', label: 'Languages' },
   ];
@@ -188,6 +232,12 @@ export function FilterBar({
               </button>
             </span>
           ))}
+          {selectedAiTrends.map(trend => (
+            <span key={trend} className="flex items-center gap-1 rounded-full bg-sky-900/30 border border-sky-700/50 px-2.5 py-1 text-xs font-medium text-sky-300">
+              {trend}
+              <button onClick={() => onAiTrendToggle?.(trend)} className="ml-1 hover:opacity-70">×</button>
+            </span>
+          ))}
           {/* AI Dev Skill pills */}
           {selectedAiDevSkills.map(skill => (
             <span key={skill} className="flex items-center gap-1 rounded-full bg-emerald-900/30 border border-emerald-700/50 px-2.5 py-1 text-xs font-medium text-emerald-300">
@@ -207,6 +257,24 @@ export function FilterBar({
             <span key={ind} className="flex items-center gap-1 rounded-full bg-amber-900/30 border border-amber-700/50 px-2.5 py-1 text-xs font-medium text-amber-300">
               {ind}
               <button onClick={() => onIndustryToggle?.(ind)} className="ml-1 hover:opacity-70">×</button>
+            </span>
+          ))}
+          {selectedUseCases.map(value => (
+            <span key={value} className="flex items-center gap-1 rounded-full bg-fuchsia-900/30 border border-fuchsia-700/50 px-2.5 py-1 text-xs font-medium text-fuchsia-300">
+              {value}
+              <button onClick={() => onUseCaseToggle?.(value)} className="ml-1 hover:opacity-70">×</button>
+            </span>
+          ))}
+          {selectedModalities.map(value => (
+            <span key={value} className="flex items-center gap-1 rounded-full bg-teal-900/30 border border-teal-700/50 px-2.5 py-1 text-xs font-medium text-teal-300">
+              {value}
+              <button onClick={() => onModalityToggle?.(value)} className="ml-1 hover:opacity-70">×</button>
+            </span>
+          ))}
+          {selectedDeploymentContexts.map(value => (
+            <span key={value} className="flex items-center gap-1 rounded-full bg-orange-900/30 border border-orange-700/50 px-2.5 py-1 text-xs font-medium text-orange-300">
+              {value}
+              <button onClick={() => onDeploymentContextToggle?.(value)} className="ml-1 hover:opacity-70">×</button>
             </span>
           ))}
           {/* Builder pills */}
@@ -342,6 +410,29 @@ export function FilterBar({
           </>
         )}
 
+        {activeTab === 'ai-trends' && (
+          <div className="flex flex-wrap gap-1.5">
+            {aiTrendValues.map((value) => {
+              const isSelected = selectedAiTrends.includes(value.name);
+              return (
+                <button
+                  key={value.id}
+                  onClick={() => onAiTrendToggle?.(value.name)}
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                    isSelected ? 'bg-sky-700 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <span>{value.name}</span>
+                  <span className={isSelected ? 'text-sky-200' : 'text-zinc-600'}>{value.repo_count}</span>
+                </button>
+              );
+            })}
+            {aiTrendValues.length === 0 && (
+              <p className="text-xs text-zinc-600">No AI trend values returned by the taxonomy API.</p>
+            )}
+          </div>
+        )}
+
         {/* AI Dev Skills tab */}
         {activeTab === 'ai-dev-skills' && (
           <div className="flex flex-wrap gap-1.5">
@@ -395,16 +486,14 @@ export function FilterBar({
         {/* Industries tab */}
         {activeTab === 'industries' && (
           <div className="flex flex-wrap gap-1.5">
-            {(industryStats && industryStats.length > 0
-              ? industryStats
-              : ['Healthcare & Medicine', 'Finance & FinTech', 'Audio & Music', 'Gaming & Entertainment',
-                 'Robotics & Manufacturing', 'Spatial & Immersive', 'Developer Tools', 'Research & Academia']
-                  .map(ind => ({ industry: ind, count: 0 }))
-            ).map(({ industry: ind, count }) => {
+            {(industryValues.length > 0
+              ? industryValues.map(value => ({ industry: value.name, count: value.repo_count, id: value.id }))
+              : (industryStats ?? []).map(({ industry, count }, index) => ({ industry, count, id: index + 1 }))
+            ).map(({ industry: ind, count, id }) => {
               const isSelected = selectedIndustries.includes(ind);
               return (
                 <button
-                  key={ind}
+                  key={id}
                   onClick={() => onIndustryToggle?.(ind)}
                   className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
                     isSelected ? 'bg-amber-700 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
@@ -415,6 +504,78 @@ export function FilterBar({
                 </button>
               );
             })}
+            {industryValues.length === 0 && (!industryStats || industryStats.length === 0) && (
+              <p className="text-xs text-zinc-600">No industry values returned by the taxonomy API.</p>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'use-cases' && (
+          <div className="flex flex-wrap gap-1.5">
+            {useCaseValues.map((value) => {
+              const isSelected = selectedUseCases.includes(value.name);
+              return (
+                <button
+                  key={value.id}
+                  onClick={() => onUseCaseToggle?.(value.name)}
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                    isSelected ? 'bg-fuchsia-700 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <span>{value.name}</span>
+                  <span className={isSelected ? 'text-fuchsia-200' : 'text-zinc-600'}>{value.repo_count}</span>
+                </button>
+              );
+            })}
+            {useCaseValues.length === 0 && (
+              <p className="text-xs text-zinc-600">No use case values returned by the taxonomy API.</p>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'modalities' && (
+          <div className="flex flex-wrap gap-1.5">
+            {modalityValues.map((value) => {
+              const isSelected = selectedModalities.includes(value.name);
+              return (
+                <button
+                  key={value.id}
+                  onClick={() => onModalityToggle?.(value.name)}
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                    isSelected ? 'bg-teal-700 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <span>{value.name}</span>
+                  <span className={isSelected ? 'text-teal-200' : 'text-zinc-600'}>{value.repo_count}</span>
+                </button>
+              );
+            })}
+            {modalityValues.length === 0 && (
+              <p className="text-xs text-zinc-600">No modality values returned by the taxonomy API.</p>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'deployment-context' && (
+          <div className="flex flex-wrap gap-1.5">
+            {deploymentContextValues.map((value) => {
+              const isSelected = selectedDeploymentContexts.includes(value.name);
+              return (
+                <button
+                  key={value.id}
+                  onClick={() => onDeploymentContextToggle?.(value.name)}
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                    isSelected ? 'bg-orange-700 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  <span>{value.name}</span>
+                  <span className={isSelected ? 'text-orange-200' : 'text-zinc-600'}>{value.repo_count}</span>
+                </button>
+              );
+            })}
+            {deploymentContextValues.length === 0 && (
+              <p className="text-xs text-zinc-600">No deployment context values returned by the taxonomy API.</p>
+            )}
           </div>
         )}
 

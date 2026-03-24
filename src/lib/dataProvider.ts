@@ -5,7 +5,7 @@
  * Falls back to JSON if API is unreachable.
  */
 
-import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis } from '@/types/repo'
+import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, TaxonomyValueOption } from '@/types/repo'
 
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
@@ -18,6 +18,7 @@ export interface DataProvider {
   getGaps(): Promise<GapAnalysis | null>
   getRepo(name: string): Promise<EnrichedRepo | null>
   searchRepos(query: string, mode?: SearchMode): Promise<EnrichedRepo[]>
+  getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]>
 }
 
 export function createDataProvider(): DataProvider {
@@ -76,6 +77,25 @@ class JsonDataProvider implements DataProvider {
       r.description?.toLowerCase().includes(q) ||
       r.enrichedTags.some(t => t.toLowerCase().includes(q))
     )
+  }
+
+  async getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]> {
+    const library = await this.getLibrary()
+    const counts = new Map<string, number>()
+    for (const repo of library.repos) {
+      for (const entry of repo.taxonomy ?? []) {
+        if (entry.dimension !== dimension) continue
+        counts.set(entry.value, (counts.get(entry.value) ?? 0) + 1)
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, repo_count], index) => ({
+        id: index + 1,
+        dimension,
+        name,
+        repo_count,
+      }))
   }
 }
 
@@ -145,5 +165,14 @@ class ApiDataProvider implements DataProvider {
       return await this.apiFetch<EnrichedRepo[]>(path)
     }
     catch { return this.fallback.searchRepos(query) }
+  }
+
+  async getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]> {
+    try {
+      const response = await this.apiFetch<{ values: TaxonomyValueOption[] }>(`/taxonomy/${encodeURIComponent(dimension)}`)
+      return response.values ?? []
+    } catch {
+      return this.fallback.getTaxonomyValues(dimension)
+    }
   }
 }
