@@ -11,6 +11,7 @@ interface FilterBarProps {
   selectedCategory: string;
   selectedType: 'all' | 'built' | 'forked';
   selectedLanguage: string;
+  selectedLicense?: string;
   selectedTags: string[];
   selectedActivity: 'all' | 'active' | 'inactive';
   selectedSyncStatus: 'all' | 'up-to-date' | 'behind' | 'behind-100' | 'ahead' | 'diverged';
@@ -19,6 +20,7 @@ interface FilterBarProps {
   onCategoryChange: (id: string) => void;
   onTypeChange: (v: 'all' | 'built' | 'forked') => void;
   onLanguageChange: (v: string) => void;
+  onLicenseChange?: (v: string) => void;
   onTagToggle: (tag: string) => void;
   onTagRemove: (tag: string) => void;
   onActivityChange: (v: 'all' | 'active' | 'inactive') => void;
@@ -39,6 +41,7 @@ interface FilterBarProps {
   onBuilderToggle?: (builder: string) => void;
   industryStats?: { industry: string; count: number }[];
   languageCounts?: Map<string, number>;
+  licenseCounts?: Map<string, number>;
   aiTrendValues?: TaxonomyValueOption[];
   industryValues?: TaxonomyValueOption[];
   useCaseValues?: TaxonomyValueOption[];
@@ -82,7 +85,8 @@ type TabId =
   | 'ai-dev-skills'
   | 'pm-skills'
   | 'builders'
-  | 'languages';
+  | 'languages'
+  | 'licenses';
 
 /** Filter and sort controls for the repo library */
 export function FilterBar({
@@ -93,6 +97,7 @@ export function FilterBar({
   selectedCategory,
   selectedType,
   selectedLanguage,
+  selectedLicense = '',
   selectedTags,
   selectedActivity,
   selectedSyncStatus,
@@ -101,6 +106,7 @@ export function FilterBar({
   onCategoryChange,
   onTypeChange,
   onLanguageChange,
+  onLicenseChange,
   onTagToggle,
   onTagRemove,
   onActivityChange,
@@ -124,6 +130,7 @@ export function FilterBar({
   onBuilderToggle,
   industryStats,
   languageCounts,
+  licenseCounts,
   aiTrendValues = [],
   industryValues = [],
   useCaseValues = [],
@@ -156,6 +163,7 @@ export function FilterBar({
     selectedCategory !== '' ||
     selectedType !== 'all' ||
     selectedLanguage !== '' ||
+    selectedLicense !== '' ||
     selectedTags.length > 0 ||
     selectedActivity !== 'all' ||
     selectedSyncStatus !== 'all' ||
@@ -179,6 +187,7 @@ export function FilterBar({
     { id: 'pm-skills', label: 'PM Skills' },
     { id: 'builders', label: 'Builders' },
     { id: 'languages', label: 'Languages' },
+    { id: 'licenses', label: 'Licenses' },
   ];
 
   // Group builders by category
@@ -639,6 +648,31 @@ export function FilterBar({
                 </button>
               );
             })}
+          </div>
+        )}
+
+        {activeTab === 'licenses' && (
+          <div className="flex flex-wrap gap-1.5">
+            {[...(licenseCounts?.entries() ?? [])]
+              .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+              .map(([license, count]) => {
+                const isSelected = selectedLicense === license;
+                return (
+                  <button
+                    key={license}
+                    onClick={() => onLicenseChange?.(isSelected ? '' : license)}
+                    className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                      isSelected ? 'bg-zinc-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                    }`}
+                  >
+                    <span>{license}</span>
+                    <span className={isSelected ? 'text-zinc-200' : 'text-zinc-600'}>{count}</span>
+                  </button>
+                );
+              })}
+            {(licenseCounts?.size ?? 0) === 0 && (
+              <p className="text-xs text-zinc-600">No license data returned yet.</p>
+            )}
           </div>
         )}
 
