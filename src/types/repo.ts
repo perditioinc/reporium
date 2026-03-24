@@ -272,4 +272,9 @@ export interface LibraryData {
   builderStats: BuilderStats[];
   aiDevSkillStats: SkillStats[];
   pmSkillStats: SkillStats[];
+  // Pagination fields (present when the API returns paginated results)
+  page?: number;
+  pageSize?: number;
+  totalRepos?: number;
+  totalPages?: number;
 }
