@@ -7,11 +7,19 @@ Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning]
 
 #### Added
 - Cold-start loading banner (`LoadingBanner` component) shown while full library loads from API
+- Repo detail pages at `/repo/[name]` with taxonomy, skills, categories, timeline, quality, and similar-repo sections
+- Portfolio insights widget and cross-dimension analytics widget on the dashboard
+- Taxonomy sidebar filters for AI trends, industries, use cases, modalities, and deployment context
+- License badges and sidebar license filters
+- Trending This Week dashboard widget
+- Quality score badges on repo cards and detailed quality breakdown on repo pages
+- Cross-dimension and taxonomy shortcut deep links from repo detail experiences
 
 #### Changed
 - Audio category expanded to 16 tags
 - Node.js 24 in CI workflows
 - Repo count updated from 826 to 1,400+ in documentation
+- Semantic search UI now supports keyword vs embedding modes and surfaces similarity percentages
 
 #### Fixed
 - Re-activated `ApiDataProvider` with pagination for full library load
