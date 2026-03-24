@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { LibraryData } from '@/types/repo';
 import { AI_DEV_SKILLS } from '@/lib/buildTaxonomy';
+import { GapAnalysisPanel } from '@/components/GapAnalysisPanel';
 import { WikiNavBar } from '@/components/WikiNavBar';
 
 function getLibraryData(): LibraryData | null {
@@ -81,17 +82,7 @@ export default function WikiPage() {
       {data.gapAnalysis?.gaps && data.gapAnalysis.gaps.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold text-zinc-200 mb-3">Library Gaps</h2>
-          <div className="space-y-2">
-            {data.gapAnalysis.gaps.map(gap => (
-              <div key={gap.category} className="rounded-lg border border-zinc-800 bg-zinc-900 p-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-red-400 font-medium text-sm">{gap.category}</span>
-                  <span className="text-xs text-zinc-500">{gap.yourRepoCount} repos</span>
-                </div>
-                <p className="text-xs text-zinc-500 mt-1">{gap.description}</p>
-              </div>
-            ))}
-          </div>
+          <GapAnalysisPanel gaps={data.gapAnalysis.gaps} />
         </section>
       )}
     </div>
