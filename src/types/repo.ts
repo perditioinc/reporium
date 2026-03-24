@@ -132,6 +132,15 @@ export interface PortfolioInsights {
   summary: string[];
 }
 
+export interface QualitySignals {
+  has_tests: boolean;
+  has_ci: boolean;
+  commit_velocity_30d: number;
+  activity_score: number;
+  is_active: boolean;
+  overall_score: number;
+}
+
 export interface CrossDimensionCell {
   dim1_value: string;
   dim2_value: string;
@@ -287,6 +296,8 @@ export interface EnrichedRepo {
   programmingLanguages: string[];
   builders: Builder[];
   similarity?: number;
+  qualitySignals?: QualitySignals | null;
+  quality_signals?: QualitySignals | null;
   taxonomy?: TaxonomyEntry[];
 }
 
