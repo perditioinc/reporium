@@ -2,7 +2,7 @@
  * Fetch complete library data from reporium-api /library/full endpoint.
  * Replaces the old generate-library.ts that made 800+ individual GitHub API calls.
  *
- * One API call. ~2 seconds. Returns all 826+ repos with enriched data.
+ * One API call. ~2 seconds. Returns all 1,400+ repos with enriched data.
  *
  * Usage:
  *   npx tsx scripts/fetch-library.ts
