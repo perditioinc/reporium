@@ -13,6 +13,7 @@ import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
 import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
 import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
+import { TrendingThisWeekWidget } from '@/components/TrendingThisWeekWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 
@@ -256,6 +257,18 @@ export default function HomePage() {
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([industry, count]) => ({ industry, count }));
+  }, [data]);
+
+  const trendingThisWeek = useMemo(() => {
+    if (!data) return [];
+    return [...data.repos]
+      .filter((repo) => (repo.commitStats?.last7Days ?? repo.weeklyCommitCount ?? 0) > 0)
+      .sort((a, b) => {
+        const left = b.commitStats?.last7Days ?? b.weeklyCommitCount ?? 0;
+        const right = a.commitStats?.last7Days ?? a.weeklyCommitCount ?? 0;
+        return left - right;
+      })
+      .slice(0, 5);
   }, [data]);
 
   const languageCounts = useMemo(() => {
@@ -544,6 +557,8 @@ export default function HomePage() {
             insights={portfolioInsights}
             onRepoClick={handleRepoClick}
           />
+
+          <TrendingThisWeekWidget repos={trendingThisWeek} />
 
           <CrossDimensionWidget analytics={crossDimensionAnalytics} />
 
