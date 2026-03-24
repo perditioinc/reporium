@@ -5,9 +5,9 @@
 This section captures a frontend/platform planning snapshot from 2026-03-21.
 Counts below reflect that March 2026 milestone and should not be read as the current live suite totals.
 
-- **831 repos tracked** across the perditioinc GitHub organization at that time
-- **826 repos enriched** with AI-generated summaries, problem descriptions, and integration tags via Claude Sonnet ($2.52 total) at that time
-- **826 semantic embeddings** (384-dim, all-MiniLM-L6-v2) enabling natural language search at that time
+- **831 repos tracked** across the perditioinc GitHub organization
+- **1,400+ repos enriched** with AI-generated summaries, problem descriptions, and integration tags via Claude Sonnet ($2.52 total)
+- **1,400+ semantic embeddings** (384-dim, all-MiniLM-L6-v2) enabling natural language search
 - **5,418 knowledge graph edges** (COMPATIBLE_WITH, ALTERNATIVE_TO, DEPENDS_ON)
 - **POST /intelligence/query** endpoint live on Cloud Run — ask natural language questions, get answers citing real repos
 - **reporium.com** reads from live API (`/library/full`) with static JSON fallback
@@ -52,7 +52,7 @@ The first row below is a March 2026 historical snapshot. The larger-scale rows a
 
 | Scale | Enrichment (one-time) | Nightly new repos | Embeddings | Query endpoint |
 |-------|----------------------|-------------------|------------|----------------|
-| 826 repos (March 2026 milestone) | $2.52 (done) | ~$0.01/night | $0 (local) | ~$0.01/query |
+| 1,400+ repos | $2.52 (done) | ~$0.01/night | $0 (local) | ~$0.01/query |
 | 10K repos | ~$30 | ~$0.30/night | $0 (local) | ~$0.01/query |
 | 100K repos | ~$300 | ~$3/night | $0 (local) | ~$0.01/query |
 
