@@ -4,7 +4,7 @@ import { RunsTable } from '@/components/RunsTable';
 
 export const metadata: Metadata = {
   title: 'Ingestion Run History | Reporium',
-  description: 'View the history of data ingestion runs that keep the Reporium library up to date.',
+  description: 'Recent ingestion pipeline runs for the Reporium AI dev tool library.',
 };
 
 const API_URL =
