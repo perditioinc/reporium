@@ -2,7 +2,7 @@
  * Fetch complete library data from reporium-api /library/full endpoint.
  * Replaces the old generate-library.ts that made 800+ individual GitHub API calls.
  *
- * One API call. ~2 seconds. Returns all 826+ repos with enriched data.
+ * One API call. ~2 seconds. Returns all 1,400+ repos with enriched data.
  *
  * Usage:
  *   npx tsx scripts/fetch-library.ts
@@ -40,54 +40,110 @@ if (!API_URL) {
 }
 
 const MAX_RETRIES = 3
-const RETRY_DELAY_MS = 5000
+const RETRY_DELAYS_MS = [2000, 5000, 10000] as const
+
+function isRetryableStatus(status: number): boolean {
+  return status >= 500 && status <= 599
+}
+
+class PermanentFetchError extends Error {}
 
 async function fetchWithRetry(url: string): Promise<Response> {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } })
-    if (res.ok) return res
-    const text = await res.text()
-    console.error(`Attempt ${attempt}/${MAX_RETRIES}: API returned ${res.status}: ${res.statusText}`)
-    console.error(text.slice(0, 200))
-    if (attempt < MAX_RETRIES) {
-      console.log(`Retrying in ${RETRY_DELAY_MS / 1000}s...`)
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
-    } else {
-      console.error('All retries exhausted.')
-      process.exit(1)
+    try {
+      const res = await fetch(url, { headers: { Accept: 'application/json' } })
+      if (res.ok) return res
+
+      const bodyPreview = (await res.text()).slice(0, 200)
+      const retryable = isRetryableStatus(res.status)
+
+      if (!retryable) {
+        throw new PermanentFetchError(
+          `HTTP ${res.status} ${res.statusText}${bodyPreview ? ` - ${bodyPreview}` : ''}`
+        )
+      }
+
+      const retryDelayMs = RETRY_DELAYS_MS[attempt - 1]
+      console.warn(
+        `[fetch-library] attempt ${attempt}/${MAX_RETRIES} failed with ${res.status}; retrying in ${retryDelayMs / 1000}s`
+      )
+
+      if (attempt === MAX_RETRIES) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}${bodyPreview ? ` - ${bodyPreview}` : ''}`)
+      }
+
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      if (error instanceof PermanentFetchError) {
+        console.error(`[fetch-library] final failure: ${message}`)
+        throw error
+      }
+
+      const retryDelayMs = RETRY_DELAYS_MS[attempt - 1]
+
+      if (attempt === MAX_RETRIES) {
+        console.error(`[fetch-library] final failure after ${attempt} attempts: ${message}`)
+        throw error
+      }
+
+      console.warn(
+        `[fetch-library] attempt ${attempt}/${MAX_RETRIES} failed with network/error condition; retrying in ${retryDelayMs / 1000}s`
+      )
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs))
     }
   }
-  // unreachable
-  process.exit(1)
+
+  throw new Error('Retry loop exhausted unexpectedly')
 }
 
-async function main() {
-  const url = `${API_URL!.replace(/\/$/, '')}/library/full`
-  console.log(`Fetching library from ${url}...`)
+const PAGE_SIZE = 500
 
+async function main() {
+  const baseUrl = `${API_URL!.replace(/\/$/, '')}/library/full`
   const startTime = Date.now()
 
-  const res = await fetchWithRetry(url)
-
-  if (!res.ok) {
-    console.error(`API returned ${res.status}: ${res.statusText}`)
-    const text = await res.text()
-    console.error(text.slice(0, 500))
-    process.exit(1)
-  }
-
-  const data = await res.json()
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+  // Fetch page 1 to get totalPages and corpus-wide aggregates
+  const page1Url = `${baseUrl}?page=1&pageSize=${PAGE_SIZE}`
+  console.log(`Fetching page 1 from ${page1Url}...`)
+  const res1 = await fetchWithRetry(page1Url)
+  const page1 = await res1.json()
 
   // Validate shape
-  if (!data.repos || !Array.isArray(data.repos)) {
+  if (!page1.repos || !Array.isArray(page1.repos)) {
     console.error('ERROR: Response does not contain repos array')
     process.exit(1)
   }
-
-  if (!data.stats || typeof data.stats.total !== 'number') {
+  if (!page1.stats || typeof page1.stats.total !== 'number') {
     console.error('ERROR: Response does not contain valid stats')
     process.exit(1)
+  }
+
+  const totalPages: number = page1.totalPages ?? 1
+  console.log(`  Page 1/${totalPages}: ${page1.repos.length} repos (totalRepos=${page1.totalRepos ?? '?'})`)
+
+  // Accumulate repos across all pages
+  let allRepos = [...page1.repos]
+
+  for (let page = 2; page <= totalPages; page++) {
+    const pageUrl = `${baseUrl}?page=${page}&pageSize=${PAGE_SIZE}`
+    console.log(`Fetching page ${page}/${totalPages} from ${pageUrl}...`)
+    const res = await fetchWithRetry(pageUrl)
+    const pageData = await res.json()
+    if (!pageData.repos || !Array.isArray(pageData.repos)) {
+      console.error(`ERROR: Page ${page} response does not contain repos array`)
+      process.exit(1)
+    }
+    console.log(`  Page ${page}/${totalPages}: ${pageData.repos.length} repos`)
+    allRepos = allRepos.concat(pageData.repos)
+  }
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+
+  // Build combined result: use stats/categories/tagMetrics from page 1 (corpus-wide aggregates)
+  const data = {
+    ...page1,
+    repos: allRepos,
   }
 
   const outDir = join(process.cwd(), 'public', 'data')
@@ -105,6 +161,7 @@ async function main() {
   writeFileSync(ownedPath, JSON.stringify(ownedData, null, 2), 'utf-8')
 
   console.log(`Done in ${elapsed}s`)
+  console.log(`  Pages fetched: ${totalPages}`)
   console.log(`  Repos: ${data.repos.length} (${ownedRepos.length} owned)`)
   console.log(`  Stats: ${JSON.stringify(data.stats)}`)
   console.log(`  Categories: ${data.categories?.length ?? 0}`)

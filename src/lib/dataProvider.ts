@@ -20,9 +20,8 @@ export interface DataProvider {
 }
 
 export function createDataProvider(): DataProvider {
-  // Always use static JSON generated at build time by fetch-library.ts.
-  // Runtime API calls for the 3MB+ library payload caused client-side crashes.
-  // NEXT_PUBLIC_REPORIUM_API_URL is used only by npm run generate (build step).
+  const apiUrl = process.env.NEXT_PUBLIC_REPORIUM_API_URL
+  if (apiUrl) return new ApiDataProvider(apiUrl)
   return new JsonDataProvider()
 }
 
@@ -102,10 +101,24 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getLibrary(): Promise<LibraryData> {
-    // Database backfilled 2026-03-21: 14K tags, 2K pmSkills, 918 industries, 825 builders.
-    // API /library/full now returns rich data. Falls back to static JSON if API unreachable.
-    try { return await this.apiFetch<LibraryData>('/library/full') }
-    catch { console.warn('API unreachable, falling back to JSON'); return this.fallback.getLibrary() }
+    try {
+      const PAGE_SIZE = 500
+      // Fetch page 1 to get totalPages + corpus aggregates
+      const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&pageSize=${PAGE_SIZE}`)
+      const totalPages = page1.totalPages ?? 1
+      if (totalPages <= 1) return page1
+
+      // Fetch remaining pages in parallel (cap at reasonable limit)
+      const remaining = Array.from({ length: totalPages - 1 }, (_, i) =>
+        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&pageSize=${PAGE_SIZE}`)
+      )
+      const pages = await Promise.all(remaining)
+      const allRepos = pages.reduce((acc, p) => acc.concat(p.repos), page1.repos)
+      return { ...page1, repos: allRepos }
+    } catch {
+      console.warn('API unreachable, falling back to JSON')
+      return this.fallback.getLibrary()
+    }
   }
 
   async getTrends(): Promise<TrendData | null> {

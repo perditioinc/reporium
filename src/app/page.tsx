@@ -8,6 +8,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { FilterBar } from '@/components/FilterBar';
 import { RepoGrid } from '@/components/RepoGrid';
 import { LoadingState } from '@/components/LoadingState';
+import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
@@ -326,6 +327,8 @@ export default function HomePage() {
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* ── Main content ── */}
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        {/* Stage 2 loading banner — fades in/out while owned repos stay visible */}
+        <LoadingBanner visible={isLoadingFull} />
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -339,13 +342,6 @@ export default function HomePage() {
               {/* API connected badge — production mode only */}
               {provider.mode === 'production' && (
                 <span className="text-xs text-zinc-500 border border-zinc-700 rounded px-2 py-0.5">API connected</span>
-              )}
-              {/* Full library loading indicator */}
-              {isLoadingFull && (
-                <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-                  <span className="inline-block h-2.5 w-2.5 animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-400" />
-                  Loading full library…
-                </span>
               )}
               {/* Mobile sidebar toggle */}
               <button

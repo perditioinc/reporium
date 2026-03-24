@@ -284,7 +284,11 @@ export const CATEGORIES: Category[] = [
     color: '#a855f7',
     repoCount: 0,
     description: 'Speech, music, and audio processing AI',
-    tags: ['Audio', 'Speech', 'TTS', 'ASR', 'Music AI', 'Voice']
+    tags: [
+      'Audio', 'Speech', 'TTS', 'ASR', 'Music AI', 'Voice',
+      'text-to-speech', 'music', 'sound', 'whisper', 'speech-recognition',
+      'vocoder', 'audio-generation', 'music-generation', 'voice-cloning', 'speech-synthesis'
+    ]
   },
   {
     id: 'code-generation',
