@@ -137,8 +137,10 @@ class JsonDataProvider implements DataProvider {
     const staleRepos = [...library.repos]
       .map((repo) => ({
         repo_name: repo.name,
-        owner: repo.fullName.split('/')[0] ?? '',
-        github_url: repo.url,
+        // For forks, show the upstream owner so the display reads "ggml-org/llama.cpp"
+        // rather than the fork owner ("perditioinc/llama.cpp").
+        owner: (repo.isFork && repo.parentStats?.owner) ? repo.parentStats.owner : (repo.fullName.split('/')[0] ?? ''),
+        github_url: (repo.isFork && repo.parentStats?.url) ? repo.parentStats.url : repo.url,
         parent_stars: repo.parentStats?.stars ?? repo.stars,
         activity_score: this.estimateActivityScore(repo),
         last_updated_at: repo.lastUpdated,
@@ -151,8 +153,10 @@ class JsonDataProvider implements DataProvider {
     const velocityLeaders = [...library.repos]
       .map((repo) => ({
         repo_name: repo.name,
-        owner: repo.fullName.split('/')[0] ?? '',
-        github_url: repo.url,
+        // For forks, show the upstream owner so the display reads "ggml-org/llama.cpp"
+        // rather than the fork owner ("perditioinc/llama.cpp").
+        owner: (repo.isFork && repo.parentStats?.owner) ? repo.parentStats.owner : (repo.fullName.split('/')[0] ?? ''),
+        github_url: (repo.isFork && repo.parentStats?.url) ? repo.parentStats.url : repo.url,
         commits_last_7_days: repo.commitStats?.last7Days ?? 0,
         commits_last_30_days: repo.commitStats?.last30Days ?? 0,
         activity_score: this.estimateActivityScore(repo),
