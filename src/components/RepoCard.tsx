@@ -10,6 +10,7 @@ const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Arc
 /** Own-account logins — don't render as "builder" since the Built/Forked badge already shows ownership */
 const OWN_LOGINS = new Set(['perditioinc']);
 
+
 /** Normalize stale category names to current taxonomy names */
 const CATEGORY_NAME_ALIASES: Record<string, string> = {
   'Audio':       'Industry: Audio & Music',
@@ -258,9 +259,9 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       )}
 
-      {/* Tags — system status tags excluded */}
+      {/* Tags — system status tags excluded, aiDevSkills rendered separately below */}
       <div className="flex flex-wrap gap-1.5">
-        {[...new Set([...(repo.enrichedTags || []), ...(repo.aiDevSkills || [])])]
+        {[...new Set(repo.enrichedTags || [])]
           .filter(t => !SYSTEM_TAGS.has(t))
           .slice(0, 8)
           .map((tag) =>
@@ -282,6 +283,56 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           )
         )}
       </div>
+
+      {/* AI Dev Skills — grouped by lifecycle, capped at 6 badges */}
+      {repo.aiDevSkills && repo.aiDevSkills.length > 0 && (() => {
+        const allSkills = (repo.aiDevSkills || []).slice(0, 6);
+        const overflow = (repo.aiDevSkills || []).length - allSkills.length;
+
+        // Group displayed skills by lifecycle group (comes directly from each object)
+        const groupMap = new Map<string, typeof allSkills>();
+        for (const skill of allSkills) {
+          const group = skill.lifecycleGroup ?? 'Other';
+          if (!groupMap.has(group)) groupMap.set(group, []);
+          groupMap.get(group)!.push(skill);
+        }
+        const showGroupLabels = groupMap.size > 1;
+
+        return (
+          <div className="flex flex-col gap-1.5">
+            {[...groupMap.entries()].map(([group, skills]) => (
+              <div key={group} className="flex flex-col gap-1">
+                {showGroupLabels && (
+                  <span className="text-[10px] text-zinc-600 leading-none">{group}</span>
+                )}
+                <div className="flex flex-wrap gap-1">
+                  {skills.map(skill =>
+                    onTagClick ? (
+                      <button
+                        key={skill.skill}
+                        onClick={() => onTagClick(skill.skill)}
+                        className="rounded-full bg-sky-900/30 border border-sky-700/30 px-2 py-0.5 text-xs text-sky-400 hover:bg-sky-800/40 hover:text-sky-300 transition-colors"
+                      >
+                        {skill.skill}
+                      </button>
+                    ) : (
+                      <span
+                        key={skill.skill}
+                        className="rounded-full bg-sky-900/30 border border-sky-700/30 px-2 py-0.5 text-xs text-sky-400"
+                      >
+                        {skill.skill}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+            ))}
+            {overflow > 0 && (
+              <span className="text-xs text-zinc-600">+{overflow} more</span>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Footer */}
       <div className="mt-auto flex items-center gap-4 text-xs text-zinc-500">
@@ -310,6 +361,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         )}
 
         {/* Last update date — use lastUpdated (always populated), fallback to parent */}
+        <span>Issues {(repo.openIssuesCount ?? 0).toLocaleString()}</span>
         <span className="ml-auto">
           {relativeTime(repo.lastUpdated) !== '—'
             ? relativeTime(repo.lastUpdated)

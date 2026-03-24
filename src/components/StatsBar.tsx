@@ -23,6 +23,27 @@ function relativeTime(dateStr: string): string {
 
 const SYSTEM_TAGS = new Set(['Forked', 'Fork', 'Built by Me', 'Active', 'Inactive', 'Archived', 'Popular']);
 
+/**
+ * Curated keep-list of ~100 AI-specific tags.
+ * The tag cloud is filtered to only show tags from this set (case-insensitive).
+ */
+const CURATED_TAG_KEEPLIST = new Set([
+  'transformer', 'attention', 'llm', 'rag', 'fine-tuning', 'lora', 'qlora', 'peft', 'rlhf', 'dpo',
+  'quantization', 'distillation', 'pruning', 'vllm', 'tgi', 'inference', 'embeddings', 'vector-search',
+  'langchain', 'langgraph', 'autogen', 'openai', 'anthropic', 'claude', 'gpt', 'gemini', 'llama',
+  'mistral', 'phi', 'mixtral', 'mcp', 'function-calling', 'structured-output', 'json-schema',
+  'prompt-engineering', 'chain-of-thought', 'agent', 'multi-agent', 'tool-use', 'rag-pipeline',
+  'chunking', 're-ranking', 'faiss', 'qdrant', 'weaviate', 'pinecone', 'chroma', 'guardrails',
+  'red-teaming', 'jailbreak', 'content-moderation', 'evals', 'benchmarks', 'openai-evals',
+  'lm-evaluation-harness', 'mlflow', 'wandb', 'dvc', 'mlops', 'diffusion', 'stable-diffusion',
+  'flux', 'comfyui', 'controlnet', 'whisper', 'tts', 'asr', 'vision-language', 'clip', 'sam',
+  'yolo', 'detectron', 'segment-anything', 'protein-folding', 'alphafold', 'drug-discovery',
+  'robotics', 'ros', 'sim-to-real', 'recommendation', 'collaborative-filtering', 'knowledge-graph',
+  'graphrag', 'neo4j', 'edge-ai', 'mobile-ml', 'onnx', 'tensorrt', 'webgpu', 'synthetic-data',
+  'data-augmentation', 'dataset', 'computer-vision', 'nlp', 'multimodal', 'speech', 'audio',
+  'image-generation', 'video-generation', 'code-generation', 'coding-assistant',
+]);
+
 /** Data-rich stats panel for the library */
 export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
   const { stats, repos, username, generatedAt } = data;
@@ -54,7 +75,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10);
 
-  // Always exactly 21 hardcoded categories — never derived from tags
+  // Always exactly 58 hardcoded categories — never derived from tags
   const categoryCount = CATEGORIES.length;
 
   // Top builders (up to 9 known orgs by repo count)
@@ -183,7 +204,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
           <div className="flex flex-wrap gap-x-3 gap-y-2">
             {(() => {
               const visibleMetrics = tagMetrics
-                .filter((m) => !SYSTEM_TAGS.has(m.tag))
+                .filter((m) => !SYSTEM_TAGS.has(m.tag) && CURATED_TAG_KEEPLIST.has(m.tag.toLowerCase()))
                 .sort((a, b) => b.repoCount - a.repoCount)
                 .slice(0, 30);
               const maxCount = visibleMetrics[0]?.repoCount ?? 1;

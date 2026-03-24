@@ -232,10 +232,11 @@ export function buildSkillStats(
 ): SkillStats[] {
   const map = new Map<string, { count: number; repos: string[] }>();
   for (const repo of repos) {
-    for (const skill of (repo[field] ?? [])) {
-      const existing = map.get(skill);
+    for (const item of (repo[field] ?? [])) {
+      const skillKey = typeof item === 'string' ? item : item.skill;
+      const existing = map.get(skillKey);
       if (!existing) {
-        map.set(skill, { count: 1, repos: [repo.name] });
+        map.set(skillKey, { count: 1, repos: [repo.name] });
       } else {
         existing.count++;
         if (existing.repos.length < 3) existing.repos.push(repo.name);

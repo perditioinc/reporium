@@ -48,7 +48,7 @@ describe('filter logic', () => {
           if (!(repo.builders ?? []).some(b => filters.builders!.includes(b.login))) return false;
         }
         if (filters.aiDevSkills?.length) {
-          if (!filters.aiDevSkills.every(s => (repo.aiDevSkills ?? []).includes(s))) return false;
+          if (!filters.aiDevSkills.every(s => (repo.aiDevSkills ?? []).some(a => a.skill === s))) return false;
         }
         return true;
       });
