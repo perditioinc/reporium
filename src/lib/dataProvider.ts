@@ -8,6 +8,7 @@
 import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis } from '@/types/repo'
 
 export type DataMode = 'lite' | 'production'
+export type SearchMode = 'keyword' | 'semantic'
 
 export interface DataProvider {
   mode: DataMode
@@ -16,7 +17,7 @@ export interface DataProvider {
   getTrends(): Promise<TrendData | null>
   getGaps(): Promise<GapAnalysis | null>
   getRepo(name: string): Promise<EnrichedRepo | null>
-  searchRepos(query: string): Promise<EnrichedRepo[]>
+  searchRepos(query: string, mode?: SearchMode): Promise<EnrichedRepo[]>
 }
 
 export function createDataProvider(): DataProvider {
@@ -136,8 +137,13 @@ class ApiDataProvider implements DataProvider {
     catch { return this.fallback.getRepo(name) }
   }
 
-  async searchRepos(query: string): Promise<EnrichedRepo[]> {
-    try { return await this.apiFetch<EnrichedRepo[]>(`/search?q=${encodeURIComponent(query)}`) }
+  async searchRepos(query: string, mode: SearchMode = 'keyword'): Promise<EnrichedRepo[]> {
+    try {
+      const path = mode === 'semantic'
+        ? `/search/semantic?q=${encodeURIComponent(query)}`
+        : `/search?q=${encodeURIComponent(query)}`
+      return await this.apiFetch<EnrichedRepo[]>(path)
+    }
     catch { return this.fallback.searchRepos(query) }
   }
 }
