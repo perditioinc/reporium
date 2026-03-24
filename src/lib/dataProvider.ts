@@ -5,7 +5,7 @@
  * Falls back to JSON if API is unreachable.
  */
 
-import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsights, TaxonomyValueOption } from '@/types/repo'
+import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsights, TaxonomyValueOption, CrossDimensionAnalytics } from '@/types/repo'
 
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
@@ -20,6 +20,7 @@ export interface DataProvider {
   searchRepos(query: string, mode?: SearchMode): Promise<EnrichedRepo[]>
   getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]>
   getPortfolioInsights(): Promise<PortfolioInsights | null>
+  getCrossDimensionAnalytics(dim1: string, dim2: string, limit?: number): Promise<CrossDimensionAnalytics | null>
 }
 
 export function createDataProvider(): DataProvider {
@@ -172,6 +173,35 @@ class JsonDataProvider implements DataProvider {
       ].filter(Boolean),
     }
   }
+
+  async getCrossDimensionAnalytics(dim1: string, dim2: string, limit = 10): Promise<CrossDimensionAnalytics | null> {
+    const library = await this.getLibrary()
+    const counts = new Map<string, number>()
+
+    for (const repo of library.repos) {
+      const dim1Values = [...new Set((repo.taxonomy ?? []).filter((entry) => entry.dimension === dim1).map((entry) => entry.value))]
+      const dim2Values = [...new Set((repo.taxonomy ?? []).filter((entry) => entry.dimension === dim2).map((entry) => entry.value))]
+      for (const left of dim1Values) {
+        for (const right of dim2Values) {
+          const key = `${left}|||${right}`
+          counts.set(key, (counts.get(key) ?? 0) + 1)
+        }
+      }
+    }
+
+    return {
+      dim1,
+      dim2,
+      limit,
+      pairs: [...counts.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, limit)
+        .map(([key, repo_count]) => {
+          const [dim1_value, dim2_value] = key.split('|||')
+          return { dim1_value, dim2_value, repo_count }
+        }),
+    }
+  }
 }
 
 class ApiDataProvider implements DataProvider {
@@ -256,6 +286,16 @@ class ApiDataProvider implements DataProvider {
       return await this.apiFetch<PortfolioInsights>('/intelligence/portfolio-insights')
     } catch {
       return this.fallback.getPortfolioInsights()
+    }
+  }
+
+  async getCrossDimensionAnalytics(dim1: string, dim2: string, limit = 10): Promise<CrossDimensionAnalytics | null> {
+    try {
+      return await this.apiFetch<CrossDimensionAnalytics>(
+        `/analytics/cross-dimension?dim1=${encodeURIComponent(dim1)}&dim2=${encodeURIComponent(dim2)}&limit=${limit}`
+      )
+    } catch {
+      return this.fallback.getCrossDimensionAnalytics(dim1, dim2, limit)
     }
   }
 }
