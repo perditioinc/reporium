@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { HomePageClient } from '@/components/HomePageClient';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'Browse 1,400+ AI development tools',
@@ -19,5 +20,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <HomePageClient />;
+  return (
+    <ErrorBoundary>
+      <HomePageClient />
+    </ErrorBoundary>
+  );
 }
