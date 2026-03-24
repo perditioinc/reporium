@@ -112,6 +112,7 @@ export interface Category {
   repoCount: number;
   color: string;         // hex color for visualization
   icon: string;         // emoji icon
+  lifecycleGroup?: string; // one of the 6 lifecycle groups (e.g. "Foundation & Training")
 }
 
 /** Summary of a single git commit */
