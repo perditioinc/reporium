@@ -1,9 +1,27 @@
+import type { Metadata } from 'next';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { AskPanel } from '@/components/AskPanel';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
   'https://reporium-api-573778300586.us-central1.run.app';
+
+export const metadata: Metadata = {
+  title: 'Ask Reporium - Natural language search',
+  description:
+    'Ask natural-language questions against the Reporium AI development tool library and review grounded source repos.',
+  openGraph: {
+    title: 'Ask Reporium - Natural language search',
+    description:
+      'Ask natural-language questions against the Reporium AI development tool library and review grounded source repos.',
+    url: 'https://www.reporium.com/ask',
+  },
+  twitter: {
+    title: 'Ask Reporium - Natural language search',
+    description:
+      'Ask natural-language questions against the Reporium AI development tool library and review grounded source repos.',
+  },
+};
 
 export default function AskPage() {
   return (

@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { QualityBadge } from '@/components/QualityBadge';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { CATEGORIES } from '@/lib/buildCategories';
@@ -255,6 +256,31 @@ async function getSimilarRepos(name: string): Promise<SimilarRepo[]> {
   } catch {
     return [];
   }
+}
+
+interface RepoPageProps {
+  params: Promise<{ name: string }>;
+}
+
+export async function generateMetadata({ params }: RepoPageProps): Promise<Metadata> {
+  const { name } = await params;
+  const repo = await getRepoDetail(name);
+  const title = repo ? `${repo.owner}/${repo.name}` : name;
+  const description = repo?.readme_summary ?? repo?.description ?? `Explore ${title} on Reporium.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://www.reporium.com/repo/${encodeURIComponent(name)}`,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
 }
 
 export async function generateStaticParams() {
