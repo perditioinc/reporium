@@ -91,6 +91,47 @@ export interface TrendData {
   insights: string[];
 }
 
+export interface TaxonomyGapInsight {
+  dimension: string;
+  value: string;
+  repo_count: number;
+  trending_score: number;
+  description?: string | null;
+}
+
+export interface StaleRepoInsight {
+  repo_name: string;
+  owner: string;
+  github_url: string;
+  parent_stars?: number | null;
+  activity_score: number;
+  last_updated_at?: string | null;
+  stale_days: number;
+}
+
+export interface VelocityLeaderInsight {
+  repo_name: string;
+  owner: string;
+  github_url: string;
+  commits_last_7_days: number;
+  commits_last_30_days: number;
+  activity_score: number;
+}
+
+export interface DuplicateClusterInsight {
+  similarity: number;
+  repos: string[];
+}
+
+export interface PortfolioInsights {
+  generated_at: string;
+  taxonomy_gaps: TaxonomyGapInsight[];
+  stale_repos: StaleRepoInsight[];
+  velocity_leaders: VelocityLeaderInsight[];
+  near_duplicate_clusters: DuplicateClusterInsight[];
+  summary: string[];
+}
+
 export type GapSeverity = 'missing' | 'weak' | 'moderate' | 'strong';
 
 export interface GapEssentialRepo {
