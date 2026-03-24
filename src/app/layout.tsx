@@ -5,8 +5,36 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Reporium — Your GitHub Knowledge Library',
-  description: 'Visualize and explore all your public GitHub repositories.',
+  metadataBase: new URL('https://www.reporium.com'),
+  title: {
+    default: 'Reporium - AI Dev Tool Library',
+    template: '%s | Reporium',
+  },
+  description:
+    'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
+  openGraph: {
+    title: 'Reporium - AI Dev Tool Library',
+    description:
+      'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
+    url: 'https://www.reporium.com',
+    siteName: 'Reporium',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Reporium - AI Dev Tool Library',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Reporium - AI Dev Tool Library',
+    description:
+      'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
