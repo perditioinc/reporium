@@ -21,6 +21,7 @@ const provider = createDataProvider();
 export default function HomePage() {
   const [data, setData] = useState<LibraryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingFull, setIsLoadingFull] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
 
@@ -66,17 +67,32 @@ export default function HomePage() {
       setIsLoading(true);
       setError(null);
       setData(null);
+
+      // Stage 1: load owned repos (~5KB) — shows YOUR repos instantly
+      const owned = await provider.getOwnedLibrary().catch(() => null);
+      if (!cancelled && owned) {
+        setData(owned);
+        setIsLoading(false);
+        setIsLoadingFull(true);
+      }
+
+      // Stage 2: load full library (~3MB) in background, then merge in
       try {
-        const d = await provider.getLibrary();
-        if (!cancelled) setData(d);
-        // Fetch trends non-blocking
+        const full = await provider.getLibrary();
+        if (!cancelled) {
+          setData(full);
+          setIsLoadingFull(false);
+        }
+        // Non-blocking extras
         provider.getTrends()
           .then(t => { if (!cancelled && t) setTrends(t); })
-          .catch(() => {}); // trends are optional
-        // Fetch gaps non-blocking (ignored in UI for now, available via provider)
+          .catch(() => {});
         provider.getGaps().catch(() => {});
       } catch (e) {
-        if (!cancelled) setError((e as Error).message);
+        if (!cancelled) {
+          setIsLoadingFull(false);
+          if (!owned) setError((e as Error).message);
+        }
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -323,6 +339,13 @@ export default function HomePage() {
               {/* API connected badge — production mode only */}
               {provider.mode === 'production' && (
                 <span className="text-xs text-zinc-500 border border-zinc-700 rounded px-2 py-0.5">API connected</span>
+              )}
+              {/* Full library loading indicator */}
+              {isLoadingFull && (
+                <span className="flex items-center gap-1.5 text-xs text-zinc-500">
+                  <span className="inline-block h-2.5 w-2.5 animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-400" />
+                  Loading full library…
+                </span>
               )}
               {/* Mobile sidebar toggle */}
               <button
