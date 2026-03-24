@@ -7,6 +7,25 @@ export interface Builder {
   orgCategory: string | null
 }
 
+export interface TaxonomyEntry {
+  dimension: string
+  value: string
+  similarityScore?: number | null
+  assignedBy?: string
+}
+
+export interface TaxonomyValueOption {
+  id: number
+  dimension: string
+  name: string
+  description?: string | null
+  repo_count: number
+  trending_score?: number | null
+  first_seen_at?: string | null
+  last_active_at?: string | null
+  created_at?: string | null
+}
+
 export interface BuilderStats {
   login: string
   displayName: string
@@ -213,6 +232,7 @@ export interface EnrichedRepo {
   programmingLanguages: string[];
   builders: Builder[];
   similarity?: number;
+  taxonomy?: TaxonomyEntry[];
 }
 
 /** Summary statistics for a user's library */
