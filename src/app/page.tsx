@@ -232,7 +232,7 @@ export default function HomePage() {
 
       // AI Dev Skills filter
       if (selectedAiDevSkills.length > 0) {
-        if (!selectedAiDevSkills.every(s => (repo.aiDevSkills ?? []).includes(s))) return false;
+        if (!selectedAiDevSkills.every(s => (repo.aiDevSkills ?? []).some(a => a.skill === s))) return false;
       }
       // PM Skills filter
       if (selectedPmSkills.length > 0) {
