@@ -513,11 +513,11 @@ async function generateLibrary(): Promise<void> {
   const tagMetrics = buildTagMetrics(repos);
   const categories = buildCategories(repos);  // mutates primaryCategory on each repo
 
-  // Sanity check — categories must always be the hardcoded 21 buckets (filtered to non-empty)
-  if (categories.length > 21) {
-    throw new Error(`BUG: buildCategories returned ${categories.length} categories — must be ≤21. Dynamic category creation detected.`);
+  // Sanity check — categories must always be the hardcoded 28 buckets (filtered to non-empty)
+  if (categories.length > 28) {
+    throw new Error(`BUG: buildCategories returned ${categories.length} categories — must be ≤28. Dynamic category creation detected.`);
   }
-  console.log(`   ↳ ${categories.length}/21 categories populated`);
+  console.log(`   ↳ ${categories.length}/28 categories populated`);
 
   const gapAnalysis = buildGapAnalysis(repos);
   console.log(`   ↳ ${gapAnalysis.gaps.length} gaps detected`);
