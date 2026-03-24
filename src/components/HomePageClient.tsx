@@ -16,6 +16,7 @@ import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { TrendingThisWeekWidget } from '@/components/TrendingThisWeekWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 
 
@@ -553,10 +554,12 @@ export function HomePageClient() {
           {/* Mini Ask — navigates to /ask for full query experience */}
           <MiniAskBar />
 
-          <PortfolioInsightsWidget
-            insights={portfolioInsights}
-            onRepoClick={handleRepoClick}
-          />
+          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Portfolio Insights widget unavailable.</div>}>
+            <PortfolioInsightsWidget
+              insights={portfolioInsights}
+              onRepoClick={handleRepoClick}
+            />
+          </ErrorBoundary>
 
           <TrendingThisWeekWidget repos={trendingThisWeek} />
 
@@ -645,11 +648,13 @@ export function HomePageClient() {
           )}
 
           {/* Grid */}
-          {isLoading ? (
-            <LoadingState />
-          ) : (
-            <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={(id) => setSelectedCategory(prev => prev === id ? '' : id)} />
-          )}
+          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
+            {isLoading ? (
+              <LoadingState />
+            ) : (
+              <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={(id) => setSelectedCategory(prev => prev === id ? '' : id)} />
+            )}
+          </ErrorBoundary>
         </div>
       </div>
 
@@ -658,22 +663,24 @@ export function HomePageClient() {
         <>
           {/* Desktop sidebar */}
           <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-zinc-800 bg-zinc-950">
-            <MetricsSidebar
-              data={{ ...data, categories: normalizedCategories }}
-              selectedTags={selectedTags}
-              tagMetrics={data.tagMetrics ?? []}
-              intersectionMetrics={intersectionMetrics}
-              onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
-              onTagRemove={removeTag}
-              onRepoClick={handleRepoClick}
-              onViewArchived={() => setAttentionFilter('archived-parent')}
-              onViewStale={() => setAttentionFilter('stale')}
-              onViewOutdated={() => setShowOutdatedOnly(true)}
-              onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
-              onCategoryFilter={setSelectedCategory}
-              selectedCategory={selectedCategory}
-              trends={trends}
-            />
+            <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
+              <MetricsSidebar
+                data={{ ...data, categories: normalizedCategories }}
+                selectedTags={selectedTags}
+                tagMetrics={data.tagMetrics ?? []}
+                intersectionMetrics={intersectionMetrics}
+                onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
+                onTagRemove={removeTag}
+                onRepoClick={handleRepoClick}
+                onViewArchived={() => setAttentionFilter('archived-parent')}
+                onViewStale={() => setAttentionFilter('stale')}
+                onViewOutdated={() => setShowOutdatedOnly(true)}
+                onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
+                onCategoryFilter={setSelectedCategory}
+                selectedCategory={selectedCategory}
+                trends={trends}
+              />
+            </ErrorBoundary>
           </aside>
 
           {/* Mobile sidebar overlay */}
@@ -684,22 +691,24 @@ export function HomePageClient() {
                 onClick={() => setSidebarOpen(false)}
               />
               <div className="w-[340px] border-l border-zinc-800 bg-zinc-950 overflow-y-auto">
-                <MetricsSidebar
-                  data={{ ...data, categories: normalizedCategories }}
-                  selectedTags={selectedTags}
-                  tagMetrics={data.tagMetrics ?? []}
-                  intersectionMetrics={intersectionMetrics}
-                  onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
-                  onTagRemove={removeTag}
-                  onRepoClick={handleRepoClick}
-                  onViewArchived={() => setAttentionFilter('archived-parent')}
-                  onViewStale={() => setAttentionFilter('stale')}
-                  onViewOutdated={() => setShowOutdatedOnly(true)}
-                  onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
-                  onCategoryFilter={setSelectedCategory}
-                  selectedCategory={selectedCategory}
-                  trends={trends}
-                />
+                <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
+                  <MetricsSidebar
+                    data={{ ...data, categories: normalizedCategories }}
+                    selectedTags={selectedTags}
+                    tagMetrics={data.tagMetrics ?? []}
+                    intersectionMetrics={intersectionMetrics}
+                    onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
+                    onTagRemove={removeTag}
+                    onRepoClick={handleRepoClick}
+                    onViewArchived={() => setAttentionFilter('archived-parent')}
+                    onViewStale={() => setAttentionFilter('stale')}
+                    onViewOutdated={() => setShowOutdatedOnly(true)}
+                    onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
+                    onCategoryFilter={setSelectedCategory}
+                    selectedCategory={selectedCategory}
+                    trends={trends}
+                  />
+                </ErrorBoundary>
               </div>
             </div>
           )}
