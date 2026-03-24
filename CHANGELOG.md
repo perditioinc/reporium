@@ -1,6 +1,34 @@
 # Changelog
 Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning](https://semver.org).
 
+## [Unreleased] - 2026-03-24
+
+### reporium (frontend)
+
+#### Added
+- Cold-start loading banner (`LoadingBanner` component) shown while full library loads from API
+
+#### Changed
+- Audio category expanded to 16 tags
+- Node.js 24 in CI workflows
+- Repo count updated from 826 to 1,400+ in documentation
+
+#### Fixed
+- Re-activated `ApiDataProvider` with pagination for full library load
+- `fetch-library` script now paginates to retrieve all 1,400+ repos
+
+### reporium-api (backend)
+
+#### Added
+- Redis two-tier cache for `/library/full` with graceful degradation when cache is unavailable
+- Circuit breaker for Anthropic API calls (states: CLOSED / OPEN / HALF_OPEN)
+- DB connection pool startup health check with retry backoff
+- Structured JSON logging with per-request tracing middleware
+- Golden-set quality tests for `/intelligence/ask` endpoint
+- Locust load benchmark harness
+- `github_created_at` column — repo card dates now reflect actual GitHub creation date
+- Migration 009 (`github_created_at`) and migration 010 (`open_issues_count`)
+
 ## [3.1.0] - 2026-03-21
 
 ### Fixed

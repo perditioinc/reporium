@@ -10,6 +10,38 @@ const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Arc
 /** Own-account logins — don't render as "builder" since the Built/Forked badge already shows ownership */
 const OWN_LOGINS = new Set(['perditioinc']);
 
+/** Maps each of the 28 AI Dev skill areas to its lifecycle group */
+const LIFECYCLE_GROUPS: Record<string, string> = {
+  'Foundation Model Architecture': 'Foundation & Training',
+  'Fine-tuning & Alignment': 'Foundation & Training',
+  'Data Engineering': 'Foundation & Training',
+  'Synthetic Data': 'Foundation & Training',
+  'Inference & Serving': 'Inference & Deployment',
+  'Model Compression': 'Inference & Deployment',
+  'Edge AI': 'Inference & Deployment',
+  'Agents & Orchestration': 'LLM Application Layer',
+  'RAG & Retrieval': 'LLM Application Layer',
+  'Context Engineering': 'LLM Application Layer',
+  'Tool Use': 'LLM Application Layer',
+  'Structured Output': 'LLM Application Layer',
+  'Prompt Engineering': 'LLM Application Layer',
+  'Knowledge Graphs': 'LLM Application Layer',
+  'Evaluation': 'Eval / Safety / Ops',
+  'Security & Guardrails': 'Eval / Safety / Ops',
+  'Observability': 'Eval / Safety / Ops',
+  'MLOps': 'Eval / Safety / Ops',
+  'AI Governance': 'Eval / Safety / Ops',
+  'Computer Vision': 'Modality-Specific',
+  'Speech & Audio': 'Modality-Specific',
+  'Generative Media': 'Modality-Specific',
+  'NLP': 'Modality-Specific',
+  'Multimodal': 'Modality-Specific',
+  'Coding Assistants': 'Applied AI',
+  'Robotics': 'Applied AI',
+  'AI for Science': 'Applied AI',
+  'Recommendation Systems': 'Applied AI',
+};
+
 /** Normalize stale category names to current taxonomy names */
 const CATEGORY_NAME_ALIASES: Record<string, string> = {
   'Audio':       'Industry: Audio & Music',
@@ -258,9 +290,9 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </div>
       )}
 
-      {/* Tags — system status tags excluded */}
+      {/* Tags — system status tags excluded, aiDevSkills rendered separately below */}
       <div className="flex flex-wrap gap-1.5">
-        {[...new Set([...(repo.enrichedTags || []), ...(repo.aiDevSkills || [])])]
+        {[...new Set(repo.enrichedTags || [])]
           .filter(t => !SYSTEM_TAGS.has(t))
           .slice(0, 8)
           .map((tag) =>
@@ -282,6 +314,57 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           )
         )}
       </div>
+
+      {/* AI Dev Skills — grouped by lifecycle, capped at 6 badges */}
+      {repo.aiDevSkills && repo.aiDevSkills.length > 0 && (() => {
+        const allSkills = [...new Set(repo.aiDevSkills)];
+        const displayed = allSkills.slice(0, 6);
+        const overflow = allSkills.length - displayed.length;
+
+        // Group displayed skills by lifecycle group
+        const groupMap = new Map<string, string[]>();
+        for (const skill of displayed) {
+          const group = LIFECYCLE_GROUPS[skill] ?? 'Other';
+          if (!groupMap.has(group)) groupMap.set(group, []);
+          groupMap.get(group)!.push(skill);
+        }
+        const showGroupLabels = groupMap.size > 1;
+
+        return (
+          <div className="flex flex-col gap-1.5">
+            {[...groupMap.entries()].map(([group, skills]) => (
+              <div key={group} className="flex flex-col gap-1">
+                {showGroupLabels && (
+                  <span className="text-[10px] text-zinc-600 leading-none">{group}</span>
+                )}
+                <div className="flex flex-wrap gap-1">
+                  {skills.map(skill =>
+                    onTagClick ? (
+                      <button
+                        key={skill}
+                        onClick={() => onTagClick(skill)}
+                        className="rounded-full bg-sky-900/30 border border-sky-700/30 px-2 py-0.5 text-xs text-sky-400 hover:bg-sky-800/40 hover:text-sky-300 transition-colors"
+                      >
+                        {skill}
+                      </button>
+                    ) : (
+                      <span
+                        key={skill}
+                        className="rounded-full bg-sky-900/30 border border-sky-700/30 px-2 py-0.5 text-xs text-sky-400"
+                      >
+                        {skill}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+            ))}
+            {overflow > 0 && (
+              <span className="text-xs text-zinc-600">+{overflow} more</span>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Footer */}
       <div className="mt-auto flex items-center gap-4 text-xs text-zinc-500">
