@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
+import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 
@@ -25,6 +26,7 @@ export default function HomePage() {
   const [isLoadingFull, setIsLoadingFull] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
+  const [portfolioInsights, setPortfolioInsights] = useState<Awaited<ReturnType<typeof provider.getPortfolioInsights>>>(null);
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -99,6 +101,9 @@ export default function HomePage() {
         // Non-blocking extras
         provider.getTrends()
           .then(t => { if (!cancelled && t) setTrends(t); })
+          .catch(() => {});
+        provider.getPortfolioInsights()
+          .then(insights => { if (!cancelled) setPortfolioInsights(insights); })
           .catch(() => {});
         provider.getGaps().catch(() => {});
       } catch (e) {
@@ -500,6 +505,11 @@ export default function HomePage() {
 
           {/* Ask / Intelligence query */}
           <AskBar apiUrl={API_URL} />
+
+          <PortfolioInsightsWidget
+            insights={portfolioInsights}
+            onRepoClick={handleRepoClick}
+          />
 
           {/* Stats */}
           {data && (

@@ -5,7 +5,7 @@
  * Falls back to JSON if API is unreachable.
  */
 
-import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, TaxonomyValueOption } from '@/types/repo'
+import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsights, TaxonomyValueOption } from '@/types/repo'
 
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
@@ -19,6 +19,7 @@ export interface DataProvider {
   getRepo(name: string): Promise<EnrichedRepo | null>
   searchRepos(query: string, mode?: SearchMode): Promise<EnrichedRepo[]>
   getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]>
+  getPortfolioInsights(): Promise<PortfolioInsights | null>
 }
 
 export function createDataProvider(): DataProvider {
@@ -29,6 +30,14 @@ export function createDataProvider(): DataProvider {
 
 class JsonDataProvider implements DataProvider {
   mode: DataMode = 'lite'
+
+  private estimateActivityScore(repo: EnrichedRepo): number {
+    const last7 = repo.commitStats?.last7Days ?? 0
+    const last30 = repo.commitStats?.last30Days ?? 0
+    const last90 = repo.commitStats?.last90Days ?? 0
+    const weighted = Math.min(last7 * 12 + last30 * 2 + last90, 100)
+    return Math.round(weighted)
+  }
 
   async getOwnedLibrary(): Promise<LibraryData | null> {
     try {
@@ -96,6 +105,72 @@ class JsonDataProvider implements DataProvider {
         name,
         repo_count,
       }))
+  }
+
+  async getPortfolioInsights(): Promise<PortfolioInsights | null> {
+    const library = await this.getLibrary()
+    const taxonomyCounts = new Map<string, { dimension: string; count: number }>()
+    for (const repo of library.repos) {
+      for (const entry of repo.taxonomy ?? []) {
+        const key = `${entry.dimension}:${entry.value}`
+        const current = taxonomyCounts.get(key)
+        taxonomyCounts.set(key, {
+          dimension: entry.dimension,
+          count: (current?.count ?? 0) + 1,
+        })
+      }
+    }
+
+    const taxonomyGaps = [...taxonomyCounts.entries()]
+      .filter(([, value]) => value.dimension !== 'skill_area' && value.count <= 3)
+      .sort((a, b) => a[1].count - b[1].count || a[0].localeCompare(b[0]))
+      .slice(0, 5)
+      .map(([key, value]) => ({
+        dimension: value.dimension,
+        value: key.split(':').slice(1).join(':'),
+        repo_count: value.count,
+        trending_score: 0,
+      }))
+
+    const staleRepos = [...library.repos]
+      .map((repo) => ({
+        repo_name: repo.name,
+        owner: repo.fullName.split('/')[0] ?? '',
+        github_url: repo.url,
+        parent_stars: repo.parentStats?.stars ?? repo.stars,
+        activity_score: this.estimateActivityScore(repo),
+        last_updated_at: repo.lastUpdated,
+        stale_days: Math.floor((Date.now() - new Date(repo.lastUpdated).getTime()) / 86400000),
+      }))
+      .filter((repo) => repo.stale_days >= 180)
+      .sort((a, b) => b.stale_days - a.stale_days)
+      .slice(0, 5)
+
+    const velocityLeaders = [...library.repos]
+      .map((repo) => ({
+        repo_name: repo.name,
+        owner: repo.fullName.split('/')[0] ?? '',
+        github_url: repo.url,
+        commits_last_7_days: repo.commitStats?.last7Days ?? 0,
+        commits_last_30_days: repo.commitStats?.last30Days ?? 0,
+        activity_score: this.estimateActivityScore(repo),
+      }))
+      .filter((repo) => repo.commits_last_30_days > 0)
+      .sort((a, b) => b.commits_last_30_days - a.commits_last_30_days || b.commits_last_7_days - a.commits_last_7_days)
+      .slice(0, 5)
+
+    return {
+      generated_at: new Date().toISOString(),
+      taxonomy_gaps: taxonomyGaps,
+      stale_repos: staleRepos,
+      velocity_leaders: velocityLeaders,
+      near_duplicate_clusters: [],
+      summary: [
+        taxonomyGaps[0] ? `${taxonomyGaps[0].value} is underrepresented in the current taxonomy coverage.` : '',
+        staleRepos[0] ? `${staleRepos[0].owner}/${staleRepos[0].repo_name} is the stalest repo in the fallback dataset.` : '',
+        velocityLeaders[0] ? `${velocityLeaders[0].owner}/${velocityLeaders[0].repo_name} is leading recent commit velocity.` : '',
+      ].filter(Boolean),
+    }
   }
 }
 
@@ -173,6 +248,14 @@ class ApiDataProvider implements DataProvider {
       return response.values ?? []
     } catch {
       return this.fallback.getTaxonomyValues(dimension)
+    }
+  }
+
+  async getPortfolioInsights(): Promise<PortfolioInsights | null> {
+    try {
+      return await this.apiFetch<PortfolioInsights>('/intelligence/portfolio-insights')
+    } catch {
+      return this.fallback.getPortfolioInsights()
     }
   }
 }
