@@ -5,14 +5,7 @@ const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
   'https://reporium-api-573778300586.us-central1.run.app';
 
-interface AskPageProps {
-  searchParams: Promise<{ q?: string }>;
-}
-
-export default async function AskPage({ searchParams }: AskPageProps) {
-  const { q } = await searchParams;
-  const initialQuery = typeof q === 'string' ? decodeURIComponent(q) : '';
-
+export default function AskPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <WikiNavBar title="Ask Reporium" />
@@ -25,7 +18,7 @@ export default async function AskPage({ searchParams }: AskPageProps) {
           </p>
         </div>
 
-        <AskPanel apiUrl={API_URL} initialQuery={initialQuery} />
+        <AskPanel apiUrl={API_URL} />
       </main>
     </div>
   );

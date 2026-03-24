@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 // ---------------------------------------------------------------------------
 // Types matching /intelligence/query response schema
@@ -19,22 +20,23 @@ interface QueryResponse {
 }
 
 // ---------------------------------------------------------------------------
-// AskPanel — full-page query UI used on /ask
+// Inner panel — reads ?q= from URL on the client side
 // ---------------------------------------------------------------------------
 interface AskPanelProps {
   apiUrl: string;
-  /** Pre-fill the query input (e.g. from ?q= param) */
-  initialQuery?: string;
 }
 
-export function AskPanel({ apiUrl, initialQuery = '' }: AskPanelProps) {
+function AskPanelInner({ apiUrl }: AskPanelProps) {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
+
   const [query, setQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QueryResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-submit if initialQuery provided (navigated from mini panel)
+  // Auto-submit if ?q= param provided (navigated from mini bar)
   useEffect(() => {
     if (initialQuery && initialQuery.length >= 3) {
       handleSubmit(initialQuery);
@@ -182,5 +184,17 @@ export function AskPanel({ apiUrl, initialQuery = '' }: AskPanelProps) {
         </div>
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Public export — wraps inner panel in Suspense so useSearchParams() works
+// in static export builds without breaking SSG
+// ---------------------------------------------------------------------------
+export function AskPanel({ apiUrl }: AskPanelProps) {
+  return (
+    <Suspense fallback={null}>
+      <AskPanelInner apiUrl={apiUrl} />
+    </Suspense>
   );
 }
