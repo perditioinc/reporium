@@ -133,7 +133,6 @@ export function HomePageClient() {
         provider.getCrossDimensionAnalytics('industry', 'ai_trend')
           .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
-        provider.getGaps().catch(() => {});
       } catch (e) {
         if (!cancelled) {
           setIsLoadingFull(false);
@@ -261,18 +260,6 @@ export function HomePageClient() {
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([industry, count]) => ({ industry, count }));
-  }, [data]);
-
-  const trendingThisWeek = useMemo(() => {
-    if (!data) return [];
-    return [...data.repos]
-      .filter((repo) => (repo.commitStats?.last7Days ?? repo.weeklyCommitCount ?? 0) > 0)
-      .sort((a, b) => {
-        const left = b.commitStats?.last7Days ?? b.weeklyCommitCount ?? 0;
-        const right = a.commitStats?.last7Days ?? a.weeklyCommitCount ?? 0;
-        return left - right;
-      })
-      .slice(0, 5);
   }, [data]);
 
   const languageCounts = useMemo(() => {
@@ -563,13 +550,6 @@ export function HomePageClient() {
               >
                 Dismiss
               </button>
-            </div>
-          )}
-
-          {/* Degraded API banner */}
-          {false && apiDegraded && (
-            <div className="rounded-lg border border-amber-800/40 bg-amber-950/30 px-4 py-2 text-sm text-amber-300">
-              ⚠ Live API unavailable — showing cached snapshot. Data may be up to a few days old.
             </div>
           )}
 
