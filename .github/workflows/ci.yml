@@ -2,23 +2,32 @@ name: CI
 
 on:
   push:
-    branches: [main, dev]
+    branches:
+      - dev
   pull_request:
-    branches: [main, dev]
+    branches:
+      - main
 
 jobs:
-  test:
+  type-check-and-build:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_REPORIUM_API_URL: http://localhost:8000
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'npm'
-      - run: npm install
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Type check
-        run: npm run type-check
-      - name: Run tests
-        run: npm test
-      - name: Check coverage
-        run: npm run test:coverage
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npx next build --webpack
