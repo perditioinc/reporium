@@ -39,15 +39,35 @@ if (!API_URL) {
   process.exit(1)
 }
 
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 5000
+
+async function fetchWithRetry(url: string): Promise<Response> {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const res = await fetch(url, { headers: { Accept: 'application/json' } })
+    if (res.ok) return res
+    const text = await res.text()
+    console.error(`Attempt ${attempt}/${MAX_RETRIES}: API returned ${res.status}: ${res.statusText}`)
+    console.error(text.slice(0, 200))
+    if (attempt < MAX_RETRIES) {
+      console.log(`Retrying in ${RETRY_DELAY_MS / 1000}s...`)
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
+    } else {
+      console.error('All retries exhausted.')
+      process.exit(1)
+    }
+  }
+  // unreachable
+  process.exit(1)
+}
+
 async function main() {
   const url = `${API_URL!.replace(/\/$/, '')}/library/full`
   console.log(`Fetching library from ${url}...`)
 
   const startTime = Date.now()
 
-  const res = await fetch(url, {
-    headers: { 'Accept': 'application/json' },
-  })
+  const res = await fetchWithRetry(url)
 
   if (!res.ok) {
     console.error(`API returned ${res.status}: ${res.statusText}`)
