@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { EnrichedRepo } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
+import { QualityBadge } from '@/components/QualityBadge';
 
 /** Status tags that are not content tags — never show as clickable chips */
 const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
@@ -114,6 +115,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
   const ps = repo.parentStats;
   const [commitsOpen, setCommitsOpen] = useState(false);
   const catStyle = getCategoryStyle(repo.primaryCategory);
+  const quality = repo.qualitySignals ?? repo.quality_signals;
 
   return (
     <div
@@ -136,6 +138,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
               {Math.round(repo.similarity * 100)}% match
             </span>
           )}
+          <QualityBadge quality={quality} />
           {repo.isFork && ps?.isArchived && (
             <span className="rounded-full bg-red-900/60 px-2 py-0.5 text-xs font-medium text-red-300">
               archived

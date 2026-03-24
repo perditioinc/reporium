@@ -2,9 +2,10 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { QualityBadge } from '@/components/QualityBadge';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { CATEGORIES } from '@/lib/buildCategories';
-import type { EnrichedRepo } from '@/types/repo';
+import type { EnrichedRepo, QualitySignals } from '@/types/repo';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
@@ -52,6 +53,7 @@ interface RepoDetail {
   commits_last_90_days: number;
   readme_summary: string | null;
   activity_score: number;
+  quality_signals: QualitySignals | null;
   ingested_at: string;
   updated_at: string;
   github_updated_at: string | null;
@@ -203,6 +205,7 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
         commits_last_90_days: repo.commitStats?.last90Days ?? 0,
         readme_summary: repo.readmeSummary,
         activity_score: 0,
+        quality_signals: repo.qualitySignals ?? repo.quality_signals ?? null,
         ingested_at: repo.lastUpdated,
         updated_at: repo.lastUpdated,
         github_updated_at: repo.lastUpdated,
@@ -493,6 +496,35 @@ export default async function RepoDetailPage({
           </div>
 
           <div className="space-y-6">
+            <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-zinc-100">Quality</h2>
+                <QualityBadge quality={repo.quality_signals} />
+              </div>
+              {repo.quality_signals ? (
+                <dl className="mt-4 space-y-3 text-sm">
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-zinc-500">Has tests</dt>
+                    <dd className="text-zinc-200">{repo.quality_signals.has_tests ? 'Yes' : 'No'}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-zinc-500">Has CI</dt>
+                    <dd className="text-zinc-200">{repo.quality_signals.has_ci ? 'Yes' : 'No'}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-zinc-500">Commit velocity (30d)</dt>
+                    <dd className="text-zinc-200">{repo.quality_signals.commit_velocity_30d.toFixed(1)}</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <dt className="text-zinc-500">Overall score</dt>
+                    <dd className="text-zinc-200">{Math.round(repo.quality_signals.overall_score)}/100</dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="mt-3 text-sm text-zinc-500">Quality signals are not available for this repo yet.</p>
+              )}
+            </section>
+
             <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
               <h2 className="text-lg font-semibold text-zinc-100">Categories</h2>
               <div className="mt-4 flex flex-wrap gap-2">
