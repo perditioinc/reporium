@@ -1,9 +1,24 @@
+import type { Metadata } from 'next';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { LibraryData } from '@/types/repo';
 import { AI_DEV_SKILLS } from '@/lib/buildTaxonomy';
 import { GapAnalysisPanel } from '@/components/GapAnalysisPanel';
 import { WikiNavBar } from '@/components/WikiNavBar';
+
+export const metadata: Metadata = {
+  title: 'Wiki | Reporium',
+  description: 'Browse AI dev tool categories, builders, and skill areas.',
+  openGraph: {
+    title: 'Wiki | Reporium',
+    description: 'Browse AI dev tool categories, builders, and skill areas.',
+    url: 'https://www.reporium.com/wiki',
+  },
+  twitter: {
+    title: 'Wiki | Reporium',
+    description: 'Browse AI dev tool categories, builders, and skill areas.',
+  },
+};
 
 function getLibraryData(): LibraryData | null {
   try {
