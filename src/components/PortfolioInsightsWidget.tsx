@@ -31,7 +31,7 @@ export function PortfolioInsightsWidget({ insights, onRepoClick }: PortfolioInsi
     <section className="rounded-2xl border border-sky-900/40 bg-gradient-to-br from-sky-950/50 via-zinc-950 to-zinc-950 p-4 md:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Portfolio Insights</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Library Insights</p>
           <h2 className="mt-1 text-lg font-semibold text-zinc-100">Proactive intelligence feed</h2>
         </div>
         <p className="text-xs text-zinc-500">

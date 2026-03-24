@@ -579,7 +579,7 @@ export function HomePageClient() {
           {/* Mini Ask — navigates to /ask for full query experience */}
           <MiniAskBar />
 
-          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Portfolio Insights widget unavailable.</div>}>
+          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights widget unavailable.</div>}>
             <PortfolioInsightsWidget
               insights={portfolioInsights}
               onRepoClick={handleRepoClick}
