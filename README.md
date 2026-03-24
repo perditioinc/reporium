@@ -1,46 +1,108 @@
 # Reporium
 
-[![Nightly](https://github.com/perditioinc/reporium/actions/workflows/refresh-data.yml/badge.svg)](https://github.com/perditioinc/reporium/actions/workflows/refresh-data.yml)
+[![CI](https://github.com/perditioinc/reporium/actions/workflows/test.yml/badge.svg)](https://github.com/perditioinc/reporium/actions/workflows/test.yml)
+[![Vercel](https://img.shields.io/badge/deploy-Vercel-black)](https://vercel.com/)
 
-Reporium is your GitHub knowledge library — visualize and explore all your public repos.
+Reporium is the frontend for the Perditio repo intelligence system. It turns the Reporium API into a browsable portfolio: repo cards, semantic search, taxonomy filters, proactive portfolio insights, repo detail pages, and MCP-linked exploration.
 
 ![Screenshot](public/screenshot-placeholder.png)
 
-## Fork & Run Your Own Instance
+## What The Frontend Does
 
-1. Fork this repo
-2. Go to: your fork → Settings → Secrets and variables → Actions
-3. Add secret: `GITHUB_USERNAME` = your-github-username
-4. Go to: Settings → Pages → Source: GitHub Actions
-5. Push any commit to main (or manually trigger the deploy workflow)
-6. Your library is live at: `yourusername.github.io/reporium`
+- Loads the live portfolio from `reporium-api`
+- Shows keyword and semantic search in the same interface
+- Displays cosine-similarity match percentages for semantic search results
+- Filters repos by dynamic taxonomy dimensions from the API:
+  - AI Trends
+  - Industries
+  - Use Cases
+  - Modalities
+  - Deployment Context
+- Surfaces proactive portfolio insights on the dashboard:
+  - rising taxonomy gaps
+  - stale repos
+  - velocity leaders
+  - near-duplicate repo clusters
+- Renders repo detail pages at `/repo/[name]`
+- Links naturally into the MCP workflow by exposing the same underlying portfolio concepts the MCP server queries
+
+## Architecture
+
+This frontend is API-backed.
+
+- Primary source of truth: `reporium-api`
+- Primary dataset route: `/library/full`
+- Semantic search route: `/search/semantic`
+- Taxonomy routes: `/taxonomy/{dimension}`
+- Intelligence feed: `/intelligence/portfolio-insights`
+- Repo detail route: `/repos/{name}`
+
+Static JSON fallback still exists for resilience and static export, but it is not the primary architecture and should not be treated as the canonical live data path.
+
+## User Experience
+
+### Search
+
+- `Keyword` mode performs text search over repo content
+- `Semantic` mode calls the embedding-backed semantic search API
+- Semantic matches display an `NN% match` badge derived from cosine similarity
+
+### Taxonomy Filters
+
+The sidebar supports dynamic taxonomy browsing driven by the database-backed taxonomy model. Values are fetched on load from the API and filtered client-side against repo taxonomy assignments.
+
+### Portfolio Insights
+
+The dashboard now includes a proactive intelligence widget that surfaces portfolio signals without waiting for a natural-language question.
+
+### Repo Detail Pages
+
+Each repo has a dedicated detail page showing:
+
+- grouped AI dev skills
+- taxonomy assignments
+- tags and categories
+- PM skills
+- builder information
+- stars, forks, and open issues
+- README summary
+- recent activity and metadata
 
 ## Local Development
 
 ```bash
 npm install
 cp .env.example .env.local
-# Edit .env.local: set GITHUB_USERNAME and optionally GITHUB_TOKEN
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## API
+### Environment
 
+```bash
+NEXT_PUBLIC_REPORIUM_API_URL=https://your-reporium-api-url
+NEXT_PUBLIC_BASE_PATH=
 ```
-GET /api/repos/{username}
+
+## Deployment
+
+The frontend is deployed on Vercel and targets the live `reporium-api` service.
+
+When validating a frontend change, the important checks are:
+
+```bash
+npm run build
 ```
 
-Returns enriched `LibraryData` JSON with all public repos, tags, stats, and metadata for any GitHub username. No authentication required.
+## MCP Integration
 
-Example: `https://reporium.com/api/repos/perditioinc`
+This repo is the human-facing portfolio UI.
 
-Response shape: See [src/types/repo.ts](src/types/repo.ts)
+The AI-facing query layer lives in `reporium-mcp`, which exposes the same portfolio through MCP tools for Claude Code and other agent clients. The two experiences should stay aligned:
 
-## Custom Domain (Vercel)
-
-Deploy to Vercel for automatic Next.js support and connect your custom domain in the Vercel dashboard.
+- UI users browse and filter the portfolio visually
+- MCP users query the same portfolio programmatically and semantically
 
 ## Contributing
 
