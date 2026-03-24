@@ -377,7 +377,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         )}
 
         {/* Last update date — use lastUpdated (always populated), fallback to parent */}
-        <span>Issues {(repo.openIssuesCount ?? 0).toLocaleString()}</span>
+        <span>Issues {(repo.isFork && ps ? ps.openIssues : (repo.openIssuesCount ?? 0)).toLocaleString()}</span>
         <span className="ml-auto">
           {relativeTime(repo.lastUpdated) !== '—'
             ? relativeTime(repo.lastUpdated)
@@ -412,8 +412,8 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           upstreamCreatedAt is only shown if it differs from createdAt (the ingestion date),
           which avoids showing the wrong "Project created" date before backfill runs. */}
       {repo.isFork && (() => {
-        const realUpstream = repo.upstreamCreatedAt && repo.upstreamCreatedAt !== repo.createdAt
-          ? repo.upstreamCreatedAt : null;
+        // createdAt for forks is always the parent's created_at; show it as "Project created"
+        const realUpstream = repo.createdAt || null;
         const hasAnyDate = realUpstream || repo.forkedAt || repo.yourLastPushAt || repo.upstreamLastPushAt;
         if (!hasAnyDate) return null;
         return (
@@ -427,7 +427,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           )}
           {repo.forkedAt && (
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-600">You forked</span>
+              <span className="text-zinc-600">Forked</span>
               <span className="text-zinc-400">
                 {formatMonthYear(repo.forkedAt)}
                 {realUpstream && (
@@ -439,7 +439,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
             </div>
           )}
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-600">Your last push</span>
+            <span className="text-zinc-600">Fork last synced</span>
             <span className="text-zinc-400">
               {repo.yourLastPushAt ? relativeTime(repo.yourLastPushAt) : 'Never'}
             </span>
