@@ -5,7 +5,7 @@ const config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testMatch: ['**/tests/**/*.test.ts'],
+  testMatch: ['**/tests/**/*.test.ts', '**/tests/**/*.test.tsx'],
   testPathIgnorePatterns: ['/node_modules/', '/.claude/worktrees/'],
 };
 
