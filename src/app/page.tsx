@@ -12,7 +12,7 @@ import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { AskBar } from '@/components/AskBar';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
-import { createDataProvider } from '@/lib/dataProvider';
+import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? 'https://reporium-api-573778300586.us-central1.run.app';
 
@@ -28,6 +28,9 @@ export default function HomePage() {
 
   // Filter state
   const [search, setSearch] = useState('');
+  const [searchMode, setSearchMode] = useState<SearchMode>('keyword');
+  const [semanticResults, setSemanticResults] = useState<EnrichedRepo[] | null>(null);
+  const [isSearchingSemantic, setIsSearchingSemantic] = useState(false);
   const [selectedType, setSelectedType] = useState<'all' | 'built' | 'forked'>('all');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -103,6 +106,46 @@ export default function HomePage() {
     return () => { cancelled = true; };
   }, []);  // no dependencies — loads once
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function runSemanticSearch() {
+      if (!data || searchMode !== 'semantic' || !search.trim()) {
+        setSemanticResults(null);
+        setIsSearchingSemantic(false);
+        return;
+      }
+
+      setIsSearchingSemantic(true);
+      try {
+        const rawResults = await provider.searchRepos(search.trim(), 'semantic');
+        if (cancelled) return;
+
+        const repoMap = new Map(data.repos.map((repo) => [repo.name, repo]));
+        const merged = rawResults.reduce<EnrichedRepo[]>((acc, result) => {
+          const existing = repoMap.get(result.name);
+          if (!existing) return acc;
+          acc.push({
+            ...existing,
+            similarity: result.similarity,
+          });
+          return acc;
+        }, []);
+
+        setSemanticResults(merged);
+      } catch {
+        if (!cancelled) setSemanticResults([]);
+      } finally {
+        if (!cancelled) setIsSearchingSemantic(false);
+      }
+    }
+
+    runSemanticSearch();
+    return () => {
+      cancelled = true;
+    };
+  }, [data, search, searchMode]);
+
   const allLanguages = useMemo(() => data?.stats.languages ?? [], [data]);
 
   /** Map stale DB category names → current taxonomy names.
@@ -170,9 +213,14 @@ export default function HomePage() {
   const filteredAndSortedRepos = useMemo<EnrichedRepo[]>(() => {
     if (!data) return [];
 
-    const filtered = data.repos.filter((repo) => {
+    const sourceRepos =
+      searchMode === 'semantic' && search.trim()
+        ? (semanticResults ?? [])
+        : data.repos;
+
+    const filtered = sourceRepos.filter((repo) => {
       // Text search — name and description only, never tags
-      if (search) {
+      if (search && searchMode === 'keyword') {
         const q = search.toLowerCase();
         const matchesSearch =
           repo.name.toLowerCase().includes(q) ||
@@ -274,10 +322,12 @@ export default function HomePage() {
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       }
     });
-  }, [data, search, selectedType, selectedLanguage, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedIndustries, selectedBuilders]);
+  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedIndustries, selectedBuilders]);
 
   function clearFilters() {
     setSearch('');
+    setSearchMode('keyword');
+    setSemanticResults(null);
     setSelectedType('all');
     setSelectedLanguage('');
     setSelectedTags([]);
@@ -379,9 +429,18 @@ export default function HomePage() {
               <SearchBar
                 value={search}
                 onChange={setSearch}
+                searchMode={searchMode}
+                onSearchModeChange={setSearchMode}
                 resultCount={filteredAndSortedRepos.length}
                 totalCount={data.repos.length}
               />
+              {searchMode === 'semantic' && search.trim() && (
+                <p className="text-xs text-zinc-500">
+                  {isSearchingSemantic
+                    ? 'Running semantic search against repo embeddings...'
+                    : 'Showing semantic matches ranked by cosine similarity.'}
+                </p>
+              )}
               <FilterBar
                 languages={allLanguages}
                 allTags={allTags}

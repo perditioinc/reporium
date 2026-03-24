@@ -131,6 +131,11 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           {repo.name}
         </a>
         <div className="flex items-center gap-1.5 shrink-0">
+          {typeof repo.similarity === 'number' && (
+            <span className="rounded-full bg-sky-900/40 border border-sky-700/40 px-2 py-0.5 text-xs font-medium text-sky-300">
+              {Math.round(repo.similarity * 100)}% match
+            </span>
+          )}
           {repo.isFork && ps?.isArchived && (
             <span className="rounded-full bg-red-900/60 px-2 py-0.5 text-xs font-medium text-red-300">
               archived

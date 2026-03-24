@@ -211,6 +211,7 @@ export interface EnrichedRepo {
   industries: string[];
   programmingLanguages: string[];
   builders: Builder[];
+  similarity?: number;
 }
 
 /** Summary statistics for a user's library */
