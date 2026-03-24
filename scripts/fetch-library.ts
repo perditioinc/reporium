@@ -61,33 +61,53 @@ async function fetchWithRetry(url: string): Promise<Response> {
   process.exit(1)
 }
 
-async function main() {
-  const url = `${API_URL!.replace(/\/$/, '')}/library/full`
-  console.log(`Fetching library from ${url}...`)
+const PAGE_SIZE = 500
 
+async function main() {
+  const baseUrl = `${API_URL!.replace(/\/$/, '')}/library/full`
   const startTime = Date.now()
 
-  const res = await fetchWithRetry(url)
-
-  if (!res.ok) {
-    console.error(`API returned ${res.status}: ${res.statusText}`)
-    const text = await res.text()
-    console.error(text.slice(0, 500))
-    process.exit(1)
-  }
-
-  const data = await res.json()
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+  // Fetch page 1 to get totalPages and corpus-wide aggregates
+  const page1Url = `${baseUrl}?page=1&pageSize=${PAGE_SIZE}`
+  console.log(`Fetching page 1 from ${page1Url}...`)
+  const res1 = await fetchWithRetry(page1Url)
+  const page1 = await res1.json()
 
   // Validate shape
-  if (!data.repos || !Array.isArray(data.repos)) {
+  if (!page1.repos || !Array.isArray(page1.repos)) {
     console.error('ERROR: Response does not contain repos array')
     process.exit(1)
   }
-
-  if (!data.stats || typeof data.stats.total !== 'number') {
+  if (!page1.stats || typeof page1.stats.total !== 'number') {
     console.error('ERROR: Response does not contain valid stats')
     process.exit(1)
+  }
+
+  const totalPages: number = page1.totalPages ?? 1
+  console.log(`  Page 1/${totalPages}: ${page1.repos.length} repos (totalRepos=${page1.totalRepos ?? '?'})`)
+
+  // Accumulate repos across all pages
+  let allRepos = [...page1.repos]
+
+  for (let page = 2; page <= totalPages; page++) {
+    const pageUrl = `${baseUrl}?page=${page}&pageSize=${PAGE_SIZE}`
+    console.log(`Fetching page ${page}/${totalPages} from ${pageUrl}...`)
+    const res = await fetchWithRetry(pageUrl)
+    const pageData = await res.json()
+    if (!pageData.repos || !Array.isArray(pageData.repos)) {
+      console.error(`ERROR: Page ${page} response does not contain repos array`)
+      process.exit(1)
+    }
+    console.log(`  Page ${page}/${totalPages}: ${pageData.repos.length} repos`)
+    allRepos = allRepos.concat(pageData.repos)
+  }
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+
+  // Build combined result: use stats/categories/tagMetrics from page 1 (corpus-wide aggregates)
+  const data = {
+    ...page1,
+    repos: allRepos,
   }
 
   const outDir = join(process.cwd(), 'public', 'data')
@@ -105,6 +125,7 @@ async function main() {
   writeFileSync(ownedPath, JSON.stringify(ownedData, null, 2), 'utf-8')
 
   console.log(`Done in ${elapsed}s`)
+  console.log(`  Pages fetched: ${totalPages}`)
   console.log(`  Repos: ${data.repos.length} (${ownedRepos.length} owned)`)
   console.log(`  Stats: ${JSON.stringify(data.stats)}`)
   console.log(`  Categories: ${data.categories?.length ?? 0}`)
