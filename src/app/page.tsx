@@ -10,7 +10,6 @@ import { RepoGrid } from '@/components/RepoGrid';
 import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
-import { AskBar } from '@/components/AskBar';
 import { MiniAskBar } from '@/components/MiniAskBar';
 import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
 import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
@@ -18,7 +17,7 @@ import { TrendingThisWeekWidget } from '@/components/TrendingThisWeekWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? 'https://reporium-api-573778300586.us-central1.run.app';
+
 
 const provider = createDataProvider();
 
@@ -553,9 +552,6 @@ export default function HomePage() {
 
           {/* Mini Ask — navigates to /ask for full query experience */}
           <MiniAskBar />
-
-          {/* Ask / Intelligence query */}
-          <AskBar apiUrl={API_URL} />
 
           <PortfolioInsightsWidget
             insights={portfolioInsights}
