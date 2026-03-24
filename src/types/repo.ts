@@ -206,7 +206,7 @@ export interface EnrichedRepo {
 
   latestRelease: LatestRelease | null;
 
-  aiDevSkills: string[];
+  aiDevSkills: { skill: string; lifecycleGroup: string }[];
   pmSkills: string[];
   industries: string[];
   programmingLanguages: string[];

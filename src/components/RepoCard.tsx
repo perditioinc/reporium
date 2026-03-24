@@ -10,37 +10,6 @@ const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Arc
 /** Own-account logins — don't render as "builder" since the Built/Forked badge already shows ownership */
 const OWN_LOGINS = new Set(['perditioinc']);
 
-/** Maps each of the 28 AI Dev skill areas to its lifecycle group */
-const LIFECYCLE_GROUPS: Record<string, string> = {
-  'Foundation Model Architecture': 'Foundation & Training',
-  'Fine-tuning & Alignment': 'Foundation & Training',
-  'Data Engineering': 'Foundation & Training',
-  'Synthetic Data': 'Foundation & Training',
-  'Inference & Serving': 'Inference & Deployment',
-  'Model Compression': 'Inference & Deployment',
-  'Edge AI': 'Inference & Deployment',
-  'Agents & Orchestration': 'LLM Application Layer',
-  'RAG & Retrieval': 'LLM Application Layer',
-  'Context Engineering': 'LLM Application Layer',
-  'Tool Use': 'LLM Application Layer',
-  'Structured Output': 'LLM Application Layer',
-  'Prompt Engineering': 'LLM Application Layer',
-  'Knowledge Graphs': 'LLM Application Layer',
-  'Evaluation': 'Eval / Safety / Ops',
-  'Security & Guardrails': 'Eval / Safety / Ops',
-  'Observability': 'Eval / Safety / Ops',
-  'MLOps': 'Eval / Safety / Ops',
-  'AI Governance': 'Eval / Safety / Ops',
-  'Computer Vision': 'Modality-Specific',
-  'Speech & Audio': 'Modality-Specific',
-  'Generative Media': 'Modality-Specific',
-  'NLP': 'Modality-Specific',
-  'Multimodal': 'Modality-Specific',
-  'Coding Assistants': 'Applied AI',
-  'Robotics': 'Applied AI',
-  'AI for Science': 'Applied AI',
-  'Recommendation Systems': 'Applied AI',
-};
 
 /** Normalize stale category names to current taxonomy names */
 const CATEGORY_NAME_ALIASES: Record<string, string> = {
@@ -317,14 +286,13 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
 
       {/* AI Dev Skills — grouped by lifecycle, capped at 6 badges */}
       {repo.aiDevSkills && repo.aiDevSkills.length > 0 && (() => {
-        const allSkills = [...new Set(repo.aiDevSkills)];
-        const displayed = allSkills.slice(0, 6);
-        const overflow = allSkills.length - displayed.length;
+        const allSkills = (repo.aiDevSkills || []).slice(0, 6);
+        const overflow = (repo.aiDevSkills || []).length - allSkills.length;
 
-        // Group displayed skills by lifecycle group
-        const groupMap = new Map<string, string[]>();
-        for (const skill of displayed) {
-          const group = LIFECYCLE_GROUPS[skill] ?? 'Other';
+        // Group displayed skills by lifecycle group (comes directly from each object)
+        const groupMap = new Map<string, typeof allSkills>();
+        for (const skill of allSkills) {
+          const group = skill.lifecycleGroup ?? 'Other';
           if (!groupMap.has(group)) groupMap.set(group, []);
           groupMap.get(group)!.push(skill);
         }
@@ -341,18 +309,18 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
                   {skills.map(skill =>
                     onTagClick ? (
                       <button
-                        key={skill}
-                        onClick={() => onTagClick(skill)}
+                        key={skill.skill}
+                        onClick={() => onTagClick(skill.skill)}
                         className="rounded-full bg-sky-900/30 border border-sky-700/30 px-2 py-0.5 text-xs text-sky-400 hover:bg-sky-800/40 hover:text-sky-300 transition-colors"
                       >
-                        {skill}
+                        {skill.skill}
                       </button>
                     ) : (
                       <span
-                        key={skill}
+                        key={skill.skill}
                         className="rounded-full bg-sky-900/30 border border-sky-700/30 px-2 py-0.5 text-xs text-sky-400"
                       >
-                        {skill}
+                        {skill.skill}
                       </span>
                     )
                   )}
