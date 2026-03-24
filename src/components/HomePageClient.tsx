@@ -11,9 +11,8 @@ import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
 import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { MiniAskBar } from '@/components/MiniAskBar';
-import { PortfolioInsightsWidget } from '@/components/PortfolioInsightsWidget';
+import { LibraryInsightsWidget } from '@/components/LibraryInsightsWidget';
 import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
-import { TrendingThisWeekWidget } from '@/components/TrendingThisWeekWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -29,7 +28,7 @@ export function HomePageClient() {
   const [isLoadingFull, setIsLoadingFull] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
-  const [portfolioInsights, setPortfolioInsights] = useState<Awaited<ReturnType<typeof provider.getPortfolioInsights>>>(null);
+  // portfolioInsights kept for future use when API returns enriched data
   const [crossDimensionAnalytics, setCrossDimensionAnalytics] = useState<Awaited<ReturnType<typeof provider.getCrossDimensionAnalytics>>>(null);
 
   // Filter state
@@ -130,9 +129,7 @@ export function HomePageClient() {
         provider.getTrends()
           .then(t => { if (!cancelled && t) setTrends(t); })
           .catch(() => {});
-        provider.getPortfolioInsights()
-          .then(insights => { if (!cancelled) setPortfolioInsights(insights); })
-          .catch(() => {});
+        // portfolio insights retained for future API-driven intelligence
         provider.getCrossDimensionAnalytics('industry', 'ai_trend')
           .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
@@ -579,14 +576,14 @@ export function HomePageClient() {
           {/* Mini Ask — navigates to /ask for full query experience */}
           <MiniAskBar />
 
-          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights widget unavailable.</div>}>
-            <PortfolioInsightsWidget
-              insights={portfolioInsights}
-              onRepoClick={handleRepoClick}
-            />
+          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
+            {data && (
+              <LibraryInsightsWidget
+                repos={data.repos}
+                onTagClick={(tag) => toggleTag(tag)}
+              />
+            )}
           </ErrorBoundary>
-
-          <TrendingThisWeekWidget repos={trendingThisWeek} />
 
           <CrossDimensionWidget analytics={crossDimensionAnalytics} />
 
