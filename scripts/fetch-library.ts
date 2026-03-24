@@ -40,25 +40,61 @@ if (!API_URL) {
 }
 
 const MAX_RETRIES = 3
-const RETRY_DELAY_MS = 5000
+const RETRY_DELAYS_MS = [2000, 5000, 10000] as const
+
+function isRetryableStatus(status: number): boolean {
+  return status >= 500 && status <= 599
+}
+
+class PermanentFetchError extends Error {}
 
 async function fetchWithRetry(url: string): Promise<Response> {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } })
-    if (res.ok) return res
-    const text = await res.text()
-    console.error(`Attempt ${attempt}/${MAX_RETRIES}: API returned ${res.status}: ${res.statusText}`)
-    console.error(text.slice(0, 200))
-    if (attempt < MAX_RETRIES) {
-      console.log(`Retrying in ${RETRY_DELAY_MS / 1000}s...`)
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
-    } else {
-      console.error('All retries exhausted.')
-      process.exit(1)
+    try {
+      const res = await fetch(url, { headers: { Accept: 'application/json' } })
+      if (res.ok) return res
+
+      const bodyPreview = (await res.text()).slice(0, 200)
+      const retryable = isRetryableStatus(res.status)
+
+      if (!retryable) {
+        throw new PermanentFetchError(
+          `HTTP ${res.status} ${res.statusText}${bodyPreview ? ` - ${bodyPreview}` : ''}`
+        )
+      }
+
+      const retryDelayMs = RETRY_DELAYS_MS[attempt - 1]
+      console.warn(
+        `[fetch-library] attempt ${attempt}/${MAX_RETRIES} failed with ${res.status}; retrying in ${retryDelayMs / 1000}s`
+      )
+
+      if (attempt === MAX_RETRIES) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}${bodyPreview ? ` - ${bodyPreview}` : ''}`)
+      }
+
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      if (error instanceof PermanentFetchError) {
+        console.error(`[fetch-library] final failure: ${message}`)
+        throw error
+      }
+
+      const retryDelayMs = RETRY_DELAYS_MS[attempt - 1]
+
+      if (attempt === MAX_RETRIES) {
+        console.error(`[fetch-library] final failure after ${attempt} attempts: ${message}`)
+        throw error
+      }
+
+      console.warn(
+        `[fetch-library] attempt ${attempt}/${MAX_RETRIES} failed with network/error condition; retrying in ${retryDelayMs / 1000}s`
+      )
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs))
     }
   }
-  // unreachable
-  process.exit(1)
+
+  throw new Error('Retry loop exhausted unexpectedly')
 }
 
 const PAGE_SIZE = 500
