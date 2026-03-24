@@ -7,15 +7,15 @@ import { GapAnalysisPanel } from '@/components/GapAnalysisPanel';
 import { WikiNavBar } from '@/components/WikiNavBar';
 
 export const metadata: Metadata = {
-  title: 'Wiki | Reporium',
+  title: 'Wiki',
   description: 'Browse AI dev tool categories, builders, and skill areas.',
   openGraph: {
-    title: 'Wiki | Reporium',
+    title: 'Wiki',
     description: 'Browse AI dev tool categories, builders, and skill areas.',
     url: 'https://www.reporium.com/wiki',
   },
   twitter: {
-    title: 'Wiki | Reporium',
+    title: 'Wiki',
     description: 'Browse AI dev tool categories, builders, and skill areas.',
   },
 };
