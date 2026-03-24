@@ -1,6 +1,9 @@
 # Reporium Roadmap
 
-## What Works Now (as of 2026-03-21)
+## What Worked At The 2026-03-21 Snapshot
+
+This document captures a frontend/platform planning snapshot from 2026-03-21.
+Counts below reflect that point-in-time view and should not be read as the current live suite totals.
 
 - **831 repos tracked** across the perditioinc GitHub organization
 - **826 repos enriched** with AI-generated summaries, problem descriptions, and integration tags via Claude Sonnet ($2.52 total)

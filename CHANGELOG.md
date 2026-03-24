@@ -17,7 +17,7 @@ Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning]
 - Live API data source: frontend now reads from reporium-api `/library/full` instead of static JSON
 - `scripts/fetch-library.ts` — single API call replaces 800+ GitHub API calls (0.7s vs minutes)
 - API fallback: `ApiDataProvider` falls back to static JSON if API is unreachable
-- 826 repos with enriched data: AI-generated summaries, integration tags, knowledge graph edges
+- 826 repos with enriched data at the time of the 2026-03-21 migration: AI-generated summaries, integration tags, knowledge graph edges
 - Semantic search via sentence-transformers embeddings (384-dim, all-MiniLM-L6-v2)
 - Intelligence query endpoint: POST `/intelligence/query` for natural language repo questions
 

@@ -39,15 +39,35 @@ if (!API_URL) {
   process.exit(1)
 }
 
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 5000
+
+async function fetchWithRetry(url: string): Promise<Response> {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const res = await fetch(url, { headers: { Accept: 'application/json' } })
+    if (res.ok) return res
+    const text = await res.text()
+    console.error(`Attempt ${attempt}/${MAX_RETRIES}: API returned ${res.status}: ${res.statusText}`)
+    console.error(text.slice(0, 200))
+    if (attempt < MAX_RETRIES) {
+      console.log(`Retrying in ${RETRY_DELAY_MS / 1000}s...`)
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
+    } else {
+      console.error('All retries exhausted.')
+      process.exit(1)
+    }
+  }
+  // unreachable
+  process.exit(1)
+}
+
 async function main() {
   const url = `${API_URL!.replace(/\/$/, '')}/library/full`
   console.log(`Fetching library from ${url}...`)
 
   const startTime = Date.now()
 
-  const res = await fetch(url, {
-    headers: { 'Accept': 'application/json' },
-  })
+  const res = await fetchWithRetry(url)
 
   if (!res.ok) {
     console.error(`API returned ${res.status}: ${res.statusText}`)
@@ -70,19 +90,27 @@ async function main() {
     process.exit(1)
   }
 
-  // Write to public/data/library.json
   const outDir = join(process.cwd(), 'public', 'data')
   mkdirSync(outDir, { recursive: true })
 
+  // Write full library
   const outPath = join(outDir, 'library.json')
   writeFileSync(outPath, JSON.stringify(data, null, 2), 'utf-8')
 
+  // Write owned-only subset for progressive loading.
+  // Keeps full stats/categories so header counts stay accurate on first paint.
+  const ownedRepos = data.repos.filter((r: { isFork?: boolean }) => !r.isFork)
+  const ownedData = { ...data, repos: ownedRepos }
+  const ownedPath = join(outDir, 'owned.json')
+  writeFileSync(ownedPath, JSON.stringify(ownedData, null, 2), 'utf-8')
+
   console.log(`Done in ${elapsed}s`)
-  console.log(`  Repos: ${data.repos.length}`)
+  console.log(`  Repos: ${data.repos.length} (${ownedRepos.length} owned)`)
   console.log(`  Stats: ${JSON.stringify(data.stats)}`)
   console.log(`  Categories: ${data.categories?.length ?? 0}`)
   console.log(`  Tag metrics: ${data.tagMetrics?.length ?? 0}`)
   console.log(`  Written to: ${outPath}`)
+  console.log(`  Owned subset: ${ownedPath}`)
 }
 
 main().catch((err) => {
