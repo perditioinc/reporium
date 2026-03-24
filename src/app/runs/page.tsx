@@ -3,7 +3,7 @@ import { WikiNavBar } from '@/components/WikiNavBar';
 import { RunsTable } from '@/components/RunsTable';
 
 export const metadata: Metadata = {
-  title: 'Ingestion Run History | Reporium',
+  title: 'Ingestion Run History',
   description: 'Recent ingestion pipeline runs for the Reporium AI dev tool library.',
 };
 
