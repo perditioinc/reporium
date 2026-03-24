@@ -253,8 +253,18 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getTrends(): Promise<TrendData | null> {
-    try { return await this.apiFetch<TrendData>('/trends') }
-    catch { return this.fallback.getTrends() }
+    try {
+      const data = await this.apiFetch<unknown>('/trends')
+      // The API returns list[TrendSnapshotOut] (an array), not TrendData.
+      // Only treat it as TrendData if it has the expected `period` object.
+      if (
+        !data ||
+        typeof data !== 'object' ||
+        Array.isArray(data) ||
+        !('period' in (data as Record<string, unknown>))
+      ) return null
+      return data as TrendData
+    } catch { return this.fallback.getTrends() }
   }
 
   async getGaps(): Promise<GapAnalysis | null> {
