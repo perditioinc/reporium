@@ -21,6 +21,11 @@ function makeMetric(tag: string, repoCount: number, activityScore = 50): TagMetr
     relatedTags: [],
     mostRecentRepo: '',
     mostRecentDate: new Date().toISOString(),
+    repos: [],
+    avgUpstreamAge: 0,
+    avgTimeSinceForked: 0,
+    mostOutdatedRepo: '',
+    avgBehindBy: 0,
   };
 }
 
