@@ -66,6 +66,12 @@ interface RepoDetail {
   }[];
   ai_dev_skills: string[];
   pm_skills: string[];
+  taxonomy: {
+    dimension: string;
+    value: string;
+    similarityScore?: number | null;
+    assignedBy?: string;
+  }[];
   languages: { language: string; bytes: number; percentage: number }[];
   commits: {
     sha: string;
@@ -75,6 +81,28 @@ interface RepoDetail {
     url: string | null;
   }[];
 }
+
+const TAXONOMY_DIMENSION_LABELS: Record<string, string> = {
+  skill_area: 'Skill Areas',
+  industry: 'Industries',
+  use_case: 'Use Cases',
+  modality: 'Modalities',
+  ai_trend: 'AI Trends',
+  deployment_context: 'Deployment Context',
+  tags: 'Tags',
+  maturity_level: 'Maturity Level',
+};
+
+const TAXONOMY_DIMENSION_STYLES: Record<string, string> = {
+  skill_area: 'border-sky-700/30 bg-sky-900/30 text-sky-300',
+  industry: 'border-amber-700/40 bg-amber-900/30 text-amber-300',
+  use_case: 'border-fuchsia-700/40 bg-fuchsia-900/30 text-fuchsia-300',
+  modality: 'border-teal-700/40 bg-teal-900/30 text-teal-300',
+  ai_trend: 'border-cyan-700/40 bg-cyan-900/30 text-cyan-300',
+  deployment_context: 'border-orange-700/40 bg-orange-900/30 text-orange-300',
+  tags: 'border-zinc-700 bg-zinc-800/70 text-zinc-200',
+  maturity_level: 'border-emerald-700/40 bg-emerald-900/30 text-emerald-300',
+};
 
 function formatRelativeDate(value: string | null): string {
   if (!value) return 'Unclear';
@@ -117,6 +145,19 @@ function groupSkills(skills: string[]) {
     groups.get(group)!.push(skill);
   }
   return [...groups.entries()];
+}
+
+function groupTaxonomy(taxonomy: RepoDetail['taxonomy']) {
+  const groups = new Map<string, RepoDetail['taxonomy']>();
+  for (const entry of taxonomy ?? []) {
+    if (!groups.has(entry.dimension)) groups.set(entry.dimension, []);
+    groups.get(entry.dimension)!.push(entry);
+  }
+  return [...groups.entries()].sort((a, b) => {
+    const aLabel = TAXONOMY_DIMENSION_LABELS[a[0]] ?? a[0];
+    const bLabel = TAXONOMY_DIMENSION_LABELS[b[0]] ?? b[0];
+    return aLabel.localeCompare(bLabel);
+  });
 }
 
 async function getRepoDetail(name: string): Promise<RepoDetail | null> {
@@ -192,6 +233,7 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
           committed_at: commit.date,
           url: commit.url,
         })),
+        taxonomy: repo.taxonomy ?? [],
       };
     } catch {
       return null;
@@ -230,6 +272,7 @@ export default async function RepoDetailPage({
   if (!repo) notFound();
 
   const skillGroups = groupSkills(repo.ai_dev_skills ?? []);
+  const taxonomyGroups = groupTaxonomy(repo.taxonomy ?? []);
   const stars = repo.is_fork ? repo.parent_stars : repo.stargazers_count;
   const forks = repo.is_fork ? repo.parent_forks : 0;
   const builder = repo.builders?.[0] ?? null;
@@ -378,6 +421,39 @@ export default async function RepoDetailPage({
                   <p className="text-sm text-zinc-500">No tags recorded.</p>
                 )}
               </div>
+            </section>
+
+            <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
+              <h2 className="text-lg font-semibold text-zinc-100">Taxonomy</h2>
+              {taxonomyGroups.length > 0 ? (
+                <div className="mt-4 space-y-4">
+                  {taxonomyGroups.map(([dimension, entries]) => (
+                    <div key={dimension}>
+                      <p className="mb-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                        {TAXONOMY_DIMENSION_LABELS[dimension] ?? dimension.replace(/_/g, ' ')}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {entries.map((entry) => (
+                          <Link
+                            key={`${entry.dimension}:${entry.value}`}
+                            href={`/?taxonomyDimension=${encodeURIComponent(entry.dimension)}&taxonomyValue=${encodeURIComponent(entry.value)}`}
+                            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:border-zinc-500 hover:text-white ${TAXONOMY_DIMENSION_STYLES[dimension] ?? 'border-zinc-700 bg-zinc-800/70 text-zinc-200'}`}
+                          >
+                            <span>{entry.value}</span>
+                            {typeof entry.similarityScore === 'number' ? (
+                              <span className="rounded-full bg-black/20 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.16em]">
+                                {Math.round(entry.similarityScore * 100)}%
+                              </span>
+                            ) : null}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-zinc-500">No taxonomy dimensions recorded.</p>
+              )}
             </section>
 
             <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
