@@ -15,29 +15,7 @@ export interface IngestionRun {
   errors?: string[];
 }
 
-async function getRuns(): Promise<IngestionRun[]> {
-  try {
-    const res = await fetch(`${API_URL}/admin/runs`, {
-      next: { revalidate: 60 },
-      headers: { Accept: 'application/json' },
-    });
-    if (res.status === 404) return [];
-    if (!res.ok) return [];
-    const data = await res.json();
-    // API may return array directly or wrapped under `runs`
-    if (Array.isArray(data)) return data as IngestionRun[];
-    if (data && Array.isArray((data as { runs?: unknown }).runs)) {
-      return (data as { runs: IngestionRun[] }).runs;
-    }
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-export default async function RunsPage() {
-  const runs = await getRuns();
-
+export default function RunsPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <WikiNavBar title="Run History" />
@@ -50,7 +28,7 @@ export default async function RunsPage() {
           </p>
         </div>
 
-        <RunsTable runs={runs} apiUrl={API_URL} showRefresh />
+        <RunsTable runs={[]} apiUrl={API_URL} showRefresh />
       </main>
     </div>
   );
