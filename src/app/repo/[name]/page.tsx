@@ -606,6 +606,30 @@ export default async function RepoDetailPage({
               </div>
             </section>
 
+            {/* Dependencies — only rendered when taxonomy has `dependency` entries */}
+            {(() => {
+              const deps = (repo.taxonomy ?? []).filter((t) => t.dimension === 'dependency');
+              if (deps.length === 0) return null;
+              return (
+                <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h2 className="text-lg font-semibold text-zinc-100">Dependencies</h2>
+                    <span className="text-xs text-zinc-500">{deps.length} detected</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {deps.map((dep) => (
+                      <span
+                        key={dep.value}
+                        className="rounded-full border border-violet-700/40 bg-violet-900/20 px-3 py-1 text-xs font-medium text-violet-300"
+                      >
+                        {dep.value}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
+
             <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
               <h2 className="text-lg font-semibold text-zinc-100">Timeline</h2>
               <dl className="mt-4 space-y-3 text-sm">
