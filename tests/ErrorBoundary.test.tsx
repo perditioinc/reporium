@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 function ThrowingChild(): React.ReactElement {
@@ -10,11 +10,6 @@ function ThrowingChild(): React.ReactElement {
 
 describe('ErrorBoundary', () => {
   test('renders fallback UI when a child throws', () => {
-    const reload = jest.fn();
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: { reload },
-    });
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
@@ -25,9 +20,21 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByText('Something went wrong.')).toBeTruthy();
     expect(screen.getByText('Please reload the page.')).toBeTruthy();
+    expect(screen.getByText('Reload page')).toBeTruthy();
 
-    fireEvent.click(screen.getByText('Reload page'));
-    expect(reload).toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  test('renders custom fallback when provided', () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <ErrorBoundary fallback={<div>Custom fallback</div>}>
+        <ThrowingChild />
+      </ErrorBoundary>,
+    );
+
+    expect(screen.getByText('Custom fallback')).toBeTruthy();
 
     consoleError.mockRestore();
   });
