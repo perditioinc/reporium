@@ -32,7 +32,16 @@ export function GapAnalysisPanel({
   gaps: Gap[];
   compact?: boolean;
 }) {
-  if (!gaps.length) return null;
+  if (!gaps.length) {
+    return (
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
+        <p className="text-xs font-medium text-zinc-400 mb-1">Portfolio Gaps</p>
+        <p className="text-xs text-zinc-500 leading-relaxed">
+          Data building up — gap analysis will appear after enrichment completes.
+        </p>
+      </div>
+    );
+  }
 
   const overall = gaps.slice(0, compact ? 3 : 5);
   const grouped = gaps.reduce<Map<string, Gap[]>>((map, gap) => {
