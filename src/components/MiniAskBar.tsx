@@ -39,6 +39,7 @@ export function MiniAskBar() {
           />
         </div>
         <button
+          type="button"
           onClick={navigate}
           className="shrink-0 rounded-lg bg-zinc-700 px-4 py-2.5 text-sm text-zinc-200 hover:bg-zinc-600 transition-colors"
         >
