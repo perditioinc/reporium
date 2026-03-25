@@ -105,8 +105,6 @@ export function LibraryInsightsWidget({ repos, onTagClick }: LibraryInsightsWidg
     insights.taxonomyThemes.length > 0 ||
     insights.topTags.length > 0;
 
-  if (!hasAnyEnrichment) return null;
-
   const hasTaxonomy = insights.taxonomyThemes.length > 0;
 
   return (
@@ -123,6 +121,21 @@ export function LibraryInsightsWidget({ repos, onTagClick }: LibraryInsightsWidg
       </div>
 
       <div className="mt-4 grid gap-4 xl:grid-cols-3">
+
+        {/* ── Enrichment pending placeholder ── */}
+        {!hasAnyEnrichment && (
+          <div className="xl:col-span-2 rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 flex flex-col justify-center gap-1.5">
+            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 mb-1">
+              AI Dev Skill Coverage &amp; Taxonomy Themes
+            </p>
+            <p className="text-sm text-zinc-500 leading-relaxed">
+              Enrichment is processing — skill coverage bars and taxonomy themes will appear after the next ingestion run completes.
+            </p>
+            <p className="text-xs text-zinc-600 mt-1">
+              {insights.total.toLocaleString()} repos indexed · {insights.reposWithSkills.toLocaleString()} AI-classified so far
+            </p>
+          </div>
+        )}
 
         {/* ── Skill Coverage ── */}
         {insights.sortedSkills.length > 0 && (
