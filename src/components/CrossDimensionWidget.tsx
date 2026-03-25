@@ -11,7 +11,25 @@ function label(value: string): string {
 }
 
 export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
-  if (!analytics || analytics.pairs.length === 0) return null;
+  if (!analytics) return null;
+
+  if (analytics.pairs.length === 0) {
+    return (
+      <section className="rounded-2xl border border-fuchsia-900/40 bg-gradient-to-br from-fuchsia-950/40 via-zinc-950 to-zinc-950 p-4 md:p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-300">Cross-Dimension Analytics</p>
+            <h2 className="mt-1 text-lg font-semibold text-zinc-100">
+              {label(analytics.dim1)} × {label(analytics.dim2)}
+            </h2>
+          </div>
+        </div>
+        <p className="mt-3 text-sm text-zinc-500">
+          Taxonomy data is being processed — cross-dimension pairings will appear after the next ingestion run.
+        </p>
+      </section>
+    );
+  }
 
   const peak = Math.max(...analytics.pairs.map((pair) => pair.repo_count), 1);
 
