@@ -26,7 +26,21 @@ describe('AskPanel', () => {
       status: 200,
       json: async () => ({
         answer: 'Use the RAG stack.',
-        sources: [{ name: 'repo-a', description: 'Repo A', similarity_score: 0.91 }],
+        question: 'best RAG tools',
+        model: 'claude-3',
+        answered_at: new Date().toISOString(),
+        embedding_candidates: 10,
+        tokens_used: { input: 100, output: 50, total: 150 },
+        sources: [{
+          name: 'repo-a',
+          owner: 'perditioinc',
+          forked_from: null,
+          description: 'Repo A',
+          stars: 42,
+          relevance_score: 0.91,
+          problem_solved: null,
+          integration_tags: [],
+        }],
       }),
     }) as unknown as typeof fetch;
 
@@ -38,10 +52,11 @@ describe('AskPanel', () => {
     fireEvent.click(screen.getByText('Submit'));
 
     expect(await screen.findByText('Use the RAG stack.')).toBeTruthy();
-    expect(screen.getByText('repo-a')).toBeTruthy();
+    // Component renders "owner/name" as the upstream label
+    expect(screen.getByText('perditioinc/repo-a')).toBeTruthy();
     expect(screen.getByText('91%')).toBeTruthy();
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://api.example.com/intelligence/query',
+      'https://api.example.com/intelligence/ask',
       expect.objectContaining({ method: 'POST' }),
     );
   });
