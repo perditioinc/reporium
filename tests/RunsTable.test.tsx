@@ -9,7 +9,8 @@ const API_URL = 'https://api.example.com';
 
 describe('RunsTable', () => {
   test('exports runs page metadata', () => {
-    expect(metadata.title).toBe('Ingestion Run History | Reporium');
+    // Root layout applies "| Reporium" template at runtime — raw metadata.title is just the page title
+    expect(metadata.title).toBe('Ingestion Run History');
     expect(metadata.description).toBe('Recent ingestion pipeline runs for the Reporium AI dev tool library.');
   });
 
