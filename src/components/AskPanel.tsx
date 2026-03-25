@@ -4,19 +4,27 @@ import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 // ---------------------------------------------------------------------------
-// Types matching /intelligence/query response schema
+// Types matching /intelligence/ask response schema
 // ---------------------------------------------------------------------------
 interface SourceRepo {
   name: string;
+  owner: string;
+  forked_from: string | null;
   description: string | null;
-  similarity_score: number;
+  stars: number | null;
+  relevance_score: number;
+  problem_solved: string | null;
+  integration_tags: string[];
 }
 
 interface QueryResponse {
   answer: string;
   sources: SourceRepo[];
-  query?: string;
-  model?: string;
+  question: string;
+  model: string;
+  answered_at: string;
+  embedding_candidates: number;
+  tokens_used: { input: number; output: number; total: number };
 }
 
 // ---------------------------------------------------------------------------
@@ -60,10 +68,10 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
     setResult(null);
 
     try {
-      const res = await fetch(`${apiUrl}/intelligence/query`, {
+      const res = await fetch(`${apiUrl}/intelligence/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: queryText, include_sources: true }),
+        body: JSON.stringify({ question: queryText, top_k: 8 }),
       });
 
       if (res.status === 429) {
@@ -158,15 +166,20 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
               </p>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {result.sources.map((repo) => {
-                  const score = Math.round(repo.similarity_score * 100);
+                  const score = Math.round(repo.relevance_score * 100);
+                  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
+                  const ghUrl = `https://github.com/${upstream}`;
                   return (
-                    <div
-                      key={repo.name}
-                      className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 space-y-1.5"
+                    <a
+                      key={`${repo.owner}/${repo.name}`}
+                      href={ghUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 space-y-1.5 hover:border-zinc-600 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs font-mono font-medium text-zinc-200 truncate">
-                          {repo.name}
+                        <span className="text-xs font-mono font-medium text-zinc-200 truncate group-hover:text-zinc-100">
+                          {upstream}
                         </span>
                         <span className="shrink-0 rounded-full border border-sky-700/30 bg-sky-900/30 px-2 py-0.5 text-[10px] font-medium text-sky-300">
                           {score}%
@@ -175,7 +188,10 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
                       {repo.description && (
                         <p className="text-xs text-zinc-500 line-clamp-2">{repo.description}</p>
                       )}
-                    </div>
+                      {repo.stars != null && (
+                        <p className="text-xs text-zinc-600">★ {repo.stars.toLocaleString()}</p>
+                      )}
+                    </a>
                   );
                 })}
               </div>

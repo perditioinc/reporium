@@ -133,12 +133,16 @@ export interface PortfolioInsights {
 }
 
 export interface QualitySignals {
-  has_tests: boolean;
-  has_ci: boolean;
-  commit_velocity_30d: number;
-  activity_score: number;
-  is_active: boolean;
-  overall_score: number;
+  // Legacy fields (computed by ingestion pipeline)
+  has_tests?: boolean;
+  has_ci?: boolean;
+  commit_velocity_30d?: number;
+  activity_score?: number;
+  is_active?: boolean;
+  overall_score?: number;
+  // AI enricher fields (written by ai_enricher.py into quality_signals JSONB)
+  quality?: 'high' | 'medium' | 'low';
+  maturity?: 'research' | 'prototype' | 'beta' | 'production' | null;
 }
 
 export interface CrossDimensionCell {

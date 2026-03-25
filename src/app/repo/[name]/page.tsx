@@ -543,22 +543,42 @@ export default async function RepoDetailPage({
               </div>
               {repo.quality_signals ? (
                 <dl className="mt-4 space-y-3 text-sm">
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Has tests</dt>
-                    <dd className="text-zinc-200">{repo.quality_signals.has_tests ? 'Yes' : 'No'}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Has CI</dt>
-                    <dd className="text-zinc-200">{repo.quality_signals.has_ci ? 'Yes' : 'No'}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Commit velocity (30d)</dt>
-                    <dd className="text-zinc-200">{repo.quality_signals.commit_velocity_30d.toFixed(1)}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Overall score</dt>
-                    <dd className="text-zinc-200">{Math.round(repo.quality_signals.overall_score)}/100</dd>
-                  </div>
+                  {repo.quality_signals.quality != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Quality</dt>
+                      <dd className="text-zinc-200 capitalize">{repo.quality_signals.quality}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.maturity != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Maturity</dt>
+                      <dd className="text-zinc-200 capitalize">{repo.quality_signals.maturity}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.has_tests != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Has tests</dt>
+                      <dd className="text-zinc-200">{repo.quality_signals.has_tests ? 'Yes' : 'No'}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.has_ci != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Has CI</dt>
+                      <dd className="text-zinc-200">{repo.quality_signals.has_ci ? 'Yes' : 'No'}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.commit_velocity_30d != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Commit velocity (30d)</dt>
+                      <dd className="text-zinc-200">{repo.quality_signals.commit_velocity_30d.toFixed(1)}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.overall_score != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Overall score</dt>
+                      <dd className="text-zinc-200">{Math.round(repo.quality_signals.overall_score)}/100</dd>
+                    </div>
+                  )}
                 </dl>
               ) : (
                 <p className="mt-3 text-sm text-zinc-500">Quality signals are not available for this repo yet.</p>
@@ -616,12 +636,12 @@ export default async function RepoDetailPage({
                   <div key={language.language}>
                     <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
                       <span>{language.language}</span>
-                      <span>{language.percentage.toFixed(1)}%</span>
+                      <span>{(language.percentage ?? 0).toFixed(1)}%</span>
                     </div>
                     <div className="h-2 rounded-full bg-zinc-800">
                       <div
                         className="h-2 rounded-full bg-sky-400"
-                        style={{ width: `${Math.max(language.percentage, 4)}%` }}
+                        style={{ width: `${Math.max(language.percentage ?? 0, 4)}%` }}
                       />
                     </div>
                   </div>
