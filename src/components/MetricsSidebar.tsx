@@ -652,8 +652,8 @@ function LibraryOverview({ data, tagMetrics, onRepoClick, onViewArchived, onView
             </>
           )}
 
-          {/* Gap Analysis — always show if gaps exist */}
-          {data.gapAnalysis && data.gapAnalysis.gaps.length > 0 && (
+          {/* Gap Analysis — show pending state when empty, populated data when ready */}
+          {data.gapAnalysis && (
             <GapAnalysisPanel gaps={data.gapAnalysis.gaps} compact />
           )}
 
