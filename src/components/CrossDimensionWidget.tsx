@@ -28,8 +28,8 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
       d2Map.set(p.dim2_value, (d2Map.get(p.dim2_value) ?? 0) + p.repo_count);
     }
 
-    const d1 = [...d1Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
-    const d2 = [...d2Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    const d1 = [...d1Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 25);
+    const d2 = [...d2Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 100);
     const mx = Math.max(...d1.map(d => d.count), ...d2.map(d => d.count), 1);
 
     return { dim1Data: d1, dim2Data: d2, maxCount: mx };
@@ -57,14 +57,14 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     );
   }
 
-  // Two concentric rings: outer = AI trends (dim2), inner = industries (dim1)
-  const SIZE = 580;
+  // Two concentric rings: outer = AI trends (dim2, top 100), inner = industries (dim1, top 25)
+  const SIZE = 700;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
-  const OUTER_R = SIZE * 0.36;       // AI trends ring
-  const INNER_R = SIZE * 0.22;       // Industries ring
-  const OUTER_LABEL_R = SIZE * 0.44; // Labels for outer ring
-  const INNER_LABEL_R = SIZE * 0.14; // Labels for inner ring
+  const OUTER_R = SIZE * 0.34;       // AI trends ring
+  const INNER_R = SIZE * 0.18;       // Industries ring
+  const OUTER_LABEL_R = SIZE * 0.42; // Labels for outer ring
+  const INNER_LABEL_R = SIZE * 0.10; // Labels for inner ring
 
   function polar(index: number, total: number, radius: number) {
     const angle = (2 * Math.PI * index) / total - Math.PI / 2;
@@ -130,17 +130,17 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2">
                 <span className="inline-block h-3 w-6 rounded-sm bg-sky-400/30 border border-sky-400/60" />
-                <span className="text-xs font-medium text-sky-300">{label(analytics.dim2)} <span className="text-zinc-600">(outer)</span></span>
+                <span className="text-xs font-medium text-sky-300">{label(analytics.dim2)} <span className="text-zinc-600">(outer · {dim2Data.length})</span></span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="inline-block h-3 w-6 rounded-sm bg-fuchsia-500/30 border border-fuchsia-500/60" />
-                <span className="text-xs font-medium text-fuchsia-300">{label(analytics.dim1)} <span className="text-zinc-600">(inner)</span></span>
+                <span className="text-xs font-medium text-fuchsia-300">{label(analytics.dim1)} <span className="text-zinc-600">(inner · {dim1Data.length})</span></span>
               </div>
             </div>
             <span className="text-[10px] text-zinc-600">Hover labels for breakdown</span>
           </div>
 
-          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 580 }}>
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 700 }}>
             {/* Outer ring boundary (AI trends) */}
             <circle cx={CX} cy={CY} r={OUTER_R} fill="none" stroke="#3f3f46" strokeWidth={1} />
             <circle cx={CX} cy={CY} r={OUTER_R * 0.5} fill="none" stroke="#27272a" strokeWidth={0.5} strokeDasharray="3 5" />
@@ -197,17 +197,17 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
               return (
                 <g key={`outer-${d.name}`} className="cursor-pointer" onMouseEnter={() => setHoveredAxis(d.name)} onMouseLeave={() => setHoveredAxis(null)}>
                   {isHovered && <circle cx={p.x} cy={p.y} r={8} fill="#38bdf8" opacity={0.2} />}
-                  <circle cx={p.x} cy={p.y} r={isHovered ? 5 : 3.5} fill="#38bdf8" className="transition-all duration-200" />
-                  {isHovered && <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#fff" fontSize={10} fontWeight={700}>{d.count}</text>}
-                  <circle cx={lp.x} cy={lp.y} r={14} fill="transparent" />
+                  <circle cx={p.x} cy={p.y} r={isHovered ? 4 : 2} fill="#38bdf8" className="transition-all duration-200" />
+                  {isHovered && <text x={p.x} y={p.y - 8} textAnchor="middle" fill="#fff" fontSize={9} fontWeight={700}>{d.count}</text>}
+                  <circle cx={lp.x} cy={lp.y} r={10} fill="transparent" />
                   <text
                     x={lp.x} y={lp.y}
                     textAnchor={flipText ? 'end' : 'start'}
                     dominantBaseline="central"
                     transform={`rotate(${flipText ? angleDeg + 180 : angleDeg}, ${lp.x}, ${lp.y})`}
-                    fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#93c5fd'}
-                    fontSize={isHovered ? 11 : 10}
-                    fontWeight={isHovered ? 700 : 500}
+                    fill={dimmed ? '#27272a' : isHovered ? '#fff' : '#7dd3fc'}
+                    fontSize={isHovered ? 9 : 7}
+                    fontWeight={isHovered ? 700 : 400}
                     className="transition-all duration-200 select-none"
                   >
                     {d.name}

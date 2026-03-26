@@ -147,7 +147,7 @@ export function HomePageClient() {
           .catch(() => {});
         // portfolio insights retained for future API-driven intelligence
         if (!cancelled) setLoadProgress({ stage: 'taxonomy', percent: 75, detail: 'Loading taxonomy…' });
-        provider.getCrossDimensionAnalytics('industry', 'ai_trend')
+        provider.getCrossDimensionAnalytics('industry', 'ai_trend', 250)
           .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
         if (!cancelled) setLoadProgress({ stage: 'ready', percent: 100, detail: 'Ready' });
