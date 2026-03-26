@@ -234,6 +234,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
   const langColor = repo.language ? (LANGUAGE_COLORS[repo.language] ?? '#8b949e') : '#8b949e';
   const ps = repo.parentStats;
   const [commitsOpen, setCommitsOpen] = useState(false);
+  const [skillsExpanded, setSkillsExpanded] = useState(false);
   const catStyle = getCategoryStyle(repo.primaryCategory);
   const quality = repo.qualitySignals ?? repo.quality_signals;
   const sec = repo.securitySignals ?? null;
@@ -509,9 +510,10 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         )}
       </div>
 
-      {/* AI Dev Skills — grouped by lifecycle, capped at 6 badges */}
+      {/* AI Dev Skills — grouped by lifecycle, expandable */}
       {repo.aiDevSkills && repo.aiDevSkills.length > 0 && (() => {
-        const allSkills = (repo.aiDevSkills || []).slice(0, 6);
+        const cap = skillsExpanded ? repo.aiDevSkills.length : 6;
+        const allSkills = (repo.aiDevSkills || []).slice(0, cap);
         const overflow = (repo.aiDevSkills || []).length - allSkills.length;
 
         // Group displayed skills by lifecycle group (comes directly from each object)
@@ -553,7 +555,20 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
               </div>
             ))}
             {overflow > 0 && (
-              <span className="text-xs text-zinc-600">+{overflow} more</span>
+              <button
+                onClick={() => setSkillsExpanded(true)}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                +{overflow} more
+              </button>
+            )}
+            {skillsExpanded && repo.aiDevSkills!.length > 6 && (
+              <button
+                onClick={() => setSkillsExpanded(false)}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                show less
+              </button>
             )}
           </div>
         );
@@ -581,9 +596,13 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           ) : (
             <span className="text-zinc-700">—</span>
           )
-        ) : (
-          <span>⭐ {repo.stars.toLocaleString()} · 🍴 {repo.forks.toLocaleString()}</span>
-        )}
+        ) : (repo.stars > 0 || repo.forks > 0) ? (
+          <span>
+            {repo.stars > 0 && <>⭐ {repo.stars.toLocaleString()}</>}
+            {repo.stars > 0 && repo.forks > 0 && ' · '}
+            {repo.forks > 0 && <>🍴 {repo.forks.toLocaleString()}</>}
+          </span>
+        ) : null}
 
         {/* Last update date — use lastUpdated (always populated), fallback to parent */}
         <span>Issues {(repo.isFork && ps ? ps.openIssues : (repo.openIssuesCount ?? 0)).toLocaleString()}</span>
@@ -597,7 +616,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
       </div>
 
       {/* Language breakdown bar */}
-      {Object.keys(repo.languagePercentages).length > 1 && (() => {
+      {Object.keys(repo.languagePercentages ?? {}).length > 0 && (() => {
         const sorted = Object.entries(repo.languagePercentages)
           .sort(([, a], [, b]) => b - a);
         const top3 = sorted.slice(0, 3);
@@ -605,14 +624,32 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         const display = [...top3];
         if (otherPct > 0 && sorted.length > 3) display.push(['Other', otherPct]);
         return (
-          <div className="text-xs text-zinc-500 flex flex-wrap gap-x-2 gap-y-0.5">
-            {display.map(([lang, pct], i) => (
-              <span key={lang}>
-                {i > 0 && <span className="text-zinc-700 mr-2">·</span>}
-                <span className="text-zinc-400">{lang}</span>
-                <span className="text-zinc-600 ml-0.5">{pct}%</span>
-              </span>
-            ))}
+          <div className="mt-1">
+            {/* Visual bar */}
+            <div className="h-1.5 w-full rounded-full overflow-hidden flex bg-zinc-800">
+              {display.map(([lang, pct]) => (
+                <div
+                  key={lang}
+                  className="h-full"
+                  style={{
+                    width: `${pct}%`,
+                    backgroundColor: LANGUAGE_COLORS[lang] ?? '#8b949e',
+                  }}
+                  title={`${lang} ${pct}%`}
+                />
+              ))}
+            </div>
+            {/* Text labels */}
+            <div className="text-xs text-zinc-500 flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
+              {display.map(([lang, pct], i) => (
+                <span key={lang} className="flex items-center gap-1">
+                  {i > 0 && <span className="text-zinc-700">·</span>}
+                  <span className="h-2 w-2 rounded-full inline-block" style={{ backgroundColor: LANGUAGE_COLORS[lang] ?? '#8b949e' }} />
+                  <span className="text-zinc-400">{lang}</span>
+                  <span className="text-zinc-600">{pct}%</span>
+                </span>
+              ))}
+            </div>
           </div>
         );
       })()}
