@@ -14,7 +14,7 @@ import { MiniAskBar } from '@/components/MiniAskBar';
 import { LibraryInsightsWidget } from '@/components/LibraryInsightsWidget';
 import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
-import { createDataProvider, SearchMode } from '@/lib/dataProvider';
+import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 
@@ -26,6 +26,7 @@ export function HomePageClient() {
   const [data, setData] = useState<LibraryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const [loadProgress, setLoadProgress] = useState<LoadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
   // portfolioInsights kept for future use when API returns enriched data
@@ -129,7 +130,9 @@ export function HomePageClient() {
 
       // Stage 2: load full library (~3MB) in background, then merge in
       try {
-        const full = await provider.getLibrary();
+        const full = await provider.getLibrary((p) => {
+          if (!cancelled) setLoadProgress(p);
+        });
         if (!cancelled) {
           setData(full);
           setIsLoadingFull(false);
@@ -137,16 +140,20 @@ export function HomePageClient() {
           setApiDegraded(provider.getDegradedState());
         }
         // Non-blocking extras
+        if (!cancelled) setLoadProgress({ stage: 'trends', percent: 50, detail: 'Loading trends…' });
         provider.getTrends()
           .then(t => { if (!cancelled && t) setTrends(t); })
           .catch(() => {});
         // portfolio insights retained for future API-driven intelligence
+        if (!cancelled) setLoadProgress({ stage: 'taxonomy', percent: 75, detail: 'Loading taxonomy…' });
         provider.getCrossDimensionAnalytics('industry', 'ai_trend')
           .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
+        if (!cancelled) setLoadProgress({ stage: 'ready', percent: 100, detail: 'Ready' });
       } catch (e) {
         if (!cancelled) {
           setIsLoadingFull(false);
+          setLoadProgress({ stage: 'error', percent: 0, detail: 'Failed to load' });
           if (!owned) setError((e as Error).message);
         }
       } finally {
@@ -578,7 +585,7 @@ export function HomePageClient() {
       {/* ── Main content ── */}
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Stage 2 loading banner — fades in/out while owned repos stay visible */}
-        <LoadingBanner visible={isLoadingFull} />
+        <LoadingBanner visible={isLoadingFull} progress={loadProgress} />
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
           {/* Header */}
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -589,9 +596,39 @@ export function HomePageClient() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {/* API connected badge — production mode only */}
+              {/* Live API status badge */}
               {provider.mode === 'production' && (
-                <span className="text-xs text-zinc-500 border border-zinc-700 rounded px-2 py-0.5">API connected</span>
+                <span className={[
+                  'text-xs border rounded px-2 py-0.5 flex items-center gap-1.5 transition-colors duration-300',
+                  loadProgress?.stage === 'ready'
+                    ? 'text-emerald-400 border-emerald-800/60'
+                    : loadProgress?.stage === 'error'
+                    ? 'text-amber-400 border-amber-800/60'
+                    : 'text-blue-400 border-blue-800/60',
+                ].join(' ')}>
+                  {/* Status dot */}
+                  {loadProgress?.stage === 'ready' ? (
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  ) : loadProgress?.stage === 'error' ? (
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
+                  ) : (
+                    <span className="relative flex h-1.5 w-1.5 shrink-0">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-blue-500" />
+                    </span>
+                  )}
+                  {loadProgress?.stage === 'ready'
+                    ? 'API ready'
+                    : loadProgress?.stage === 'error'
+                    ? 'Cached mode'
+                    : loadProgress?.stage === 'repos'
+                    ? 'Loading repos…'
+                    : loadProgress?.stage === 'trends'
+                    ? 'Loading trends…'
+                    : loadProgress?.stage === 'taxonomy'
+                    ? 'Loading taxonomy…'
+                    : 'Connecting…'}
+                </span>
               )}
               {/* Mobile sidebar toggle */}
               <button
@@ -623,6 +660,15 @@ export function HomePageClient() {
             </div>
           )}
 
+          {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
+          {data && (
+            <StatsBar
+              data={data}
+              tagMetrics={data.tagMetrics}
+              onTagClick={(tag) => toggleTag(tag)}
+            />
+          )}
+
           {/* Mini Ask — navigates to /ask for full query experience */}
           <MiniAskBar />
 
@@ -636,15 +682,6 @@ export function HomePageClient() {
           </ErrorBoundary>
 
           <CrossDimensionWidget analytics={crossDimensionAnalytics} />
-
-          {/* Stats */}
-          {data && (
-            <StatsBar
-              data={data}
-              tagMetrics={data.tagMetrics}
-              onTagClick={(tag) => toggleTag(tag)}
-            />
-          )}
 
           {/* Search + Filter */}
           {data && (
