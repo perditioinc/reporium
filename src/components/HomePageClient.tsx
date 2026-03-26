@@ -712,7 +712,7 @@ export function HomePageClient() {
                 )}
               </ErrorBoundary>
 
-              <CrossDimensionWidget analytics={crossDimensionAnalytics} />
+              <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
             </>
           )}
 
