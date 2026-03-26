@@ -207,17 +207,42 @@ function monthsBetween(fromStr: string, toStr: string): number {
   return Math.round((to - from) / (1000 * 60 * 60 * 24 * 30));
 }
 
-/** Get sync status badge config */
-function syncBadge(sync: import('@/types/repo').ForkSyncStatus): { icon: string; color: string; label: string } {
-  const { state, behindBy, aheadBy } = sync;
-  if (state === 'up-to-date') return { icon: '✅', color: 'text-emerald-400', label: 'Up to date' };
-  if (state === 'behind') {
-    if (behindBy > 100) return { icon: '⬇️', color: 'text-red-400', label: `Behind by ${behindBy} — significantly outdated` };
-    if (behindBy >= 10) return { icon: '⬇️', color: 'text-amber-400', label: `Behind by ${behindBy} commits` };
-    return { icon: '⬇️', color: 'text-yellow-400', label: `Behind by ${behindBy} commit${behindBy !== 1 ? 's' : ''}` };
+/** Get sync status badge config.
+ *  Determines sync from dates: only "up to date" if fork synced on or after
+ *  the upstream's last push. Falls back to API state if dates unavailable. */
+function syncBadge(
+  sync: import('@/types/repo').ForkSyncStatus,
+  yourLastPush?: string | null,
+  upstreamLastPush?: string | null,
+): { icon: string; color: string; label: string } {
+  const { behindBy, aheadBy } = sync;
+
+  // Date-based sync determination — the source of truth
+  let dateSaysBehind = false;
+  let daysBehind = 0;
+  if (yourLastPush && upstreamLastPush) {
+    const yp = new Date(yourLastPush).getTime();
+    const up = new Date(upstreamLastPush).getTime();
+    if (up > yp) {
+      dateSaysBehind = true;
+      daysBehind = Math.floor((up - yp) / 86400000);
+    }
   }
-  if (state === 'ahead') return { icon: '⬆️', color: 'text-blue-400', label: `Ahead by ${aheadBy} — you've made changes` };
-  if (state === 'diverged') return { icon: '↕️', color: 'text-orange-400', label: 'Diverged from upstream' };
+
+  // Up to date only if dates confirm it (or no dates available and API says so)
+  if (!dateSaysBehind && sync.state === 'up-to-date') {
+    return { icon: '✅', color: 'text-emerald-400', label: 'Up to date' };
+  }
+
+  if (dateSaysBehind || sync.state === 'behind') {
+    if (aheadBy > 0) return { icon: '↕️', color: 'text-orange-400', label: 'Diverged from upstream' };
+    if (daysBehind > 30 || behindBy > 100) return { icon: '⬇️', color: 'text-red-400', label: `Behind — ${daysBehind}d since last sync` };
+    if (daysBehind > 7 || behindBy >= 10) return { icon: '⬇️', color: 'text-amber-400', label: `Behind — ${daysBehind}d since last sync` };
+    return { icon: '⬇️', color: 'text-yellow-400', label: `Behind — ${daysBehind}d since last sync` };
+  }
+
+  if (sync.state === 'ahead') return { icon: '⬆️', color: 'text-blue-400', label: `Ahead by ${aheadBy} — you've made changes` };
+  if (sync.state === 'diverged') return { icon: '↕️', color: 'text-orange-400', label: 'Diverged from upstream' };
   return { icon: '—', color: 'text-zinc-500', label: 'Sync status unavailable' };
 }
 
@@ -742,7 +767,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           {repo.upstreamLastPushAt && (
             <div className="flex justify-between text-xs">
               <span className="text-zinc-600">Upstream last push</span>
-              <span className="text-zinc-400">{relativeTime(repo.upstreamLastPushAt)}</span>
+              <span className="text-zinc-400">{formatMonthYear(repo.upstreamLastPushAt)}</span>
             </div>
           )}
         </div>
@@ -757,7 +782,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         return (
           <div className="border-t border-zinc-800 pt-3 space-y-1">
             {repo.forkSync && (() => {
-              const badge = syncBadge(repo.forkSync!);
+              const badge = syncBadge(repo.forkSync!, repo.yourLastPushAt, repo.upstreamLastPushAt);
               return (
                 <>
                   <p className="text-xs font-medium text-zinc-500">🔄 Sync Status</p>
