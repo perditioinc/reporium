@@ -311,7 +311,7 @@ export function FilterBar({
           ))}
           {/* Claude Plugins pill */}
           {showClaudePluginsOnly && (
-            <span className="flex items-center gap-1 rounded-full bg-violet-900/40 border border-violet-700/60 px-2.5 py-1 text-xs font-medium text-violet-300">
+            <span className="flex items-center gap-1 rounded-full bg-orange-900/40 border border-orange-600/60 px-2.5 py-1 text-xs font-medium text-orange-300">
               🔌 MCP / Plugins
               <button onClick={() => onPluginToggle?.()} className="ml-1 hover:opacity-70">×</button>
             </span>
@@ -769,8 +769,8 @@ export function FilterBar({
             onClick={() => onPluginToggle?.()}
             className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
               showClaudePluginsOnly
-                ? 'border-violet-600 bg-violet-900/50 text-violet-300'
-                : 'border-zinc-700 text-zinc-400 hover:text-zinc-200'
+                ? 'border-orange-600 bg-orange-900/50 text-orange-300'
+                : 'border-orange-800/50 text-orange-400/70 hover:text-orange-300 hover:border-orange-700'
             }`}
           >
             🔌 MCP / Plugins
