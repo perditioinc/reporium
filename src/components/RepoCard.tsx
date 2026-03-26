@@ -23,12 +23,23 @@ function detectPluginType(repo: EnrichedRepo): 'mcp-server' | null {
   const lowerDesc = (repo.description ?? '').toLowerCase();
   const lowerTags = (repo.enrichedTags ?? []).map(t => t.toLowerCase());
 
-  const tagMatch = lowerTags.some(t => MCP_PLUGIN_TAGS.has(t));
-  const nameMatch = lowerName.startsWith('mcp-') || lowerName.endsWith('-mcp') || lowerName.includes('-mcp-');
+  const tagMatch = lowerTags.some(t => MCP_PLUGIN_TAGS.has(t) || /\bmcp\b/.test(t) || t.includes('claude plugin') || t.includes('claude skill'));
+  const nameMatch =
+    lowerName.startsWith('mcp-') || lowerName.endsWith('-mcp') || lowerName.includes('-mcp-') ||
+    lowerName.includes('mcp_') || lowerName.includes('_mcp');
   const descMatch =
     lowerDesc.includes('model context protocol') ||
     lowerDesc.includes('mcp server') ||
-    lowerDesc.includes('claude plugin');
+    lowerDesc.includes('mcp client') ||
+    lowerDesc.includes('mcp tool') ||
+    lowerDesc.includes('mcp-based') ||
+    lowerDesc.includes('mcp integration') ||
+    lowerDesc.includes('claude plugin') ||
+    lowerDesc.includes('claude code plugin') ||
+    lowerDesc.includes('claude skill') ||
+    // Match standalone "MCP" as a word (not inside other words like "mcpu")
+    /\bmcp\b/.test(lowerDesc) ||
+    /\bplugin\b/.test(lowerName);
 
   return tagMatch || nameMatch || descMatch ? 'mcp-server' : null;
 }
@@ -256,7 +267,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           ? 'border-orange-700/60 hover:border-orange-500/80'
           : 'border-zinc-700 hover:border-zinc-500',
       ].join(' ')}
-      style={{ borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: catStyle.backgroundColor }}
+      style={{ borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: pluginType ? 'rgba(154, 52, 18, 0.08)' : catStyle.backgroundColor }}
     >
       {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
       {sec?.incident_reported && (
