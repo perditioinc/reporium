@@ -35,11 +35,6 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     return { dim1Data: d1, dim2Data: d2, maxCount: mx };
   }, [analytics]);
 
-  // Combine into unified axis — industries first half, AI trends second half
-  const allAxes = useMemo(() => {
-    return [...dim1Data.map(d => ({ ...d, dim: 'dim1' as const })), ...dim2Data.map(d => ({ ...d, dim: 'dim2' as const }))];
-  }, [dim1Data, dim2Data]);
-
   const peak = maxCount;
 
   if (!analytics) return null;
@@ -62,42 +57,45 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     );
   }
 
-  // Radar geometry
-  const SIZE = 560;
+  // Two concentric rings: outer = AI trends (dim2), inner = industries (dim1)
+  const SIZE = 580;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
-  const OUTER_R = SIZE * 0.32;
-  const LABEL_R = SIZE * 0.43;
-  const totalAxes = allAxes.length;
-  const rings = [0.25, 0.5, 0.75, 1.0];
+  const OUTER_R = SIZE * 0.36;       // AI trends ring
+  const INNER_R = SIZE * 0.22;       // Industries ring
+  const OUTER_LABEL_R = SIZE * 0.44; // Labels for outer ring
+  const INNER_LABEL_R = SIZE * 0.14; // Labels for inner ring
 
   function polar(index: number, total: number, radius: number) {
     const angle = (2 * Math.PI * index) / total - Math.PI / 2;
     return { x: CX + radius * Math.cos(angle), y: CY + radius * Math.sin(angle), angle };
   }
 
-  // Build polygon points for a specific dimension
-  function buildPolygon(data: { name: string; count: number }[], dimAxes: typeof allAxes) {
-    const dataMap = new Map(data.map(d => [d.name, d.count]));
-    return dimAxes.map((axis, i) => {
-      const count = dataMap.get(axis.name) ?? 0;
-      const r = OUTER_R * (count / peak);
-      const p = polar(i, totalAxes, r);
-      return `${p.x},${p.y}`;
-    }).join(' ');
-  }
+  // Build polygon for outer ring (AI trends / dim2)
+  const outerPolygon = dim2Data.map((d, i) => {
+    const r = OUTER_R * (d.count / peak);
+    const p = polar(i, dim2Data.length, r);
+    return `${p.x},${p.y}`;
+  }).join(' ');
 
-  const dim1Polygon = buildPolygon(dim1Data, allAxes);
-  const dim2Polygon = buildPolygon(dim2Data, allAxes);
+  // Build polygon for inner ring (industries / dim1)
+  const innerPolygon = dim1Data.map((d, i) => {
+    const r = INNER_R * (d.count / peak);
+    const p = polar(i, dim1Data.length, r);
+    return `${p.x},${p.y}`;
+  }).join(' ');
 
   // Tooltip data for hovered axis
   const hoveredInfo = hoveredAxis ? (() => {
-    const axis = allAxes.find(a => a.name === hoveredAxis);
-    if (!axis) return null;
-    const connections = axis.dim === 'dim1'
+    const d1 = dim1Data.find(d => d.name === hoveredAxis);
+    const d2 = dim2Data.find(d => d.name === hoveredAxis);
+    if (!d1 && !d2) return null;
+    const dim = d1 ? 'dim1' as const : 'dim2' as const;
+    const axis = d1 ?? d2!;
+    const connections = dim === 'dim1'
       ? analytics.pairs.filter((p: CrossDimensionCell) => p.dim1_value === hoveredAxis).sort((a: CrossDimensionCell, b: CrossDimensionCell) => b.repo_count - a.repo_count)
       : analytics.pairs.filter((p: CrossDimensionCell) => p.dim2_value === hoveredAxis).sort((a: CrossDimensionCell, b: CrossDimensionCell) => b.repo_count - a.repo_count);
-    return { axis, connections };
+    return { axis: { ...axis, dim }, connections };
   })() : null;
 
   return (
@@ -131,58 +129,53 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-5">
               <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-6 rounded-sm bg-fuchsia-500/30 border border-fuchsia-500/60" />
-                <span className="text-xs font-medium text-fuchsia-300">{label(analytics.dim1)}</span>
+                <span className="inline-block h-3 w-6 rounded-sm bg-sky-400/30 border border-sky-400/60" />
+                <span className="text-xs font-medium text-sky-300">{label(analytics.dim2)} <span className="text-zinc-600">(outer)</span></span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-6 rounded-sm bg-sky-400/30 border border-sky-400/60" />
-                <span className="text-xs font-medium text-sky-300">{label(analytics.dim2)}</span>
+                <span className="inline-block h-3 w-6 rounded-sm bg-fuchsia-500/30 border border-fuchsia-500/60" />
+                <span className="text-xs font-medium text-fuchsia-300">{label(analytics.dim1)} <span className="text-zinc-600">(inner)</span></span>
               </div>
             </div>
-            <span className="text-[10px] text-zinc-600">Repo count shown by distance from center — hover labels for breakdown</span>
+            <span className="text-[10px] text-zinc-600">Hover labels for breakdown</span>
           </div>
 
-          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 560 }}>
-            {/* Grid rings */}
-            {rings.map(r => (
-              <circle
-                key={r}
-                cx={CX}
-                cy={CY}
-                r={OUTER_R * r}
-                fill="none"
-                stroke="#3f3f46"
-                strokeWidth={r === 1 ? 1 : 0.5}
-                strokeDasharray={r < 1 ? '3 5' : undefined}
-              />
-            ))}
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 580 }}>
+            {/* Outer ring boundary (AI trends) */}
+            <circle cx={CX} cy={CY} r={OUTER_R} fill="none" stroke="#3f3f46" strokeWidth={1} />
+            <circle cx={CX} cy={CY} r={OUTER_R * 0.5} fill="none" stroke="#27272a" strokeWidth={0.5} strokeDasharray="3 5" />
 
-            {/* Ring scale labels */}
-            {rings.map(r => (
-              <text
-                key={`ring-label-${r}`}
-                x={CX + 4}
-                y={CY - OUTER_R * r - 2}
-                fill="#52525b"
-                fontSize={9}
-                fontWeight={500}
-                className="select-none pointer-events-none"
-              >
-                {Math.round(peak * r)}
-              </text>
-            ))}
+            {/* Inner ring boundary (Industries) */}
+            <circle cx={CX} cy={CY} r={INNER_R} fill="none" stroke="#3f3f46" strokeWidth={1} strokeDasharray="4 3" />
+            <circle cx={CX} cy={CY} r={INNER_R * 0.5} fill="none" stroke="#27272a" strokeWidth={0.5} strokeDasharray="2 4" />
 
-            {/* Spokes */}
-            {allAxes.map((_, i) => {
-              const p = polar(i, totalAxes, OUTER_R);
-              return (
-                <line key={`spoke-${i}`} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="#3f3f46" strokeWidth={0.5} />
-              );
+            {/* Outer spokes (AI trends) */}
+            {dim2Data.map((_, i) => {
+              const p = polar(i, dim2Data.length, OUTER_R);
+              return <line key={`spoke-outer-${i}`} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="#27272a" strokeWidth={0.5} />;
             })}
 
-            {/* Dim1 polygon (industries) — fuchsia fill */}
+            {/* Inner spokes (Industries) */}
+            {dim1Data.map((_, i) => {
+              const p = polar(i, dim1Data.length, INNER_R);
+              return <line key={`spoke-inner-${i}`} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="#27272a" strokeWidth={0.5} />;
+            })}
+
+            {/* Outer polygon — AI trends (sky) */}
             <polygon
-              points={dim1Polygon}
+              points={outerPolygon}
+              fill="#38bdf8"
+              fillOpacity={0.12}
+              stroke="#38bdf8"
+              strokeWidth={2}
+              strokeOpacity={0.7}
+              strokeLinejoin="round"
+              className="transition-all duration-300"
+            />
+
+            {/* Inner polygon — Industries (fuchsia) */}
+            <polygon
+              points={innerPolygon}
               fill="#d946ef"
               fillOpacity={0.15}
               stroke="#d946ef"
@@ -192,74 +185,62 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
               className="transition-all duration-300"
             />
 
-            {/* Dim2 polygon (AI trends) — sky fill */}
-            <polygon
-              points={dim2Polygon}
-              fill="#38bdf8"
-              fillOpacity={0.15}
-              stroke="#38bdf8"
-              strokeWidth={2}
-              strokeOpacity={0.8}
-              strokeLinejoin="round"
-              className="transition-all duration-300"
-            />
-
-            {/* Data point dots */}
-            {allAxes.map((axis, i) => {
-              const r = OUTER_R * (axis.count / peak);
-              const p = polar(i, totalAxes, r);
-              const isDim1 = axis.dim === 'dim1';
-              const isHovered = hoveredAxis === axis.name;
-              return (
-                <g key={`dot-${axis.name}`}>
-                  {isHovered && (
-                    <circle cx={p.x} cy={p.y} r={8} fill={isDim1 ? '#d946ef' : '#38bdf8'} opacity={0.2} />
-                  )}
-                  <circle
-                    cx={p.x}
-                    cy={p.y}
-                    r={isHovered ? 5 : 3.5}
-                    fill={isDim1 ? '#d946ef' : '#38bdf8'}
-                    className="transition-all duration-200"
-                  />
-                  {isHovered && (
-                    <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#fff" fontSize={10} fontWeight={700}>{axis.count}</text>
-                  )}
-                </g>
-              );
-            })}
-
-            {/* Axis labels around the circle */}
-            {allAxes.map((axis, i) => {
-              const lp = polar(i, totalAxes, LABEL_R);
-              const angleDeg = (i / totalAxes) * 360 - 90;
+            {/* Outer ring dots + labels (AI trends) */}
+            {dim2Data.map((d, i) => {
+              const r = OUTER_R * (d.count / peak);
+              const p = polar(i, dim2Data.length, r);
+              const lp = polar(i, dim2Data.length, OUTER_LABEL_R);
+              const angleDeg = (i / dim2Data.length) * 360 - 90;
               const flipText = angleDeg > 90 && angleDeg < 270;
-              const textAnchor = flipText ? 'end' : 'start';
-              const textAngle = flipText ? angleDeg + 180 : angleDeg;
-              const isDim1 = axis.dim === 'dim1';
-              const isHovered = hoveredAxis === axis.name;
+              const isHovered = hoveredAxis === d.name;
               const dimmed = hoveredAxis && !isHovered;
-
               return (
-                <g
-                  key={`label-${axis.name}`}
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredAxis(axis.name)}
-                  onMouseLeave={() => setHoveredAxis(null)}
-                >
+                <g key={`outer-${d.name}`} className="cursor-pointer" onMouseEnter={() => setHoveredAxis(d.name)} onMouseLeave={() => setHoveredAxis(null)}>
+                  {isHovered && <circle cx={p.x} cy={p.y} r={8} fill="#38bdf8" opacity={0.2} />}
+                  <circle cx={p.x} cy={p.y} r={isHovered ? 5 : 3.5} fill="#38bdf8" className="transition-all duration-200" />
+                  {isHovered && <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#fff" fontSize={10} fontWeight={700}>{d.count}</text>}
                   <circle cx={lp.x} cy={lp.y} r={14} fill="transparent" />
                   <text
-                    x={lp.x}
-                    y={lp.y}
-                    textAnchor={textAnchor}
+                    x={lp.x} y={lp.y}
+                    textAnchor={flipText ? 'end' : 'start'}
                     dominantBaseline="central"
-                    transform={`rotate(${textAngle}, ${lp.x}, ${lp.y})`}
-                    fill={dimmed ? '#3f3f46' : isHovered ? '#ffffff' : isDim1 ? '#e9a0f0' : '#93c5fd'}
+                    transform={`rotate(${flipText ? angleDeg + 180 : angleDeg}, ${lp.x}, ${lp.y})`}
+                    fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#93c5fd'}
                     fontSize={isHovered ? 11 : 10}
                     fontWeight={isHovered ? 700 : 500}
                     className="transition-all duration-200 select-none"
                   >
-                    {axis.name}
+                    {d.name}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Inner ring dots + labels (Industries) */}
+            {dim1Data.map((d, i) => {
+              const r = INNER_R * (d.count / peak);
+              const p = polar(i, dim1Data.length, r);
+              const lp = polar(i, dim1Data.length, INNER_LABEL_R);
+              const angleDeg = (i / dim1Data.length) * 360 - 90;
+              const flipText = angleDeg > 90 && angleDeg < 270;
+              const isHovered = hoveredAxis === d.name;
+              const dimmed = hoveredAxis && !isHovered;
+              return (
+                <g key={`inner-${d.name}`} className="cursor-pointer" onMouseEnter={() => setHoveredAxis(d.name)} onMouseLeave={() => setHoveredAxis(null)}>
+                  {isHovered && <circle cx={p.x} cy={p.y} r={7} fill="#d946ef" opacity={0.25} />}
+                  <circle cx={p.x} cy={p.y} r={isHovered ? 4.5 : 3} fill="#d946ef" className="transition-all duration-200" />
+                  {isHovered && <text x={p.x} y={p.y - 9} textAnchor="middle" fill="#fff" fontSize={9} fontWeight={700}>{d.count}</text>}
+                  <circle cx={lp.x} cy={lp.y} r={12} fill="transparent" />
+                  <text
+                    x={lp.x} y={lp.y}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#e9a0f0'}
+                    fontSize={isHovered ? 9.5 : 8.5}
+                    fontWeight={isHovered ? 700 : 500}
+                    className="transition-all duration-200 select-none"
+                  >
+                    {d.name}
                   </text>
                 </g>
               );
