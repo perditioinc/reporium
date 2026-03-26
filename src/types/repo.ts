@@ -145,6 +145,20 @@ export interface QualitySignals {
   maturity?: 'research' | 'prototype' | 'beta' | 'production' | null;
 }
 
+/** Security risk signals — manually curated via admin API */
+export interface SecuritySignals {
+  /** Overall risk level */
+  risk_level: 'critical' | 'high' | 'medium' | 'low' | null;
+  /** True when a publicly disclosed security incident has been recorded */
+  incident_reported: boolean;
+  /** ISO date of incident, e.g. "2024-05-20" */
+  incident_date: string | null;
+  /** URL to CVE / advisory / blog post */
+  incident_url: string | null;
+  /** One-sentence human-readable summary of the incident */
+  incident_summary: string | null;
+}
+
 export interface CrossDimensionCell {
   dim1_value: string;
   dim2_value: string;
@@ -314,6 +328,8 @@ export interface EnrichedRepo {
   qualitySignals?: QualitySignals | null;
   quality_signals?: QualitySignals | null;
   taxonomy?: TaxonomyEntry[];
+  /** Security risk metadata — present only when manually marked via admin API */
+  securitySignals?: SecuritySignals | null;
 }
 
 /** Summary statistics for a user's library */
