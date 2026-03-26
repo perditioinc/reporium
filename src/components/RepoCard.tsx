@@ -8,6 +8,39 @@ import { QualityBadge } from '@/components/QualityBadge';
 /** Status tags that are not content tags — never show as clickable chips */
 const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
 
+/**
+ * Tags / keywords that identify a repo as an MCP server or Claude plugin.
+ * Detection is purely client-side from enrichedTags + repo name/description.
+ */
+const MCP_PLUGIN_TAGS = new Set([
+  'mcp', 'mcp-server', 'mcp-client', 'mcp-tool',
+  'model-context-protocol', 'modelcontextprotocol',
+  'claude-mcp', 'claude-plugin', 'claude-tools', 'claude-app',
+]);
+
+function detectPluginType(repo: EnrichedRepo): 'mcp-server' | null {
+  const lowerName = repo.name.toLowerCase();
+  const lowerDesc = (repo.description ?? '').toLowerCase();
+  const lowerTags = (repo.enrichedTags ?? []).map(t => t.toLowerCase());
+
+  const tagMatch = lowerTags.some(t => MCP_PLUGIN_TAGS.has(t));
+  const nameMatch = lowerName.startsWith('mcp-') || lowerName.endsWith('-mcp') || lowerName.includes('-mcp-');
+  const descMatch =
+    lowerDesc.includes('model context protocol') ||
+    lowerDesc.includes('mcp server') ||
+    lowerDesc.includes('claude plugin');
+
+  return tagMatch || nameMatch || descMatch ? 'mcp-server' : null;
+}
+
+/** Color + label config for each risk level */
+const RISK_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  critical: { bg: 'bg-red-950/80',    border: 'border-red-700',   text: 'text-red-300',    label: 'CRITICAL' },
+  high:     { bg: 'bg-orange-950/70', border: 'border-orange-700', text: 'text-orange-300', label: 'HIGH RISK' },
+  medium:   { bg: 'bg-amber-950/60',  border: 'border-amber-700',  text: 'text-amber-300',  label: 'MEDIUM RISK' },
+  low:      { bg: 'bg-zinc-800/60',   border: 'border-zinc-600',   text: 'text-zinc-400',   label: 'LOW RISK' },
+};
+
 /** Own-account logins — don't render as "builder" since the Built/Forked badge already shows ownership */
 const OWN_LOGINS = new Set(['perditioinc']);
 
@@ -116,12 +149,45 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
   const [commitsOpen, setCommitsOpen] = useState(false);
   const catStyle = getCategoryStyle(repo.primaryCategory);
   const quality = repo.qualitySignals ?? repo.quality_signals;
+  const sec = repo.securitySignals ?? null;
+  const pluginType = detectPluginType(repo);
+  const riskCfg = sec?.risk_level ? (RISK_CONFIG[sec.risk_level] ?? null) : null;
 
   return (
     <div
       className="group relative flex flex-col gap-3 rounded-xl border-t border-r border-b border-zinc-800 p-5 transition-all hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20"
       style={{ borderLeftColor: catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: catStyle.backgroundColor }}
     >
+      {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
+      {sec?.incident_reported && (
+        <div className="rounded-lg border border-red-700 bg-red-950/80 px-3 py-2 -mx-5 -mt-5 rounded-t-xl rounded-b-none mb-0">
+          <div className="flex items-start gap-2">
+            <span className="text-red-400 text-sm shrink-0 mt-0.5">⚠️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-red-300 uppercase tracking-wide">Security Incident Reported</p>
+              {sec.incident_summary && (
+                <p className="text-xs text-red-400 mt-0.5 line-clamp-2">{sec.incident_summary}</p>
+              )}
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {sec.incident_date && (
+                  <span className="text-[11px] text-red-500">{sec.incident_date}</span>
+                )}
+                {sec.incident_url && (
+                  <a
+                    href={sec.incident_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-red-400 hover:text-red-200 underline underline-offset-2 transition-colors"
+                  >
+                    View advisory →
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <a
@@ -132,10 +198,28 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         >
           {repo.name}
         </a>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
           {typeof repo.similarity === 'number' && (
             <span className="rounded-full bg-sky-900/40 border border-sky-700/40 px-2 py-0.5 text-xs font-medium text-sky-300">
               {Math.round(repo.similarity * 100)}% match
+            </span>
+          )}
+          {/* Claude Plugin / MCP badge */}
+          {pluginType && (
+            <span className="rounded-full bg-violet-900/50 border border-violet-700/60 px-2 py-0.5 text-xs font-semibold text-violet-300">
+              🔌 MCP
+            </span>
+          )}
+          {/* Security risk badge (non-incident — incident gets the full banner above) */}
+          {riskCfg && !sec?.incident_reported && (
+            <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${riskCfg.bg} ${riskCfg.border} ${riskCfg.text}`}>
+              🛡️ {riskCfg.label}
+            </span>
+          )}
+          {/* Compact risk badge shown alongside the incident banner */}
+          {sec?.incident_reported && riskCfg && (
+            <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${riskCfg.bg} ${riskCfg.border} ${riskCfg.text}`}>
+              🛡️ {riskCfg.label}
             </span>
           )}
           <QualityBadge quality={quality} />
