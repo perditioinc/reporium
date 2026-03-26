@@ -151,7 +151,7 @@ export function LibraryInsightsWidget({ repos, onTagClick }: LibraryInsightsWidg
                     <div className="flex justify-between text-xs mb-0.5">
                       <button
                         onClick={() => onTagClick?.(skill)}
-                        className="text-zinc-300 hover:text-zinc-100 truncate max-w-[160px] text-left transition-colors"
+                        className="text-zinc-300 hover:text-zinc-100 text-left break-words transition-colors"
                       >
                         {skill}
                       </button>
@@ -193,7 +193,7 @@ export function LibraryInsightsWidget({ repos, onTagClick }: LibraryInsightsWidg
                       <div key={value} className="flex items-center justify-between text-xs">
                         <button
                           onClick={() => onTagClick?.(value)}
-                          className="text-zinc-300 hover:text-zinc-100 truncate max-w-[160px] text-left transition-colors"
+                          className="text-zinc-300 hover:text-zinc-100 text-left break-words transition-colors"
                         >
                           {value}
                         </button>
