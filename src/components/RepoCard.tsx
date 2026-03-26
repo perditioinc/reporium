@@ -250,8 +250,13 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
 
   return (
     <div
-      className="group relative flex flex-col gap-3 rounded-xl border-t border-r border-b border-zinc-800 p-5 transition-all hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20"
-      style={{ borderLeftColor: catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: catStyle.backgroundColor }}
+      className={[
+        'group relative flex flex-col gap-3 rounded-xl border-t border-r border-b p-5 transition-all hover:shadow-lg hover:shadow-black/20',
+        pluginType
+          ? 'border-orange-700/60 hover:border-orange-500/80'
+          : 'border-zinc-700 hover:border-zinc-500',
+      ].join(' ')}
+      style={{ borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: catStyle.backgroundColor }}
     >
       {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
       {sec?.incident_reported && (
@@ -301,7 +306,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           )}
           {/* Claude Plugin / MCP badge */}
           {pluginType && (
-            <span className="rounded-full bg-violet-900/50 border border-violet-700/60 px-2 py-0.5 text-xs font-semibold text-violet-300">
+            <span className="rounded-full bg-orange-900/50 border border-orange-600/60 px-2 py-0.5 text-xs font-semibold text-orange-300">
               🔌 MCP
             </span>
           )}
