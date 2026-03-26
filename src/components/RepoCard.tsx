@@ -35,9 +35,17 @@ function detectPluginType(repo: EnrichedRepo): 'mcp-server' | null {
 
 // ── Trending score (0–5 🔥) ──────────────────────────────────────────────────
 // Derived from commit velocity. For forks this reflects upstream activity.
+// Falls back to commitsLast7Days[] / commitsLast30Days[] arrays when commitStats
+// counts are zero (built repos often have zero stats but populated arrays).
 function getTrendingScore(repo: EnrichedRepo): number {
-  const c7  = repo.commitStats?.last7Days  ?? 0;
-  const c30 = repo.commitStats?.last30Days ?? 0;
+  const c7  = Math.max(
+    repo.commitStats?.last7Days  ?? 0,
+    repo.commitsLast7Days?.length  ?? 0,
+  );
+  const c30 = Math.max(
+    repo.commitStats?.last30Days ?? 0,
+    repo.commitsLast30Days?.length ?? 0,
+  );
   if (c7 >= 20) return 5;   // blazing — multiple commits per day
   if (c7 >= 10) return 4;   // 1-2 commits/day
   if (c7 >=  4) return 3;   // every couple of days
@@ -55,12 +63,28 @@ interface LifeStatus {
 }
 
 function getLifeStatus(repo: EnrichedRepo): LifeStatus {
-  const isArchived = repo.parentStats?.isArchived ?? false;
+  const isArchived = repo.parentStats?.isArchived ?? repo.isArchived ?? false;
   const stars      = repo.parentStats?.stars ?? repo.stars ?? 0;
-  const c7         = repo.commitStats?.last7Days  ?? 0;
-  const c30        = repo.commitStats?.last30Days ?? 0;
-  const c90        = repo.commitStats?.last90Days ?? 0;
-  const daysSince  = (Date.now() - new Date(repo.lastUpdated).getTime()) / 86400000;
+
+  // Use the max across commitStats scalars AND the raw commit arrays
+  // (built repos often have zero commitStats counts but populated commitsLast*Days arrays)
+  const c7  = Math.max(
+    repo.commitStats?.last7Days  ?? 0,
+    repo.commitsLast7Days?.length  ?? 0,
+  );
+  const c30 = Math.max(
+    repo.commitStats?.last30Days ?? 0,
+    repo.commitsLast30Days?.length ?? 0,
+  );
+  const c90 = Math.max(
+    repo.commitStats?.last90Days ?? 0,
+    repo.commitsLast90Days?.length ?? 0,
+    repo.recentCommits?.length     ?? 0,   // recentCommits is usually last ~10
+  );
+
+  // Best available "last push" date — for built repos use lastUpdated / yourLastPushAt
+  const lastPushStr = repo.upstreamLastPushAt ?? repo.yourLastPushAt ?? repo.lastUpdated;
+  const daysSince   = (Date.now() - new Date(lastPushStr).getTime()) / 86400000;
 
   if (isArchived) return {
     emoji: '📦', label: 'Archived',
@@ -77,9 +101,11 @@ function getLifeStatus(repo: EnrichedRepo): LifeStatus {
     tooltip: `${c30} commits in the last 30 days`,
     textColor: 'text-emerald-400',
   };
-  if (c90 > 0) return {
+  if (c90 > 0 || daysSince < 90) return {
     emoji: '💛', label: 'Stable',
-    tooltip: `${c90} commits in the last 90 days — slowing but maintained`,
+    tooltip: c90 > 0
+      ? `${c90} commits in the last 90 days — slowing but maintained`
+      : `Last push ${Math.round(daysSince)}d ago — still recently active`,
     textColor: 'text-amber-400',
   };
   if (stars > 500 || daysSince < 365) return {
@@ -213,8 +239,13 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
   const sec = repo.securitySignals ?? null;
   const pluginType = detectPluginType(repo);
   const riskCfg = sec?.risk_level ? (RISK_CONFIG[sec.risk_level] ?? null) : null;
-  const trendScore = getTrendingScore(repo);
-  const lifeStatus = getLifeStatus(repo);
+  const trendScore  = getTrendingScore(repo);
+  const lifeStatus  = getLifeStatus(repo);
+  // Best commit count for tooltip (max across all sources)
+  const c7Display   = Math.max(
+    repo.commitStats?.last7Days ?? 0,
+    repo.commitsLast7Days?.length ?? 0,
+  );
 
   return (
     <div
@@ -417,7 +448,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         <div
           className="flex items-center gap-0.5 select-none"
           title={trendScore > 0
-            ? `Trending ${trendScore}/5 · ${repo.commitStats?.last7Days ?? 0} commits this week`
+            ? `Trending ${trendScore}/5 · ${c7Display} commits this week`
             : 'No recent commit activity'}
         >
           {[1, 2, 3, 4, 5].map(i => (
@@ -586,6 +617,16 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         );
       })()}
 
+      {/* Built repo creation date — small footer line beneath the "Forked from" block */}
+      {!repo.isFork && repo.createdAt && (
+        <p className="text-xs text-zinc-600">
+          Created {formatMonthYear(repo.createdAt)}
+          {repo.lastUpdated && repo.lastUpdated !== repo.createdAt && (
+            <span className="text-zinc-700"> · last push {relativeTime(repo.lastUpdated)}</span>
+          )}
+        </p>
+      )}
+
       {/* Timeline — fork date metadata.
           upstreamCreatedAt is only shown if it differs from createdAt (the ingestion date),
           which avoids showing the wrong "Project created" date before backfill runs. */}
@@ -633,69 +674,86 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
       })()}
 
       {/* Sync Status + Commit activity */}
-      {(repo.forkSync || (repo.commitStats?.last30Days ?? 0) > 0) && (
-        <div className="border-t border-zinc-800 pt-3 space-y-1">
-          {repo.forkSync && (() => {
-            const badge = syncBadge(repo.forkSync);
-            return (
-              <>
-                <p className="text-xs font-medium text-zinc-500">🔄 Sync Status</p>
-                <p className={`text-xs ${badge.color}`}>
-                  {badge.icon} {badge.label}
-                </p>
-              </>
-            );
-          })()}
-          {(repo.commitStats?.last7Days ?? 0) > 0 ? (
-            <span className="text-xs text-emerald-400">
-              {repo.commitStats!.last7Days} commits/week
-            </span>
-          ) : (repo.commitStats?.last30Days ?? 0) > 0 ? (
-            <span className="text-xs text-zinc-400">
-              {repo.commitStats!.last30Days} commits/month
-            </span>
-          ) : null}
-        </div>
-      )}
+      {(() => {
+        const c7Stat  = Math.max(repo.commitStats?.last7Days  ?? 0, repo.commitsLast7Days?.length  ?? 0);
+        const c30Stat = Math.max(repo.commitStats?.last30Days ?? 0, repo.commitsLast30Days?.length ?? 0);
+        const showSection = repo.forkSync || c30Stat > 0;
+        if (!showSection) return null;
+        return (
+          <div className="border-t border-zinc-800 pt-3 space-y-1">
+            {repo.forkSync && (() => {
+              const badge = syncBadge(repo.forkSync!);
+              return (
+                <>
+                  <p className="text-xs font-medium text-zinc-500">🔄 Sync Status</p>
+                  <p className={`text-xs ${badge.color}`}>
+                    {badge.icon} {badge.label}
+                  </p>
+                </>
+              );
+            })()}
+            {c7Stat > 0 ? (
+              <span className="text-xs text-emerald-400">
+                {c7Stat} commits/week
+              </span>
+            ) : c30Stat > 0 ? (
+              <span className="text-xs text-zinc-400">
+                {c30Stat} commits/month
+              </span>
+            ) : null}
+          </div>
+        );
+      })()}
 
       {/* Similarity hint */}
       {similarCount !== undefined && similarCount > 0 && (
         <p className="text-xs text-zinc-600">Similar in library: {similarCount}</p>
       )}
 
-      {/* Recent commits */}
-      {repo.recentCommits.length > 0 && (
-        <div className="border-t border-zinc-800 pt-2">
-          <button
-            onClick={() => setCommitsOpen((v) => !v)}
-            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors w-full"
-          >
-            <span>Recent Updates</span>
-            <span>{commitsOpen ? '▴' : '▾'}</span>
-          </button>
-          {commitsOpen && (
-            <div className="mt-2 space-y-1.5">
-              {repo.recentCommits.map((commit) => {
-                const { dotColor, textColor, label } = commitDisplayInfo(commit.date);
-                return (
-                  <div key={commit.sha} className="flex items-start gap-1.5">
-                    <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
-                    <a
-                      href={commit.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 text-xs text-zinc-400 hover:text-zinc-200 transition-colors leading-relaxed"
-                    >
-                      {commit.message}
-                    </a>
-                    <span className={`shrink-0 text-xs ${textColor}`}>{label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Recent commits — prefer recentCommits, fall back to commitsLast30Days arrays */}
+      {(() => {
+        const commits =
+          (repo.recentCommits?.length ?? 0) > 0
+            ? repo.recentCommits
+            : (repo.commitsLast7Days?.length ?? 0) > 0
+              ? repo.commitsLast7Days.slice(0, 5)
+              : (repo.commitsLast30Days?.length ?? 0) > 0
+                ? repo.commitsLast30Days.slice(0, 5)
+                : [];
+        if (commits.length === 0) return null;
+        return (
+          <div className="border-t border-zinc-800 pt-2">
+            <button
+              onClick={() => setCommitsOpen((v) => !v)}
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors w-full"
+            >
+              <span>Recent Updates</span>
+              <span>{commitsOpen ? '▴' : '▾'}</span>
+            </button>
+            {commitsOpen && (
+              <div className="mt-2 space-y-1.5">
+                {commits.map((commit) => {
+                  const { dotColor, textColor, label } = commitDisplayInfo(commit.date);
+                  return (
+                    <div key={commit.sha} className="flex items-start gap-1.5">
+                      <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
+                      <a
+                        href={commit.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-xs text-zinc-400 hover:text-zinc-200 transition-colors leading-relaxed"
+                      >
+                        {commit.message}
+                      </a>
+                      <span className={`shrink-0 text-xs ${textColor}`}>{label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
