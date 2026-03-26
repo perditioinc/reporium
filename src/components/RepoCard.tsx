@@ -734,9 +734,9 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
             </div>
           )}
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-600">Fork last synced</span>
+            <span className="text-zinc-600">Fork synced since</span>
             <span className="text-zinc-400">
-              {repo.yourLastPushAt ? relativeTime(repo.yourLastPushAt) : 'Never'}
+              {repo.yourLastPushAt ? formatMonthYear(repo.yourLastPushAt) : 'Never'}
             </span>
           </div>
           {repo.upstreamLastPushAt && (
