@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import type { CrossDimensionAnalytics } from '@/types/repo';
+import type { CrossDimensionAnalytics, CrossDimensionCell } from '@/types/repo';
 
 interface CrossDimensionWidgetProps {
   analytics: CrossDimensionAnalytics | null;
@@ -11,98 +11,77 @@ function label(value: string): string {
   return value.replaceAll('_', ' ');
 }
 
-/** Deterministic position for a node based on index within its group, laid out in a circle */
-function circleLayout(index: number, total: number, cx: number, cy: number, radius: number) {
+type ViewMode = 'radar' | 'grid';
+
+/** Position on a circle */
+function polar(index: number, total: number, cx: number, cy: number, radius: number) {
   const angle = (2 * Math.PI * index) / total - Math.PI / 2;
-  return { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+  return {
+    x: cx + radius * Math.cos(angle),
+    y: cy + radius * Math.sin(angle),
+    angle,
+  };
 }
 
-type ViewMode = 'chart' | 'grid';
-
 export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('chart');
+  const [viewMode, setViewMode] = useState<ViewMode>('radar');
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
 
-  // Extract unique dim1 and dim2 values
-  const { dim1Values, dim2Values, peak } = useMemo(() => {
-    if (!analytics) return { dim1Values: [] as string[], dim2Values: [] as string[], peak: 1 };
-    const d1 = [...new Set(analytics.pairs.map(p => p.dim1_value))];
-    const d2 = [...new Set(analytics.pairs.map(p => p.dim2_value))];
+  // Merge all unique values from both dimensions into a single ring
+  const { allNodes, nodeMap, edges, peak } = useMemo(() => {
+    if (!analytics) return { allNodes: [] as string[], nodeMap: new Map<string, { dim: 'dim1' | 'dim2'; index: number }>(), edges: [] as CrossDimensionAnalytics['pairs'], peak: 1 };
+
+    const d1Set = [...new Set(analytics.pairs.map(p => p.dim1_value))];
+    const d2Set = [...new Set(analytics.pairs.map(p => p.dim2_value))];
+
+    // Interleave: dim1 values then dim2 values around the circle
+    const all: string[] = [];
+    const map = new Map<string, { dim: 'dim1' | 'dim2'; index: number }>();
+
+    // Place dim1 values on the left half, dim2 on the right half
+    d1Set.forEach((v, i) => {
+      const idx = all.length;
+      all.push(v);
+      map.set(`d1:${v}`, { dim: 'dim1', index: idx });
+    });
+    d2Set.forEach((v, i) => {
+      const idx = all.length;
+      all.push(v);
+      map.set(`d2:${v}`, { dim: 'dim2', index: idx });
+    });
+
     const pk = Math.max(...analytics.pairs.map(p => p.repo_count), 1);
-    return { dim1Values: d1, dim2Values: d2, peak: pk };
+    return { allNodes: all, nodeMap: map, edges: analytics.pairs, peak: pk };
   }, [analytics]);
 
-  // Build node positions — dim1 on left arc, dim2 on right arc
-  const nodes = useMemo(() => {
-    if (!analytics) return new Map<string, { x: number; y: number; group: 'dim1' | 'dim2'; label: string }>();
-    const map = new Map<string, { x: number; y: number; group: 'dim1' | 'dim2'; label: string }>();
-    const W = 800, H = 420;
-    const leftCx = W * 0.25, rightCx = W * 0.75, cy = H * 0.5;
-    const radius = Math.min(H * 0.38, 160);
-
-    dim1Values.forEach((v, i) => {
-      const pos = circleLayout(i, dim1Values.length, leftCx, cy, radius);
-      map.set(`d1:${v}`, { ...pos, group: 'dim1', label: v });
-    });
-    dim2Values.forEach((v, i) => {
-      const pos = circleLayout(i, dim2Values.length, rightCx, cy, radius);
-      map.set(`d2:${v}`, { ...pos, group: 'dim2', label: v });
-    });
-    return map;
-  }, [analytics, dim1Values, dim2Values]);
-
-  // Edges with positions
-  const edges = useMemo(() => {
-    if (!analytics) return [];
-    return analytics.pairs.map(p => {
-      const from = nodes.get(`d1:${p.dim1_value}`);
-      const to = nodes.get(`d2:${p.dim2_value}`);
-      if (!from || !to) return null;
-      return {
-        key: `${p.dim1_value}:${p.dim2_value}`,
-        from,
-        to,
-        dim1: p.dim1_value,
-        dim2: p.dim2_value,
-        count: p.repo_count,
-        strength: p.repo_count / peak,
-      };
-    }).filter(Boolean) as Array<{
-      key: string;
-      from: { x: number; y: number };
-      to: { x: number; y: number };
-      dim1: string;
-      dim2: string;
-      count: number;
-      strength: number;
-    }>;
-  }, [analytics, nodes, peak]);
+  // Radar chart dimensions
+  const SIZE = 500;
+  const CX = SIZE / 2;
+  const CY = SIZE / 2;
+  const OUTER_R = SIZE * 0.38;
+  const LABEL_R = SIZE * 0.46;
+  const totalNodes = allNodes.length;
 
   // Which edges connect to the hovered node?
-  const connectedEdges = useMemo(() => {
-    if (!hoveredNode) return new Set<string>();
-    return new Set(edges.filter(e =>
-      `d1:${e.dim1}` === hoveredNode || `d2:${e.dim2}` === hoveredNode
-    ).map(e => e.key));
-  }, [hoveredNode, edges]);
-
-  // Connected node keys when hovering
-  const connectedNodes = useMemo(() => {
-    if (!hoveredNode) return new Set<string>();
-    const set = new Set<string>();
-    set.add(hoveredNode);
-    edges.forEach(e => {
-      if (`d1:${e.dim1}` === hoveredNode) set.add(`d2:${e.dim2}`);
-      if (`d2:${e.dim2}` === hoveredNode) set.add(`d1:${e.dim1}`);
+  const { connectedEdges, connectedNodeKeys } = useMemo(() => {
+    if (!hoveredNode) return { connectedEdges: new Set<string>(), connectedNodeKeys: new Set<string>() };
+    const edgeSet = new Set<string>();
+    const nodeSet = new Set<string>();
+    nodeSet.add(hoveredNode);
+    edges.forEach((e: CrossDimensionCell) => {
+      const k1 = `d1:${e.dim1_value}`;
+      const k2 = `d2:${e.dim2_value}`;
+      if (k1 === hoveredNode || k2 === hoveredNode) {
+        edgeSet.add(`${e.dim1_value}:${e.dim2_value}`);
+        nodeSet.add(k1);
+        nodeSet.add(k2);
+      }
     });
-    return set;
+    return { connectedEdges: edgeSet, connectedNodeKeys: nodeSet };
   }, [hoveredNode, edges]);
 
   const handleNodeEnter = useCallback((key: string) => setHoveredNode(key), []);
   const handleNodeLeave = useCallback(() => setHoveredNode(null), []);
-  const handleEdgeEnter = useCallback((key: string) => setHoveredEdge(key), []);
-  const handleEdgeLeave = useCallback(() => setHoveredEdge(null), []);
 
   if (!analytics) return null;
 
@@ -124,7 +103,13 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     );
   }
 
-  const hoveredEdgeData = hoveredEdge ? edges.find(e => e.key === hoveredEdge) : null;
+  // Build radar grid rings
+  const rings = [0.25, 0.5, 0.75, 1.0];
+
+  // Get the hovered node's connected edges for tooltip
+  const hoveredEdges = hoveredNode
+    ? edges.filter(e => `d1:${e.dim1_value}` === hoveredNode || `d2:${e.dim2_value}` === hoveredNode)
+    : [];
 
   return (
     <section className="rounded-2xl border border-fuchsia-900/40 bg-gradient-to-br from-fuchsia-950/40 via-zinc-950 to-zinc-950 p-4 md:p-5">
@@ -137,10 +122,10 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setViewMode('chart')}
-            className={`rounded px-2 py-1 text-xs transition-colors ${viewMode === 'chart' ? 'bg-fuchsia-900/40 text-fuchsia-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+            onClick={() => setViewMode('radar')}
+            className={`rounded px-2 py-1 text-xs transition-colors ${viewMode === 'radar' ? 'bg-fuchsia-900/40 text-fuchsia-300' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-            Web
+            Radar
           </button>
           <button
             onClick={() => setViewMode('grid')}
@@ -151,7 +136,7 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
         </div>
       </div>
 
-      {viewMode === 'chart' ? (
+      {viewMode === 'radar' ? (
         <div className="mt-4 relative">
           {/* Legend */}
           <div className="flex items-center gap-4 mb-2 text-xs text-zinc-500">
@@ -163,55 +148,166 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
               <span className="inline-block h-2.5 w-2.5 rounded-full bg-sky-400" />
               {label(analytics.dim2)}
             </span>
-            <span className="ml-auto">Hover to explore connections</span>
+            <span className="ml-auto">Hover nodes to explore overlaps</span>
           </div>
 
-          {/* SVG chart */}
-          <svg viewBox="0 0 800 420" className="w-full h-auto" style={{ minHeight: 280 }}>
-            {/* Edges */}
-            {edges.map(e => {
-              const isHoveredEdge = hoveredEdge === e.key;
-              const isConnected = connectedEdges.has(e.key);
-              const dimmed = (hoveredNode && !isConnected) || (hoveredEdge && !isHoveredEdge);
-              const strokeWidth = Math.max(1, e.strength * 6);
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 500 }}>
+            {/* Grid rings */}
+            {rings.map(r => (
+              <circle
+                key={r}
+                cx={CX}
+                cy={CY}
+                r={OUTER_R * r}
+                fill="none"
+                stroke="#27272a"
+                strokeWidth={0.5}
+                strokeDasharray={r < 1 ? '2 4' : undefined}
+              />
+            ))}
 
+            {/* Grid spokes */}
+            {allNodes.map((_, i) => {
+              const p = polar(i, totalNodes, CX, CY, OUTER_R);
               return (
                 <line
-                  key={e.key}
-                  x1={e.from.x}
-                  y1={e.from.y}
-                  x2={e.to.x}
-                  y2={e.to.y}
-                  stroke={isHoveredEdge || isConnected ? 'url(#edgeGradientActive)' : 'url(#edgeGradient)'}
-                  strokeWidth={isHoveredEdge ? strokeWidth + 2 : strokeWidth}
-                  strokeOpacity={dimmed ? 0.08 : isHoveredEdge || isConnected ? 0.9 : 0.25}
-                  className="transition-all duration-200 cursor-pointer"
-                  onMouseEnter={() => handleEdgeEnter(e.key)}
-                  onMouseLeave={handleEdgeLeave}
+                  key={`spoke-${i}`}
+                  x1={CX}
+                  y1={CY}
+                  x2={p.x}
+                  y2={p.y}
+                  stroke="#27272a"
+                  strokeWidth={0.5}
+                />
+              );
+            })}
+
+            {/* Connection edges — curved lines through center area */}
+            {edges.map(e => {
+              const n1 = nodeMap.get(`d1:${e.dim1_value}`);
+              const n2 = nodeMap.get(`d2:${e.dim2_value}`);
+              if (!n1 || !n2) return null;
+
+              const p1 = polar(n1.index, totalNodes, CX, CY, OUTER_R);
+              const p2 = polar(n2.index, totalNodes, CX, CY, OUTER_R);
+              const edgeKey = `${e.dim1_value}:${e.dim2_value}`;
+              const isConnected = connectedEdges.has(edgeKey);
+              const dimmed = hoveredNode && !isConnected;
+              const strength = e.repo_count / peak;
+              const strokeW = Math.max(1, strength * 5);
+
+              // Curved path through a control point pulled toward center
+              const midX = (p1.x + p2.x) / 2;
+              const midY = (p1.y + p2.y) / 2;
+              // Pull control point toward center proportional to distance
+              const pullFactor = 0.3;
+              const cpX = midX + (CX - midX) * pullFactor;
+              const cpY = midY + (CY - midY) * pullFactor;
+
+              return (
+                <path
+                  key={edgeKey}
+                  d={`M ${p1.x} ${p1.y} Q ${cpX} ${cpY} ${p2.x} ${p2.y}`}
+                  fill="none"
+                  stroke={isConnected ? 'url(#radarEdgeActive)' : 'url(#radarEdge)'}
+                  strokeWidth={isConnected ? strokeW + 1.5 : strokeW}
+                  strokeOpacity={dimmed ? 0.04 : isConnected ? 0.85 : 0.15}
+                  className="transition-all duration-200"
                 />
               );
             })}
 
             {/* Gradient defs */}
             <defs>
-              <linearGradient id="edgeGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#d946ef" stopOpacity={0.6} />
-                <stop offset="100%" stopColor="#38bdf8" stopOpacity={0.6} />
+              <linearGradient id="radarEdge" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#d946ef" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="#38bdf8" stopOpacity={0.5} />
               </linearGradient>
-              <linearGradient id="edgeGradientActive" x1="0" y1="0" x2="1" y2="0">
+              <linearGradient id="radarEdgeActive" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#e879f9" stopOpacity={1} />
                 <stop offset="100%" stopColor="#7dd3fc" stopOpacity={1} />
               </linearGradient>
             </defs>
 
-            {/* Nodes */}
-            {Array.from(nodes.entries()).map(([key, node]) => {
-              const isDim1 = node.group === 'dim1';
+            {/* Filled polygon for dim1 values showing their "reach" */}
+            {(() => {
+              // Build a polygon connecting dim1 nodes, with radius proportional to their total connections
+              const dim1Entries = [...nodeMap.entries()].filter(([, v]) => v.dim === 'dim1');
+              if (dim1Entries.length < 3) return null;
+
+              const points = dim1Entries.map(([key, node]) => {
+                const totalCount = edges
+                  .filter(e => `d1:${e.dim1_value}` === key)
+                  .reduce((sum, e) => sum + e.repo_count, 0);
+                const r = OUTER_R * Math.min(totalCount / peak, 1) * 0.85;
+                const p = polar(node.index, totalNodes, CX, CY, r);
+                return `${p.x},${p.y}`;
+              });
+
+              return (
+                <polygon
+                  points={points.join(' ')}
+                  fill="#d946ef"
+                  fillOpacity={hoveredNode ? 0.03 : 0.06}
+                  stroke="#d946ef"
+                  strokeWidth={1}
+                  strokeOpacity={hoveredNode ? 0.1 : 0.25}
+                  className="transition-all duration-200"
+                />
+              );
+            })()}
+
+            {/* Filled polygon for dim2 values */}
+            {(() => {
+              const dim2Entries = [...nodeMap.entries()].filter(([, v]) => v.dim === 'dim2');
+              if (dim2Entries.length < 3) return null;
+
+              const points = dim2Entries.map(([key, node]) => {
+                const totalCount = edges
+                  .filter(e => `d2:${e.dim2_value}` === key)
+                  .reduce((sum, e) => sum + e.repo_count, 0);
+                const r = OUTER_R * Math.min(totalCount / peak, 1) * 0.85;
+                const p = polar(node.index, totalNodes, CX, CY, r);
+                return `${p.x},${p.y}`;
+              });
+
+              return (
+                <polygon
+                  points={points.join(' ')}
+                  fill="#38bdf8"
+                  fillOpacity={hoveredNode ? 0.03 : 0.06}
+                  stroke="#38bdf8"
+                  strokeWidth={1}
+                  strokeOpacity={hoveredNode ? 0.1 : 0.25}
+                  className="transition-all duration-200"
+                />
+              );
+            })()}
+
+            {/* Node dots + labels around the circle */}
+            {[...nodeMap.entries()].map(([key, node]) => {
+              const isDim1 = node.dim === 'dim1';
+              const p = polar(node.index, totalNodes, CX, CY, OUTER_R);
+              const lp = polar(node.index, totalNodes, CX, CY, LABEL_R);
               const isHovered = hoveredNode === key;
-              const isConnectedNode = connectedNodes.has(key);
+              const isConnectedNode = connectedNodeKeys.has(key);
               const dimmed = hoveredNode && !isConnectedNode;
-              const baseR = 6;
+
+              // Total repo count for this node
+              const totalCount = edges
+                .filter(e => (isDim1 ? `d1:${e.dim1_value}` : `d2:${e.dim2_value}`) === key)
+                .reduce((sum, e) => sum + e.repo_count, 0);
+
+              const baseR = Math.max(4, Math.min(8, (totalCount / peak) * 8));
               const r = isHovered ? baseR + 3 : baseR;
+
+              // Text anchor based on position
+              const angleDeg = (node.index / totalNodes) * 360 - 90;
+              const textAnchor = angleDeg > 90 && angleDeg < 270 ? 'end' : 'start';
+              // Rotate text for readability
+              const textAngle = angleDeg > 90 && angleDeg < 270 ? angleDeg + 180 : angleDeg;
+
+              const nodeLabel = allNodes[node.index];
 
               return (
                 <g
@@ -220,55 +316,80 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
                   onMouseEnter={() => handleNodeEnter(key)}
                   onMouseLeave={handleNodeLeave}
                 >
-                  {/* Glow ring on hover */}
+                  {/* Glow */}
                   {isHovered && (
-                    <circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={r + 6}
-                      fill={isDim1 ? '#d946ef' : '#38bdf8'}
-                      opacity={0.15}
-                    />
+                    <circle cx={p.x} cy={p.y} r={r + 5} fill={isDim1 ? '#d946ef' : '#38bdf8'} opacity={0.2} />
                   )}
+                  {/* Dot */}
                   <circle
-                    cx={node.x}
-                    cy={node.y}
+                    cx={p.x}
+                    cy={p.y}
                     r={r}
                     fill={isDim1 ? '#d946ef' : '#38bdf8'}
-                    opacity={dimmed ? 0.2 : 1}
+                    opacity={dimmed ? 0.15 : 1}
                     className="transition-all duration-200"
                   />
+                  {/* Count badge on hover */}
+                  {isHovered && (
+                    <text
+                      x={p.x}
+                      y={p.y - r - 6}
+                      textAnchor="middle"
+                      fill="#fff"
+                      fontSize={10}
+                      fontWeight={700}
+                    >
+                      {totalCount}
+                    </text>
+                  )}
+                  {/* Label */}
                   <text
-                    x={node.x + (isDim1 ? -14 : 14)}
-                    y={node.y + 4}
-                    textAnchor={isDim1 ? 'end' : 'start'}
-                    className="transition-opacity duration-200 select-none pointer-events-none"
-                    fill={dimmed ? '#52525b' : '#d4d4d8'}
-                    fontSize={isHovered ? 13 : 11}
+                    x={lp.x}
+                    y={lp.y}
+                    textAnchor={textAnchor}
+                    dominantBaseline="central"
+                    transform={`rotate(${textAngle}, ${lp.x}, ${lp.y})`}
+                    fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#a1a1aa'}
+                    fontSize={isHovered ? 11 : 9.5}
                     fontWeight={isHovered ? 600 : 400}
+                    className="transition-all duration-200 select-none pointer-events-none"
                   >
-                    {node.label}
+                    {nodeLabel}
                   </text>
                 </g>
               );
             })}
           </svg>
 
-          {/* Tooltip for hovered edge */}
-          {hoveredEdgeData && (
-            <div className="absolute top-10 left-1/2 -translate-x-1/2 rounded-lg border border-fuchsia-800/60 bg-zinc-900/95 px-3 py-2 text-xs text-zinc-200 shadow-xl pointer-events-none z-10">
-              <span className="text-fuchsia-300 font-medium">{hoveredEdgeData.dim1}</span>
-              {' × '}
-              <span className="text-sky-300 font-medium">{hoveredEdgeData.dim2}</span>
-              <span className="ml-2 rounded-full border border-fuchsia-700/40 bg-fuchsia-900/30 px-1.5 py-0.5 text-fuchsia-300 font-semibold">
-                {hoveredEdgeData.count}
-              </span>
-              <span className="ml-1 text-zinc-500">repos</span>
+          {/* Tooltip panel for hovered node */}
+          {hoveredNode && hoveredEdges.length > 0 && (
+            <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-fuchsia-800/40 bg-zinc-900/95 px-3 py-2 shadow-xl z-10">
+              <p className="text-xs font-medium text-zinc-200 mb-1">
+                {allNodes[nodeMap.get(hoveredNode)?.index ?? 0]} — {hoveredEdges.length} connections
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {hoveredEdges
+                  .sort((a, b) => b.repo_count - a.repo_count)
+                  .slice(0, 6)
+                  .map(e => {
+                    const isDim1 = hoveredNode.startsWith('d1:');
+                    const partner = isDim1 ? e.dim2_value : e.dim1_value;
+                    return (
+                      <span key={`${e.dim1_value}:${e.dim2_value}`} className="text-xs text-zinc-400">
+                        <span className={isDim1 ? 'text-sky-300' : 'text-fuchsia-300'}>{partner}</span>
+                        <span className="ml-1 text-zinc-600">{e.repo_count}</span>
+                      </span>
+                    );
+                  })}
+                {hoveredEdges.length > 6 && (
+                  <span className="text-xs text-zinc-600">+{hoveredEdges.length - 6} more</span>
+                )}
+              </div>
             </div>
           )}
         </div>
       ) : (
-        /* Grid fallback — original card view */
+        /* Grid fallback */
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {analytics.pairs.map((pair) => (
             <div key={`${pair.dim1_value}:${pair.dim2_value}`} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3">
