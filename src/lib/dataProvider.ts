@@ -10,10 +10,18 @@ import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsigh
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
 
+export interface LoadProgress {
+  stage: 'connecting' | 'repos' | 'trends' | 'taxonomy' | 'ready' | 'error'
+  /** 0-100 within the current stage */
+  percent: number
+  /** e.g. "Loading repos (500/1400)" */
+  detail: string
+}
+
 export interface DataProvider {
   mode: DataMode
   getOwnedLibrary(): Promise<LibraryData | null>
-  getLibrary(): Promise<LibraryData>
+  getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData>
   getDegradedState(): boolean
   getTrends(): Promise<TrendData | null>
   getGaps(): Promise<GapAnalysis | null>
@@ -55,7 +63,7 @@ class JsonDataProvider implements DataProvider {
     } catch { return null }
   }
 
-  async getLibrary(): Promise<LibraryData> {
+  async getLibrary(_onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
     const res = await fetch(`${basePath}/data/library.json`)
     if (!res.ok) throw new Error('Library data not found. Run npm run generate to generate it.')
@@ -245,24 +253,43 @@ class ApiDataProvider implements DataProvider {
     return this.degraded
   }
 
-  async getLibrary(): Promise<LibraryData> {
+  async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
+    const report = onProgress ?? (() => {})
     try {
       this.degraded = false
+      report({ stage: 'connecting', percent: 0, detail: 'Connecting to API…' })
+
       const PAGE_SIZE = 500
       // Fetch page 1 to get totalPages + corpus aggregates
       const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&pageSize=${PAGE_SIZE}`)
       const totalPages = page1.totalPages ?? 1
-      if (totalPages <= 1) return page1
+      const totalRepos = page1.totalRepos ?? page1.repos.length
 
-      // Fetch remaining pages in parallel (cap at reasonable limit)
+      if (totalPages <= 1) {
+        report({ stage: 'repos', percent: 100, detail: `Loaded ${totalRepos} repos` })
+        return page1
+      }
+
+      // Track progress as each page resolves
+      let loaded = page1.repos.length
+      report({ stage: 'repos', percent: Math.round((loaded / totalRepos) * 100), detail: `Loading repos (${loaded}/${totalRepos})…` })
+
+      const pages: LibraryData[] = []
       const remaining = Array.from({ length: totalPages - 1 }, (_, i) =>
-        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&pageSize=${PAGE_SIZE}`)
+        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&pageSize=${PAGE_SIZE}`).then(page => {
+          loaded += page.repos.length
+          report({ stage: 'repos', percent: Math.min(Math.round((loaded / totalRepos) * 100), 100), detail: `Loading repos (${loaded}/${totalRepos})…` })
+          pages.push(page)
+          return page
+        })
       )
-      const pages = await Promise.all(remaining)
+      await Promise.all(remaining)
       const allRepos = pages.reduce((acc, p) => acc.concat(p.repos), page1.repos)
+      report({ stage: 'repos', percent: 100, detail: `Loaded ${allRepos.length} repos` })
       return { ...page1, repos: allRepos }
     } catch {
       this.degraded = true
+      report({ stage: 'error', percent: 0, detail: 'API unavailable — using cached data' })
       console.warn('API unreachable, falling back to JSON')
       return this.fallback.getLibrary()
     }
