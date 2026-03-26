@@ -444,9 +444,40 @@ export function HomePageClient() {
       return true;
     });
 
+    /** Trending score 0-5 for sort — mirrors RepoCard.tsx getTrendingScore */
+    const trendScore = (r: EnrichedRepo) => {
+      const c7 = r.commitStats?.last7Days ?? 0;
+      const c30 = r.commitStats?.last30Days ?? 0;
+      if (c7 >= 20) return 5;
+      if (c7 >= 10) return 4;
+      if (c7 >=  4) return 3;
+      if (c7 >=  2) return 2;
+      if (c7 >=  1 || c30 >= 8) return 1;
+      return 0;
+    };
+
+    /** Health score 0-4 for sort — mirrors RepoCard.tsx getLifeStatus */
+    const healthScore = (r: EnrichedRepo) => {
+      const c7  = r.commitStats?.last7Days  ?? 0;
+      const c30 = r.commitStats?.last30Days ?? 0;
+      const c90 = r.commitStats?.last90Days ?? 0;
+      const stars = r.parentStats?.stars ?? r.stars ?? 0;
+      const daysSince = (Date.now() - new Date(r.lastUpdated).getTime()) / 86400000;
+      if (r.parentStats?.isArchived) return 0;
+      if (c7 >= 10 || c30 >= 30)    return 4; // Hot
+      if (c30 > 0)                  return 3; // Active
+      if (c90 > 0)                  return 2; // Stable
+      if (stars > 500 || daysSince < 365) return 1; // Dormant but useful
+      return 0; // Inactive
+    };
+
     // Apply sort
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
+        case 'trending':
+          return trendScore(b) - trendScore(a) || (b.commitStats?.last7Days ?? 0) - (a.commitStats?.last7Days ?? 0);
+        case 'health':
+          return healthScore(b) - healthScore(a) || (b.commitStats?.last30Days ?? 0) - (a.commitStats?.last30Days ?? 0);
         case 'stars':
           return (b.parentStats?.stars ?? b.stars) - (a.parentStats?.stars ?? a.stars);
         case 'tags':

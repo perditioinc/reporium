@@ -33,6 +33,67 @@ function detectPluginType(repo: EnrichedRepo): 'mcp-server' | null {
   return tagMatch || nameMatch || descMatch ? 'mcp-server' : null;
 }
 
+// ── Trending score (0–5 🔥) ──────────────────────────────────────────────────
+// Derived from commit velocity. For forks this reflects upstream activity.
+function getTrendingScore(repo: EnrichedRepo): number {
+  const c7  = repo.commitStats?.last7Days  ?? 0;
+  const c30 = repo.commitStats?.last30Days ?? 0;
+  if (c7 >= 20) return 5;   // blazing — multiple commits per day
+  if (c7 >= 10) return 4;   // 1-2 commits/day
+  if (c7 >=  4) return 3;   // every couple of days
+  if (c7 >=  2) return 2;   // sporadic this week
+  if (c7 >=  1 || c30 >= 8) return 1;
+  return 0;
+}
+
+// ── Life / health status ──────────────────────────────────────────────────────
+interface LifeStatus {
+  emoji: string;
+  label: string;
+  tooltip: string;
+  textColor: string;
+}
+
+function getLifeStatus(repo: EnrichedRepo): LifeStatus {
+  const isArchived = repo.parentStats?.isArchived ?? false;
+  const stars      = repo.parentStats?.stars ?? repo.stars ?? 0;
+  const c7         = repo.commitStats?.last7Days  ?? 0;
+  const c30        = repo.commitStats?.last30Days ?? 0;
+  const c90        = repo.commitStats?.last90Days ?? 0;
+  const daysSince  = (Date.now() - new Date(repo.lastUpdated).getTime()) / 86400000;
+
+  if (isArchived) return {
+    emoji: '📦', label: 'Archived',
+    tooltip: 'Repository is archived — no new changes expected',
+    textColor: 'text-zinc-500',
+  };
+  if (c7 >= 10 || c30 >= 30) return {
+    emoji: '🚀', label: 'Hot',
+    tooltip: `${c7} commits this week — very active development`,
+    textColor: 'text-emerald-300',
+  };
+  if (c30 > 0) return {
+    emoji: '💚', label: 'Active',
+    tooltip: `${c30} commits in the last 30 days`,
+    textColor: 'text-emerald-400',
+  };
+  if (c90 > 0) return {
+    emoji: '💛', label: 'Stable',
+    tooltip: `${c90} commits in the last 90 days — slowing but maintained`,
+    textColor: 'text-amber-400',
+  };
+  if (stars > 500 || daysSince < 365) return {
+    emoji: '🌙', label: 'Dormant',
+    tooltip: `No recent commits — last activity ${Math.round(daysSince / 30)}mo ago`,
+    textColor: 'text-zinc-400',
+  };
+  return {
+    emoji: '💀', label: 'Inactive',
+    tooltip: `No activity for over ${Math.round(daysSince / 365 * 10) / 10} years`,
+    textColor: 'text-zinc-600',
+  };
+}
+
 /** Color + label config for each risk level */
 const RISK_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
   critical: { bg: 'bg-red-950/80',    border: 'border-red-700',   text: 'text-red-300',    label: 'CRITICAL' },
@@ -152,6 +213,8 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
   const sec = repo.securitySignals ?? null;
   const pluginType = detectPluginType(repo);
   const riskCfg = sec?.risk_level ? (RISK_CONFIG[sec.risk_level] ?? null) : null;
+  const trendScore = getTrendingScore(repo);
+  const lifeStatus = getLifeStatus(repo);
 
   return (
     <div
@@ -347,6 +410,37 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           </div>
         );
       })()}
+
+      {/* ── Trending score + Life status ── */}
+      <div className="flex items-center justify-between">
+        {/* Fire scale — 0-5 fires, inactive ones faded */}
+        <div
+          className="flex items-center gap-0.5 select-none"
+          title={trendScore > 0
+            ? `Trending ${trendScore}/5 · ${repo.commitStats?.last7Days ?? 0} commits this week`
+            : 'No recent commit activity'}
+        >
+          {[1, 2, 3, 4, 5].map(i => (
+            <span
+              key={i}
+              style={{ opacity: i <= trendScore ? 1 : 0.12, fontSize: '13px', lineHeight: 1 }}
+            >
+              🔥
+            </span>
+          ))}
+          {trendScore === 0 && (
+            <span className="text-[10px] text-zinc-700 ml-1">no recent activity</span>
+          )}
+        </div>
+
+        {/* Life / health status badge */}
+        <span
+          className={`text-xs font-medium ${lifeStatus.textColor}`}
+          title={lifeStatus.tooltip}
+        >
+          {lifeStatus.emoji} {lifeStatus.label}
+        </span>
+      </div>
 
       {/* PM Skills row */}
       {repo.pmSkills && repo.pmSkills.length > 0 && (

@@ -378,7 +378,7 @@ export interface IntersectionMetrics {
 }
 
 /** Sort options for the repo grid */
-export type SortOption = 'updated' | 'stars' | 'tags' | 'alpha' | 'oldest' | 'most-outdated' | 'upstream-updated' | 'fork-oldest' | 'fork-newest';
+export type SortOption = 'updated' | 'stars' | 'tags' | 'alpha' | 'oldest' | 'most-outdated' | 'upstream-updated' | 'fork-oldest' | 'fork-newest' | 'trending' | 'health';
 
 /** Full API response shape */
 export interface LibraryData {
