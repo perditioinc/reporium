@@ -79,6 +79,7 @@ export function HomePageClient() {
 
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dashboardMode, setDashboardMode] = useState<'normal' | 'minimized' | 'fullscreen'>('normal');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -605,6 +606,23 @@ export function HomePageClient() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {/* Dashboard view controls */}
+              <div className="flex items-center border border-zinc-700 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setDashboardMode(dashboardMode === 'minimized' ? 'normal' : 'minimized')}
+                  title={dashboardMode === 'minimized' ? 'Expand dashboard' : 'Minimize dashboard'}
+                  className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-200 transition-colors"
+                >
+                  {dashboardMode === 'minimized' ? '▢' : '▬'}
+                </button>
+                <button
+                  onClick={() => setDashboardMode(dashboardMode === 'fullscreen' ? 'normal' : 'fullscreen')}
+                  title={dashboardMode === 'fullscreen' ? 'Exit fullscreen' : 'Fullscreen'}
+                  className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-200 transition-colors border-l border-zinc-700"
+                >
+                  {dashboardMode === 'fullscreen' ? '⊡' : '⛶'}
+                </button>
+              </div>
               {/* Live API status badge */}
               {provider.mode === 'production' && (
                 <span className={[
@@ -670,7 +688,7 @@ export function HomePageClient() {
           )}
 
           {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
-          {data && (
+          {dashboardMode !== 'minimized' && data && (
             <StatsBar
               data={data}
               tagMetrics={data.tagMetrics}
@@ -678,19 +696,25 @@ export function HomePageClient() {
             />
           )}
 
-          {/* Mini Ask — navigates to /ask for full query experience */}
-          <MiniAskBar />
+          {/* Mini Ask — sticky as user scrolls */}
+          <div className="sticky top-0 z-20 -mx-4 md:-mx-6 px-4 md:px-6 py-2 bg-zinc-950/90 backdrop-blur-sm border-b border-zinc-800/50">
+            <MiniAskBar />
+          </div>
 
-          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
-            {data && (
-              <LibraryInsightsWidget
-                repos={data.repos}
-                onTagClick={(tag) => toggleTag(tag)}
-              />
-            )}
-          </ErrorBoundary>
+          {dashboardMode !== 'minimized' && (
+            <>
+              <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
+                {data && (
+                  <LibraryInsightsWidget
+                    repos={data.repos}
+                    onTagClick={(tag) => toggleTag(tag)}
+                  />
+                )}
+              </ErrorBoundary>
 
-          <CrossDimensionWidget analytics={crossDimensionAnalytics} />
+              <CrossDimensionWidget analytics={crossDimensionAnalytics} />
+            </>
+          )}
 
           {/* Search + Filter */}
           {data && (
