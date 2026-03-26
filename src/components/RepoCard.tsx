@@ -710,6 +710,44 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         </p>
       )}
 
+      {/* Timeline — detailed fork date metadata */}
+      {repo.isFork && (repo.createdAt || repo.forkedAt) && (
+        <div className="border-t border-zinc-800 pt-3 space-y-1.5">
+          <p className="text-xs font-medium text-zinc-500">📅 Timeline</p>
+          {repo.createdAt && (
+            <div className="flex justify-between text-xs">
+              <span className="text-zinc-600">Project created</span>
+              <span className="text-zinc-400">{formatMonthYear(repo.createdAt)}</span>
+            </div>
+          )}
+          {repo.forkedAt && (
+            <div className="flex justify-between text-xs">
+              <span className="text-zinc-600">Forked</span>
+              <span className="text-zinc-400">
+                {formatMonthYear(repo.forkedAt)}
+                {repo.createdAt && (
+                  <span className="text-zinc-600 ml-1">
+                    ({monthsBetween(repo.createdAt, repo.forkedAt)}mo later)
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between text-xs">
+            <span className="text-zinc-600">Fork last synced</span>
+            <span className="text-zinc-400">
+              {repo.yourLastPushAt ? relativeTime(repo.yourLastPushAt) : 'Never'}
+            </span>
+          </div>
+          {repo.upstreamLastPushAt && (
+            <div className="flex justify-between text-xs">
+              <span className="text-zinc-600">Upstream last push</span>
+              <span className="text-zinc-400">{relativeTime(repo.upstreamLastPushAt)}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Sync Status + Commit activity */}
       {(() => {
         const c7Stat  = Math.max(repo.commitStats?.last7Days  ?? 0, repo.commitsLast7Days?.length  ?? 0);
