@@ -56,6 +56,17 @@ export function HomePageClient() {
   const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
   const [selectedDeploymentContexts, setSelectedDeploymentContexts] = useState<string[]>([]);
   const [selectedBuilders, setSelectedBuilders] = useState<string[]>([]);
+
+  // Security risk + Claude Plugin filter state
+  const [showClaudePluginsOnly, setShowClaudePluginsOnly] = useState(false);
+  const [selectedSecurityRisk, setSelectedSecurityRisk] = useState<'all' | 'incident' | 'critical' | 'high' | 'medium' | 'low'>('all');
+
+  /** Tags that identify MCP servers and Claude plugins (must stay in sync with RepoCard.tsx) */
+  const MCP_PLUGIN_TAGS = new Set([
+    'mcp', 'mcp-server', 'mcp-client', 'mcp-tool',
+    'model-context-protocol', 'modelcontextprotocol',
+    'claude-mcp', 'claude-plugin', 'claude-tools', 'claude-app',
+  ]);
   const [aiTrendValues, setAiTrendValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
   const [industryValues, setIndustryValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
   const [useCaseValues, setUseCaseValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
@@ -404,6 +415,32 @@ export function HomePageClient() {
         if (!(repo.builders ?? []).some(b => selectedBuilders.includes(b.login))) return false;
       }
 
+      // Claude Plugins / MCP filter
+      if (showClaudePluginsOnly) {
+        const lowerName = repo.name.toLowerCase();
+        const lowerDesc = (repo.description ?? '').toLowerCase();
+        const lowerTags = (repo.enrichedTags ?? []).map(t => t.toLowerCase());
+        const isMCP =
+          lowerTags.some(t => MCP_PLUGIN_TAGS.has(t)) ||
+          lowerName.startsWith('mcp-') ||
+          lowerName.endsWith('-mcp') ||
+          lowerName.includes('-mcp-') ||
+          lowerDesc.includes('model context protocol') ||
+          lowerDesc.includes('mcp server') ||
+          lowerDesc.includes('claude plugin');
+        if (!isMCP) return false;
+      }
+
+      // Security risk filter
+      if (selectedSecurityRisk !== 'all') {
+        const sig = repo.securitySignals;
+        if (selectedSecurityRisk === 'incident' && !sig?.incident_reported) return false;
+        if (selectedSecurityRisk === 'critical' && sig?.risk_level !== 'critical') return false;
+        if (selectedSecurityRisk === 'high'     && sig?.risk_level !== 'high')     return false;
+        if (selectedSecurityRisk === 'medium'   && sig?.risk_level !== 'medium')   return false;
+        if (selectedSecurityRisk === 'low'      && sig?.risk_level !== 'low')      return false;
+      }
+
       return true;
     });
 
@@ -431,7 +468,7 @@ export function HomePageClient() {
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       }
     });
-  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders]);
+  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders, showClaudePluginsOnly, selectedSecurityRisk]);
 
   function clearFilters() {
     setSearch('');
@@ -454,6 +491,8 @@ export function HomePageClient() {
     setSelectedModalities([]);
     setSelectedDeploymentContexts([]);
     setSelectedBuilders([]);
+    setShowClaudePluginsOnly(false);
+    setSelectedSecurityRisk('all');
   }
 
   function toggleTag(tag: string) {
@@ -645,6 +684,10 @@ export function HomePageClient() {
                 industryStats={industryStats}
                 languageCounts={languageCounts}
                 licenseCounts={licenseCounts}
+                showClaudePluginsOnly={showClaudePluginsOnly}
+                onPluginToggle={() => setShowClaudePluginsOnly(v => !v)}
+                selectedSecurityRisk={selectedSecurityRisk}
+                onSecurityRiskChange={setSelectedSecurityRisk}
               />
             </>
           )}

@@ -55,6 +55,12 @@ interface FilterBarProps {
   onUseCaseToggle?: (value: string) => void;
   onModalityToggle?: (value: string) => void;
   onDeploymentContextToggle?: (value: string) => void;
+  // Claude Plugins filter
+  showClaudePluginsOnly?: boolean;
+  onPluginToggle?: () => void;
+  // Security risk filter
+  selectedSecurityRisk?: 'all' | 'incident' | 'critical' | 'high' | 'medium' | 'low';
+  onSecurityRiskChange?: (v: 'all' | 'incident' | 'critical' | 'high' | 'medium' | 'low') => void;
 }
 
 /** Activity indicator dot based on score */
@@ -86,7 +92,8 @@ type TabId =
   | 'pm-skills'
   | 'builders'
   | 'languages'
-  | 'licenses';
+  | 'licenses'
+  | 'security';
 
 /** Filter and sort controls for the repo library */
 export function FilterBar({
@@ -140,6 +147,10 @@ export function FilterBar({
   onUseCaseToggle,
   onModalityToggle,
   onDeploymentContextToggle,
+  showClaudePluginsOnly = false,
+  onPluginToggle,
+  selectedSecurityRisk = 'all',
+  onSecurityRiskChange,
 }: FilterBarProps) {
   const [showAllTags, setShowAllTags] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('categories');
@@ -174,7 +185,9 @@ export function FilterBar({
     selectedUseCases.length > 0 ||
     selectedModalities.length > 0 ||
     selectedDeploymentContexts.length > 0 ||
-    selectedBuilders.length > 0;
+    selectedBuilders.length > 0 ||
+    showClaudePluginsOnly ||
+    selectedSecurityRisk !== 'all';
 
   const tabs: { id: TabId; label: string }[] = [
     { id: 'categories', label: 'Categories' },
@@ -188,6 +201,7 @@ export function FilterBar({
     { id: 'builders', label: 'Builders' },
     { id: 'languages', label: 'Languages' },
     { id: 'licenses', label: 'Licenses' },
+    { id: 'security', label: '🛡️ Security' },
   ];
 
   // Group builders by category
@@ -293,6 +307,20 @@ export function FilterBar({
               <button onClick={() => onBuilderToggle?.(builder)} className="ml-1 hover:opacity-70">×</button>
             </span>
           ))}
+          {/* Claude Plugins pill */}
+          {showClaudePluginsOnly && (
+            <span className="flex items-center gap-1 rounded-full bg-violet-900/40 border border-violet-700/60 px-2.5 py-1 text-xs font-medium text-violet-300">
+              🔌 MCP / Plugins
+              <button onClick={() => onPluginToggle?.()} className="ml-1 hover:opacity-70">×</button>
+            </span>
+          )}
+          {/* Security risk pill */}
+          {selectedSecurityRisk !== 'all' && (
+            <span className="flex items-center gap-1 rounded-full bg-red-900/40 border border-red-700/60 px-2.5 py-1 text-xs font-medium text-red-300">
+              🛡️ {selectedSecurityRisk === 'incident' ? 'Has Incident' : selectedSecurityRisk.toUpperCase()}
+              <button onClick={() => onSecurityRiskChange?.('all')} className="ml-1 hover:opacity-70">×</button>
+            </span>
+          )}
           {/* Other active filters */}
           {selectedType !== 'all' && (
             <span className="flex items-center gap-1 rounded-full bg-zinc-700/50 border border-zinc-600 px-2.5 py-1 text-xs text-zinc-300">
@@ -676,6 +704,47 @@ export function FilterBar({
           </div>
         )}
 
+        {/* Security tab */}
+        {activeTab === 'security' && (
+          <div className="space-y-3">
+            <p className="text-xs text-zinc-500">
+              Filter by security risk level. Incidents are manually curated — use the admin API to mark repos.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {([
+                { value: 'all',      label: 'All',           cls: 'bg-zinc-800 text-zinc-400' },
+                { value: 'incident', label: '⚠️ Has Incident', cls: 'bg-red-950 border border-red-700 text-red-300' },
+                { value: 'critical', label: '🛡️ Critical',    cls: 'bg-red-950 border border-red-700 text-red-300' },
+                { value: 'high',     label: '🛡️ High',        cls: 'bg-orange-950 border border-orange-700 text-orange-300' },
+                { value: 'medium',   label: '🛡️ Medium',      cls: 'bg-amber-950 border border-amber-700 text-amber-300' },
+                { value: 'low',      label: '🛡️ Low',         cls: 'bg-zinc-800 border border-zinc-600 text-zinc-400' },
+              ] as const).map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => onSecurityRiskChange?.(opt.value as typeof selectedSecurityRisk)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                    selectedSecurityRisk === opt.value
+                      ? opt.cls + ' ring-1 ring-white/20'
+                      : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="border-t border-zinc-800 pt-3">
+              <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wide mb-2">To mark a repo</p>
+              <code className="text-[11px] text-zinc-500 font-mono leading-relaxed block">
+                PATCH /admin/repos/&#123;name&#125;/security<br />
+                {`{ "risk_level": "critical", "incident_reported": true,`}<br />
+                {`  "incident_date": "2025-01-15",`}<br />
+                {`  "incident_url": "https://...",`}<br />
+                {`  "incident_summary": "Supply chain attack..." }`}
+              </code>
+            </div>
+          </div>
+        )}
+
         {/* Controls row */}
         <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-800">
           {/* Type filter */}
@@ -692,6 +761,18 @@ export function FilterBar({
               </button>
             ))}
           </div>
+
+          {/* Claude Plugin / MCP toggle */}
+          <button
+            onClick={() => onPluginToggle?.()}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+              showClaudePluginsOnly
+                ? 'border-violet-600 bg-violet-900/50 text-violet-300'
+                : 'border-zinc-700 text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            🔌 MCP / Plugins
+          </button>
 
           <select
             value={selectedActivity}
