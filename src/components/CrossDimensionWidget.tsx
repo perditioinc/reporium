@@ -16,6 +16,8 @@ type ViewMode = 'radar' | 'grid';
 export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('radar');
   const [hoveredAxis, setHoveredAxis] = useState<string | null>(null);
+  const [gridPage, setGridPage] = useState(1);
+  const GRID_PAGE_SIZE = 12;
 
   // Aggregate repo counts per dimension value
   const { dim1Data, dim2Data, maxCount } = useMemo(() => {
@@ -57,14 +59,15 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     );
   }
 
-  // Two concentric rings: outer = AI trends (dim2, top 100), inner = industries (dim1, top 25)
-  const SIZE = 700;
+  // Two concentric rings: outer = AI trends (dim2), inner = industries (dim1)
+  // Inner ring sized large enough to read labels clearly
+  const SIZE = 750;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
-  const OUTER_R = SIZE * 0.34;       // AI trends ring
-  const INNER_R = SIZE * 0.18;       // Industries ring
-  const OUTER_LABEL_R = SIZE * 0.42; // Labels for outer ring
-  const INNER_LABEL_R = SIZE * 0.10; // Labels for inner ring
+  const OUTER_R = SIZE * 0.36;       // AI trends ring
+  const INNER_R = SIZE * 0.28;       // Industries ring — wide enough to see overlap
+  const OUTER_LABEL_R = SIZE * 0.44; // Labels for outer ring
+  const INNER_LABEL_R = SIZE * 0.20; // Labels for inner ring — readable
 
   function polar(index: number, total: number, radius: number) {
     const angle = (2 * Math.PI * index) / total - Math.PI / 2;
@@ -140,7 +143,7 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
             <span className="text-[10px] text-zinc-600">Hover labels for breakdown</span>
           </div>
 
-          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 700 }}>
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 750 }}>
             {/* Outer ring boundary (AI trends) */}
             <circle cx={CX} cy={CY} r={OUTER_R} fill="none" stroke="#3f3f46" strokeWidth={1} />
             <circle cx={CX} cy={CY} r={OUTER_R * 0.5} fill="none" stroke="#27272a" strokeWidth={0.5} strokeDasharray="3 5" />
@@ -233,10 +236,11 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
                   <circle cx={lp.x} cy={lp.y} r={12} fill="transparent" />
                   <text
                     x={lp.x} y={lp.y}
-                    textAnchor="middle"
+                    textAnchor={flipText ? 'end' : 'start'}
                     dominantBaseline="central"
+                    transform={`rotate(${flipText ? angleDeg + 180 : angleDeg}, ${lp.x}, ${lp.y})`}
                     fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#e9a0f0'}
-                    fontSize={isHovered ? 9.5 : 8.5}
+                    fontSize={isHovered ? 11 : 9}
                     fontWeight={isHovered ? 700 : 500}
                     className="transition-all duration-200 select-none"
                   >
@@ -272,28 +276,79 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
           )}
         </div>
       ) : (
-        /* Grid fallback */
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {analytics.pairs.map((pair) => (
-            <div key={`${pair.dim1_value}:${pair.dim2_value}`} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-zinc-200">{pair.dim1_value}</p>
-                  <p className="truncate text-xs text-zinc-500">{pair.dim2_value}</p>
+        /* Grid with pagination + ranking */
+        (() => {
+          const totalPages = Math.ceil(analytics.pairs.length / GRID_PAGE_SIZE);
+          const start = (gridPage - 1) * GRID_PAGE_SIZE;
+          const pageItems = analytics.pairs.slice(start, start + GRID_PAGE_SIZE);
+          return (
+        <div className="mt-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {pageItems.map((pair, idx) => {
+              const rank = start + idx + 1;
+              return (
+              <div key={`${pair.dim1_value}:${pair.dim2_value}`} className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2 min-w-0">
+                    <span className="text-lg font-bold text-zinc-700 leading-none mt-0.5">#{rank}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-zinc-200">{pair.dim1_value}</p>
+                      <p className="text-xs text-zinc-500">{pair.dim2_value}</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full border border-fuchsia-700/40 bg-fuchsia-900/30 px-2 py-0.5 text-xs text-fuchsia-300 shrink-0">
+                    {pair.repo_count}
+                  </span>
                 </div>
-                <span className="rounded-full border border-fuchsia-700/40 bg-fuchsia-900/30 px-2 py-0.5 text-xs text-fuchsia-300">
-                  {pair.repo_count}
-                </span>
+                <div className="mt-3 h-2 rounded-full bg-zinc-800">
+                  <div
+                    className="h-2 rounded-full bg-gradient-to-r from-fuchsia-500 to-sky-400"
+                    style={{ width: `${Math.max((pair.repo_count / peak) * 100, 8)}%` }}
+                  />
+                </div>
               </div>
-              <div className="mt-3 h-2 rounded-full bg-zinc-800">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-fuchsia-500 to-sky-400"
-                  style={{ width: `${Math.max((pair.repo_count / peak) * 100, 8)}%` }}
-                />
+            );
+            })}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-zinc-800">
+              <span className="text-xs text-zinc-500">
+                {start + 1}–{Math.min(start + GRID_PAGE_SIZE, analytics.pairs.length)} of {analytics.pairs.length} pairings
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setGridPage(p => Math.max(1, p - 1))}
+                  disabled={gridPage === 1}
+                  className="rounded px-2 py-1 text-xs text-zinc-400 hover:text-zinc-200 disabled:text-zinc-700 disabled:cursor-not-allowed transition-colors"
+                >
+                  ← Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setGridPage(p)}
+                    className={`rounded px-2 py-1 text-xs transition-colors ${
+                      p === gridPage ? 'bg-fuchsia-900/40 text-fuchsia-300' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setGridPage(p => Math.min(totalPages, p + 1))}
+                  disabled={gridPage === totalPages}
+                  className="rounded px-2 py-1 text-xs text-zinc-400 hover:text-zinc-200 disabled:text-zinc-700 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next →
+                </button>
               </div>
             </div>
-          ))}
+          )}
         </div>
+          );
+        })()
       )}
     </section>
   );
