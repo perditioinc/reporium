@@ -140,25 +140,57 @@ async function main() {
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
 
+  // Strip heavy fields not needed for card rendering to reduce JSON size.
+  // commitsLast7/30/90Days are full commit arrays — commitStats has the counts.
+  // recentCommits trimmed to 3. problemSolved, latestRelease, weeklyCommitCount,
+  // totalCommitsFetched, similarityScore not used by any component.
+  const STRIP_FIELDS = new Set([
+    'commitsLast7Days', 'commitsLast30Days', 'commitsLast90Days',
+    'problemSolved', 'latestRelease', 'weeklyCommitCount',
+    'totalCommitsFetched',
+  ])
+
+  const slimRepos = allRepos.map((repo: Record<string, unknown>) => {
+    const slim: Record<string, unknown> = {}
+    for (const [key, val] of Object.entries(repo)) {
+      if (STRIP_FIELDS.has(key)) continue
+      // Trim recentCommits to 3 entries max
+      if (key === 'recentCommits' && Array.isArray(val)) {
+        slim[key] = val.slice(0, 3)
+        continue
+      }
+      // Strip similarityScore from taxonomy entries (always null, wastes space)
+      if (key === 'taxonomy' && Array.isArray(val)) {
+        slim[key] = val.map((t: Record<string, unknown>) => {
+          const { similarityScore: _, ...rest } = t
+          return rest
+        })
+        continue
+      }
+      slim[key] = val
+    }
+    return slim
+  })
+
   // Build combined result: use stats/categories/tagMetrics from page 1 (corpus-wide aggregates)
   const data = {
     ...page1,
-    repos: allRepos,
+    repos: slimRepos,
   }
 
   const outDir = join(process.cwd(), 'public', 'data')
   mkdirSync(outDir, { recursive: true })
 
-  // Write full library
+  // Write minified JSON (no pretty-print — saves ~40% file size)
   const outPath = join(outDir, 'library.json')
-  writeFileSync(outPath, JSON.stringify(data, null, 2), 'utf-8')
+  writeFileSync(outPath, JSON.stringify(data), 'utf-8')
 
   // Write owned-only subset for progressive loading.
   // Keeps full stats/categories so header counts stay accurate on first paint.
   const ownedRepos = data.repos.filter((r: { isFork?: boolean }) => !r.isFork)
   const ownedData = { ...data, repos: ownedRepos }
   const ownedPath = join(outDir, 'owned.json')
-  writeFileSync(ownedPath, JSON.stringify(ownedData, null, 2), 'utf-8')
+  writeFileSync(ownedPath, JSON.stringify(ownedData), 'utf-8')
 
   console.log(`Done in ${elapsed}s`)
   console.log(`  Pages fetched: ${totalPages}`)
