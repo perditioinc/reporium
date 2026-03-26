@@ -735,14 +735,9 @@ export function FilterBar({
               ))}
             </div>
             <div className="border-t border-zinc-800 pt-3">
-              <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wide mb-2">To mark a repo</p>
-              <code className="text-[11px] text-zinc-500 font-mono leading-relaxed block">
-                PATCH /admin/repos/&#123;name&#125;/security<br />
-                {`{ "risk_level": "critical", "incident_reported": true,`}<br />
-                {`  "incident_date": "2025-01-15",`}<br />
-                {`  "incident_url": "https://...",`}<br />
-                {`  "incident_summary": "Supply chain attack..." }`}
-              </code>
+              <p className="text-[11px] text-zinc-600 leading-relaxed">
+                Security signals are populated during enrichment. No repos have security flags yet.
+              </p>
             </div>
           </div>
         )}
