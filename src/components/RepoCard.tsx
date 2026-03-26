@@ -645,15 +645,7 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           </span>
         ) : null}
 
-        {/* Last update date — use lastUpdated (always populated), fallback to parent */}
         <span>Issues {(repo.isFork && ps ? ps.openIssues : (repo.openIssuesCount ?? 0)).toLocaleString()}</span>
-        <span className="ml-auto">
-          {relativeTime(repo.lastUpdated) !== '—'
-            ? relativeTime(repo.lastUpdated)
-            : repo.isFork && ps
-              ? relativeTime(ps.lastCommitDate)
-              : '—'}
-        </span>
       </div>
 
       {/* Language breakdown bar */}
