@@ -215,9 +215,10 @@ export function CrossDimensionWidget({ analytics, repos }: CrossDimensionWidgetP
         </div>
       ) : viewMode === 'heatmap' && hasPairs ? (
         <div className="mt-4 relative">
-          <div className="flex items-center justify-between mb-3 px-1">
+          {/* Legend + axis labels */}
+          <div className="flex items-center justify-between mb-2 px-1">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Repo overlap intensity</span>
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Overlap intensity</span>
               <div className="flex items-center gap-0.5">
                 {[0.05, 0.2, 0.4, 0.6, 0.8, 1.0].map(t => (
                   <div key={t} className="h-3 w-5 rounded-sm" style={{ background: cellColor(t * maxCount) }} />
@@ -228,81 +229,128 @@ export function CrossDimensionWidget({ analytics, repos }: CrossDimensionWidgetP
             <span className="text-[10px] text-zinc-600">{rows.length} × {cols.length} · {analytics!.pairs.length} pairs</span>
           </div>
 
-          <div className="overflow-x-auto -mx-2 px-2">
-            <div className="inline-block min-w-full">
-              <div className="flex" style={{ paddingLeft: 140 }}>
-                {cols.map(col => (
-                  <div key={col} className="flex-shrink-0 flex items-end justify-center pb-1" style={{ width: 44, height: 100 }}>
-                    <span
-                      className="text-[9px] leading-tight select-none origin-bottom-left whitespace-nowrap"
-                      style={{
-                        transform: 'rotate(-55deg)',
-                        transformOrigin: 'bottom left',
-                        color: hoveredCell?.col === col ? '#38bdf8' : '#71717a',
-                        fontWeight: hoveredCell?.col === col ? 700 : 400,
-                      }}
-                    >
-                      {col}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {rows.map(row => (
-                <div key={row} className="flex items-center">
-                  <div className="flex-shrink-0 text-right pr-2 select-none" style={{ width: 140 }}>
-                    <span
-                      className="text-[10px] leading-tight"
-                      style={{
-                        color: hoveredCell?.row === row ? '#e879f9' : '#a1a1aa',
-                        fontWeight: hoveredCell?.row === row ? 700 : 400,
-                      }}
-                    >
-                      {row}
-                    </span>
-                  </div>
-                  {cols.map(col => {
-                    const count = matrix.get(`${row}|||${col}`) ?? 0;
-                    const isHovered = hoveredCell?.row === row && hoveredCell?.col === col;
-                    return (
-                      <div
-                        key={`${row}:${col}`}
-                        className="flex-shrink-0 flex items-center justify-center cursor-pointer transition-all duration-150"
-                        style={{
-                          width: 44, height: 28,
-                          background: cellColor(count),
-                          border: isHovered ? '1.5px solid #fff' : '1px solid rgba(39,39,42,0.4)',
-                          borderRadius: 3, margin: 1,
-                          transform: isHovered ? 'scale(1.15)' : undefined,
-                          zIndex: isHovered ? 10 : undefined,
-                          position: 'relative',
-                        }}
-                        onMouseEnter={() => setHoveredCell({ row, col })}
-                        onMouseLeave={() => setHoveredCell(null)}
-                      >
-                        {count > 0 && (
-                          <span className="text-[9px] font-medium tabular-nums" style={{ color: cellTextColor(count) }}>
-                            {count}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
+          {/* Axis key */}
+          <div className="flex items-center gap-4 mb-3 px-1">
+            <span className="flex items-center gap-1.5 text-[11px]">
+              <span className="text-fuchsia-400 font-semibold">Y axis</span>
+              <span className="text-zinc-500">= {label(analytics!.dim1)}</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px]">
+              <span className="text-sky-400 font-semibold">X axis</span>
+              <span className="text-zinc-500">= {label(analytics!.dim2)}</span>
+            </span>
           </div>
 
+          <div className="overflow-x-auto -mx-2 px-2">
+            <table className="border-collapse" style={{ marginLeft: 0 }}>
+              {/* Column headers */}
+              <thead>
+                <tr>
+                  <th style={{ width: 150, minWidth: 150 }} />
+                  {cols.map((col, ci) => {
+                    const isHighlighted = hoveredCell?.col === col;
+                    return (
+                      <th
+                        key={col}
+                        className="p-0 align-bottom"
+                        style={{ width: 52, minWidth: 52 }}
+                      >
+                        <div
+                          className="flex flex-col items-center gap-0.5 pb-1"
+                          style={{ height: 120 }}
+                        >
+                          <span
+                            className="text-[10px] leading-tight select-none whitespace-nowrap"
+                            style={{
+                              writingMode: 'vertical-rl',
+                              transform: 'rotate(180deg)',
+                              color: isHighlighted ? '#38bdf8' : '#71717a',
+                              fontWeight: isHighlighted ? 700 : 400,
+                              maxHeight: 110,
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {col}
+                          </span>
+                          {/* Column index for tracing */}
+                          <span className="text-[8px] text-zinc-700 tabular-nums">{ci + 1}</span>
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, ri) => {
+                  const isRowHighlighted = hoveredCell?.row === row;
+                  return (
+                    <tr key={row}>
+                      {/* Row label */}
+                      <td className="p-0 pr-2 text-right select-none" style={{ width: 150, minWidth: 150 }}>
+                        <span
+                          className="text-[11px] leading-tight"
+                          style={{
+                            color: isRowHighlighted ? '#e879f9' : '#a1a1aa',
+                            fontWeight: isRowHighlighted ? 600 : 400,
+                          }}
+                        >
+                          {row}
+                        </span>
+                      </td>
+                      {/* Cells */}
+                      {cols.map(col => {
+                        const count = matrix.get(`${row}|||${col}`) ?? 0;
+                        const isHovered = hoveredCell?.row === row && hoveredCell?.col === col;
+                        const isRowOrCol = hoveredCell?.row === row || hoveredCell?.col === col;
+                        return (
+                          <td key={`${row}:${col}`} className="p-0">
+                            <div
+                              className="flex items-center justify-center cursor-pointer transition-all duration-150"
+                              style={{
+                                width: 50, height: 32,
+                                background: cellColor(count),
+                                border: isHovered
+                                  ? '2px solid #fff'
+                                  : isRowOrCol && hoveredCell
+                                    ? '1px solid rgba(168,85,247,0.3)'
+                                    : '1px solid rgba(39,39,42,0.3)',
+                                borderRadius: 4,
+                                margin: 1,
+                                transform: isHovered ? 'scale(1.2)' : undefined,
+                                zIndex: isHovered ? 10 : undefined,
+                                position: 'relative',
+                                opacity: hoveredCell && !isRowOrCol ? 0.4 : 1,
+                              }}
+                              onMouseEnter={() => setHoveredCell({ row, col })}
+                              onMouseLeave={() => setHoveredCell(null)}
+                            >
+                              {count > 0 && (
+                                <span className="text-[10px] font-semibold tabular-nums" style={{ color: cellTextColor(count) }}>
+                                  {count}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Hover tooltip */}
           {hoveredCell && (
-            <div className="mt-3 rounded-lg border border-fuchsia-800/40 bg-zinc-900/95 px-3 py-2 shadow-xl">
-              <div className="flex items-center gap-2">
+            <div className="mt-3 rounded-lg border border-fuchsia-800/40 bg-zinc-900/95 px-4 py-2.5 shadow-xl">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-fuchsia-500" />
-                <span className="text-sm font-semibold text-zinc-100">{hoveredCell.row}</span>
-                <span className="text-zinc-600 text-xs">×</span>
+                <span className="text-sm font-semibold text-fuchsia-300">{hoveredCell.row}</span>
+                <span className="text-zinc-600 text-sm">×</span>
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-sky-400" />
-                <span className="text-sm font-semibold text-zinc-100">{hoveredCell.col}</span>
+                <span className="text-sm font-semibold text-sky-300">{hoveredCell.col}</span>
                 {hoveredPair ? (
-                  <span className="ml-auto rounded-full border border-fuchsia-700/40 bg-fuchsia-900/30 px-2 py-0.5 text-xs text-fuchsia-300">
+                  <span className="ml-auto rounded-full border border-fuchsia-700/40 bg-fuchsia-900/30 px-2.5 py-0.5 text-sm font-semibold text-fuchsia-300">
                     {hoveredPair.repo_count} repos
                   </span>
                 ) : (
