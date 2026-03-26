@@ -11,33 +11,37 @@ function label(value: string): string {
   return value.replaceAll('_', ' ');
 }
 
-type ViewMode = 'radar' | 'grid';
+type ViewMode = 'heatmap' | 'grid';
 
 export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('radar');
-  const [hoveredAxis, setHoveredAxis] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('heatmap');
+  const [hoveredCell, setHoveredCell] = useState<{ row: string; col: string } | null>(null);
   const [gridPage, setGridPage] = useState(1);
   const GRID_PAGE_SIZE = 12;
 
-  // Aggregate repo counts per dimension value
-  const { dim1Data, dim2Data, maxCount } = useMemo(() => {
-    if (!analytics) return { dim1Data: [] as { name: string; count: number }[], dim2Data: [] as { name: string; count: number }[], maxCount: 1 };
+  // Build heatmap matrix: rows = industries (dim1), cols = AI trends (dim2)
+  const { rows, cols, matrix, maxCount, peak } = useMemo(() => {
+    if (!analytics || analytics.pairs.length === 0)
+      return { rows: [] as string[], cols: [] as string[], matrix: new Map<string, number>(), maxCount: 1, peak: 1 };
 
+    // Get unique values sorted by total repo count
     const d1Map = new Map<string, number>();
     const d2Map = new Map<string, number>();
+    const mtx = new Map<string, number>();
+
     for (const p of analytics.pairs) {
       d1Map.set(p.dim1_value, (d1Map.get(p.dim1_value) ?? 0) + p.repo_count);
       d2Map.set(p.dim2_value, (d2Map.get(p.dim2_value) ?? 0) + p.repo_count);
+      mtx.set(`${p.dim1_value}|||${p.dim2_value}`, p.repo_count);
     }
 
-    const d1 = [...d1Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 25);
-    const d2 = [...d2Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 100);
-    const mx = Math.max(...d1.map(d => d.count), ...d2.map(d => d.count), 1);
+    const r = [...d1Map.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+    const c = [...d2Map.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+    const mx = Math.max(...analytics.pairs.map(p => p.repo_count), 1);
+    const pk = Math.max(...d1Map.values(), ...d2Map.values(), 1);
 
-    return { dim1Data: d1, dim2Data: d2, maxCount: mx };
+    return { rows: r, cols: c, matrix: mtx, maxCount: mx, peak: pk };
   }, [analytics]);
-
-  const peak = maxCount;
 
   if (!analytics) return null;
 
@@ -59,47 +63,32 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     );
   }
 
-  // Two concentric rings: outer = AI trends (dim2), inner = industries (dim1)
-  // Inner ring sized large enough to read labels clearly
-  const SIZE = 750;
-  const CX = SIZE / 2;
-  const CY = SIZE / 2;
-  const OUTER_R = SIZE * 0.36;       // AI trends ring
-  const INNER_R = SIZE * 0.28;       // Industries ring — wide enough to see overlap
-  const OUTER_LABEL_R = SIZE * 0.44; // Labels for outer ring
-  const INNER_LABEL_R = SIZE * 0.20; // Labels for inner ring — readable
-
-  function polar(index: number, total: number, radius: number) {
-    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
-    return { x: CX + radius * Math.cos(angle), y: CY + radius * Math.sin(angle), angle };
+  // Heatmap color: fuchsia-to-sky gradient based on intensity
+  function cellColor(count: number): string {
+    const t = count / maxCount; // 0 to 1
+    if (t === 0) return 'rgba(39, 39, 42, 0.3)'; // zinc-800 faded
+    if (t < 0.15) return 'rgba(168, 85, 247, 0.15)'; // purple very faint
+    if (t < 0.3) return 'rgba(168, 85, 247, 0.3)';
+    if (t < 0.5) return 'rgba(217, 70, 239, 0.4)'; // fuchsia
+    if (t < 0.7) return 'rgba(217, 70, 239, 0.6)';
+    if (t < 0.85) return 'rgba(56, 189, 248, 0.5)'; // sky
+    return 'rgba(56, 189, 248, 0.75)'; // sky bright
   }
 
-  // Build polygon for outer ring (AI trends / dim2)
-  const outerPolygon = dim2Data.map((d, i) => {
-    const r = OUTER_R * (d.count / peak);
-    const p = polar(i, dim2Data.length, r);
-    return `${p.x},${p.y}`;
-  }).join(' ');
+  function cellTextColor(count: number): string {
+    const t = count / maxCount;
+    if (t === 0) return '#3f3f46';
+    if (t < 0.3) return '#a78bfa';
+    if (t < 0.6) return '#e879f9';
+    return '#fff';
+  }
 
-  // Build polygon for inner ring (industries / dim1)
-  const innerPolygon = dim1Data.map((d, i) => {
-    const r = INNER_R * (d.count / peak);
-    const p = polar(i, dim1Data.length, r);
-    return `${p.x},${p.y}`;
-  }).join(' ');
-
-  // Tooltip data for hovered axis
-  const hoveredInfo = hoveredAxis ? (() => {
-    const d1 = dim1Data.find(d => d.name === hoveredAxis);
-    const d2 = dim2Data.find(d => d.name === hoveredAxis);
-    if (!d1 && !d2) return null;
-    const dim = d1 ? 'dim1' as const : 'dim2' as const;
-    const axis = d1 ?? d2!;
-    const connections = dim === 'dim1'
-      ? analytics.pairs.filter((p: CrossDimensionCell) => p.dim1_value === hoveredAxis).sort((a: CrossDimensionCell, b: CrossDimensionCell) => b.repo_count - a.repo_count)
-      : analytics.pairs.filter((p: CrossDimensionCell) => p.dim2_value === hoveredAxis).sort((a: CrossDimensionCell, b: CrossDimensionCell) => b.repo_count - a.repo_count);
-    return { axis: { ...axis, dim }, connections };
-  })() : null;
+  // Hovered cell info
+  const hoveredPair = hoveredCell
+    ? analytics.pairs.find(
+        (p: CrossDimensionCell) => p.dim1_value === hoveredCell.row && p.dim2_value === hoveredCell.col
+      )
+    : null;
 
   return (
     <section className="rounded-2xl border border-fuchsia-900/40 bg-gradient-to-br from-fuchsia-950/40 via-zinc-950 to-zinc-950 p-4 md:p-5">
@@ -112,10 +101,10 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setViewMode('radar')}
-            className={`rounded px-2 py-1 text-xs transition-colors ${viewMode === 'radar' ? 'bg-fuchsia-900/40 text-fuchsia-300' : 'text-zinc-500 hover:text-zinc-300'}`}
+            onClick={() => setViewMode('heatmap')}
+            className={`rounded px-2 py-1 text-xs transition-colors ${viewMode === 'heatmap' ? 'bg-fuchsia-900/40 text-fuchsia-300' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
-            Radar
+            Heatmap
           </button>
           <button
             onClick={() => setViewMode('grid')}
@@ -126,150 +115,131 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
         </div>
       </div>
 
-      {viewMode === 'radar' ? (
+      {viewMode === 'heatmap' ? (
         <div className="mt-4 relative">
-          {/* Chart key / legend */}
+          {/* Legend */}
           <div className="flex items-center justify-between mb-3 px-1">
-            <div className="flex items-center gap-5">
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-6 rounded-sm bg-sky-400/30 border border-sky-400/60" />
-                <span className="text-xs font-medium text-sky-300">{label(analytics.dim2)} <span className="text-zinc-600">(outer · {dim2Data.length})</span></span>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Repo overlap intensity</span>
+              <div className="flex items-center gap-0.5">
+                {[0.05, 0.2, 0.4, 0.6, 0.8, 1.0].map(t => (
+                  <div
+                    key={t}
+                    className="h-3 w-5 rounded-sm"
+                    style={{ background: cellColor(t * maxCount) }}
+                  />
+                ))}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-6 rounded-sm bg-fuchsia-500/30 border border-fuchsia-500/60" />
-                <span className="text-xs font-medium text-fuchsia-300">{label(analytics.dim1)} <span className="text-zinc-600">(inner · {dim1Data.length})</span></span>
-              </div>
+              <span className="text-[10px] text-zinc-600">0 → {maxCount}</span>
             </div>
-            <span className="text-[10px] text-zinc-600">Hover labels for breakdown</span>
+            <span className="text-[10px] text-zinc-600">{rows.length} × {cols.length} · {analytics.pairs.length} pairs</span>
           </div>
 
-          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 750 }}>
-            {/* Outer ring boundary (AI trends) */}
-            <circle cx={CX} cy={CY} r={OUTER_R} fill="none" stroke="#3f3f46" strokeWidth={1} />
-            <circle cx={CX} cy={CY} r={OUTER_R * 0.5} fill="none" stroke="#27272a" strokeWidth={0.5} strokeDasharray="3 5" />
-
-            {/* Inner ring boundary (Industries) */}
-            <circle cx={CX} cy={CY} r={INNER_R} fill="none" stroke="#3f3f46" strokeWidth={1} strokeDasharray="4 3" />
-            <circle cx={CX} cy={CY} r={INNER_R * 0.5} fill="none" stroke="#27272a" strokeWidth={0.5} strokeDasharray="2 4" />
-
-            {/* Outer spokes (AI trends) */}
-            {dim2Data.map((_, i) => {
-              const p = polar(i, dim2Data.length, OUTER_R);
-              return <line key={`spoke-outer-${i}`} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="#27272a" strokeWidth={0.5} />;
-            })}
-
-            {/* Inner spokes (Industries) */}
-            {dim1Data.map((_, i) => {
-              const p = polar(i, dim1Data.length, INNER_R);
-              return <line key={`spoke-inner-${i}`} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="#27272a" strokeWidth={0.5} />;
-            })}
-
-            {/* Outer polygon — AI trends (sky) */}
-            <polygon
-              points={outerPolygon}
-              fill="#38bdf8"
-              fillOpacity={0.12}
-              stroke="#38bdf8"
-              strokeWidth={2}
-              strokeOpacity={0.7}
-              strokeLinejoin="round"
-              className="transition-all duration-300"
-            />
-
-            {/* Inner polygon — Industries (fuchsia) */}
-            <polygon
-              points={innerPolygon}
-              fill="#d946ef"
-              fillOpacity={0.15}
-              stroke="#d946ef"
-              strokeWidth={2}
-              strokeOpacity={0.8}
-              strokeLinejoin="round"
-              className="transition-all duration-300"
-            />
-
-            {/* Outer ring dots + labels (AI trends) */}
-            {dim2Data.map((d, i) => {
-              const r = OUTER_R * (d.count / peak);
-              const p = polar(i, dim2Data.length, r);
-              const lp = polar(i, dim2Data.length, OUTER_LABEL_R);
-              const angleDeg = (i / dim2Data.length) * 360 - 90;
-              const flipText = angleDeg > 90 && angleDeg < 270;
-              const isHovered = hoveredAxis === d.name;
-              const dimmed = hoveredAxis && !isHovered;
-              return (
-                <g key={`outer-${d.name}`} className="cursor-pointer" onMouseEnter={() => setHoveredAxis(d.name)} onMouseLeave={() => setHoveredAxis(null)}>
-                  {isHovered && <circle cx={p.x} cy={p.y} r={8} fill="#38bdf8" opacity={0.2} />}
-                  <circle cx={p.x} cy={p.y} r={isHovered ? 4 : 2} fill="#38bdf8" className="transition-all duration-200" />
-                  {isHovered && <text x={p.x} y={p.y - 8} textAnchor="middle" fill="#fff" fontSize={9} fontWeight={700}>{d.count}</text>}
-                  <circle cx={lp.x} cy={lp.y} r={10} fill="transparent" />
-                  <text
-                    x={lp.x} y={lp.y}
-                    textAnchor={flipText ? 'end' : 'start'}
-                    dominantBaseline="central"
-                    transform={`rotate(${flipText ? angleDeg + 180 : angleDeg}, ${lp.x}, ${lp.y})`}
-                    fill={dimmed ? '#27272a' : isHovered ? '#fff' : '#7dd3fc'}
-                    fontSize={isHovered ? 9 : 7}
-                    fontWeight={isHovered ? 700 : 400}
-                    className="transition-all duration-200 select-none"
-                  >
-                    {d.name}
-                  </text>
-                </g>
-              );
-            })}
-
-            {/* Inner ring dots + labels (Industries) */}
-            {dim1Data.map((d, i) => {
-              const r = INNER_R * (d.count / peak);
-              const p = polar(i, dim1Data.length, r);
-              const lp = polar(i, dim1Data.length, INNER_LABEL_R);
-              const angleDeg = (i / dim1Data.length) * 360 - 90;
-              const flipText = angleDeg > 90 && angleDeg < 270;
-              const isHovered = hoveredAxis === d.name;
-              const dimmed = hoveredAxis && !isHovered;
-              return (
-                <g key={`inner-${d.name}`} className="cursor-pointer" onMouseEnter={() => setHoveredAxis(d.name)} onMouseLeave={() => setHoveredAxis(null)}>
-                  {isHovered && <circle cx={p.x} cy={p.y} r={7} fill="#d946ef" opacity={0.25} />}
-                  <circle cx={p.x} cy={p.y} r={isHovered ? 4.5 : 3} fill="#d946ef" className="transition-all duration-200" />
-                  {isHovered && <text x={p.x} y={p.y - 9} textAnchor="middle" fill="#fff" fontSize={9} fontWeight={700}>{d.count}</text>}
-                  <circle cx={lp.x} cy={lp.y} r={12} fill="transparent" />
-                  <text
-                    x={lp.x} y={lp.y}
-                    textAnchor={flipText ? 'end' : 'start'}
-                    dominantBaseline="central"
-                    transform={`rotate(${flipText ? angleDeg + 180 : angleDeg}, ${lp.x}, ${lp.y})`}
-                    fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#e9a0f0'}
-                    fontSize={isHovered ? 11 : 9}
-                    fontWeight={isHovered ? 700 : 500}
-                    className="transition-all duration-200 select-none"
-                  >
-                    {d.name}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Tooltip panel */}
-          {hoveredInfo && (
-            <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-fuchsia-800/40 bg-zinc-900/95 px-3 py-2 shadow-xl z-10">
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`inline-block h-2.5 w-2.5 rounded-full ${hoveredInfo.axis.dim === 'dim1' ? 'bg-fuchsia-500' : 'bg-sky-400'}`} />
-                <span className="text-sm font-semibold text-zinc-100">{hoveredInfo.axis.name}</span>
-                <span className="text-xs text-zinc-500">{hoveredInfo.axis.count} repos</span>
+          {/* Heatmap grid */}
+          <div className="overflow-x-auto -mx-2 px-2">
+            <div className="inline-block min-w-full">
+              {/* Column headers (AI trends) */}
+              <div className="flex" style={{ paddingLeft: 140 }}>
+                {cols.map(col => {
+                  const isHighlighted = hoveredCell?.col === col;
+                  return (
+                    <div
+                      key={col}
+                      className="flex-shrink-0 flex items-end justify-center pb-1"
+                      style={{ width: 44, height: 100 }}
+                    >
+                      <span
+                        className="text-[9px] leading-tight select-none origin-bottom-left whitespace-nowrap"
+                        style={{
+                          transform: 'rotate(-55deg)',
+                          transformOrigin: 'bottom left',
+                          color: isHighlighted ? '#38bdf8' : '#71717a',
+                          fontWeight: isHighlighted ? 700 : 400,
+                        }}
+                      >
+                        {col}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex flex-wrap gap-x-3 gap-y-1">
-                {hoveredInfo.connections.slice(0, 6).map((c: CrossDimensionCell) => (
-                  <span key={`${c.dim1_value}:${c.dim2_value}`} className="text-xs">
-                    <span className={hoveredInfo.axis.dim === 'dim1' ? 'text-sky-300' : 'text-fuchsia-300'}>
-                      {hoveredInfo.axis.dim === 'dim1' ? c.dim2_value : c.dim1_value}
-                    </span>
-                    <span className="text-zinc-500 ml-1">{c.repo_count}</span>
+
+              {/* Rows */}
+              {rows.map(row => {
+                const isRowHighlighted = hoveredCell?.row === row;
+                return (
+                  <div key={row} className="flex items-center">
+                    {/* Row label (industry) */}
+                    <div
+                      className="flex-shrink-0 text-right pr-2 select-none"
+                      style={{ width: 140 }}
+                    >
+                      <span
+                        className="text-[10px] leading-tight"
+                        style={{
+                          color: isRowHighlighted ? '#e879f9' : '#a1a1aa',
+                          fontWeight: isRowHighlighted ? 700 : 400,
+                        }}
+                      >
+                        {row}
+                      </span>
+                    </div>
+
+                    {/* Cells */}
+                    {cols.map(col => {
+                      const count = matrix.get(`${row}|||${col}`) ?? 0;
+                      const isHovered = hoveredCell?.row === row && hoveredCell?.col === col;
+                      return (
+                        <div
+                          key={`${row}:${col}`}
+                          className="flex-shrink-0 flex items-center justify-center cursor-pointer transition-all duration-150"
+                          style={{
+                            width: 44,
+                            height: 28,
+                            background: cellColor(count),
+                            border: isHovered ? '1.5px solid #fff' : '1px solid rgba(39,39,42,0.4)',
+                            borderRadius: 3,
+                            margin: 1,
+                            transform: isHovered ? 'scale(1.15)' : undefined,
+                            zIndex: isHovered ? 10 : undefined,
+                            position: 'relative',
+                          }}
+                          onMouseEnter={() => setHoveredCell({ row, col })}
+                          onMouseLeave={() => setHoveredCell(null)}
+                        >
+                          {count > 0 && (
+                            <span
+                              className="text-[9px] font-medium tabular-nums"
+                              style={{ color: cellTextColor(count) }}
+                            >
+                              {count}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Hover tooltip */}
+          {hoveredCell && (
+            <div className="mt-3 rounded-lg border border-fuchsia-800/40 bg-zinc-900/95 px-3 py-2 shadow-xl">
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-fuchsia-500" />
+                <span className="text-sm font-semibold text-zinc-100">{hoveredCell.row}</span>
+                <span className="text-zinc-600 text-xs">×</span>
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-sky-400" />
+                <span className="text-sm font-semibold text-zinc-100">{hoveredCell.col}</span>
+                {hoveredPair && (
+                  <span className="ml-auto rounded-full border border-fuchsia-700/40 bg-fuchsia-900/30 px-2 py-0.5 text-xs text-fuchsia-300">
+                    {hoveredPair.repo_count} repos
                   </span>
-                ))}
-                {hoveredInfo.connections.length > 6 && (
-                  <span className="text-xs text-zinc-600">+{hoveredInfo.connections.length - 6} more</span>
+                )}
+                {!hoveredPair && (
+                  <span className="ml-auto text-xs text-zinc-600">No overlap</span>
                 )}
               </div>
             </div>
@@ -325,7 +295,7 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
                 >
                   ← Prev
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                {Array.from({ length: Math.min(totalPages, 8) }, (_, i) => i + 1).map(p => (
                   <button
                     key={p}
                     onClick={() => setGridPage(p)}
@@ -336,6 +306,7 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
                     {p}
                   </button>
                 ))}
+                {totalPages > 8 && <span className="text-xs text-zinc-600">…</span>}
                 <button
                   onClick={() => setGridPage(p => Math.min(totalPages, p + 1))}
                   disabled={gridPage === totalPages}
