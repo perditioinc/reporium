@@ -1,4 +1,5 @@
 {
+  "fluid": true,
   "buildCommand": "npm run generate || echo 'Generate failed, using existing library.json' && npm run build",
   "headers": [
     {
