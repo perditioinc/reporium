@@ -432,9 +432,18 @@ export function HomePageClient() {
           lowerName.startsWith('mcp-') ||
           lowerName.endsWith('-mcp') ||
           lowerName.includes('-mcp-') ||
+          lowerName.includes('mcp_') ||
+          lowerName.includes('_mcp') ||
+          /\bplugin\b/.test(lowerName) ||
+          /\bmcp\b/.test(lowerDesc) ||
           lowerDesc.includes('model context protocol') ||
           lowerDesc.includes('mcp server') ||
-          lowerDesc.includes('claude plugin');
+          lowerDesc.includes('mcp client') ||
+          lowerDesc.includes('mcp tool') ||
+          lowerDesc.includes('mcp-based') ||
+          lowerDesc.includes('claude plugin') ||
+          lowerDesc.includes('claude code plugin') ||
+          lowerDesc.includes('claude skill');
         if (!isMCP) return false;
       }
 
