@@ -659,61 +659,45 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         );
       })()}
 
-      {/* Built repo creation date — small footer line beneath the "Forked from" block */}
-      {!repo.isFork && repo.createdAt && (
-        <p className="text-xs text-zinc-600">
-          Created {formatMonthYear(repo.createdAt)}
-          {repo.lastUpdated && repo.lastUpdated !== repo.createdAt && (
-            <span className="text-zinc-700"> · last push {relativeTime(repo.lastUpdated)}</span>
-          )}
-        </p>
-      )}
-
-      {/* Timeline — fork date metadata.
-          upstreamCreatedAt is only shown if it differs from createdAt (the ingestion date),
-          which avoids showing the wrong "Project created" date before backfill runs. */}
-      {repo.isFork && (() => {
-        // createdAt for forks is always the parent's created_at; show it as "Project created"
-        const realUpstream = repo.createdAt || null;
-        const hasAnyDate = realUpstream || repo.forkedAt || repo.yourLastPushAt || repo.upstreamLastPushAt;
-        if (!hasAnyDate) return null;
-        return (
-        <div className="border-t border-zinc-800 pt-3 space-y-1.5">
-          <p className="text-xs font-medium text-zinc-500">📅 Timeline</p>
-          {realUpstream && (
-            <div className="flex justify-between text-xs">
-              <span className="text-zinc-600">Project created</span>
-              <span className="text-zinc-400">{formatMonthYear(realUpstream)}</span>
-            </div>
+      {/* ── Dates section — always visible ── */}
+      {repo.isFork ? (
+        /* Forked repo: show parent created + fork date prominently */
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+          {repo.createdAt && (
+            <span>
+              <span className="text-zinc-600">Parent created </span>
+              <span className="text-zinc-400">{formatMonthYear(repo.createdAt)}</span>
+            </span>
           )}
           {repo.forkedAt && (
-            <div className="flex justify-between text-xs">
-              <span className="text-zinc-600">Forked</span>
-              <span className="text-zinc-400">
-                {formatMonthYear(repo.forkedAt)}
-                {realUpstream && (
-                  <span className="text-zinc-600 ml-1">
-                    ({monthsBetween(realUpstream, repo.forkedAt)}mo later)
-                  </span>
-                )}
-              </span>
-            </div>
-          )}
-          <div className="flex justify-between text-xs">
-            <span className="text-zinc-600">Fork last synced</span>
-            <span className="text-zinc-400">
-              {repo.yourLastPushAt ? relativeTime(repo.yourLastPushAt) : 'Never'}
+            <span>
+              <span className="text-zinc-600">Forked </span>
+              <span className="text-zinc-400">{formatMonthYear(repo.forkedAt)}</span>
             </span>
-          </div>
+          )}
           {repo.upstreamLastPushAt && (
-            <div className="flex justify-between text-xs">
-              <span className="text-zinc-600">Upstream last push</span>
+            <span>
+              <span className="text-zinc-600">Upstream </span>
               <span className="text-zinc-400">{relativeTime(repo.upstreamLastPushAt)}</span>
-            </div>
+            </span>
           )}
         </div>
-        );
-      })()}
+      ) : (
+        /* Built repo: show created date (fallback to lastUpdated) */
+        <p className="text-xs text-zinc-500">
+          {repo.createdAt ? (
+            <>
+              <span className="text-zinc-600">Created </span>
+              <span className="text-zinc-400">{formatMonthYear(repo.createdAt)}</span>
+            </>
+          ) : repo.lastUpdated ? (
+            <>
+              <span className="text-zinc-600">Last updated </span>
+              <span className="text-zinc-400">{relativeTime(repo.lastUpdated)}</span>
+            </>
+          ) : null}
+        </p>
+      )}
 
       {/* Sync Status + Commit activity */}
       {(() => {
