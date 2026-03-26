@@ -79,6 +79,8 @@ const SORT_LABELS: Record<SortOption, string> = {
   'upstream-updated': 'Upstream Updated',
   'fork-oldest': 'Forked: Oldest',
   'fork-newest': 'Forked: Newest',
+  trending: '🔥 Trending First',
+  health: '💚 Healthiest First',
 };
 
 type TabId =
