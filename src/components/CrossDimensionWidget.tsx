@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import type { CrossDimensionAnalytics, CrossDimensionCell } from '@/types/repo';
 
 interface CrossDimensionWidgetProps {
@@ -13,75 +13,34 @@ function label(value: string): string {
 
 type ViewMode = 'radar' | 'grid';
 
-/** Position on a circle */
-function polar(index: number, total: number, cx: number, cy: number, radius: number) {
-  const angle = (2 * Math.PI * index) / total - Math.PI / 2;
-  return {
-    x: cx + radius * Math.cos(angle),
-    y: cy + radius * Math.sin(angle),
-    angle,
-  };
-}
-
 export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('radar');
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [hoveredAxis, setHoveredAxis] = useState<string | null>(null);
 
-  // Merge all unique values from both dimensions into a single ring
-  const { allNodes, nodeMap, edges, peak } = useMemo(() => {
-    if (!analytics) return { allNodes: [] as string[], nodeMap: new Map<string, { dim: 'dim1' | 'dim2'; index: number }>(), edges: [] as CrossDimensionAnalytics['pairs'], peak: 1 };
+  // Aggregate repo counts per dimension value
+  const { dim1Data, dim2Data, maxCount } = useMemo(() => {
+    if (!analytics) return { dim1Data: [] as { name: string; count: number }[], dim2Data: [] as { name: string; count: number }[], maxCount: 1 };
 
-    const d1Set = [...new Set(analytics.pairs.map(p => p.dim1_value))];
-    const d2Set = [...new Set(analytics.pairs.map(p => p.dim2_value))];
+    const d1Map = new Map<string, number>();
+    const d2Map = new Map<string, number>();
+    for (const p of analytics.pairs) {
+      d1Map.set(p.dim1_value, (d1Map.get(p.dim1_value) ?? 0) + p.repo_count);
+      d2Map.set(p.dim2_value, (d2Map.get(p.dim2_value) ?? 0) + p.repo_count);
+    }
 
-    // Interleave: dim1 values then dim2 values around the circle
-    const all: string[] = [];
-    const map = new Map<string, { dim: 'dim1' | 'dim2'; index: number }>();
+    const d1 = [...d1Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    const d2 = [...d2Map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    const mx = Math.max(...d1.map(d => d.count), ...d2.map(d => d.count), 1);
 
-    // Place dim1 values on the left half, dim2 on the right half
-    d1Set.forEach((v, i) => {
-      const idx = all.length;
-      all.push(v);
-      map.set(`d1:${v}`, { dim: 'dim1', index: idx });
-    });
-    d2Set.forEach((v, i) => {
-      const idx = all.length;
-      all.push(v);
-      map.set(`d2:${v}`, { dim: 'dim2', index: idx });
-    });
-
-    const pk = Math.max(...analytics.pairs.map(p => p.repo_count), 1);
-    return { allNodes: all, nodeMap: map, edges: analytics.pairs, peak: pk };
+    return { dim1Data: d1, dim2Data: d2, maxCount: mx };
   }, [analytics]);
 
-  // Radar chart dimensions
-  const SIZE = 500;
-  const CX = SIZE / 2;
-  const CY = SIZE / 2;
-  const OUTER_R = SIZE * 0.38;
-  const LABEL_R = SIZE * 0.46;
-  const totalNodes = allNodes.length;
+  // Combine into unified axis — industries first half, AI trends second half
+  const allAxes = useMemo(() => {
+    return [...dim1Data.map(d => ({ ...d, dim: 'dim1' as const })), ...dim2Data.map(d => ({ ...d, dim: 'dim2' as const }))];
+  }, [dim1Data, dim2Data]);
 
-  // Which edges connect to the hovered node?
-  const { connectedEdges, connectedNodeKeys } = useMemo(() => {
-    if (!hoveredNode) return { connectedEdges: new Set<string>(), connectedNodeKeys: new Set<string>() };
-    const edgeSet = new Set<string>();
-    const nodeSet = new Set<string>();
-    nodeSet.add(hoveredNode);
-    edges.forEach((e: CrossDimensionCell) => {
-      const k1 = `d1:${e.dim1_value}`;
-      const k2 = `d2:${e.dim2_value}`;
-      if (k1 === hoveredNode || k2 === hoveredNode) {
-        edgeSet.add(`${e.dim1_value}:${e.dim2_value}`);
-        nodeSet.add(k1);
-        nodeSet.add(k2);
-      }
-    });
-    return { connectedEdges: edgeSet, connectedNodeKeys: nodeSet };
-  }, [hoveredNode, edges]);
-
-  const handleNodeEnter = useCallback((key: string) => setHoveredNode(key), []);
-  const handleNodeLeave = useCallback(() => setHoveredNode(null), []);
+  const peak = maxCount;
 
   if (!analytics) return null;
 
@@ -103,13 +62,43 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
     );
   }
 
-  // Build radar grid rings
+  // Radar geometry
+  const SIZE = 560;
+  const CX = SIZE / 2;
+  const CY = SIZE / 2;
+  const OUTER_R = SIZE * 0.32;
+  const LABEL_R = SIZE * 0.43;
+  const totalAxes = allAxes.length;
   const rings = [0.25, 0.5, 0.75, 1.0];
 
-  // Get the hovered node's connected edges for tooltip
-  const hoveredEdges = hoveredNode
-    ? edges.filter(e => `d1:${e.dim1_value}` === hoveredNode || `d2:${e.dim2_value}` === hoveredNode)
-    : [];
+  function polar(index: number, total: number, radius: number) {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
+    return { x: CX + radius * Math.cos(angle), y: CY + radius * Math.sin(angle), angle };
+  }
+
+  // Build polygon points for a specific dimension
+  function buildPolygon(data: { name: string; count: number }[], dimAxes: typeof allAxes) {
+    const dataMap = new Map(data.map(d => [d.name, d.count]));
+    return dimAxes.map((axis, i) => {
+      const count = dataMap.get(axis.name) ?? 0;
+      const r = OUTER_R * (count / peak);
+      const p = polar(i, totalAxes, r);
+      return `${p.x},${p.y}`;
+    }).join(' ');
+  }
+
+  const dim1Polygon = buildPolygon(dim1Data, allAxes);
+  const dim2Polygon = buildPolygon(dim2Data, allAxes);
+
+  // Tooltip data for hovered axis
+  const hoveredInfo = hoveredAxis ? (() => {
+    const axis = allAxes.find(a => a.name === hoveredAxis);
+    if (!axis) return null;
+    const connections = axis.dim === 'dim1'
+      ? analytics.pairs.filter((p: CrossDimensionCell) => p.dim1_value === hoveredAxis).sort((a: CrossDimensionCell, b: CrossDimensionCell) => b.repo_count - a.repo_count)
+      : analytics.pairs.filter((p: CrossDimensionCell) => p.dim2_value === hoveredAxis).sort((a: CrossDimensionCell, b: CrossDimensionCell) => b.repo_count - a.repo_count);
+    return { axis, connections };
+  })() : null;
 
   return (
     <section className="rounded-2xl border border-fuchsia-900/40 bg-gradient-to-br from-fuchsia-950/40 via-zinc-950 to-zinc-950 p-4 md:p-5">
@@ -138,20 +127,22 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
 
       {viewMode === 'radar' ? (
         <div className="mt-4 relative">
-          {/* Legend */}
-          <div className="flex items-center gap-4 mb-2 text-xs text-zinc-500">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-fuchsia-500" />
-              {label(analytics.dim1)}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-sky-400" />
-              {label(analytics.dim2)}
-            </span>
-            <span className="ml-auto">Hover nodes to explore overlaps</span>
+          {/* Chart key / legend */}
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-5">
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-3 w-6 rounded-sm bg-fuchsia-500/30 border border-fuchsia-500/60" />
+                <span className="text-xs font-medium text-fuchsia-300">{label(analytics.dim1)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-3 w-6 rounded-sm bg-sky-400/30 border border-sky-400/60" />
+                <span className="text-xs font-medium text-sky-300">{label(analytics.dim2)}</span>
+              </div>
+            </div>
+            <span className="text-[10px] text-zinc-600">Repo count shown by distance from center — hover labels for breakdown</span>
           </div>
 
-          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 500 }}>
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto" style={{ maxHeight: 560 }}>
             {/* Grid rings */}
             {rings.map(r => (
               <circle
@@ -160,229 +151,140 @@ export function CrossDimensionWidget({ analytics }: CrossDimensionWidgetProps) {
                 cy={CY}
                 r={OUTER_R * r}
                 fill="none"
-                stroke="#27272a"
-                strokeWidth={0.5}
-                strokeDasharray={r < 1 ? '2 4' : undefined}
+                stroke="#3f3f46"
+                strokeWidth={r === 1 ? 1 : 0.5}
+                strokeDasharray={r < 1 ? '3 5' : undefined}
               />
             ))}
 
-            {/* Grid spokes */}
-            {allNodes.map((_, i) => {
-              const p = polar(i, totalNodes, CX, CY, OUTER_R);
+            {/* Ring scale labels */}
+            {rings.map(r => (
+              <text
+                key={`ring-label-${r}`}
+                x={CX + 4}
+                y={CY - OUTER_R * r - 2}
+                fill="#52525b"
+                fontSize={9}
+                fontWeight={500}
+                className="select-none pointer-events-none"
+              >
+                {Math.round(peak * r)}
+              </text>
+            ))}
+
+            {/* Spokes */}
+            {allAxes.map((_, i) => {
+              const p = polar(i, totalAxes, OUTER_R);
               return (
-                <line
-                  key={`spoke-${i}`}
-                  x1={CX}
-                  y1={CY}
-                  x2={p.x}
-                  y2={p.y}
-                  stroke="#27272a"
-                  strokeWidth={0.5}
-                />
+                <line key={`spoke-${i}`} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="#3f3f46" strokeWidth={0.5} />
               );
             })}
 
-            {/* Connection edges — curved lines through center area */}
-            {edges.map(e => {
-              const n1 = nodeMap.get(`d1:${e.dim1_value}`);
-              const n2 = nodeMap.get(`d2:${e.dim2_value}`);
-              if (!n1 || !n2) return null;
+            {/* Dim1 polygon (industries) — fuchsia fill */}
+            <polygon
+              points={dim1Polygon}
+              fill="#d946ef"
+              fillOpacity={0.15}
+              stroke="#d946ef"
+              strokeWidth={2}
+              strokeOpacity={0.8}
+              strokeLinejoin="round"
+              className="transition-all duration-300"
+            />
 
-              const p1 = polar(n1.index, totalNodes, CX, CY, OUTER_R);
-              const p2 = polar(n2.index, totalNodes, CX, CY, OUTER_R);
-              const edgeKey = `${e.dim1_value}:${e.dim2_value}`;
-              const isConnected = connectedEdges.has(edgeKey);
-              const dimmed = hoveredNode && !isConnected;
-              const strength = e.repo_count / peak;
-              const strokeW = Math.max(1, strength * 5);
+            {/* Dim2 polygon (AI trends) — sky fill */}
+            <polygon
+              points={dim2Polygon}
+              fill="#38bdf8"
+              fillOpacity={0.15}
+              stroke="#38bdf8"
+              strokeWidth={2}
+              strokeOpacity={0.8}
+              strokeLinejoin="round"
+              className="transition-all duration-300"
+            />
 
-              // Curved path through a control point pulled toward center
-              const midX = (p1.x + p2.x) / 2;
-              const midY = (p1.y + p2.y) / 2;
-              // Pull control point toward center proportional to distance
-              const pullFactor = 0.3;
-              const cpX = midX + (CX - midX) * pullFactor;
-              const cpY = midY + (CY - midY) * pullFactor;
-
+            {/* Data point dots */}
+            {allAxes.map((axis, i) => {
+              const r = OUTER_R * (axis.count / peak);
+              const p = polar(i, totalAxes, r);
+              const isDim1 = axis.dim === 'dim1';
+              const isHovered = hoveredAxis === axis.name;
               return (
-                <path
-                  key={edgeKey}
-                  d={`M ${p1.x} ${p1.y} Q ${cpX} ${cpY} ${p2.x} ${p2.y}`}
-                  fill="none"
-                  stroke={isConnected ? 'url(#radarEdgeActive)' : 'url(#radarEdge)'}
-                  strokeWidth={isConnected ? strokeW + 1.5 : strokeW}
-                  strokeOpacity={dimmed ? 0.04 : isConnected ? 0.85 : 0.15}
-                  className="transition-all duration-200"
-                />
-              );
-            })}
-
-            {/* Gradient defs */}
-            <defs>
-              <linearGradient id="radarEdge" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#d946ef" stopOpacity={0.5} />
-                <stop offset="100%" stopColor="#38bdf8" stopOpacity={0.5} />
-              </linearGradient>
-              <linearGradient id="radarEdgeActive" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#e879f9" stopOpacity={1} />
-                <stop offset="100%" stopColor="#7dd3fc" stopOpacity={1} />
-              </linearGradient>
-            </defs>
-
-            {/* Filled polygon for dim1 values showing their "reach" */}
-            {(() => {
-              // Build a polygon connecting dim1 nodes, with radius proportional to their total connections
-              const dim1Entries = [...nodeMap.entries()].filter(([, v]) => v.dim === 'dim1');
-              if (dim1Entries.length < 3) return null;
-
-              const points = dim1Entries.map(([key, node]) => {
-                const totalCount = edges
-                  .filter(e => `d1:${e.dim1_value}` === key)
-                  .reduce((sum, e) => sum + e.repo_count, 0);
-                const r = OUTER_R * Math.min(totalCount / peak, 1) * 0.85;
-                const p = polar(node.index, totalNodes, CX, CY, r);
-                return `${p.x},${p.y}`;
-              });
-
-              return (
-                <polygon
-                  points={points.join(' ')}
-                  fill="#d946ef"
-                  fillOpacity={hoveredNode ? 0.03 : 0.06}
-                  stroke="#d946ef"
-                  strokeWidth={1}
-                  strokeOpacity={hoveredNode ? 0.1 : 0.25}
-                  className="transition-all duration-200"
-                />
-              );
-            })()}
-
-            {/* Filled polygon for dim2 values */}
-            {(() => {
-              const dim2Entries = [...nodeMap.entries()].filter(([, v]) => v.dim === 'dim2');
-              if (dim2Entries.length < 3) return null;
-
-              const points = dim2Entries.map(([key, node]) => {
-                const totalCount = edges
-                  .filter(e => `d2:${e.dim2_value}` === key)
-                  .reduce((sum, e) => sum + e.repo_count, 0);
-                const r = OUTER_R * Math.min(totalCount / peak, 1) * 0.85;
-                const p = polar(node.index, totalNodes, CX, CY, r);
-                return `${p.x},${p.y}`;
-              });
-
-              return (
-                <polygon
-                  points={points.join(' ')}
-                  fill="#38bdf8"
-                  fillOpacity={hoveredNode ? 0.03 : 0.06}
-                  stroke="#38bdf8"
-                  strokeWidth={1}
-                  strokeOpacity={hoveredNode ? 0.1 : 0.25}
-                  className="transition-all duration-200"
-                />
-              );
-            })()}
-
-            {/* Node dots + labels around the circle */}
-            {[...nodeMap.entries()].map(([key, node]) => {
-              const isDim1 = node.dim === 'dim1';
-              const p = polar(node.index, totalNodes, CX, CY, OUTER_R);
-              const lp = polar(node.index, totalNodes, CX, CY, LABEL_R);
-              const isHovered = hoveredNode === key;
-              const isConnectedNode = connectedNodeKeys.has(key);
-              const dimmed = hoveredNode && !isConnectedNode;
-
-              // Total repo count for this node
-              const totalCount = edges
-                .filter(e => (isDim1 ? `d1:${e.dim1_value}` : `d2:${e.dim2_value}`) === key)
-                .reduce((sum, e) => sum + e.repo_count, 0);
-
-              const baseR = Math.max(4, Math.min(8, (totalCount / peak) * 8));
-              const r = isHovered ? baseR + 3 : baseR;
-
-              // Text anchor based on position
-              const angleDeg = (node.index / totalNodes) * 360 - 90;
-              const textAnchor = angleDeg > 90 && angleDeg < 270 ? 'end' : 'start';
-              // Rotate text for readability
-              const textAngle = angleDeg > 90 && angleDeg < 270 ? angleDeg + 180 : angleDeg;
-
-              const nodeLabel = allNodes[node.index];
-
-              return (
-                <g
-                  key={key}
-                  className="cursor-pointer"
-                  onMouseEnter={() => handleNodeEnter(key)}
-                  onMouseLeave={handleNodeLeave}
-                >
-                  {/* Glow */}
+                <g key={`dot-${axis.name}`}>
                   {isHovered && (
-                    <circle cx={p.x} cy={p.y} r={r + 5} fill={isDim1 ? '#d946ef' : '#38bdf8'} opacity={0.2} />
+                    <circle cx={p.x} cy={p.y} r={8} fill={isDim1 ? '#d946ef' : '#38bdf8'} opacity={0.2} />
                   )}
-                  {/* Dot */}
                   <circle
                     cx={p.x}
                     cy={p.y}
-                    r={r}
+                    r={isHovered ? 5 : 3.5}
                     fill={isDim1 ? '#d946ef' : '#38bdf8'}
-                    opacity={dimmed ? 0.15 : 1}
                     className="transition-all duration-200"
                   />
-                  {/* Count badge on hover */}
                   {isHovered && (
-                    <text
-                      x={p.x}
-                      y={p.y - r - 6}
-                      textAnchor="middle"
-                      fill="#fff"
-                      fontSize={10}
-                      fontWeight={700}
-                    >
-                      {totalCount}
-                    </text>
+                    <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#fff" fontSize={10} fontWeight={700}>{axis.count}</text>
                   )}
-                  {/* Label */}
+                </g>
+              );
+            })}
+
+            {/* Axis labels around the circle */}
+            {allAxes.map((axis, i) => {
+              const lp = polar(i, totalAxes, LABEL_R);
+              const angleDeg = (i / totalAxes) * 360 - 90;
+              const flipText = angleDeg > 90 && angleDeg < 270;
+              const textAnchor = flipText ? 'end' : 'start';
+              const textAngle = flipText ? angleDeg + 180 : angleDeg;
+              const isDim1 = axis.dim === 'dim1';
+              const isHovered = hoveredAxis === axis.name;
+              const dimmed = hoveredAxis && !isHovered;
+
+              return (
+                <g
+                  key={`label-${axis.name}`}
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoveredAxis(axis.name)}
+                  onMouseLeave={() => setHoveredAxis(null)}
+                >
+                  <circle cx={lp.x} cy={lp.y} r={14} fill="transparent" />
                   <text
                     x={lp.x}
                     y={lp.y}
                     textAnchor={textAnchor}
                     dominantBaseline="central"
                     transform={`rotate(${textAngle}, ${lp.x}, ${lp.y})`}
-                    fill={dimmed ? '#3f3f46' : isHovered ? '#fff' : '#a1a1aa'}
-                    fontSize={isHovered ? 11 : 9.5}
-                    fontWeight={isHovered ? 600 : 400}
-                    className="transition-all duration-200 select-none pointer-events-none"
+                    fill={dimmed ? '#3f3f46' : isHovered ? '#ffffff' : isDim1 ? '#e9a0f0' : '#93c5fd'}
+                    fontSize={isHovered ? 11 : 10}
+                    fontWeight={isHovered ? 700 : 500}
+                    className="transition-all duration-200 select-none"
                   >
-                    {nodeLabel}
+                    {axis.name}
                   </text>
                 </g>
               );
             })}
           </svg>
 
-          {/* Tooltip panel for hovered node */}
-          {hoveredNode && hoveredEdges.length > 0 && (
+          {/* Tooltip panel */}
+          {hoveredInfo && (
             <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-fuchsia-800/40 bg-zinc-900/95 px-3 py-2 shadow-xl z-10">
-              <p className="text-xs font-medium text-zinc-200 mb-1">
-                {allNodes[nodeMap.get(hoveredNode)?.index ?? 0]} — {hoveredEdges.length} connections
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {hoveredEdges
-                  .sort((a, b) => b.repo_count - a.repo_count)
-                  .slice(0, 6)
-                  .map(e => {
-                    const isDim1 = hoveredNode.startsWith('d1:');
-                    const partner = isDim1 ? e.dim2_value : e.dim1_value;
-                    return (
-                      <span key={`${e.dim1_value}:${e.dim2_value}`} className="text-xs text-zinc-400">
-                        <span className={isDim1 ? 'text-sky-300' : 'text-fuchsia-300'}>{partner}</span>
-                        <span className="ml-1 text-zinc-600">{e.repo_count}</span>
-                      </span>
-                    );
-                  })}
-                {hoveredEdges.length > 6 && (
-                  <span className="text-xs text-zinc-600">+{hoveredEdges.length - 6} more</span>
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`inline-block h-2.5 w-2.5 rounded-full ${hoveredInfo.axis.dim === 'dim1' ? 'bg-fuchsia-500' : 'bg-sky-400'}`} />
+                <span className="text-sm font-semibold text-zinc-100">{hoveredInfo.axis.name}</span>
+                <span className="text-xs text-zinc-500">{hoveredInfo.axis.count} repos</span>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                {hoveredInfo.connections.slice(0, 6).map((c: CrossDimensionCell) => (
+                  <span key={`${c.dim1_value}:${c.dim2_value}`} className="text-xs">
+                    <span className={hoveredInfo.axis.dim === 'dim1' ? 'text-sky-300' : 'text-fuchsia-300'}>
+                      {hoveredInfo.axis.dim === 'dim1' ? c.dim2_value : c.dim1_value}
+                    </span>
+                    <span className="text-zinc-500 ml-1">{c.repo_count}</span>
+                  </span>
+                ))}
+                {hoveredInfo.connections.length > 6 && (
+                  <span className="text-xs text-zinc-600">+{hoveredInfo.connections.length - 6} more</span>
                 )}
               </div>
             </div>
