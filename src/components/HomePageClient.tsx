@@ -1,21 +1,24 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { LibraryData, EnrichedRepo, SortOption } from '@/types/repo';
 import type { TrendData } from '@/types/repo';
 import { StatsBar } from '@/components/StatsBar';
 import { SearchBar } from '@/components/SearchBar';
-import { FilterBar } from '@/components/FilterBar';
 import { RepoGrid } from '@/components/RepoGrid';
 import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
-import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { MiniAskBar } from '@/components/MiniAskBar';
-import { LibraryInsightsWidget } from '@/components/LibraryInsightsWidget';
-import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+
+// Lazy-load heavy components — they aren't needed for initial paint
+const FilterBar = dynamic(() => import('@/components/FilterBar').then(m => ({ default: m.FilterBar })), { ssr: false });
+const MetricsSidebar = dynamic(() => import('@/components/MetricsSidebar').then(m => ({ default: m.MetricsSidebar })), { ssr: false });
+const LibraryInsightsWidget = dynamic(() => import('@/components/LibraryInsightsWidget').then(m => ({ default: m.LibraryInsightsWidget })), { ssr: false });
+const CrossDimensionWidget = dynamic(() => import('@/components/CrossDimensionWidget').then(m => ({ default: m.CrossDimensionWidget })), { ssr: false });
 
 
 
@@ -310,6 +313,12 @@ export function HomePageClient() {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }, [data]);
 
+  // Stable sidebar data object — only recalculates when data or categories change
+  const sidebarData = useMemo(() => {
+    if (!data) return null;
+    return { ...data, categories: normalizedCategories };
+  }, [data, normalizedCategories]);
+
   // Intersection metrics — computed when 2+ tags selected, null otherwise
   const intersectionMetrics = useMemo(() => {
     if (!data || selectedTags.length < 2) return null;
@@ -518,7 +527,7 @@ export function HomePageClient() {
     });
   }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders, showClaudePluginsOnly, selectedSecurityRisk]);
 
-  function clearFilters() {
+  const clearFilters = useCallback(() => {
     setSearch('');
     setSearchMode('keyword');
     setSemanticResults(null);
@@ -541,54 +550,65 @@ export function HomePageClient() {
     setSelectedBuilders([]);
     setShowClaudePluginsOnly(false);
     setSelectedSecurityRisk('all');
-  }
+  }, []);
 
-  function toggleTag(tag: string) {
+  const toggleTag = useCallback((tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
-  }
+  }, []);
 
-  function removeTag(tag: string) {
+  const removeTag = useCallback((tag: string) => {
     setSelectedTags((prev) => prev.filter((t) => t !== tag));
-  }
+  }, []);
 
-  function toggleAiDevSkill(skill: string) {
+  const toggleAiDevSkill = useCallback((skill: string) => {
     setSelectedAiDevSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
-  }
+  }, []);
 
-  function togglePmSkill(skill: string) {
+  const togglePmSkill = useCallback((skill: string) => {
     setSelectedPmSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
-  }
+  }, []);
 
-  function toggleIndustry(industry: string) {
+  const toggleIndustry = useCallback((industry: string) => {
     setSelectedIndustries(prev => prev.includes(industry) ? prev.filter(s => s !== industry) : [...prev, industry]);
-  }
+  }, []);
 
-  function toggleAiTrend(value: string) {
+  const toggleAiTrend = useCallback((value: string) => {
     setSelectedAiTrends(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleUseCase(value: string) {
+  const toggleUseCase = useCallback((value: string) => {
     setSelectedUseCases(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleModality(value: string) {
+  const toggleModality = useCallback((value: string) => {
     setSelectedModalities(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleDeploymentContext(value: string) {
+  const toggleDeploymentContext = useCallback((value: string) => {
     setSelectedDeploymentContexts(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleBuilder(builder: string) {
+  const toggleBuilder = useCallback((builder: string) => {
     setSelectedBuilders(prev => prev.includes(builder) ? prev.filter(s => s !== builder) : [...prev, builder]);
-  }
+  }, []);
 
-  function handleRepoClick(name: string) {
+  const handleRepoClick = useCallback((name: string) => {
     setSearch(name);
     setSidebarOpen(false);
-  }
+  }, []);
+
+  // Stable callbacks for MetricsSidebar
+  const handleSidebarTagClick = useCallback((tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev : [...prev, tag]);
+  }, []);
+  const handleViewArchived = useCallback(() => setAttentionFilter('archived-parent'), []);
+  const handleViewStale = useCallback(() => setAttentionFilter('stale'), []);
+  const handleViewOutdated = useCallback(() => setShowOutdatedOnly(true), []);
+  const handleSyncFilter = useCallback((status: string) => setSelectedSyncStatus(status as typeof selectedSyncStatus), []);
+  const handlePluginToggle = useCallback(() => setShowClaudePluginsOnly(v => !v), []);
+  const handleCategoryClick = useCallback((id: string) => setSelectedCategory(prev => prev === id ? '' : id), []);
 
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
@@ -692,7 +712,7 @@ export function HomePageClient() {
             <StatsBar
               data={data}
               tagMetrics={data.tagMetrics}
-              onTagClick={(tag) => toggleTag(tag)}
+              onTagClick={toggleTag}
             />
           )}
 
@@ -707,7 +727,7 @@ export function HomePageClient() {
                 {data && (
                   <LibraryInsightsWidget
                     repos={data.repos}
-                    onTagClick={(tag) => toggleTag(tag)}
+                    onTagClick={toggleTag}
                   />
                 )}
               </ErrorBoundary>
@@ -786,7 +806,7 @@ export function HomePageClient() {
                 languageCounts={languageCounts}
                 licenseCounts={licenseCounts}
                 showClaudePluginsOnly={showClaudePluginsOnly}
-                onPluginToggle={() => setShowClaudePluginsOnly(v => !v)}
+                onPluginToggle={handlePluginToggle}
                 selectedSecurityRisk={selectedSecurityRisk}
                 onSecurityRiskChange={setSelectedSecurityRisk}
               />
@@ -798,7 +818,7 @@ export function HomePageClient() {
             {isLoading ? (
               <LoadingState />
             ) : (
-              <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={(id) => setSelectedCategory(prev => prev === id ? '' : id)} />
+              <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={handleCategoryClick} />
             )}
           </ErrorBoundary>
         </div>
@@ -811,17 +831,17 @@ export function HomePageClient() {
           <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-zinc-800 bg-zinc-950">
             <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
               <MetricsSidebar
-                data={{ ...data, categories: normalizedCategories }}
+                data={sidebarData!}
                 selectedTags={selectedTags}
                 tagMetrics={data.tagMetrics ?? []}
                 intersectionMetrics={intersectionMetrics}
-                onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
+                onTagClick={handleSidebarTagClick}
                 onTagRemove={removeTag}
                 onRepoClick={handleRepoClick}
-                onViewArchived={() => setAttentionFilter('archived-parent')}
-                onViewStale={() => setAttentionFilter('stale')}
-                onViewOutdated={() => setShowOutdatedOnly(true)}
-                onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
+                onViewArchived={handleViewArchived}
+                onViewStale={handleViewStale}
+                onViewOutdated={handleViewOutdated}
+                onSyncFilter={handleSyncFilter}
                 onCategoryFilter={setSelectedCategory}
                 selectedCategory={selectedCategory}
                 trends={trends}
@@ -839,17 +859,17 @@ export function HomePageClient() {
               <div className="w-[340px] border-l border-zinc-800 bg-zinc-950 overflow-y-auto">
                 <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
                   <MetricsSidebar
-                    data={{ ...data, categories: normalizedCategories }}
+                    data={sidebarData!}
                     selectedTags={selectedTags}
                     tagMetrics={data.tagMetrics ?? []}
                     intersectionMetrics={intersectionMetrics}
-                    onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
+                    onTagClick={handleSidebarTagClick}
                     onTagRemove={removeTag}
                     onRepoClick={handleRepoClick}
-                    onViewArchived={() => setAttentionFilter('archived-parent')}
-                    onViewStale={() => setAttentionFilter('stale')}
-                    onViewOutdated={() => setShowOutdatedOnly(true)}
-                    onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
+                    onViewArchived={handleViewArchived}
+                    onViewStale={handleViewStale}
+                    onViewOutdated={handleViewOutdated}
+                    onSyncFilter={handleSyncFilter}
                     onCategoryFilter={setSelectedCategory}
                     selectedCategory={selectedCategory}
                     trends={trends}

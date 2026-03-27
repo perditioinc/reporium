@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { EnrichedRepo } from '@/types/repo';
 import { RepoCard } from './RepoCard';
 
@@ -15,23 +15,60 @@ const SYSTEM_TAGS = new Set(['Forked', 'Built by Me', 'Active', 'Inactive', 'Arc
 const PAGE_SIZE = 24;
 
 /**
- * Count of repos in the full library that share 2+ non-system enrichedTags with the given repo.
- * Excludes the repo itself.
+ * Pre-build a Map<repoId, similarCount> using an inverted tag index.
+ * O(repos * avgTags) instead of O(repos^2).
  */
-function computeSimilarCount(repo: EnrichedRepo, allRepos: EnrichedRepo[]): number {
-  const myTags = new Set(repo.enrichedTags.filter((t) => !SYSTEM_TAGS.has(t)));
-  if (myTags.size === 0) return 0;
-  return allRepos.filter((other) => {
-    if (other.id === repo.id) return false;
-    const shared = other.enrichedTags.filter((t) => !SYSTEM_TAGS.has(t) && myTags.has(t)).length;
-    return shared >= 2;
-  }).length;
+function buildSimilarCountMap(allRepos: EnrichedRepo[]): Map<string | number, number> {
+  // Inverted index: tag → set of repo ids
+  const tagToRepos = new Map<string, Set<string | number>>();
+  const repoTags = new Map<string | number, string[]>();
+
+  for (const repo of allRepos) {
+    const tags = repo.enrichedTags.filter(t => !SYSTEM_TAGS.has(t));
+    repoTags.set(repo.id, tags);
+    for (const tag of tags) {
+      let set = tagToRepos.get(tag);
+      if (!set) { set = new Set(); tagToRepos.set(tag, set); }
+      set.add(repo.id);
+    }
+  }
+
+  const result = new Map<string | number, number>();
+  for (const repo of allRepos) {
+    const myTags = repoTags.get(repo.id);
+    if (!myTags || myTags.length === 0) { result.set(repo.id, 0); continue; }
+
+    // Count how many times each other repo shares a tag with this one
+    const sharedCounts = new Map<string | number, number>();
+    for (const tag of myTags) {
+      const peers = tagToRepos.get(tag);
+      if (!peers) continue;
+      for (const peerId of peers) {
+        if (peerId === repo.id) continue;
+        sharedCounts.set(peerId, (sharedCounts.get(peerId) ?? 0) + 1);
+      }
+    }
+
+    let count = 0;
+    for (const shared of sharedCounts.values()) {
+      if (shared >= 2) count++;
+    }
+    result.set(repo.id, count);
+  }
+
+  return result;
 }
 
 /** Grid of repo cards with infinite scroll */
 export function RepoGrid({ repos, allRepos, onTagClick, onCategoryClick }: RepoGridProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Pre-compute similar counts once when allRepos changes (not per-card)
+  const similarCountMap = useMemo(
+    () => allRepos ? buildSimilarCountMap(allRepos) : null,
+    [allRepos]
+  );
 
   // Reset visible count when repos change (new filter/sort)
   useEffect(() => {
@@ -78,7 +115,7 @@ export function RepoGrid({ repos, allRepos, onTagClick, onCategoryClick }: RepoG
           <RepoCard
             key={repo.id}
             repo={repo}
-            similarCount={allRepos ? computeSimilarCount(repo, allRepos) : undefined}
+            similarCount={similarCountMap?.get(repo.id)}
             onTagClick={onTagClick}
             onCategoryClick={onCategoryClick}
           />
