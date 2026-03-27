@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { EnrichedRepo } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 import { QualityBadge } from '@/components/QualityBadge';
@@ -266,7 +266,7 @@ function getCategoryStyle(primaryCategory: string): { borderColor: string; backg
 }
 
 /** A single repo card in the library grid */
-export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: RepoCardProps) {
+export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: RepoCardProps) {
   const langColor = repo.language ? (LANGUAGE_COLORS[repo.language] ?? '#8b949e') : '#8b949e';
   const ps = repo.parentStats;
   const [commitsOpen, setCommitsOpen] = useState(false);
@@ -848,4 +848,4 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
       })()}
     </div>
   );
-}
+});
