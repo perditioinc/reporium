@@ -41,6 +41,7 @@ export function createDataProvider(): DataProvider {
 
 class JsonDataProvider implements DataProvider {
   mode: DataMode = 'lite'
+  private libraryCache: LibraryData | null = null
 
   getDegradedState(): boolean {
     return false
@@ -64,10 +65,13 @@ class JsonDataProvider implements DataProvider {
   }
 
   async getLibrary(_onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
+    if (this.libraryCache) return this.libraryCache
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
     const res = await fetch(`${basePath}/data/library.json`)
     if (!res.ok) throw new Error('Library data not found. Run npm run generate to generate it.')
-    return res.json()
+    const data: LibraryData = await res.json()
+    this.libraryCache = data
+    return data
   }
 
   async getTrends(): Promise<TrendData | null> {
@@ -231,6 +235,9 @@ class ApiDataProvider implements DataProvider {
   private apiUrl: string
   private fallback: JsonDataProvider
   private degraded = false
+  /** In-memory cache so subsequent getLibrary() calls don't re-fetch */
+  private libraryCache: LibraryData | null = null
+  private libraryPromise: Promise<LibraryData> | null = null
 
   constructor(apiUrl: string) {
     this.apiUrl = apiUrl.replace(/\/$/, '')
@@ -254,6 +261,21 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
+    // Return cached data immediately if available
+    if (this.libraryCache) return this.libraryCache
+    // Deduplicate concurrent calls
+    if (this.libraryPromise) return this.libraryPromise
+    this.libraryPromise = this._fetchLibrary(onProgress)
+    try {
+      const result = await this.libraryPromise
+      this.libraryCache = result
+      return result
+    } finally {
+      this.libraryPromise = null
+    }
+  }
+
+  private async _fetchLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
     const report = onProgress ?? (() => {})
     try {
       this.degraded = false
