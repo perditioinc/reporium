@@ -307,6 +307,8 @@ export interface EnrichedRepo {
   // Category assignment
   primaryCategory: string;              // top-level category (from buildCategories)
   allCategories: string[];              // all categories this repo belongs to
+  dbCategory?: string | null;           // KAN-41 16-category taxonomy from DB (agents, rag-retrieval, etc.)
+  dbSecondaryCategories?: string[];     // secondary DB categories
 
   // Accurate commit stats with true counts (paginated if needed)
   commitStats: {

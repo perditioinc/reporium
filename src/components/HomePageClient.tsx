@@ -13,6 +13,7 @@ import { MiniAskBar } from '@/components/MiniAskBar';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { CategoryFilterBar } from '@/components/CategoryFilterBar';
 
 // Lazy-load heavy components — they aren't needed for initial paint
 const FilterBar = dynamic(() => import('@/components/FilterBar').then(m => ({ default: m.FilterBar })), { ssr: false });
@@ -50,6 +51,7 @@ export function HomePageClient() {
   const [attentionFilter, setAttentionFilter] = useState<'all' | 'archived-parent' | 'stale'>('all');
   const [showOutdatedOnly, setShowOutdatedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedDbCategory, setSelectedDbCategory] = useState(''); // KAN-57: 16-category DB filter
 
   // New taxonomy filter state
   const [selectedAiDevSkills, setSelectedAiDevSkills] = useState<string[]>([]);
@@ -95,6 +97,10 @@ export function HomePageClient() {
       if (tagParam) {
         setSelectedTags([tagParam]);
       }
+      const categoryParam = params.get('category');
+      if (categoryParam) {
+        setSelectedDbCategory(categoryParam);
+      }
       const taxonomyDimension = params.get('taxonomyDimension');
       const taxonomyValue = params.get('taxonomyValue');
       if (taxonomyDimension && taxonomyValue) {
@@ -114,6 +120,20 @@ export function HomePageClient() {
       }
     }
   }, []); // run once on mount
+
+  // KAN-57: sync ?category= URL param when selectedDbCategory changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (selectedDbCategory) {
+      params.set('category', selectedDbCategory);
+    } else {
+      params.delete('category');
+    }
+    const newSearch = params.toString();
+    const newUrl = newSearch ? `?${newSearch}` : window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+  }, [selectedDbCategory]);
 
   useEffect(() => {
     let cancelled = false;
@@ -394,6 +414,11 @@ export function HomePageClient() {
         }
       }
 
+      // KAN-57: DB 16-category filter (agents, rag-retrieval, llm-serving, etc.)
+      if (selectedDbCategory) {
+        if (repo.dbCategory !== selectedDbCategory) return false;
+      }
+
       // AI Dev Skills filter
       if (selectedAiDevSkills.length > 0) {
         if (!selectedAiDevSkills.every(s => (repo.aiDevSkills ?? []).some(a => a.skill === s))) return false;
@@ -525,7 +550,7 @@ export function HomePageClient() {
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       }
     });
-  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders, showClaudePluginsOnly, selectedSecurityRisk]);
+  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedDbCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders, showClaudePluginsOnly, selectedSecurityRisk]);
 
   const clearFilters = useCallback(() => {
     setSearch('');
@@ -811,6 +836,15 @@ export function HomePageClient() {
                 onSecurityRiskChange={setSelectedSecurityRisk}
               />
             </>
+          )}
+
+          {/* KAN-57: 16-category filter chips */}
+          {data && !isLoading && (
+            <CategoryFilterBar
+              repos={data.repos}
+              selected={selectedDbCategory}
+              onSelect={setSelectedDbCategory}
+            />
           )}
 
           {/* Grid */}

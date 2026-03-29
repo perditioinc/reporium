@@ -650,6 +650,8 @@ export function enrichRepo(
     totalCommitsFetched: 0,
     primaryCategory: '',
     allCategories: [],
+    dbCategory: null,
+    dbSecondaryCategories: [],
     commitStats: { today: 0, last7Days: 0, last30Days: 0, last90Days: 0, recentCommits: [] },
     latestRelease: null,
     aiDevSkills: [],
