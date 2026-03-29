@@ -332,9 +332,6 @@ export interface EnrichedRepo {
   taxonomy?: TaxonomyEntry[];
   /** Security risk metadata — present only when manually marked via admin API */
   securitySignals?: SecuritySignals | null;
-  /** KAN-41: 16-category DB taxonomy assigned by backfill_primary_category.py */
-  dbCategory?: string | null;
-  dbSecondaryCategories?: string[];
 }
 
 /** Summary statistics for a user's library */
