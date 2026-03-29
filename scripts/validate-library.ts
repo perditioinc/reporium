@@ -32,11 +32,14 @@ if (wrongBuilders.length > 0) {
 }
 
 // 1b. Forked repos must have forkedFrom populated (null = fork info fetch failed)
+// Threshold is generous because the DB-driven fetch (fetch-library.ts) relies on
+// forked_from being backfilled in the DB — some repos may legitimately be missing it.
+// Run scripts/backfill_forked_from.py (reporium-ingestion) to fix DB gaps.
 const nullForkedFrom = data.repos.filter(r => r.isFork && !r.forkedFrom);
-if (nullForkedFrom.length > 10) {
+if (nullForkedFrom.length > 100) {
   errors.push(`${nullForkedFrom.length} forked repos have null forkedFrom — fork info fetch likely failed. Run npm run generate:full`);
 } else if (nullForkedFrom.length > 0) {
-  warnings.push(`${nullForkedFrom.length} forked repos have null forkedFrom`);
+  warnings.push(`${nullForkedFrom.length} forked repos have null forkedFrom (run backfill_forked_from.py to fix DB gaps)`);
 }
 
 // 2. Forked repos should have forkedAt date
