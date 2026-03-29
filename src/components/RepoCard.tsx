@@ -412,11 +412,23 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
         <p className="line-clamp-2 text-xs text-zinc-400">{repo.description}</p>
       )}
 
-      {repo.licenseSpdx && (
-        <div className="flex items-center gap-2">
-          <span className="rounded-full border border-zinc-700 bg-zinc-900/70 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
-            {repo.licenseSpdx}
-          </span>
+      {/* License + last meaningful update row */}
+      {(repo.licenseSpdx || repo.upstreamLastPushAt || repo.yourLastPushAt) && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {repo.licenseSpdx && (
+            <span className="rounded-full border border-zinc-700 bg-zinc-900/70 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
+              {repo.licenseSpdx}
+            </span>
+          )}
+          {/* Last meaningful push date — upstream for forks, own push for built */}
+          {(repo.upstreamLastPushAt ?? repo.yourLastPushAt) && (
+            <span
+              className="text-[11px] text-zinc-500"
+              title={`Last push: ${repo.upstreamLastPushAt ?? repo.yourLastPushAt}`}
+            >
+              updated {relativeTime(repo.upstreamLastPushAt ?? repo.yourLastPushAt ?? '')}
+            </span>
+          )}
         </div>
       )}
 
