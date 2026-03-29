@@ -1,7 +1,31 @@
 'use client';
 
-import { LibraryData, TagMetrics } from '@/types/repo';
+import { useMemo } from 'react';
+import { LibraryData, SkillStats, TagMetrics } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
+
+/**
+ * Maps the 16 DB primary_category values to human-readable AI Dev skill labels.
+ * Used to compute coverage badges from dbCategory when aiDevSkillStats is empty.
+ */
+const DB_CATEGORY_LABELS: Record<string, string> = {
+  'agents':           'Agents & Orchestration',
+  'orchestration':    'Agents & Orchestration',
+  'rag-retrieval':    'RAG & Knowledge',
+  'vector-databases': 'RAG & Knowledge',
+  'llm-serving':      'Inference & Serving',
+  'fine-tuning':      'Model Training',
+  'evaluation':       'Evals & Benchmarking',
+  'observability':    'Observability',
+  'security-safety':  'Security & Safety',
+  'code-generation':  'Code Generation',
+  'data-processing':  'Data Processing',
+  'computer-vision':  'Computer Vision',
+  'nlp-text':         'NLP & Text',
+  'speech-audio':     'Speech & Audio',
+  'generative-media': 'Generative Media',
+  'infrastructure':   'Infrastructure',
+};
 interface StatsBarProps {
   data: LibraryData;
   tagMetrics?: TagMetrics[];
@@ -83,8 +107,34 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
     .filter(b => b.category !== 'individual')
     .slice(0, 25);
 
-  // AI Dev Coverage — use raw stats so skill keys always match
-  const aiDevStats = data.aiDevSkillStats ?? [];
+  // AI Dev Coverage — compute from dbCategory when aiDevSkillStats is empty (always the case
+  // with the FastAPI backend which doesn't populate that field). Falls back to the pre-computed
+  // stats if they exist.
+  const aiDevStats = useMemo<SkillStats[]>(() => {
+    if (data.aiDevSkillStats && data.aiDevSkillStats.length > 0) {
+      return data.aiDevSkillStats;
+    }
+    // Build from dbCategory counts
+    const counts = new Map<string, { count: number; repos: string[] }>();
+    for (const repo of repos) {
+      const cat = repo.dbCategory;
+      if (!cat) continue;
+      const label = DB_CATEGORY_LABELS[cat];
+      if (!label) continue;
+      const entry = counts.get(label) ?? { count: 0, repos: [] };
+      entry.count += 1;
+      if (entry.repos.length < 3) entry.repos.push(repo.name);
+      counts.set(label, entry);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([skill, { count, repos: topRepos }]) => ({
+        skill,
+        repoCount: count,
+        coverage: count >= 10 ? 'strong' : count >= 3 ? 'moderate' : count >= 1 ? 'weak' : 'none',
+        topRepos,
+      } as SkillStats));
+  }, [repos, data.aiDevSkillStats]);
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">
