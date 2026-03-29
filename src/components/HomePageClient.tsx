@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { LibraryData, EnrichedRepo, SortOption } from '@/types/repo';
 import type { TrendData } from '@/types/repo';
 import { StatsBar } from '@/components/StatsBar';
@@ -651,6 +652,14 @@ export function HomePageClient() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {/* Nav links */}
+              <nav className="hidden sm:flex items-center gap-2 text-xs text-zinc-500">
+                <Link href="/trends" className="hover:text-zinc-300 transition-colors">Trends</Link>
+                <span>·</span>
+                <Link href="/insights" className="hover:text-zinc-300 transition-colors">Insights</Link>
+                <span>·</span>
+                <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link>
+              </nav>
               {/* Dashboard view controls */}
               <div className="flex items-center border border-zinc-700 rounded-lg overflow-hidden">
                 <button
