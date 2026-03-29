@@ -149,29 +149,29 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
           </p>
         </div>
 
-        {/* Core counts */}
-        <div className="flex gap-6">
-          <div>
+        {/* Core counts — scrollable on mobile */}
+        <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-1 min-w-0">
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-zinc-100">{stats.total}</p>
             <p className="text-xs text-zinc-500">Repos</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-emerald-400">{stats.built}</p>
             <p className="text-xs text-zinc-500">Built</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-violet-400">{stats.forked}</p>
             <p className="text-xs text-zinc-500">Forked</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-blue-400">{activeCount}</p>
             <p className="text-xs text-zinc-500">Active 30d</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-zinc-100">{allTags.size}</p>
             <p className="text-xs text-zinc-500">Unique Tags</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-zinc-100">{categoryCount}</p>
             <p className="text-xs text-zinc-500">Categories</p>
           </div>
@@ -259,7 +259,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
                 .slice(0, 30);
               const maxCount = visibleMetrics[0]?.repoCount ?? 1;
               return visibleMetrics.map((m) => {
-                const fontSize = Math.min(48, Math.max(12, 12 + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * 36));
+                const fontSize = Math.min(28, Math.max(11, 11 + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * 17));
                 const opacity = 0.4 + (m.activityScore / 100) * 0.6;
                 return (
                   <button
