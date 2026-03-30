@@ -6,21 +6,40 @@ import { KnowledgeGraph, type GraphEdge } from '@/components/KnowledgeGraph';
 const EDGE_TYPES = ['ALL', 'ALTERNATIVE_TO', 'COMPATIBLE_WITH', 'DEPENDS_ON', 'SIMILAR_TO', 'EXTENDS'] as const;
 type EdgeTypeFilter = (typeof EDGE_TYPES)[number];
 
+interface ApiRepoNode {
+  name: string;
+  description?: string | null;
+  category?: string | null;
+  /** If present, the upstream owner/repo path (e.g. "langchain-ai/langchain") */
+  upstream?: string | null;
+  owner?: string | null;
+}
+
 interface ApiEdge {
-  source_name: string;
+  /** Nested object form from the API */
+  source?: ApiRepoNode;
+  target?: ApiRepoNode;
+  /** Flat form (legacy / MCP remapped) */
+  source_name?: string;
   source_owner?: string;
   source_upstream?: string;
-  target_name: string;
+  target_name?: string;
   target_owner?: string;
   target_upstream?: string;
-  edge_type: string;
+  /** API uses camelCase edgeType; flat form uses edge_type */
+  edgeType?: string;
+  edge_type?: string;
   weight?: number;
-  evidence?: string;
+  evidence?: string | Record<string, unknown>;
 }
 
 interface ApiResponse {
-  total_edges: number;
-  edge_types_available: string[];
+  /** API uses "total"; MCP remaps to "total_edges" */
+  total?: number;
+  total_edges?: number;
+  /** API uses "edgeTypes"; MCP remaps to "edge_types_available" */
+  edgeTypes?: string[];
+  edge_types_available?: string[];
   edges: ApiEdge[];
 }
 
@@ -54,15 +73,33 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
         const data: ApiResponse = await res.json();
         if (cancelled) return;
 
-        setTotalEdges(data.total_edges);
+        setTotalEdges(data.total_edges ?? data.total ?? 0);
 
-        // Normalise edges: use upstream (owner/repo) as the node ID when available
+        // Normalise edges — API returns nested source/target objects;
+        // legacy/MCP path returns flat source_name etc.
+        const nodeId = (node: ApiRepoNode | undefined, flatUpstream?: string, flatOwner?: string, flatName?: string): string => {
+          if (node) {
+            return node.upstream ?? (node.owner ? `${node.owner}/${node.name}` : node.name);
+          }
+          return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
+        };
+
+        const edgeEvidence = (e: ApiEdge): string | undefined => {
+          if (!e.evidence) return undefined;
+          if (typeof e.evidence === 'string') return e.evidence;
+          // Object evidence — extract category or stringify first value
+          const ev = e.evidence as Record<string, unknown>;
+          if (ev.category) return String(ev.category);
+          const vals = Object.values(ev);
+          return vals.length ? String(vals[0]) : undefined;
+        };
+
         const edges: GraphEdge[] = data.edges.map((e) => ({
-          source: e.source_upstream ?? `${e.source_owner ?? ''}/${e.source_name}`.replace(/^\//, e.source_name),
-          target: e.target_upstream ?? `${e.target_owner ?? ''}/${e.target_name}`.replace(/^\//, e.target_name),
-          edge_type: e.edge_type,
+          source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
+          target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
+          edge_type: e.edgeType ?? e.edge_type ?? 'UNKNOWN',
           weight: e.weight,
-          evidence: e.evidence,
+          evidence: edgeEvidence(e),
         }));
 
         setAllEdges(edges);
