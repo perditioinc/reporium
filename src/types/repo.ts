@@ -145,6 +145,20 @@ export interface QualitySignals {
   maturity?: 'research' | 'prototype' | 'beta' | 'production' | null;
 }
 
+/** Security risk signals — manually curated via admin API */
+export interface SecuritySignals {
+  /** Overall risk level */
+  risk_level: 'critical' | 'high' | 'medium' | 'low' | null;
+  /** True when a publicly disclosed security incident has been recorded */
+  incident_reported: boolean;
+  /** ISO date of incident, e.g. "2024-05-20" */
+  incident_date: string | null;
+  /** URL to CVE / advisory / blog post */
+  incident_url: string | null;
+  /** One-sentence human-readable summary of the incident */
+  incident_summary: string | null;
+}
+
 export interface CrossDimensionCell {
   dim1_value: string;
   dim2_value: string;
@@ -293,6 +307,8 @@ export interface EnrichedRepo {
   // Category assignment
   primaryCategory: string;              // top-level category (from buildCategories)
   allCategories: string[];              // all categories this repo belongs to
+  dbCategory?: string | null;           // KAN-41 16-category taxonomy from DB (agents, rag-retrieval, etc.)
+  dbSecondaryCategories?: string[];     // secondary DB categories
 
   // Accurate commit stats with true counts (paginated if needed)
   commitStats: {
@@ -314,6 +330,8 @@ export interface EnrichedRepo {
   qualitySignals?: QualitySignals | null;
   quality_signals?: QualitySignals | null;
   taxonomy?: TaxonomyEntry[];
+  /** Security risk metadata — present only when manually marked via admin API */
+  securitySignals?: SecuritySignals | null;
 }
 
 /** Summary statistics for a user's library */
@@ -362,7 +380,7 @@ export interface IntersectionMetrics {
 }
 
 /** Sort options for the repo grid */
-export type SortOption = 'updated' | 'stars' | 'tags' | 'alpha' | 'oldest' | 'most-outdated' | 'upstream-updated' | 'fork-oldest' | 'fork-newest';
+export type SortOption = 'updated' | 'stars' | 'tags' | 'alpha' | 'oldest' | 'most-outdated' | 'upstream-updated' | 'fork-oldest' | 'fork-newest' | 'trending' | 'health';
 
 /** Full API response shape */
 export interface LibraryData {

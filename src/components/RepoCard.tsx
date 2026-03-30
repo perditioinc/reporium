@@ -1,12 +1,143 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { EnrichedRepo } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 import { QualityBadge } from '@/components/QualityBadge';
 
 /** Status tags that are not content tags — never show as clickable chips */
 const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
+
+/**
+ * Tags / keywords that identify a repo as an MCP server or Claude plugin.
+ * Detection is purely client-side from enrichedTags + repo name/description.
+ */
+const MCP_PLUGIN_TAGS = new Set([
+  'mcp', 'mcp-server', 'mcp-client', 'mcp-tool',
+  'model-context-protocol', 'modelcontextprotocol',
+  'claude-mcp', 'claude-plugin', 'claude-tools', 'claude-app',
+]);
+
+function detectPluginType(repo: EnrichedRepo): 'mcp-server' | null {
+  const lowerName = repo.name.toLowerCase();
+  const lowerDesc = (repo.description ?? '').toLowerCase();
+  const lowerTags = (repo.enrichedTags ?? []).map(t => t.toLowerCase());
+
+  const tagMatch = lowerTags.some(t => MCP_PLUGIN_TAGS.has(t) || /\bmcp\b/.test(t) || t.includes('claude plugin') || t.includes('claude skill'));
+  const nameMatch =
+    lowerName.startsWith('mcp-') || lowerName.endsWith('-mcp') || lowerName.includes('-mcp-') ||
+    lowerName.includes('mcp_') || lowerName.includes('_mcp');
+  const descMatch =
+    lowerDesc.includes('model context protocol') ||
+    lowerDesc.includes('mcp server') ||
+    lowerDesc.includes('mcp client') ||
+    lowerDesc.includes('mcp tool') ||
+    lowerDesc.includes('mcp-based') ||
+    lowerDesc.includes('mcp integration') ||
+    lowerDesc.includes('claude plugin') ||
+    lowerDesc.includes('claude code plugin') ||
+    lowerDesc.includes('claude skill') ||
+    // Match standalone "MCP" as a word (not inside other words like "mcpu")
+    /\bmcp\b/.test(lowerDesc) ||
+    /\bplugin\b/.test(lowerName);
+
+  return tagMatch || nameMatch || descMatch ? 'mcp-server' : null;
+}
+
+// ── Trending score (0–5 🔥) ──────────────────────────────────────────────────
+// Derived from commit velocity. For forks this reflects upstream activity.
+// Falls back to commitsLast7Days[] / commitsLast30Days[] arrays when commitStats
+// counts are zero (built repos often have zero stats but populated arrays).
+function getTrendingScore(repo: EnrichedRepo): number {
+  const c7  = Math.max(
+    repo.commitStats?.last7Days  ?? 0,
+    repo.commitsLast7Days?.length  ?? 0,
+  );
+  const c30 = Math.max(
+    repo.commitStats?.last30Days ?? 0,
+    repo.commitsLast30Days?.length ?? 0,
+  );
+  if (c7 >= 20) return 5;   // blazing — multiple commits per day
+  if (c7 >= 10) return 4;   // 1-2 commits/day
+  if (c7 >=  4) return 3;   // every couple of days
+  if (c7 >=  2) return 2;   // sporadic this week
+  if (c7 >=  1 || c30 >= 8) return 1;
+  return 0;
+}
+
+// ── Life / health status ──────────────────────────────────────────────────────
+interface LifeStatus {
+  emoji: string;
+  label: string;
+  tooltip: string;
+  textColor: string;
+}
+
+function getLifeStatus(repo: EnrichedRepo): LifeStatus {
+  const isArchived = repo.parentStats?.isArchived ?? repo.isArchived ?? false;
+  const stars      = repo.parentStats?.stars ?? repo.stars ?? 0;
+
+  // Use the max across commitStats scalars AND the raw commit arrays
+  // (built repos often have zero commitStats counts but populated commitsLast*Days arrays)
+  const c7  = Math.max(
+    repo.commitStats?.last7Days  ?? 0,
+    repo.commitsLast7Days?.length  ?? 0,
+  );
+  const c30 = Math.max(
+    repo.commitStats?.last30Days ?? 0,
+    repo.commitsLast30Days?.length ?? 0,
+  );
+  const c90 = Math.max(
+    repo.commitStats?.last90Days ?? 0,
+    repo.commitsLast90Days?.length ?? 0,
+    repo.recentCommits?.length     ?? 0,   // recentCommits is usually last ~10
+  );
+
+  // Best available "last push" date — for built repos use lastUpdated / yourLastPushAt
+  const lastPushStr = repo.upstreamLastPushAt ?? repo.yourLastPushAt ?? repo.lastUpdated;
+  const daysSince   = (Date.now() - new Date(lastPushStr).getTime()) / 86400000;
+
+  if (isArchived) return {
+    emoji: '📦', label: 'Archived',
+    tooltip: 'Repository is archived — no new changes expected',
+    textColor: 'text-zinc-500',
+  };
+  if (c7 >= 10 || c30 >= 30) return {
+    emoji: '🚀', label: 'Hot',
+    tooltip: `${c7} commits this week — very active development`,
+    textColor: 'text-emerald-300',
+  };
+  if (c30 > 0) return {
+    emoji: '💚', label: 'Active',
+    tooltip: `${c30} commits in the last 30 days`,
+    textColor: 'text-emerald-400',
+  };
+  if (c90 > 0 || daysSince < 90) return {
+    emoji: '💛', label: 'Stable',
+    tooltip: c90 > 0
+      ? `${c90} commits in the last 90 days — slowing but maintained`
+      : `Last push ${Math.round(daysSince)}d ago — still recently active`,
+    textColor: 'text-amber-400',
+  };
+  if (stars > 500 || daysSince < 365) return {
+    emoji: '🌙', label: 'Dormant',
+    tooltip: `No recent commits — last activity ${Math.round(daysSince / 30)}mo ago`,
+    textColor: 'text-zinc-400',
+  };
+  return {
+    emoji: '💀', label: 'Inactive',
+    tooltip: `No activity for over ${Math.round(daysSince / 365 * 10) / 10} years`,
+    textColor: 'text-zinc-600',
+  };
+}
+
+/** Color + label config for each risk level */
+const RISK_CONFIG: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  critical: { bg: 'bg-red-950/80',    border: 'border-red-700',   text: 'text-red-300',    label: 'CRITICAL' },
+  high:     { bg: 'bg-orange-950/70', border: 'border-orange-700', text: 'text-orange-300', label: 'HIGH RISK' },
+  medium:   { bg: 'bg-amber-950/60',  border: 'border-amber-700',  text: 'text-amber-300',  label: 'MEDIUM RISK' },
+  low:      { bg: 'bg-zinc-800/60',   border: 'border-zinc-600',   text: 'text-zinc-400',   label: 'LOW RISK' },
+};
 
 /** Own-account logins — don't render as "builder" since the Built/Forked badge already shows ownership */
 const OWN_LOGINS = new Set(['perditioinc']);
@@ -76,17 +207,42 @@ function monthsBetween(fromStr: string, toStr: string): number {
   return Math.round((to - from) / (1000 * 60 * 60 * 24 * 30));
 }
 
-/** Get sync status badge config */
-function syncBadge(sync: import('@/types/repo').ForkSyncStatus): { icon: string; color: string; label: string } {
-  const { state, behindBy, aheadBy } = sync;
-  if (state === 'up-to-date') return { icon: '✅', color: 'text-emerald-400', label: 'Up to date' };
-  if (state === 'behind') {
-    if (behindBy > 100) return { icon: '⬇️', color: 'text-red-400', label: `Behind by ${behindBy} — significantly outdated` };
-    if (behindBy >= 10) return { icon: '⬇️', color: 'text-amber-400', label: `Behind by ${behindBy} commits` };
-    return { icon: '⬇️', color: 'text-yellow-400', label: `Behind by ${behindBy} commit${behindBy !== 1 ? 's' : ''}` };
+/** Get sync status badge config.
+ *  Determines sync from dates: only "up to date" if fork synced on or after
+ *  the upstream's last push. Falls back to API state if dates unavailable. */
+function syncBadge(
+  sync: import('@/types/repo').ForkSyncStatus,
+  yourLastPush?: string | null,
+  upstreamLastPush?: string | null,
+): { icon: string; color: string; label: string } {
+  const { behindBy, aheadBy } = sync;
+
+  // Date-based sync determination — the source of truth
+  let dateSaysBehind = false;
+  let daysBehind = 0;
+  if (yourLastPush && upstreamLastPush) {
+    const yp = new Date(yourLastPush).getTime();
+    const up = new Date(upstreamLastPush).getTime();
+    if (up > yp) {
+      dateSaysBehind = true;
+      daysBehind = Math.floor((up - yp) / 86400000);
+    }
   }
-  if (state === 'ahead') return { icon: '⬆️', color: 'text-blue-400', label: `Ahead by ${aheadBy} — you've made changes` };
-  if (state === 'diverged') return { icon: '↕️', color: 'text-orange-400', label: 'Diverged from upstream' };
+
+  // Up to date only if dates confirm it (or no dates available and API says so)
+  if (!dateSaysBehind && sync.state === 'up-to-date') {
+    return { icon: '✅', color: 'text-emerald-400', label: 'Up to date' };
+  }
+
+  if (dateSaysBehind || sync.state === 'behind') {
+    if (aheadBy > 0) return { icon: '↕️', color: 'text-orange-400', label: 'Diverged from upstream' };
+    if (daysBehind > 30 || behindBy > 100) return { icon: '⬇️', color: 'text-red-400', label: `Behind — ${daysBehind}d since last sync` };
+    if (daysBehind > 7 || behindBy >= 10) return { icon: '⬇️', color: 'text-amber-400', label: `Behind — ${daysBehind}d since last sync` };
+    return { icon: '⬇️', color: 'text-yellow-400', label: `Behind — ${daysBehind}d since last sync` };
+  }
+
+  if (sync.state === 'ahead') return { icon: '⬆️', color: 'text-blue-400', label: `Ahead by ${aheadBy} — you've made changes` };
+  if (sync.state === 'diverged') return { icon: '↕️', color: 'text-orange-400', label: 'Diverged from upstream' };
   return { icon: '—', color: 'text-zinc-500', label: 'Sync status unavailable' };
 }
 
@@ -110,18 +266,64 @@ function getCategoryStyle(primaryCategory: string): { borderColor: string; backg
 }
 
 /** A single repo card in the library grid */
-export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: RepoCardProps) {
+export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: RepoCardProps) {
   const langColor = repo.language ? (LANGUAGE_COLORS[repo.language] ?? '#8b949e') : '#8b949e';
   const ps = repo.parentStats;
   const [commitsOpen, setCommitsOpen] = useState(false);
+  const [skillsExpanded, setSkillsExpanded] = useState(false);
   const catStyle = getCategoryStyle(repo.primaryCategory);
   const quality = repo.qualitySignals ?? repo.quality_signals;
+  const sec = repo.securitySignals ?? null;
+  const pluginType = detectPluginType(repo);
+  const riskCfg = sec?.risk_level ? (RISK_CONFIG[sec.risk_level] ?? null) : null;
+  const trendScore  = getTrendingScore(repo);
+  const lifeStatus  = getLifeStatus(repo);
+  // Best commit count for tooltip (max across all sources)
+  const c7Display   = Math.max(
+    repo.commitStats?.last7Days ?? 0,
+    repo.commitsLast7Days?.length ?? 0,
+  );
 
   return (
     <div
-      className="group relative flex flex-col gap-3 rounded-xl border-t border-r border-b border-zinc-800 p-5 transition-all hover:border-zinc-600 hover:shadow-lg hover:shadow-black/20"
-      style={{ borderLeftColor: catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: catStyle.backgroundColor }}
+      className={[
+        'group relative flex flex-col gap-3 rounded-xl border-t border-r border-b p-5 transition-all hover:shadow-lg hover:shadow-black/20',
+        pluginType
+          ? 'border-orange-700/60 hover:border-orange-500/80'
+          : 'border-zinc-700 hover:border-zinc-500',
+      ].join(' ')}
+      style={{ borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: pluginType ? 'rgba(154, 52, 18, 0.08)' : catStyle.backgroundColor }}
     >
+      {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
+      {sec?.incident_reported && (
+        <div className="rounded-lg border border-red-700 bg-red-950/80 px-3 py-2 -mx-5 -mt-5 rounded-t-xl rounded-b-none mb-0">
+          <div className="flex items-start gap-2">
+            <span className="text-red-400 text-sm shrink-0 mt-0.5">⚠️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-red-300 uppercase tracking-wide">Security Incident Reported</p>
+              {sec.incident_summary && (
+                <p className="text-xs text-red-400 mt-0.5 line-clamp-2">{sec.incident_summary}</p>
+              )}
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {sec.incident_date && (
+                  <span className="text-[11px] text-red-500">{sec.incident_date}</span>
+                )}
+                {sec.incident_url && (
+                  <a
+                    href={sec.incident_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-red-400 hover:text-red-200 underline underline-offset-2 transition-colors"
+                  >
+                    View advisory →
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <a
@@ -132,10 +334,28 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         >
           {repo.name}
         </a>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
           {typeof repo.similarity === 'number' && (
             <span className="rounded-full bg-sky-900/40 border border-sky-700/40 px-2 py-0.5 text-xs font-medium text-sky-300">
               {Math.round(repo.similarity * 100)}% match
+            </span>
+          )}
+          {/* Claude Plugin / MCP badge */}
+          {pluginType && (
+            <span className="rounded-full bg-orange-900/50 border border-orange-600/60 px-2 py-0.5 text-xs font-semibold text-orange-300">
+              🔌 MCP
+            </span>
+          )}
+          {/* Security risk badge (non-incident — incident gets the full banner above) */}
+          {riskCfg && !sec?.incident_reported && (
+            <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${riskCfg.bg} ${riskCfg.border} ${riskCfg.text}`}>
+              🛡️ {riskCfg.label}
+            </span>
+          )}
+          {/* Compact risk badge shown alongside the incident banner */}
+          {sec?.incident_reported && riskCfg && (
+            <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${riskCfg.bg} ${riskCfg.border} ${riskCfg.text}`}>
+              🛡️ {riskCfg.label}
             </span>
           )}
           <QualityBadge quality={quality} />
@@ -192,11 +412,23 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         <p className="line-clamp-2 text-xs text-zinc-400">{repo.description}</p>
       )}
 
-      {repo.licenseSpdx && (
-        <div className="flex items-center gap-2">
-          <span className="rounded-full border border-zinc-700 bg-zinc-900/70 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
-            {repo.licenseSpdx}
-          </span>
+      {/* License + last meaningful update row */}
+      {(repo.licenseSpdx || repo.upstreamLastPushAt || repo.yourLastPushAt) && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {repo.licenseSpdx && (
+            <span className="rounded-full border border-zinc-700 bg-zinc-900/70 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
+              {repo.licenseSpdx}
+            </span>
+          )}
+          {/* Last meaningful push date — upstream for forks, own push for built */}
+          {(repo.upstreamLastPushAt ?? repo.yourLastPushAt) && (
+            <span
+              className="text-[11px] text-zinc-500"
+              title={`Last push: ${repo.upstreamLastPushAt ?? repo.yourLastPushAt}`}
+            >
+              updated {relativeTime(repo.upstreamLastPushAt ?? repo.yourLastPushAt ?? '')}
+            </span>
+          )}
         </div>
       )}
 
@@ -264,6 +496,37 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         );
       })()}
 
+      {/* ── Trending score + Life status ── */}
+      <div className="flex items-center justify-between">
+        {/* Fire scale — 0-5 fires, inactive ones faded */}
+        <div
+          className="flex items-center gap-0.5 select-none"
+          title={trendScore > 0
+            ? `Trending ${trendScore}/5 · ${c7Display} commits this week`
+            : 'No recent commit activity'}
+        >
+          {[1, 2, 3, 4, 5].map(i => (
+            <span
+              key={i}
+              style={{ opacity: i <= trendScore ? 1 : 0.12, fontSize: '13px', lineHeight: 1 }}
+            >
+              🔥
+            </span>
+          ))}
+          {trendScore === 0 && (
+            <span className="text-[10px] text-zinc-700 ml-1">no recent activity</span>
+          )}
+        </div>
+
+        {/* Life / health status badge */}
+        <span
+          className={`text-xs font-medium ${lifeStatus.textColor}`}
+          title={lifeStatus.tooltip}
+        >
+          {lifeStatus.emoji} {lifeStatus.label}
+        </span>
+      </div>
+
       {/* PM Skills row */}
       {repo.pmSkills && repo.pmSkills.length > 0 && (
         <div className="flex flex-wrap gap-1">
@@ -300,9 +563,10 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         )}
       </div>
 
-      {/* AI Dev Skills — grouped by lifecycle, capped at 6 badges */}
+      {/* AI Dev Skills — grouped by lifecycle, expandable */}
       {repo.aiDevSkills && repo.aiDevSkills.length > 0 && (() => {
-        const allSkills = (repo.aiDevSkills || []).slice(0, 6);
+        const cap = skillsExpanded ? repo.aiDevSkills.length : 6;
+        const allSkills = (repo.aiDevSkills || []).slice(0, cap);
         const overflow = (repo.aiDevSkills || []).length - allSkills.length;
 
         // Group displayed skills by lifecycle group (comes directly from each object)
@@ -344,7 +608,20 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
               </div>
             ))}
             {overflow > 0 && (
-              <span className="text-xs text-zinc-600">+{overflow} more</span>
+              <button
+                onClick={() => setSkillsExpanded(true)}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                +{overflow} more
+              </button>
+            )}
+            {skillsExpanded && repo.aiDevSkills!.length > 6 && (
+              <button
+                onClick={() => setSkillsExpanded(false)}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                show less
+              </button>
             )}
           </div>
         );
@@ -372,23 +649,19 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
           ) : (
             <span className="text-zinc-700">—</span>
           )
-        ) : (
-          <span>⭐ {repo.stars.toLocaleString()} · 🍴 {repo.forks.toLocaleString()}</span>
-        )}
+        ) : (repo.stars > 0 || repo.forks > 0) ? (
+          <span>
+            {repo.stars > 0 && <>⭐ {repo.stars.toLocaleString()}</>}
+            {repo.stars > 0 && repo.forks > 0 && ' · '}
+            {repo.forks > 0 && <>🍴 {repo.forks.toLocaleString()}</>}
+          </span>
+        ) : null}
 
-        {/* Last update date — use lastUpdated (always populated), fallback to parent */}
         <span>Issues {(repo.isFork && ps ? ps.openIssues : (repo.openIssuesCount ?? 0)).toLocaleString()}</span>
-        <span className="ml-auto">
-          {relativeTime(repo.lastUpdated) !== '—'
-            ? relativeTime(repo.lastUpdated)
-            : repo.isFork && ps
-              ? relativeTime(ps.lastCommitDate)
-              : '—'}
-        </span>
       </div>
 
       {/* Language breakdown bar */}
-      {Object.keys(repo.languagePercentages).length > 1 && (() => {
+      {Object.keys(repo.languagePercentages ?? {}).length > 0 && (() => {
         const sorted = Object.entries(repo.languagePercentages)
           .sort(([, a], [, b]) => b - a);
         const top3 = sorted.slice(0, 3);
@@ -396,33 +669,84 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
         const display = [...top3];
         if (otherPct > 0 && sorted.length > 3) display.push(['Other', otherPct]);
         return (
-          <div className="text-xs text-zinc-500 flex flex-wrap gap-x-2 gap-y-0.5">
-            {display.map(([lang, pct], i) => (
-              <span key={lang}>
-                {i > 0 && <span className="text-zinc-700 mr-2">·</span>}
-                <span className="text-zinc-400">{lang}</span>
-                <span className="text-zinc-600 ml-0.5">{pct}%</span>
-              </span>
-            ))}
+          <div className="mt-1">
+            {/* Visual bar */}
+            <div className="h-1.5 w-full rounded-full overflow-hidden flex bg-zinc-800">
+              {display.map(([lang, pct]) => (
+                <div
+                  key={lang}
+                  className="h-full"
+                  style={{
+                    width: `${pct}%`,
+                    backgroundColor: LANGUAGE_COLORS[lang] ?? '#8b949e',
+                  }}
+                  title={`${lang} ${pct}%`}
+                />
+              ))}
+            </div>
+            {/* Text labels */}
+            <div className="text-xs text-zinc-500 flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
+              {display.map(([lang, pct], i) => (
+                <span key={lang} className="flex items-center gap-1">
+                  {i > 0 && <span className="text-zinc-700">·</span>}
+                  <span className="h-2 w-2 rounded-full inline-block" style={{ backgroundColor: LANGUAGE_COLORS[lang] ?? '#8b949e' }} />
+                  <span className="text-zinc-400">{lang}</span>
+                  <span className="text-zinc-600">{pct}%</span>
+                </span>
+              ))}
+            </div>
           </div>
         );
       })()}
 
-      {/* Timeline — fork date metadata.
-          upstreamCreatedAt is only shown if it differs from createdAt (the ingestion date),
-          which avoids showing the wrong "Project created" date before backfill runs. */}
-      {repo.isFork && (() => {
-        // createdAt for forks is always the parent's created_at; show it as "Project created"
-        const realUpstream = repo.createdAt || null;
-        const hasAnyDate = realUpstream || repo.forkedAt || repo.yourLastPushAt || repo.upstreamLastPushAt;
-        if (!hasAnyDate) return null;
-        return (
+      {/* ── Dates section — always visible ── */}
+      {repo.isFork ? (
+        /* Forked repo: show parent created + fork date prominently */
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
+          {repo.createdAt && (
+            <span>
+              <span className="text-zinc-600">Parent created </span>
+              <span className="text-zinc-400">{formatMonthYear(repo.createdAt)}</span>
+            </span>
+          )}
+          {repo.forkedAt && (
+            <span>
+              <span className="text-zinc-600">Forked </span>
+              <span className="text-zinc-400">{formatMonthYear(repo.forkedAt)}</span>
+            </span>
+          )}
+          {repo.upstreamLastPushAt && (
+            <span>
+              <span className="text-zinc-600">Upstream </span>
+              <span className="text-zinc-400">{relativeTime(repo.upstreamLastPushAt)}</span>
+            </span>
+          )}
+        </div>
+      ) : (
+        /* Built repo: show created date (fallback to lastUpdated) */
+        <p className="text-xs text-zinc-500">
+          {repo.createdAt ? (
+            <>
+              <span className="text-zinc-600">Created </span>
+              <span className="text-zinc-400">{formatMonthYear(repo.createdAt)}</span>
+            </>
+          ) : repo.lastUpdated ? (
+            <>
+              <span className="text-zinc-600">Last updated </span>
+              <span className="text-zinc-400">{relativeTime(repo.lastUpdated)}</span>
+            </>
+          ) : null}
+        </p>
+      )}
+
+      {/* Timeline — detailed fork date metadata */}
+      {repo.isFork && (repo.createdAt || repo.forkedAt) && (
         <div className="border-t border-zinc-800 pt-3 space-y-1.5">
           <p className="text-xs font-medium text-zinc-500">📅 Timeline</p>
-          {realUpstream && (
+          {repo.createdAt && (
             <div className="flex justify-between text-xs">
               <span className="text-zinc-600">Project created</span>
-              <span className="text-zinc-400">{formatMonthYear(realUpstream)}</span>
+              <span className="text-zinc-400">{formatMonthYear(repo.createdAt)}</span>
             </div>
           )}
           {repo.forkedAt && (
@@ -430,94 +754,110 @@ export function RepoCard({ repo, similarCount, onTagClick, onCategoryClick }: Re
               <span className="text-zinc-600">Forked</span>
               <span className="text-zinc-400">
                 {formatMonthYear(repo.forkedAt)}
-                {realUpstream && (
+                {repo.createdAt && (
                   <span className="text-zinc-600 ml-1">
-                    ({monthsBetween(realUpstream, repo.forkedAt)}mo later)
+                    ({monthsBetween(repo.createdAt, repo.forkedAt)}mo later)
                   </span>
                 )}
               </span>
             </div>
           )}
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-600">Fork last synced</span>
+            <span className="text-zinc-600">Fork synced since</span>
             <span className="text-zinc-400">
-              {repo.yourLastPushAt ? relativeTime(repo.yourLastPushAt) : 'Never'}
+              {repo.yourLastPushAt ? formatMonthYear(repo.yourLastPushAt) : 'Never'}
             </span>
           </div>
           {repo.upstreamLastPushAt && (
             <div className="flex justify-between text-xs">
               <span className="text-zinc-600">Upstream last push</span>
-              <span className="text-zinc-400">{relativeTime(repo.upstreamLastPushAt)}</span>
+              <span className="text-zinc-400">{formatMonthYear(repo.upstreamLastPushAt)}</span>
             </div>
           )}
         </div>
-        );
-      })()}
+      )}
 
       {/* Sync Status + Commit activity */}
-      {(repo.forkSync || (repo.commitStats?.last30Days ?? 0) > 0) && (
-        <div className="border-t border-zinc-800 pt-3 space-y-1">
-          {repo.forkSync && (() => {
-            const badge = syncBadge(repo.forkSync);
-            return (
-              <>
-                <p className="text-xs font-medium text-zinc-500">🔄 Sync Status</p>
-                <p className={`text-xs ${badge.color}`}>
-                  {badge.icon} {badge.label}
-                </p>
-              </>
-            );
-          })()}
-          {(repo.commitStats?.last7Days ?? 0) > 0 ? (
-            <span className="text-xs text-emerald-400">
-              {repo.commitStats!.last7Days} commits/week
-            </span>
-          ) : (repo.commitStats?.last30Days ?? 0) > 0 ? (
-            <span className="text-xs text-zinc-400">
-              {repo.commitStats!.last30Days} commits/month
-            </span>
-          ) : null}
-        </div>
-      )}
+      {(() => {
+        const c7Stat  = Math.max(repo.commitStats?.last7Days  ?? 0, repo.commitsLast7Days?.length  ?? 0);
+        const c30Stat = Math.max(repo.commitStats?.last30Days ?? 0, repo.commitsLast30Days?.length ?? 0);
+        const showSection = repo.forkSync || c30Stat > 0;
+        if (!showSection) return null;
+        return (
+          <div className="border-t border-zinc-800 pt-3 space-y-1">
+            {repo.forkSync && (() => {
+              const badge = syncBadge(repo.forkSync!, repo.yourLastPushAt, repo.upstreamLastPushAt);
+              return (
+                <>
+                  <p className="text-xs font-medium text-zinc-500">🔄 Sync Status</p>
+                  <p className={`text-xs ${badge.color}`}>
+                    {badge.icon} {badge.label}
+                  </p>
+                </>
+              );
+            })()}
+            {c7Stat > 0 ? (
+              <span className="text-xs text-emerald-400">
+                {c7Stat} commits/week
+              </span>
+            ) : c30Stat > 0 ? (
+              <span className="text-xs text-zinc-400">
+                {c30Stat} commits/month
+              </span>
+            ) : null}
+          </div>
+        );
+      })()}
 
       {/* Similarity hint */}
       {similarCount !== undefined && similarCount > 0 && (
         <p className="text-xs text-zinc-600">Similar in library: {similarCount}</p>
       )}
 
-      {/* Recent commits */}
-      {repo.recentCommits.length > 0 && (
-        <div className="border-t border-zinc-800 pt-2">
-          <button
-            onClick={() => setCommitsOpen((v) => !v)}
-            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors w-full"
-          >
-            <span>Recent Updates</span>
-            <span>{commitsOpen ? '▴' : '▾'}</span>
-          </button>
-          {commitsOpen && (
-            <div className="mt-2 space-y-1.5">
-              {repo.recentCommits.map((commit) => {
-                const { dotColor, textColor, label } = commitDisplayInfo(commit.date);
-                return (
-                  <div key={commit.sha} className="flex items-start gap-1.5">
-                    <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
-                    <a
-                      href={commit.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 text-xs text-zinc-400 hover:text-zinc-200 transition-colors leading-relaxed"
-                    >
-                      {commit.message}
-                    </a>
-                    <span className={`shrink-0 text-xs ${textColor}`}>{label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+      {/* Recent commits — prefer recentCommits, fall back to commitsLast30Days arrays */}
+      {(() => {
+        const commits =
+          (repo.recentCommits?.length ?? 0) > 0
+            ? repo.recentCommits
+            : (repo.commitsLast7Days?.length ?? 0) > 0
+              ? repo.commitsLast7Days.slice(0, 5)
+              : (repo.commitsLast30Days?.length ?? 0) > 0
+                ? repo.commitsLast30Days.slice(0, 5)
+                : [];
+        if (commits.length === 0) return null;
+        return (
+          <div className="border-t border-zinc-800 pt-2">
+            <button
+              onClick={() => setCommitsOpen((v) => !v)}
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors w-full"
+            >
+              <span>Recent Updates</span>
+              <span>{commitsOpen ? '▴' : '▾'}</span>
+            </button>
+            {commitsOpen && (
+              <div className="mt-2 space-y-1.5">
+                {commits.map((commit) => {
+                  const { dotColor, textColor, label } = commitDisplayInfo(commit.date);
+                  return (
+                    <div key={commit.sha} className="flex items-start gap-1.5">
+                      <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
+                      <a
+                        href={commit.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-xs text-zinc-400 hover:text-zinc-200 transition-colors leading-relaxed"
+                      >
+                        {commit.message}
+                      </a>
+                      <span className={`shrink-0 text-xs ${textColor}`}>{label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
-}
+});

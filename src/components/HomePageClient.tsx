@@ -1,21 +1,26 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { LibraryData, EnrichedRepo, SortOption } from '@/types/repo';
 import type { TrendData } from '@/types/repo';
 import { StatsBar } from '@/components/StatsBar';
 import { SearchBar } from '@/components/SearchBar';
-import { FilterBar } from '@/components/FilterBar';
 import { RepoGrid } from '@/components/RepoGrid';
 import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
-import { MetricsSidebar } from '@/components/MetricsSidebar';
 import { MiniAskBar } from '@/components/MiniAskBar';
-import { LibraryInsightsWidget } from '@/components/LibraryInsightsWidget';
-import { CrossDimensionWidget } from '@/components/CrossDimensionWidget';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
-import { createDataProvider, SearchMode } from '@/lib/dataProvider';
+import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { CategoryFilterBar } from '@/components/CategoryFilterBar';
+
+// Lazy-load heavy components — they aren't needed for initial paint
+const FilterBar = dynamic(() => import('@/components/FilterBar').then(m => ({ default: m.FilterBar })), { ssr: false });
+const MetricsSidebar = dynamic(() => import('@/components/MetricsSidebar').then(m => ({ default: m.MetricsSidebar })), { ssr: false });
+const LibraryInsightsWidget = dynamic(() => import('@/components/LibraryInsightsWidget').then(m => ({ default: m.LibraryInsightsWidget })), { ssr: false });
+const CrossDimensionWidget = dynamic(() => import('@/components/CrossDimensionWidget').then(m => ({ default: m.CrossDimensionWidget })), { ssr: false });
 
 
 
@@ -26,6 +31,7 @@ export function HomePageClient() {
   const [data, setData] = useState<LibraryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const [loadProgress, setLoadProgress] = useState<LoadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [trends, setTrends] = useState<TrendData | null>(null);
   // portfolioInsights kept for future use when API returns enriched data
@@ -46,6 +52,7 @@ export function HomePageClient() {
   const [attentionFilter, setAttentionFilter] = useState<'all' | 'archived-parent' | 'stale'>('all');
   const [showOutdatedOnly, setShowOutdatedOnly] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedDbCategory, setSelectedDbCategory] = useState(''); // KAN-57: 16-category DB filter
 
   // New taxonomy filter state
   const [selectedAiDevSkills, setSelectedAiDevSkills] = useState<string[]>([]);
@@ -56,6 +63,17 @@ export function HomePageClient() {
   const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
   const [selectedDeploymentContexts, setSelectedDeploymentContexts] = useState<string[]>([]);
   const [selectedBuilders, setSelectedBuilders] = useState<string[]>([]);
+
+  // Security risk + Claude Plugin filter state
+  const [showClaudePluginsOnly, setShowClaudePluginsOnly] = useState(false);
+  const [selectedSecurityRisk, setSelectedSecurityRisk] = useState<'all' | 'incident' | 'critical' | 'high' | 'medium' | 'low'>('all');
+
+  /** Tags that identify MCP servers and Claude plugins (must stay in sync with RepoCard.tsx) */
+  const MCP_PLUGIN_TAGS = new Set([
+    'mcp', 'mcp-server', 'mcp-client', 'mcp-tool',
+    'model-context-protocol', 'modelcontextprotocol',
+    'claude-mcp', 'claude-plugin', 'claude-tools', 'claude-app',
+  ]);
   const [aiTrendValues, setAiTrendValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
   const [industryValues, setIndustryValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
   const [useCaseValues, setUseCaseValues] = useState<Awaited<ReturnType<typeof provider.getTaxonomyValues>>>([]);
@@ -67,6 +85,7 @@ export function HomePageClient() {
 
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dashboardMode, setDashboardMode] = useState<'normal' | 'minimized' | 'fullscreen'>('normal');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -78,6 +97,10 @@ export function HomePageClient() {
       const tagParam = params.get('tag');
       if (tagParam) {
         setSelectedTags([tagParam]);
+      }
+      const categoryParam = params.get('category');
+      if (categoryParam) {
+        setSelectedDbCategory(categoryParam);
       }
       const taxonomyDimension = params.get('taxonomyDimension');
       const taxonomyValue = params.get('taxonomyValue');
@@ -99,6 +122,20 @@ export function HomePageClient() {
     }
   }, []); // run once on mount
 
+  // KAN-57: sync ?category= URL param when selectedDbCategory changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (selectedDbCategory) {
+      params.set('category', selectedDbCategory);
+    } else {
+      params.delete('category');
+    }
+    const newSearch = params.toString();
+    const newUrl = newSearch ? `?${newSearch}` : window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+  }, [selectedDbCategory]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -118,7 +155,9 @@ export function HomePageClient() {
 
       // Stage 2: load full library (~3MB) in background, then merge in
       try {
-        const full = await provider.getLibrary();
+        const full = await provider.getLibrary((p) => {
+          if (!cancelled) setLoadProgress(p);
+        });
         if (!cancelled) {
           setData(full);
           setIsLoadingFull(false);
@@ -126,16 +165,20 @@ export function HomePageClient() {
           setApiDegraded(provider.getDegradedState());
         }
         // Non-blocking extras
+        if (!cancelled) setLoadProgress({ stage: 'trends', percent: 50, detail: 'Loading trends…' });
         provider.getTrends()
           .then(t => { if (!cancelled && t) setTrends(t); })
           .catch(() => {});
         // portfolio insights retained for future API-driven intelligence
-        provider.getCrossDimensionAnalytics('industry', 'ai_trend')
+        if (!cancelled) setLoadProgress({ stage: 'taxonomy', percent: 75, detail: 'Loading taxonomy…' });
+        provider.getCrossDimensionAnalytics('industry', 'ai_trend', 50)
           .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
           .catch(() => {});
+        if (!cancelled) setLoadProgress({ stage: 'ready', percent: 100, detail: 'Ready' });
       } catch (e) {
         if (!cancelled) {
           setIsLoadingFull(false);
+          setLoadProgress({ stage: 'error', percent: 0, detail: 'Failed to load' });
           if (!owned) setError((e as Error).message);
         }
       } finally {
@@ -291,6 +334,12 @@ export function HomePageClient() {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }, [data]);
 
+  // Stable sidebar data object — only recalculates when data or categories change
+  const sidebarData = useMemo(() => {
+    if (!data) return null;
+    return { ...data, categories: normalizedCategories };
+  }, [data, normalizedCategories]);
+
   // Intersection metrics — computed when 2+ tags selected, null otherwise
   const intersectionMetrics = useMemo(() => {
     if (!data || selectedTags.length < 2) return null;
@@ -366,6 +415,11 @@ export function HomePageClient() {
         }
       }
 
+      // KAN-57: DB 16-category filter (agents, rag-retrieval, llm-serving, etc.)
+      if (selectedDbCategory) {
+        if (repo.dbCategory !== selectedDbCategory) return false;
+      }
+
       // AI Dev Skills filter
       if (selectedAiDevSkills.length > 0) {
         if (!selectedAiDevSkills.every(s => (repo.aiDevSkills ?? []).some(a => a.skill === s))) return false;
@@ -404,12 +458,78 @@ export function HomePageClient() {
         if (!(repo.builders ?? []).some(b => selectedBuilders.includes(b.login))) return false;
       }
 
+      // Claude Plugins / MCP filter
+      if (showClaudePluginsOnly) {
+        const lowerName = repo.name.toLowerCase();
+        const lowerDesc = (repo.description ?? '').toLowerCase();
+        const lowerTags = (repo.enrichedTags ?? []).map(t => t.toLowerCase());
+        const isMCP =
+          lowerTags.some(t => MCP_PLUGIN_TAGS.has(t)) ||
+          lowerName.startsWith('mcp-') ||
+          lowerName.endsWith('-mcp') ||
+          lowerName.includes('-mcp-') ||
+          lowerName.includes('mcp_') ||
+          lowerName.includes('_mcp') ||
+          /\bplugin\b/.test(lowerName) ||
+          /\bmcp\b/.test(lowerDesc) ||
+          lowerDesc.includes('model context protocol') ||
+          lowerDesc.includes('mcp server') ||
+          lowerDesc.includes('mcp client') ||
+          lowerDesc.includes('mcp tool') ||
+          lowerDesc.includes('mcp-based') ||
+          lowerDesc.includes('claude plugin') ||
+          lowerDesc.includes('claude code plugin') ||
+          lowerDesc.includes('claude skill');
+        if (!isMCP) return false;
+      }
+
+      // Security risk filter
+      if (selectedSecurityRisk !== 'all') {
+        const sig = repo.securitySignals;
+        if (selectedSecurityRisk === 'incident' && !sig?.incident_reported) return false;
+        if (selectedSecurityRisk === 'critical' && sig?.risk_level !== 'critical') return false;
+        if (selectedSecurityRisk === 'high'     && sig?.risk_level !== 'high')     return false;
+        if (selectedSecurityRisk === 'medium'   && sig?.risk_level !== 'medium')   return false;
+        if (selectedSecurityRisk === 'low'      && sig?.risk_level !== 'low')      return false;
+      }
+
       return true;
     });
+
+    /** Trending score 0-5 for sort — mirrors RepoCard.tsx getTrendingScore */
+    const trendScore = (r: EnrichedRepo) => {
+      const c7 = r.commitStats?.last7Days ?? 0;
+      const c30 = r.commitStats?.last30Days ?? 0;
+      if (c7 >= 20) return 5;
+      if (c7 >= 10) return 4;
+      if (c7 >=  4) return 3;
+      if (c7 >=  2) return 2;
+      if (c7 >=  1 || c30 >= 8) return 1;
+      return 0;
+    };
+
+    /** Health score 0-4 for sort — mirrors RepoCard.tsx getLifeStatus */
+    const healthScore = (r: EnrichedRepo) => {
+      const c7  = r.commitStats?.last7Days  ?? 0;
+      const c30 = r.commitStats?.last30Days ?? 0;
+      const c90 = r.commitStats?.last90Days ?? 0;
+      const stars = r.parentStats?.stars ?? r.stars ?? 0;
+      const daysSince = (Date.now() - new Date(r.lastUpdated).getTime()) / 86400000;
+      if (r.parentStats?.isArchived) return 0;
+      if (c7 >= 10 || c30 >= 30)    return 4; // Hot
+      if (c30 > 0)                  return 3; // Active
+      if (c90 > 0)                  return 2; // Stable
+      if (stars > 500 || daysSince < 365) return 1; // Dormant but useful
+      return 0; // Inactive
+    };
 
     // Apply sort
     return [...filtered].sort((a, b) => {
       switch (sortBy) {
+        case 'trending':
+          return trendScore(b) - trendScore(a) || (b.commitStats?.last7Days ?? 0) - (a.commitStats?.last7Days ?? 0);
+        case 'health':
+          return healthScore(b) - healthScore(a) || (b.commitStats?.last30Days ?? 0) - (a.commitStats?.last30Days ?? 0);
         case 'stars':
           return (b.parentStats?.stars ?? b.stars) - (a.parentStats?.stars ?? a.stars);
         case 'tags':
@@ -431,9 +551,9 @@ export function HomePageClient() {
           return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
       }
     });
-  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders]);
+  }, [data, search, searchMode, semanticResults, selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, sortBy, attentionFilter, selectedSyncStatus, showOutdatedOnly, selectedCategory, selectedDbCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders, showClaudePluginsOnly, selectedSecurityRisk]);
 
-  function clearFilters() {
+  const clearFilters = useCallback(() => {
     setSearch('');
     setSearchMode('keyword');
     setSemanticResults(null);
@@ -454,74 +574,142 @@ export function HomePageClient() {
     setSelectedModalities([]);
     setSelectedDeploymentContexts([]);
     setSelectedBuilders([]);
-  }
+    setShowClaudePluginsOnly(false);
+    setSelectedSecurityRisk('all');
+  }, []);
 
-  function toggleTag(tag: string) {
+  const toggleTag = useCallback((tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
-  }
+  }, []);
 
-  function removeTag(tag: string) {
+  const removeTag = useCallback((tag: string) => {
     setSelectedTags((prev) => prev.filter((t) => t !== tag));
-  }
+  }, []);
 
-  function toggleAiDevSkill(skill: string) {
+  const toggleAiDevSkill = useCallback((skill: string) => {
     setSelectedAiDevSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
-  }
+  }, []);
 
-  function togglePmSkill(skill: string) {
+  const togglePmSkill = useCallback((skill: string) => {
     setSelectedPmSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]);
-  }
+  }, []);
 
-  function toggleIndustry(industry: string) {
+  const toggleIndustry = useCallback((industry: string) => {
     setSelectedIndustries(prev => prev.includes(industry) ? prev.filter(s => s !== industry) : [...prev, industry]);
-  }
+  }, []);
 
-  function toggleAiTrend(value: string) {
+  const toggleAiTrend = useCallback((value: string) => {
     setSelectedAiTrends(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleUseCase(value: string) {
+  const toggleUseCase = useCallback((value: string) => {
     setSelectedUseCases(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleModality(value: string) {
+  const toggleModality = useCallback((value: string) => {
     setSelectedModalities(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleDeploymentContext(value: string) {
+  const toggleDeploymentContext = useCallback((value: string) => {
     setSelectedDeploymentContexts(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  }
+  }, []);
 
-  function toggleBuilder(builder: string) {
+  const toggleBuilder = useCallback((builder: string) => {
     setSelectedBuilders(prev => prev.includes(builder) ? prev.filter(s => s !== builder) : [...prev, builder]);
-  }
+  }, []);
 
-  function handleRepoClick(name: string) {
+  const handleRepoClick = useCallback((name: string) => {
     setSearch(name);
     setSidebarOpen(false);
-  }
+  }, []);
+
+  // Stable callbacks for MetricsSidebar
+  const handleSidebarTagClick = useCallback((tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev : [...prev, tag]);
+  }, []);
+  const handleViewArchived = useCallback(() => setAttentionFilter('archived-parent'), []);
+  const handleViewStale = useCallback(() => setAttentionFilter('stale'), []);
+  const handleViewOutdated = useCallback(() => setShowOutdatedOnly(true), []);
+  const handleSyncFilter = useCallback((status: string) => setSelectedSyncStatus(status as typeof selectedSyncStatus), []);
+  const handlePluginToggle = useCallback(() => setShowClaudePluginsOnly(v => !v), []);
+  const handleCategoryClick = useCallback((id: string) => setSelectedCategory(prev => prev === id ? '' : id), []);
 
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* ── Main content ── */}
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Stage 2 loading banner — fades in/out while owned repos stay visible */}
-        <LoadingBanner visible={isLoadingFull} />
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
+        <LoadingBanner visible={isLoadingFull} progress={loadProgress} />
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5">
           {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-zinc-100">Reporium</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-zinc-100">Reporium</h1>
               <p className="text-sm text-zinc-500">
                 {data ? `${data.username}'s GitHub Library` : 'Your GitHub Knowledge Library'}
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {/* API connected badge — production mode only */}
+              {/* Nav links */}
+              <nav className="hidden sm:flex items-center gap-2 text-xs text-zinc-500">
+                <Link href="/trends" className="hover:text-zinc-300 transition-colors">Trends</Link>
+                <span>·</span>
+                <Link href="/insights" className="hover:text-zinc-300 transition-colors">Insights</Link>
+                <span>·</span>
+                <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link>
+              </nav>
+              {/* Dashboard view controls */}
+              <div className="flex items-center border border-zinc-700 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setDashboardMode(dashboardMode === 'minimized' ? 'normal' : 'minimized')}
+                  title={dashboardMode === 'minimized' ? 'Expand dashboard' : 'Minimize dashboard'}
+                  className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-200 transition-colors"
+                >
+                  {dashboardMode === 'minimized' ? '▢' : '▬'}
+                </button>
+                <button
+                  onClick={() => setDashboardMode(dashboardMode === 'fullscreen' ? 'normal' : 'fullscreen')}
+                  title={dashboardMode === 'fullscreen' ? 'Exit fullscreen' : 'Fullscreen'}
+                  className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-200 transition-colors border-l border-zinc-700"
+                >
+                  {dashboardMode === 'fullscreen' ? '⊡' : '⛶'}
+                </button>
+              </div>
+              {/* Live API status badge */}
               {provider.mode === 'production' && (
-                <span className="text-xs text-zinc-500 border border-zinc-700 rounded px-2 py-0.5">API connected</span>
+                <span className={[
+                  'text-xs border rounded px-2 py-0.5 flex items-center gap-1.5 transition-colors duration-300',
+                  loadProgress?.stage === 'ready'
+                    ? 'text-emerald-400 border-emerald-800/60'
+                    : loadProgress?.stage === 'error'
+                    ? 'text-amber-400 border-amber-800/60'
+                    : 'text-blue-400 border-blue-800/60',
+                ].join(' ')}>
+                  {/* Status dot */}
+                  {loadProgress?.stage === 'ready' ? (
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  ) : loadProgress?.stage === 'error' ? (
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
+                  ) : (
+                    <span className="relative flex h-1.5 w-1.5 shrink-0">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-blue-500" />
+                    </span>
+                  )}
+                  {loadProgress?.stage === 'ready'
+                    ? 'API ready'
+                    : loadProgress?.stage === 'error'
+                    ? 'Cached mode'
+                    : loadProgress?.stage === 'repos'
+                    ? 'Loading repos…'
+                    : loadProgress?.stage === 'trends'
+                    ? 'Loading trends…'
+                    : loadProgress?.stage === 'taxonomy'
+                    ? 'Loading taxonomy…'
+                    : 'Connecting…'}
+                </span>
               )}
               {/* Mobile sidebar toggle */}
               <button
@@ -553,27 +741,33 @@ export function HomePageClient() {
             </div>
           )}
 
-          {/* Mini Ask — navigates to /ask for full query experience */}
-          <MiniAskBar />
-
-          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
-            {data && (
-              <LibraryInsightsWidget
-                repos={data.repos}
-                onTagClick={(tag) => toggleTag(tag)}
-              />
-            )}
-          </ErrorBoundary>
-
-          <CrossDimensionWidget analytics={crossDimensionAnalytics} />
-
-          {/* Stats */}
-          {data && (
+          {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
+          {dashboardMode !== 'minimized' && data && (
             <StatsBar
               data={data}
               tagMetrics={data.tagMetrics}
-              onTagClick={(tag) => toggleTag(tag)}
+              onTagClick={toggleTag}
             />
+          )}
+
+          {/* Mini Ask — sticky as user scrolls */}
+          <div className="sticky top-0 z-20 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 py-2 bg-zinc-950/90 backdrop-blur-sm border-b border-zinc-800/50">
+            <MiniAskBar />
+          </div>
+
+          {dashboardMode !== 'minimized' && (
+            <>
+              <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
+                {data && (
+                  <LibraryInsightsWidget
+                    repos={data.repos}
+                    onTagClick={toggleTag}
+                  />
+                )}
+              </ErrorBoundary>
+
+              <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
+            </>
           )}
 
           {/* Search + Filter */}
@@ -645,8 +839,21 @@ export function HomePageClient() {
                 industryStats={industryStats}
                 languageCounts={languageCounts}
                 licenseCounts={licenseCounts}
+                showClaudePluginsOnly={showClaudePluginsOnly}
+                onPluginToggle={handlePluginToggle}
+                selectedSecurityRisk={selectedSecurityRisk}
+                onSecurityRiskChange={setSelectedSecurityRisk}
               />
             </>
+          )}
+
+          {/* KAN-57: 16-category filter chips */}
+          {data && !isLoading && (
+            <CategoryFilterBar
+              repos={data.repos}
+              selected={selectedDbCategory}
+              onSelect={setSelectedDbCategory}
+            />
           )}
 
           {/* Grid */}
@@ -654,7 +861,7 @@ export function HomePageClient() {
             {isLoading ? (
               <LoadingState />
             ) : (
-              <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={(id) => setSelectedCategory(prev => prev === id ? '' : id)} />
+              <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={handleCategoryClick} />
             )}
           </ErrorBoundary>
         </div>
@@ -667,17 +874,17 @@ export function HomePageClient() {
           <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-zinc-800 bg-zinc-950">
             <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
               <MetricsSidebar
-                data={{ ...data, categories: normalizedCategories }}
+                data={sidebarData!}
                 selectedTags={selectedTags}
                 tagMetrics={data.tagMetrics ?? []}
                 intersectionMetrics={intersectionMetrics}
-                onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
+                onTagClick={handleSidebarTagClick}
                 onTagRemove={removeTag}
                 onRepoClick={handleRepoClick}
-                onViewArchived={() => setAttentionFilter('archived-parent')}
-                onViewStale={() => setAttentionFilter('stale')}
-                onViewOutdated={() => setShowOutdatedOnly(true)}
-                onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
+                onViewArchived={handleViewArchived}
+                onViewStale={handleViewStale}
+                onViewOutdated={handleViewOutdated}
+                onSyncFilter={handleSyncFilter}
                 onCategoryFilter={setSelectedCategory}
                 selectedCategory={selectedCategory}
                 trends={trends}
@@ -695,17 +902,17 @@ export function HomePageClient() {
               <div className="w-[340px] border-l border-zinc-800 bg-zinc-950 overflow-y-auto">
                 <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
                   <MetricsSidebar
-                    data={{ ...data, categories: normalizedCategories }}
+                    data={sidebarData!}
                     selectedTags={selectedTags}
                     tagMetrics={data.tagMetrics ?? []}
                     intersectionMetrics={intersectionMetrics}
-                    onTagClick={(tag) => { if (!selectedTags.includes(tag)) toggleTag(tag); }}
+                    onTagClick={handleSidebarTagClick}
                     onTagRemove={removeTag}
                     onRepoClick={handleRepoClick}
-                    onViewArchived={() => setAttentionFilter('archived-parent')}
-                    onViewStale={() => setAttentionFilter('stale')}
-                    onViewOutdated={() => setShowOutdatedOnly(true)}
-                    onSyncFilter={(status) => setSelectedSyncStatus(status as typeof selectedSyncStatus)}
+                    onViewArchived={handleViewArchived}
+                    onViewStale={handleViewStale}
+                    onViewOutdated={handleViewOutdated}
+                    onSyncFilter={handleSyncFilter}
                     onCategoryFilter={setSelectedCategory}
                     selectedCategory={selectedCategory}
                     trends={trends}
