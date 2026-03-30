@@ -19,21 +19,12 @@ export const metadata: Metadata = {
     url: 'https://www.reporium.com',
     siteName: 'Reporium',
     type: 'website',
-    images: [
-      {
-        url: '/opengraph-image',
-        width: 1200,
-        height: 630,
-        alt: 'Reporium - AI Dev Tool Library',
-      },
-    ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'Reporium - AI Dev Tool Library',
     description:
       'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
-    images: ['/opengraph-image'],
   },
 };
 
