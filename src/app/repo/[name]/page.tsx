@@ -328,7 +328,9 @@ export default async function RepoDetailPage({
     name: upstream,
     description: repo.readme_summary ?? repo.description ?? undefined,
     url: `https://www.reporium.com/repo/${encodeURIComponent(repo.name)}`,
-    codeRepository: repo.github_url,
+    codeRepository: repo.is_fork && repo.forked_from
+      ? `https://github.com/${repo.forked_from}`
+      : repo.github_url,
     programmingLanguage: repo.primary_language ?? undefined,
     ...(stars != null && { aggregateRating: {
       '@type': 'AggregateRating',
