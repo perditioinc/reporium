@@ -107,14 +107,12 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
     .filter(b => b.category !== 'individual')
     .slice(0, 25);
 
-  // AI Dev Coverage — compute from dbCategory when aiDevSkillStats is empty (always the case
-  // with the FastAPI backend which doesn't populate that field). Falls back to the pre-computed
-  // stats if they exist.
+  // AI Dev Coverage — always computed from the 16-category dbCategory taxonomy.
+  // The legacy aiDevSkillStats (28-skill pre-taxonomy) is ignored; it contained
+  // stale counts and led to ❌ badges for skills like "Structured Output" even when
+  // repos were present under a different category name in the new taxonomy.
   const aiDevStats = useMemo<SkillStats[]>(() => {
-    if (data.aiDevSkillStats && data.aiDevSkillStats.length > 0) {
-      return data.aiDevSkillStats;
-    }
-    // Build from dbCategory counts
+    // Build from dbCategory counts using the current 16-category taxonomy
     const counts = new Map<string, { count: number; repos: string[] }>();
     for (const repo of repos) {
       const cat = repo.dbCategory;
@@ -134,7 +132,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
         coverage: count >= 10 ? 'strong' : count >= 3 ? 'moderate' : count >= 1 ? 'weak' : 'none',
         topRepos,
       } as SkillStats));
-  }, [repos, data.aiDevSkillStats]);
+  }, [repos]);
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">

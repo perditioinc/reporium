@@ -84,7 +84,11 @@ export function LibraryInsightsWidget({ repos, onTagClick }: LibraryInsightsWidg
     }
 
     // ── 5. Enrichment coverage stats ────────────────────────────────────────
-    const reposWithSkills   = repos.filter(r => (r.aiDevSkills?.length   ?? 0) > 0).length;
+    // Use dbCategory (primary_category in DB) as the canonical "AI-classified" signal —
+    // it has 92%+ coverage vs aiDevSkills which was never fully populated.
+    const reposWithSkills   = repos.filter(r =>
+      r.dbCategory || (r.aiDevSkills?.length ?? 0) > 0
+    ).length;
     const reposWithTaxonomy = repos.filter(r => (r.taxonomy?.length      ?? 0) > 0).length;
     const reposWithRichTags = repos.filter(r => (r.enrichedTags?.length  ?? 0) >= 8).length;
     const hasQualityData    = withTests + withCI + active > 0;

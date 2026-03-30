@@ -18,6 +18,33 @@ import { EnrichedRepo, LibraryData } from '@/types/repo';
 
 const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
 
+/** Reverse-lookup from human-readable primaryCategory (library.json fallback) → DB category ID */
+const LABEL_TO_CATEGORY_ID: Record<string, string> = {
+  'Agents & Orchestration': 'agents', 'AI Agents': 'agents',
+  'RAG & Retrieval': 'rag-retrieval', 'RAG & Knowledge': 'rag-retrieval', 'Search & Knowledge': 'rag-retrieval',
+  'LLM Serving': 'llm-serving', 'Inference & Serving': 'llm-serving',
+  'Fine-tuning': 'fine-tuning', 'Model Training': 'fine-tuning',
+  'Evaluation': 'evaluation', 'Evals & Benchmarking': 'evaluation',
+  'Orchestration': 'orchestration',
+  'Vector Databases': 'vector-databases',
+  'Observability': 'observability',
+  'Security & Safety': 'security-safety',
+  'Code Generation': 'code-generation',
+  'Data Processing': 'data-processing', 'Data Science': 'data-processing',
+  'Computer Vision': 'computer-vision',
+  'NLP & Text': 'nlp-text',
+  'Speech & Audio': 'speech-audio',
+  'Generative Media': 'generative-media',
+  'Infrastructure': 'infrastructure', 'ML Platform & Infrastructure': 'infrastructure',
+};
+
+function resolveCategory(repo: EnrichedRepo): string | null {
+  if (repo.dbCategory) return repo.dbCategory;
+  const label = (repo as unknown as Record<string, string>).primaryCategory;
+  if (!label) return null;
+  return LABEL_TO_CATEGORY_ID[label] ?? null;
+}
+
 const CATEGORY_ICONS: Record<string, string> = {
   'agents': '🤖', 'rag-retrieval': '🔍', 'llm-serving': '⚡',
   'fine-tuning': '🎯', 'evaluation': '📊', 'orchestration': '🔀',
@@ -90,11 +117,20 @@ export default function InsightsPage() {
 
   useEffect(() => {
     async function load() {
+      // page_size max is 500 per API constraint; use timeout to avoid cold-start hangs
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10_000);
       try {
-        const res = await fetch(`${API_URL}/library/full?page=1&page_size=2000`);
+        const res = await fetch(
+          `${API_URL}/library/full?page=1&page_size=500`,
+          { signal: controller.signal },
+        );
+        clearTimeout(timeoutId);
         if (!res.ok) throw new Error(`API error ${res.status}`);
         setData(await res.json());
       } catch (e) {
+        clearTimeout(timeoutId);
+        // Fallback to cached library.json (served from Vercel CDN)
         try {
           const res = await fetch('/data/library.json');
           if (!res.ok) throw new Error('Cache miss');
@@ -145,7 +181,7 @@ export default function InsightsPage() {
     if (!data) return [] as EnrichedRepo[];
     const leaders = new Map<string, EnrichedRepo>();
     for (const repo of data.repos) {
-      const cat = repo.dbCategory;
+      const cat = resolveCategory(repo);
       if (!cat) continue;
       const current = leaders.get(cat);
       const score = (repo.parentStats?.stars ?? repo.stars) + (repo.commitStats?.last30Days ?? 0) * 10;
