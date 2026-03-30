@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx tsx scripts/generate-sitemap.ts && next build",
+    "sitemap": "npx tsx scripts/generate-sitemap.ts",
     "generate": "npx tsx scripts/fetch-library.ts",
     "generate:legacy": "npx tsx scripts/generate-library.ts",
     "generate:quick": "npx tsx scripts/generate-library.ts --quick",
