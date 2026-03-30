@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 
 // ---------------------------------------------------------------------------
-// Types matching /intelligence/ask response schema
+// Types matching /intelligence/ask/stream SSE events
 // ---------------------------------------------------------------------------
 interface SourceRepo {
   name: string;
@@ -16,15 +16,32 @@ interface SourceRepo {
   integration_tags: string[];
 }
 
-interface AskResponse {
-  answer: string;
-  sources: SourceRepo[];
-  question: string;
-  model: string;
-  answered_at: string;
-  embedding_candidates: number;
-  tokens_used: { input: number; output: number; total: number };
+interface TokensUsed {
+  input: number;
+  output: number;
+  total: number;
 }
+
+// SSE event shapes
+interface SourcesEvent {
+  type: 'sources';
+  sources: SourceRepo[];
+  cache_hit: boolean;
+}
+interface TokenEvent {
+  type: 'token';
+  text: string;
+}
+interface DoneEvent {
+  type: 'done';
+  tokens: TokensUsed;
+  cache_hit?: boolean;
+}
+interface ErrorEvent {
+  type: 'error';
+  message: string;
+}
+type StreamEvent = SourcesEvent | TokenEvent | DoneEvent | ErrorEvent;
 
 // ---------------------------------------------------------------------------
 // Client-side rate limit guard (warns before the server rejects)
@@ -56,7 +73,6 @@ function recordRequest() {
     const timestamps: number[] = raw ? JSON.parse(raw) : [];
     const now = Date.now();
     const oneDayAgo = now - 86_400_000;
-    // Prune old entries, add current
     const pruned = timestamps.filter((t) => t > oneDayAgo);
     pruned.push(now);
     localStorage.setItem(RATE_KEY, JSON.stringify(pruned));
@@ -71,6 +87,18 @@ function recordRequest() {
 const INJECTION_RE = /ignore (previous|above|all|prior)|disregard (instructions?|rules?|system)|you are now|act as|new (role|persona|instructions?)|system:\s|reveal (your|the) (prompt|instructions?)|print (your|the) (prompt|instructions?)|repeat (after|back)|DAN mode|jailbreak|END OF CONTEXT|IGNORE ABOVE/i;
 
 // ---------------------------------------------------------------------------
+// Parse an SSE line buffer into events
+// ---------------------------------------------------------------------------
+function parseSseLine(line: string): StreamEvent | null {
+  if (!line.startsWith('data: ')) return null;
+  try {
+    return JSON.parse(line.slice(6)) as StreamEvent;
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // AskBar component
 // ---------------------------------------------------------------------------
 interface AskBarProps {
@@ -80,9 +108,16 @@ interface AskBarProps {
 export function AskBar({ apiUrl }: AskBarProps) {
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AskResponse | null>(null);
+
+  // Streaming state
+  const [streamingAnswer, setStreamingAnswer] = useState('');
+  const [sources, setSources] = useState<SourceRepo[]>([]);
+  const [tokensUsed, setTokensUsed] = useState<TokensUsed | null>(null);
+  const [done, setDone] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const { minuteCount, dayCount } = getRateLimitState();
   const nearMinuteLimit = minuteCount >= RATE_PER_MIN - 2;
@@ -113,16 +148,28 @@ export function AskBar({ apiUrl }: AskBarProps) {
       return;
     }
 
+    // Reset state for new query
     setLoading(true);
     setError(null);
-    setResult(null);
+    setStreamingAnswer('');
+    setSources([]);
+    setTokensUsed(null);
+    setDone(false);
     recordRequest();
 
+    // Cancel any previous in-flight request
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
-      const res = await fetch(`${apiUrl}/intelligence/ask`, {
+      const res = await fetch(`${apiUrl}/intelligence/ask/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: q, top_k: 8 }),
+        signal: controller.signal,
       });
 
       if (res.status === 429) {
@@ -135,9 +182,51 @@ export function AskBar({ apiUrl }: AskBarProps) {
         return;
       }
 
-      const data: AskResponse = await res.json();
-      setResult(data);
-    } catch {
+      // Read the SSE stream
+      const reader = res.body?.getReader();
+      if (!reader) {
+        setError('Streaming not supported by this browser. Please try again.');
+        return;
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete lines
+        const lines = buffer.split('\n');
+        // Keep the last (potentially incomplete) line in the buffer
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          const event = parseSseLine(trimmed);
+          if (!event) continue;
+
+          if (event.type === 'sources') {
+            setSources(event.sources);
+          } else if (event.type === 'token') {
+            setStreamingAnswer((prev) => prev + event.text);
+          } else if (event.type === 'done') {
+            setTokensUsed(event.tokens);
+            setDone(true);
+          } else if (event.type === 'error') {
+            setError(event.message);
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // User aborted — ignore
+        return;
+      }
       setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -153,6 +242,8 @@ export function AskBar({ apiUrl }: AskBarProps) {
 
   const remainingMin = Math.max(0, RATE_PER_MIN - minuteCount);
   const remainingDay = Math.max(0, RATE_PER_DAY - dayCount);
+
+  const hasAnswer = streamingAnswer.length > 0;
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
@@ -182,7 +273,7 @@ export function AskBar({ apiUrl }: AskBarProps) {
           {loading ? (
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
-              Asking...
+              {sources.length > 0 ? 'Answering…' : 'Searching…'}
             </span>
           ) : (
             'Ask'
@@ -191,8 +282,11 @@ export function AskBar({ apiUrl }: AskBarProps) {
       </div>
 
       {/* Loading status */}
-      {loading && (
-        <p className="text-xs text-zinc-500">Searching repos and generating answer — this takes ~10 seconds…</p>
+      {loading && sources.length === 0 && (
+        <p className="text-xs text-zinc-500">Searching repos and finding the best matches…</p>
+      )}
+      {loading && sources.length > 0 && !hasAnswer && (
+        <p className="text-xs text-zinc-500">Generating answer from {sources.length} repos…</p>
       )}
 
       {/* Rate limit warning */}
@@ -211,62 +305,67 @@ export function AskBar({ apiUrl }: AskBarProps) {
         </div>
       )}
 
-      {/* Answer */}
-      {result && (
-        <div className="space-y-3 pt-1">
-          {/* Answer text */}
+      {/* Source repos — shown as soon as we have them (before generation completes) */}
+      {sources.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+            Sources · {sources.length} repos
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {sources.map((repo) => {
+              const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
+              const ghUrl = `https://github.com/${upstream}`;
+              const score = Math.round(repo.relevance_score * 100);
+              return (
+                <a
+                  key={`${repo.owner}/${repo.name}`}
+                  href={ghUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
+                      {upstream}
+                    </span>
+                    <span className="shrink-0 text-xs text-zinc-600">
+                      {score}% match
+                    </span>
+                  </div>
+                  {repo.description && (
+                    <p className="mt-1 text-xs text-zinc-500 line-clamp-2">
+                      {repo.description}
+                    </p>
+                  )}
+                  {repo.stars != null && (
+                    <p className="mt-1 text-xs text-zinc-600">
+                      ★ {repo.stars.toLocaleString()}
+                    </p>
+                  )}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Streaming answer — appears token-by-token */}
+      {hasAnswer && (
+        <div className="space-y-2">
           <div className="rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap">
-            {result.answer}
+            {streamingAnswer}
+            {/* Blinking cursor while still streaming */}
+            {loading && (
+              <span className="inline-block w-0.5 h-4 ml-0.5 bg-zinc-400 align-middle animate-pulse" />
+            )}
           </div>
 
-          {/* Source repos */}
-          {result.sources.length > 0 && (
-            <div className="space-y-1.5">
-              <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                Sources · {result.sources.length} repos
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {result.sources.map((repo) => {
-                  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
-                  const ghUrl = `https://github.com/${upstream}`;
-                  const score = Math.round(repo.relevance_score * 100);
-                  return (
-                    <a
-                      key={`${repo.owner}/${repo.name}`}
-                      href={ghUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
-                          {upstream}
-                        </span>
-                        <span className="shrink-0 text-xs text-zinc-600">
-                          {score}% match
-                        </span>
-                      </div>
-                      {repo.description && (
-                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2">
-                          {repo.description}
-                        </p>
-                      )}
-                      {repo.stars != null && (
-                        <p className="mt-1 text-xs text-zinc-600">
-                          ★ {repo.stars.toLocaleString()}
-                        </p>
-                      )}
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
+          {/* Meta — shown once done */}
+          {done && tokensUsed && (
+            <p className="text-xs text-zinc-600">
+              {sources.length > 0 ? `${sources.length} repos searched` : ''}{sources.length > 0 && tokensUsed ? ' · ' : ''}{tokensUsed ? `${tokensUsed.total} tokens` : ''}
+            </p>
           )}
-
-          {/* Meta */}
-          <p className="text-xs text-zinc-600">
-            {result.embedding_candidates} repos searched · {result.tokens_used.total} tokens
-          </p>
         </div>
       )}
     </div>
