@@ -320,8 +320,38 @@ export default async function RepoDetailPage({
   const forks = repo.is_fork ? repo.parent_forks : 0;
   const builder = repo.builders?.[0] ?? null;
 
+  // JSON-LD structured data for Google / schema.org
+  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: upstream,
+    description: repo.readme_summary ?? repo.description ?? undefined,
+    url: `https://www.reporium.com/repo/${encodeURIComponent(repo.name)}`,
+    codeRepository: repo.github_url,
+    programmingLanguage: repo.primary_language ?? undefined,
+    ...(stars != null && { aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: Math.min(5, Math.round((stars / 10000) * 10) / 2 + 2.5),
+      reviewCount: stars,
+      bestRating: 5,
+      worstRating: 1,
+    }}),
+    ...(repo.primary_language && { inLanguage: repo.primary_language }),
+    keywords: repo.tags?.slice(0, 10).join(', ') ?? undefined,
+    ...(builder && { author: {
+      '@type': builder.is_known_org ? 'Organization' : 'Person',
+      name: builder.display_name ?? builder.login,
+      url: `https://github.com/${builder.login}`,
+    }}),
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <WikiNavBar title={repo.name} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8 md:px-8">

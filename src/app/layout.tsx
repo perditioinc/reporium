@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.png',
+        url: '/opengraph-image',
         width: 1200,
         height: 630,
         alt: 'Reporium - AI Dev Tool Library',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     title: 'Reporium - AI Dev Tool Library',
     description:
       'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
-    images: ['/og-image.png'],
+    images: ['/opengraph-image'],
   },
 };
 
