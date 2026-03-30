@@ -36,6 +36,33 @@ const CATEGORY_LABELS: Record<string, { label: string; icon: string; color: stri
   'infrastructure':   { label: 'Infrastructure',     icon: '🏗️', color: '#78716c' },
 };
 
+/** Reverse-lookup from human-readable primaryCategory (library.json fallback) → DB category ID */
+const LABEL_TO_CATEGORY_ID: Record<string, string> = {
+  'Agents & Orchestration': 'agents', 'AI Agents': 'agents',
+  'RAG & Retrieval': 'rag-retrieval', 'RAG & Knowledge': 'rag-retrieval', 'Search & Knowledge': 'rag-retrieval',
+  'LLM Serving': 'llm-serving', 'Inference & Serving': 'llm-serving',
+  'Fine-tuning': 'fine-tuning', 'Model Training': 'fine-tuning',
+  'Evaluation': 'evaluation', 'Evals & Benchmarking': 'evaluation',
+  'Orchestration': 'orchestration',
+  'Vector Databases': 'vector-databases', 'Vector DBs': 'vector-databases',
+  'Observability': 'observability',
+  'Security & Safety': 'security-safety', 'AI Safety': 'security-safety',
+  'Code Generation': 'code-generation', 'Code Gen': 'code-generation',
+  'Data Processing': 'data-processing', 'Data Science': 'data-processing',
+  'Computer Vision': 'computer-vision',
+  'NLP & Text': 'nlp-text', 'NLP': 'nlp-text',
+  'Speech & Audio': 'speech-audio',
+  'Generative Media': 'generative-media',
+  'Infrastructure': 'infrastructure', 'ML Platform & Infrastructure': 'infrastructure',
+};
+
+function resolveCategory(repo: EnrichedRepo): string | null {
+  if (repo.dbCategory) return repo.dbCategory;
+  const label = (repo as unknown as Record<string, string>).primaryCategory;
+  if (!label) return null;
+  return LABEL_TO_CATEGORY_ID[label] ?? null;
+}
+
 interface CategoryMomentum {
   id: string;
   label: string;
@@ -50,7 +77,7 @@ interface CategoryMomentum {
 function computeCategoryMomentum(repos: EnrichedRepo[]): CategoryMomentum[] {
   const counts = new Map<string, { repos: number; c7: number; c30: number }>();
   for (const repo of repos) {
-    const cat = repo.dbCategory;
+    const cat = resolveCategory(repo);
     if (!cat) continue;
     const cur = counts.get(cat) ?? { repos: 0, c7: 0, c30: 0 };
     cur.repos += 1;
@@ -134,12 +161,20 @@ export default function TrendsPage() {
 
   useEffect(() => {
     async function load() {
+      // page_size max is 500 per API constraint; use timeout to avoid cold-start hangs
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10_000);
       try {
-        const res = await fetch(`${API_URL}/library/full?page=1&page_size=2000`);
+        const res = await fetch(
+          `${API_URL}/library/full?page=1&page_size=500`,
+          { signal: controller.signal },
+        );
+        clearTimeout(timeoutId);
         if (!res.ok) throw new Error(`API error ${res.status}`);
         setData(await res.json());
       } catch (e) {
-        // Fallback to cached library.json
+        clearTimeout(timeoutId);
+        // Fallback to cached library.json (served from Vercel CDN)
         try {
           const res = await fetch('/data/library.json');
           if (!res.ok) throw new Error('Cache miss');
