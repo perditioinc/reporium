@@ -1,6 +1,24 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
+
+// ---------------------------------------------------------------------------
+// Session ID management (KAN-158/KAN-159)
+// ---------------------------------------------------------------------------
+const SESSION_KEY = 'reporium_ask_session_id';
+
+function getOrCreateSessionId(): string {
+  if (typeof window === 'undefined') return crypto.randomUUID();
+  const existing = sessionStorage.getItem(SESSION_KEY);
+  if (existing) return existing;
+  const id = crypto.randomUUID();
+  sessionStorage.setItem(SESSION_KEY, id);
+  return id;
+}
+
+function clearSessionId(): void {
+  if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_KEY);
+}
 
 // ---------------------------------------------------------------------------
 // Types matching /intelligence/ask/stream SSE events
@@ -119,6 +137,23 @@ export function AskBar({ apiUrl }: AskBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  // KAN-158: conversational session state
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [turnCount, setTurnCount] = useState(0);
+
+  const handleNewConversation = useCallback(() => {
+    clearSessionId();
+    setSessionId(null);
+    setTurnCount(0);
+    setStreamingAnswer('');
+    setSources([]);
+    setTokensUsed(null);
+    setDone(false);
+    setError(null);
+    setQuestion('');
+    inputRef.current?.focus();
+  }, []);
+
   const { minuteCount, dayCount } = getRateLimitState();
   const nearMinuteLimit = minuteCount >= RATE_PER_MIN - 2;
   const nearDayLimit = dayCount >= RATE_PER_DAY - 5;
@@ -165,10 +200,14 @@ export function AskBar({ apiUrl }: AskBarProps) {
     abortRef.current = controller;
 
     try {
+      // Get or create a session ID for conversational memory (KAN-158)
+      const sid = sessionId ?? getOrCreateSessionId();
+      if (!sessionId) setSessionId(sid);
+
       const res = await fetch(`${apiUrl}/intelligence/ask/stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, top_k: 8 }),
+        body: JSON.stringify({ question: q, top_k: 8, session_id: sid }),
         signal: controller.signal,
       });
 
@@ -216,6 +255,7 @@ export function AskBar({ apiUrl }: AskBarProps) {
           } else if (event.type === 'done') {
             setTokensUsed(event.tokens);
             setDone(true);
+            setTurnCount((n) => n + 1);
           } else if (event.type === 'error') {
             setError(event.message);
             break;
@@ -247,6 +287,22 @@ export function AskBar({ apiUrl }: AskBarProps) {
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-3">
+      {/* Conversation continuity indicator (KAN-158) */}
+      {sessionId && turnCount > 0 && (
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-1.5 text-xs text-sky-400/80">
+            <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+            Continuing conversation ({turnCount} {turnCount === 1 ? 'turn' : 'turns'})
+          </span>
+          <button
+            onClick={handleNewConversation}
+            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors underline-offset-2 hover:underline"
+          >
+            New conversation
+          </button>
+        </div>
+      )}
+
       {/* Input row */}
       <div className="flex gap-2">
         <div className="relative flex-1">
