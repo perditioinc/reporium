@@ -261,18 +261,9 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
-    // Return cached data immediately if available
-    if (this.libraryCache) return this.libraryCache
-    // Deduplicate concurrent calls
-    if (this.libraryPromise) return this.libraryPromise
-    this.libraryPromise = this._fetchLibrary(onProgress)
-    try {
-      const result = await this.libraryPromise
-      this.libraryCache = result
-      return result
-    } finally {
-      this.libraryPromise = null
-    }
+    // Use pre-generated static JSON for instant load (built fresh every deploy).
+    // The API is still used for real-time features (/ask, /nl-filter, /similar).
+    return this.fallback.getLibrary(onProgress)
   }
 
   private async _fetchLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
