@@ -254,7 +254,9 @@ async function getSimilarRepos(name: string): Promise<SimilarRepo[]> {
       headers: { Accept: 'application/json' },
     });
     if (!response.ok) return [];
-    return (await response.json()) as SimilarRepo[];
+    const json = await response.json();
+    // API returns { source_repo, similar: [...], total } — unwrap
+    return (Array.isArray(json) ? json : (json.similar ?? [])) as SimilarRepo[];
   } catch {
     return [];
   }
