@@ -203,8 +203,8 @@ export default function TrendsPage() {
         return added && new Date(added).getTime() >= sevenDaysAgo;
       })
       .sort((a, b) => {
-        const aDate = new Date(a.forkedAt ?? a.createdAt).getTime();
-        const bDate = new Date(b.forkedAt ?? b.createdAt).getTime();
+        const aDate = new Date(a.forkedAt || a.createdAt || 0).getTime();
+        const bDate = new Date(b.forkedAt || b.createdAt || 0).getTime();
         return bDate - aDate;
       })
       .slice(0, 20);

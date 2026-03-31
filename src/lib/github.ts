@@ -427,12 +427,12 @@ export function mapGitHubRepo(
     url: repo.html_url,
     isArchived: repo.archived,
     createdAt: repo.fork
-      ? (forkInfo?.upstreamCreatedAt ?? repo.created_at)
-      : repo.created_at,
-    forkedAt: repo.fork ? repo.created_at : null,
-    yourLastPushAt: repo.fork ? repo.pushed_at : null,
-    upstreamLastPushAt: repo.fork ? (forkInfo?.upstreamLastPushAt ?? null) : null,
-    upstreamCreatedAt: repo.fork ? (forkInfo?.upstreamCreatedAt ?? null) : null,
+      ? (forkInfo?.upstreamCreatedAt || repo.created_at || null)
+      : (repo.created_at || null),
+    forkedAt: repo.fork ? (repo.created_at || null) : null,
+    yourLastPushAt: repo.fork ? (repo.pushed_at || null) : null,
+    upstreamLastPushAt: repo.fork ? (forkInfo?.upstreamLastPushAt || null) : null,
+    upstreamCreatedAt: repo.fork ? (forkInfo?.upstreamCreatedAt || null) : null,
   };
 }
 
