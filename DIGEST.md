@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 29, 2026
+**perditioinc's GitHub Knowledge Library** · Generated March 30, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Self-hosted** (+94200% vs last week)
-stagehand, Lean, eliza are most active.
+**Self-hosted** (+23000% vs last week)
+dolt, coder, meshery are most active.
 
-**Developer Tools** (+63900% vs last week)
-stagehand, meshery, giskard-oss are most active.
+**Developer Tools** (+22800% vs last week)
+dolt, coder, meshery are most active.
 
-**On-premise** (+63000% vs last week)
-Lean, runtime, ImageMagick are most active.
+**Text** (+17100% vs last week)
+coder, superset, vespa are most active.
 
 ---
 
@@ -25,7 +25,7 @@ Lean, runtime, ImageMagick are most active.
 
 ## 30-Day Summary
 - **📦 Other AI / ML** most active category (9657 commits across 1308 repos)
-- **Self-hosted** fastest growing (+94200% commit velocity)
+- **Self-hosted** fastest growing (+23000% commit velocity)
 - **Deep Learning** cooling (-100% change in activity)
 
 ---

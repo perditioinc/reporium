@@ -63,6 +63,7 @@ export function RecommendationsWidget({ currentRepos }: RecommendationsWidgetPro
     setLoading(true);
 
     fetch(`${API_URL}/intelligence/similar/${encodeURIComponent(seed)}?limit=${REC_LIMIT}`)
+<<<<<<< HEAD
       .then((r) => (r.ok ? r.json() : { similar: [] }))
       .then((data: { similar?: SimilarRepo[] } | SimilarRepo[]) => {
         // API returns { source_repo, similar: [...], total } — unwrap

@@ -1,138 +1,136 @@
 {
-  "generatedAt": "2026-03-29T11:36:20.385Z",
+  "generatedAt": "2026-03-30T07:14:33.498Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-03-26 03:58:36 -0700",
-    "snapshots": 11
+    "to": "2026-03-29 11:36:22 +0000",
+    "snapshots": 12
   },
   "trending": [
     {
       "name": "Self-hosted",
       "type": "tag",
-      "currentActivity": 942,
+      "currentActivity": 230,
       "previousActivity": 0,
-      "changePercent": 94200,
+      "changePercent": 23000,
       "repoCount": 1144,
       "representativeRepos": [
-        "stagehand",
-        "Lean",
-        "eliza"
+        "dolt",
+        "coder",
+        "meshery"
       ]
     },
     {
       "name": "Developer Tools",
       "type": "tag",
-      "currentActivity": 639,
+      "currentActivity": 228,
       "previousActivity": 0,
-      "changePercent": 63900,
+      "changePercent": 22800,
       "repoCount": 467,
       "representativeRepos": [
-        "stagehand",
-        "meshery",
-        "giskard-oss"
-      ]
-    },
-    {
-      "name": "On-premise",
-      "type": "tag",
-      "currentActivity": 630,
-      "previousActivity": 0,
-      "changePercent": 63000,
-      "repoCount": 704,
-      "representativeRepos": [
-        "Lean",
-        "runtime",
-        "ImageMagick"
+        "dolt",
+        "coder",
+        "meshery"
       ]
     },
     {
       "name": "Text",
       "type": "tag",
-      "currentActivity": 600,
+      "currentActivity": 171,
       "previousActivity": 0,
-      "changePercent": 60000,
+      "changePercent": 17100,
       "repoCount": 973,
       "representativeRepos": [
-        "stagehand",
-        "eliza",
-        "robotframework"
+        "coder",
+        "superset",
+        "vespa"
+      ]
+    },
+    {
+      "name": "Code",
+      "type": "tag",
+      "currentActivity": 160,
+      "previousActivity": 0,
+      "changePercent": 16000,
+      "repoCount": 229,
+      "representativeRepos": [
+        "coder",
+        "superset",
+        "agent-orchestrator"
       ]
     },
     {
       "name": "Cloud API",
       "type": "tag",
-      "currentActivity": 520,
+      "currentActivity": 127,
       "previousActivity": 0,
-      "changePercent": 52000,
+      "changePercent": 12700,
       "repoCount": 624,
       "representativeRepos": [
-        "stagehand",
-        "Lean",
-        "eliza"
-      ]
-    },
-    {
-      "name": "Edge/Mobile",
-      "type": "tag",
-      "currentActivity": 354,
-      "previousActivity": 0,
-      "changePercent": 35400,
-      "repoCount": 195,
-      "representativeRepos": [
-        "runtime",
-        "ImageMagick",
-        "AudioKit"
-      ]
-    },
-    {
-      "name": "Cloud",
-      "type": "tag",
-      "currentActivity": 303,
-      "previousActivity": 0,
-      "changePercent": 30300,
-      "repoCount": 142,
-      "representativeRepos": [
-        "runtime",
-        "robotframework",
-        "autogluon"
-      ]
-    },
-    {
-      "name": "Multimodal",
-      "type": "tag",
-      "currentActivity": 280,
-      "previousActivity": 0,
-      "changePercent": 28000,
-      "repoCount": 255,
-      "representativeRepos": [
-        "eliza",
-        "autogluon",
-        "vespa"
-      ]
-    },
-    {
-      "name": "Tabular",
-      "type": "tag",
-      "currentActivity": 269,
-      "previousActivity": 0,
-      "changePercent": 26900,
-      "repoCount": 225,
-      "representativeRepos": [
-        "Lean",
-        "autogluon",
-        "openvino"
-      ]
-    },
-    {
-      "name": "Cloud Infrastructure",
-      "type": "tag",
-      "currentActivity": 223,
-      "previousActivity": 0,
-      "changePercent": 22300,
-      "repoCount": 19,
-      "representativeRepos": [
         "meshery",
-        "reporium-events"
+        "agent-orchestrator",
+        "reporium"
+      ]
+    },
+    {
+      "name": "Natural Language Processing",
+      "type": "tag",
+      "currentActivity": 91,
+      "previousActivity": 0,
+      "changePercent": 9100,
+      "repoCount": 191,
+      "representativeRepos": [
+        "reporium",
+        "reporium-ingestion"
+      ]
+    },
+    {
+      "name": "On-premise",
+      "type": "tag",
+      "currentActivity": 85,
+      "previousActivity": 0,
+      "changePercent": 8500,
+      "repoCount": 704,
+      "representativeRepos": [
+        "dolt",
+        "coder",
+        "meshery"
+      ]
+    },
+    {
+      "name": "Data Pipeline Engineering",
+      "type": "tag",
+      "currentActivity": 62,
+      "previousActivity": 0,
+      "changePercent": 6200,
+      "repoCount": 23,
+      "representativeRepos": [
+        "reporium",
+        "reporium-db"
+      ]
+    },
+    {
+      "name": "Code Intelligence",
+      "type": "tag",
+      "currentActivity": 54,
+      "previousActivity": 0,
+      "changePercent": 5400,
+      "repoCount": 11,
+      "representativeRepos": [
+        "superset",
+        "reporium-ingestion",
+        "reporium-db"
+      ]
+    },
+    {
+      "name": "Repository Mining",
+      "type": "tag",
+      "currentActivity": 54,
+      "previousActivity": 0,
+      "changePercent": 5400,
+      "repoCount": 5,
+      "representativeRepos": [
+        "reporium",
+        "reporium-dataset"
       ]
     }
   ],
@@ -141,13 +139,20 @@
     {
       "name": "Deep Learning",
       "type": "tag",
-      "currentActivity": 1,
+      "currentActivity": 0,
       "previousActivity": 895,
       "changePercent": -100,
-      "repoCount": 51,
-      "representativeRepos": [
-        "autogluon"
-      ]
+      "repoCount": 52,
+      "representativeRepos": []
+    },
+    {
+      "name": "Computer Vision",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 753,
+      "changePercent": -100,
+      "repoCount": 203,
+      "representativeRepos": []
     },
     {
       "name": "Data Science",
@@ -164,32 +169,23 @@
       "currentActivity": 0,
       "previousActivity": 638,
       "changePercent": -100,
-      "repoCount": 40,
+      "repoCount": 41,
       "representativeRepos": []
     },
     {
-      "name": "Autonomous Systems",
+      "name": "AI Safety",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 26,
+      "previousActivity": 511,
       "changePercent": -100,
-      "repoCount": 30,
-      "representativeRepos": []
-    },
-    {
-      "name": "Stable Diffusion",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 355,
-      "changePercent": -100,
-      "repoCount": 4,
+      "repoCount": 98,
       "representativeRepos": []
     }
   ],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Self-hosted is the fastest-growing area this week with +94200% commit velocity.",
+    "Self-hosted is the fastest-growing area this week with +23000% commit velocity.",
     "Activity in Deep Learning has slowed by 100% this week."
   ]
 }
