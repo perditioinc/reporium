@@ -26,6 +26,8 @@ jobs:
         run: |
           # fetch-library.ts: one API call to /library/full (~3s, no GitHub API rate limit cost)
           npm run generate
+      - name: Fix builders
+        run: npm run fix-builders
       - name: Validate library data
         run: npm run validate
       - name: Detect trends
