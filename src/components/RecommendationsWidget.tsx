@@ -63,12 +63,15 @@ export function RecommendationsWidget({ currentRepos }: RecommendationsWidgetPro
     setLoading(true);
 
     fetch(`${API_URL}/intelligence/similar/${encodeURIComponent(seed)}?limit=${REC_LIMIT}`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: SimilarRepo[]) => {
+<<<<<<< HEAD
+      .then((r) => (r.ok ? r.json() : { similar: [] }))
+      .then((data: { similar?: SimilarRepo[] } | SimilarRepo[]) => {
+        // API returns { source_repo, similar: [...], total } — unwrap
+        const repoList: SimilarRepo[] = Array.isArray(data) ? data : (data.similar ?? []);
         // Filter out repos already visible in the grid
         const filtered = currentRepos
-          ? data.filter((r) => !currentRepos.has(r.name))
-          : data;
+          ? repoList.filter((r) => !currentRepos.has(r.name))
+          : repoList;
         setRecs(filtered.slice(0, REC_LIMIT));
       })
       .catch(() => setRecs([]))
