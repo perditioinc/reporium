@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, memo } from 'react';
-import { EnrichedRepo } from '@/types/repo';
+import { useState, useEffect, useRef, memo } from 'react';
+import { EnrichedRepo, CommitSummary } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 import { QualityBadge } from '@/components/QualityBadge';
 
@@ -271,6 +271,37 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
   const ps = repo.parentStats;
   const [commitsOpen, setCommitsOpen] = useState(false);
   const [skillsExpanded, setSkillsExpanded] = useState(false);
+  const [lazyCommits, setLazyCommits] = useState<CommitSummary[] | null>(null);
+  const [lazyFetching, setLazyFetching] = useState(false);
+  const fetchedRef = useRef(false);
+
+  // Lazy-fetch commit data from API when section is expanded and no local arrays exist
+  useEffect(() => {
+    const hasLocalCommits =
+      (repo.recentCommits?.length ?? 0) > 0 ||
+      (repo.commitsLast7Days?.length ?? 0) > 0 ||
+      (repo.commitsLast30Days?.length ?? 0) > 0;
+    const hasActivity = (repo.commitStats?.last30Days ?? 0) > 0 || (repo.commitStats?.last7Days ?? 0) > 0;
+    if (!commitsOpen || hasLocalCommits || !hasActivity || fetchedRef.current) return;
+    fetchedRef.current = true;
+    const apiUrl = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
+    if (!apiUrl) return;
+    setLazyFetching(true);
+    fetch(`${apiUrl}/repos/${encodeURIComponent(repo.name)}`, { headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: EnrichedRepo | null) => {
+        const commits =
+          (data?.recentCommits?.length ?? 0) > 0
+            ? (data!.recentCommits ?? [])
+            : (data?.commitsLast30Days?.length ?? 0) > 0
+              ? (data!.commitsLast30Days ?? []).slice(0, 5)
+              : [];
+        setLazyCommits(commits);
+      })
+      .catch(() => setLazyCommits([]))
+      .finally(() => setLazyFetching(false));
+  }, [commitsOpen, repo]);
+
   const catStyle = getCategoryStyle(repo.primaryCategory);
   const quality = repo.qualitySignals ?? repo.quality_signals;
   const sec = repo.securitySignals ?? null;
@@ -814,9 +845,9 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
         <p className="text-xs text-zinc-600">Similar in library: {similarCount}</p>
       )}
 
-      {/* Recent commits — prefer recentCommits, fall back to commitsLast30Days arrays */}
+      {/* Recent commits — prefer local arrays, fall back to lazy API fetch for active repos */}
       {(() => {
-        const commits =
+        const localCommits =
           (repo.recentCommits?.length ?? 0) > 0
             ? repo.recentCommits
             : (repo.commitsLast7Days?.length ?? 0) > 0
@@ -824,7 +855,9 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
               : (repo.commitsLast30Days?.length ?? 0) > 0
                 ? repo.commitsLast30Days.slice(0, 5)
                 : [];
-        if (commits.length === 0) return null;
+        const commits = localCommits.length > 0 ? localCommits : (lazyCommits ?? []);
+        const hasActivity = (repo.commitStats?.last30Days ?? 0) > 0 || (repo.commitStats?.last7Days ?? 0) > 0;
+        if (localCommits.length === 0 && !hasActivity) return null;
         return (
           <div className="border-t border-zinc-800 pt-2">
             <button
@@ -836,6 +869,12 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
             </button>
             {commitsOpen && (
               <div className="mt-2 space-y-1.5">
+                {lazyFetching && (
+                  <p className="text-xs text-zinc-600">Loading…</p>
+                )}
+                {!lazyFetching && commits.length === 0 && (
+                  <p className="text-xs text-zinc-600">No commit details available.</p>
+                )}
                 {commits.map((commit) => {
                   const { dotColor, textColor, label } = commitDisplayInfo(commit.date);
                   return (
