@@ -1,5 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 30, 2026
+**perditioinc's GitHub Knowledge Library** · Generated March 31, 2026
 
 ---
 
@@ -9,7 +9,7 @@ These areas in your library are seeing accelerating activity:
 **Self-hosted** (+23000% vs last week)
 dolt, coder, meshery are most active.
 
-**Developer Tools** (+22800% vs last week)
+**Developer Tools** (+22700% vs last week)
 dolt, coder, meshery are most active.
 
 **Text** (+17100% vs last week)
@@ -18,13 +18,13 @@ coder, superset, vespa are most active.
 ---
 
 ## Library Health
-- **1505 repos** · **28 categories** · **12021 unique tags**
-- **1488 forks** up to date · **0 forks** behind upstream
+- **1576 repos** · **28 categories** · **12604 unique tags**
+- **1559 forks** up to date · **0 forks** behind upstream
 
 ---
 
 ## 30-Day Summary
-- **📦 Other AI / ML** most active category (9657 commits across 1308 repos)
+- **🛠 Dev Tools & Automation** most active category (427 commits across 1132 repos)
 - **Self-hosted** fastest growing (+23000% commit velocity)
 - **Deep Learning** cooling (-100% change in activity)
 

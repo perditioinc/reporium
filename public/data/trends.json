@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-03-30T07:14:33.498Z",
+  "generatedAt": "2026-03-31T07:49:23.417Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-03-29 11:36:22 +0000",
-    "snapshots": 12
+    "to": "2026-03-30 07:14:36 +0000",
+    "snapshots": 13
   },
   "trending": [
     {
@@ -22,9 +22,9 @@
     {
       "name": "Developer Tools",
       "type": "tag",
-      "currentActivity": 228,
+      "currentActivity": 227,
       "previousActivity": 0,
-      "changePercent": 22800,
+      "changePercent": 22700,
       "repoCount": 467,
       "representativeRepos": [
         "dolt",
@@ -122,15 +122,16 @@
       ]
     },
     {
-      "name": "Repository Mining",
+      "name": "Software Development",
       "type": "tag",
-      "currentActivity": 54,
+      "currentActivity": 53,
       "previousActivity": 0,
-      "changePercent": 5400,
-      "repoCount": 5,
+      "changePercent": 5300,
+      "repoCount": 72,
       "representativeRepos": [
-        "reporium",
-        "reporium-dataset"
+        "superset",
+        "agent-orchestrator",
+        "reporium-ingestion"
       ]
     }
   ],
