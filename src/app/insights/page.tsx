@@ -55,7 +55,8 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 function repoAge(repo: EnrichedRepo): number {
-  const created = repo.upstreamCreatedAt ?? repo.createdAt;
+  const created = repo.upstreamCreatedAt || repo.createdAt;
+  if (!created) return 1;
   return Math.max(1, (Date.now() - new Date(created).getTime()) / (1000 * 60 * 60 * 24 * 30));
 }
 
@@ -170,8 +171,8 @@ export default function InsightsPage() {
         return added && new Date(added).getTime() >= fourteenDaysAgo;
       })
       .sort((a, b) => {
-        const aDate = new Date(a.forkedAt ?? a.createdAt).getTime();
-        const bDate = new Date(b.forkedAt ?? b.createdAt).getTime();
+        const aDate = new Date(a.forkedAt || a.createdAt || 0).getTime();
+        const bDate = new Date(b.forkedAt || b.createdAt || 0).getTime();
         return bDate - aDate;
       })
       .slice(0, 20);
