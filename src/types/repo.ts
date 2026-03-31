@@ -303,7 +303,7 @@ export interface EnrichedRepo {
   recentCommits: CommitSummary[];   // last N commits from parent (or own) repo
 
   // Date metadata
-  createdAt: string;                    // when the original repo was created (parent's created_at for forks, repo.created_at for built)
+  createdAt: string | null;             // when the original repo was created (parent's created_at for forks, repo.created_at for built)
   forkedAt: string | null;              // when THIS user forked it (null for built repos)
   yourLastPushAt: string | null;        // when perditioinc last pushed to their fork (null for built repos)
   upstreamLastPushAt: string | null;    // when upstream owner last pushed (null for built repos)
