@@ -661,7 +661,7 @@ export function HomePageClient() {
     if (result.category) setSelectedDbCategory(result.category);
     if (result.sort === 'stars') setSortBy('stars' as SortOption);
     else if (result.sort === 'updated') setSortBy('updated' as SortOption);
-    if (result.tags?.length) setSelectedTags(result.tags);
+    // Don't apply NL tags to strict tag filter — too granular, causes 0-result false negatives
   }, []);
 
   const handleNLFilterClear = useCallback(() => {
