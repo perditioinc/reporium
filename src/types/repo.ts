@@ -174,9 +174,27 @@ export interface CrossDimensionAnalytics {
 
 export interface SimilarRepo {
   name: string;
+  owner?: string;
   description: string | null;
   primary_language?: string | null;
+  primary_category?: string | null;
+  stars?: number | null;
+  readme_summary?: string | null;
   similarity?: number;
+}
+
+export interface NLFilterResult {
+  language: string | null;
+  category: string | null;
+  min_stars: number | null;
+  max_stars: number | null;
+  sort: string | null;
+  tags: string[];
+  quality: string | null;
+  maturity: string | null;
+  exclude_archived: boolean;
+  interpretation: string;
+  query_params: string;
 }
 
 export type GapSeverity = 'missing' | 'weak' | 'moderate' | 'strong';

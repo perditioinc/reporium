@@ -7,6 +7,7 @@ import { QualityBadge } from '@/components/QualityBadge';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { CATEGORIES } from '@/lib/buildCategories';
 import type { EnrichedRepo, QualitySignals, SimilarRepo } from '@/types/repo';
+import { ViewTracker } from '@/components/ViewTracker';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
@@ -247,7 +248,8 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
 
 async function getSimilarRepos(name: string): Promise<SimilarRepo[]> {
   try {
-    const response = await fetch(`${API_URL}/repos/${encodeURIComponent(name)}/similar?limit=5`, {
+    // KAN-159: use /intelligence/similar/{name} (KAN-156 endpoint, pure pgvector)
+    const response = await fetch(`${API_URL}/intelligence/similar/${encodeURIComponent(name)}?limit=8`, {
       next: { revalidate: 300 },
       headers: { Accept: 'application/json' },
     });
@@ -354,6 +356,8 @@ export default async function RepoDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/* KAN-159: track view for homepage recommendations */}
+      <ViewTracker repoName={repo.name} />
       <WikiNavBar title={repo.name} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8 md:px-8">
@@ -739,7 +743,7 @@ export default async function RepoDetailPage({
         <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold text-zinc-100">Similar Repos</h2>
-            <p className="text-xs text-zinc-500">Cosine similarity from repo embeddings</p>
+            <p className="text-xs text-zinc-500">pgvector cosine similarity · $0</p>
           </div>
           {similarRepos.length > 0 ? (
             <div className="mt-4 space-y-3">
@@ -749,13 +753,16 @@ export default async function RepoDetailPage({
                   href={`/repo/${encodeURIComponent(similar.name)}`}
                   className="flex items-start justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 transition-colors hover:border-zinc-700"
                 >
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-zinc-100">{similar.name}</p>
-                    <p className="mt-1 line-clamp-1 text-xs text-zinc-500">
-                      {similar.description ?? 'No description available.'}
+                    <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
+                      {similar.readme_summary ?? similar.description ?? 'No description available.'}
                     </p>
+                    {similar.stars != null && (
+                      <p className="mt-1 text-xs text-zinc-600">★ {similar.stars.toLocaleString()}</p>
+                    )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 flex-col items-end gap-1.5">
                     {similar.primary_language ? (
                       <span className="rounded-full border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-xs text-zinc-300">
                         {similar.primary_language}
@@ -771,7 +778,7 @@ export default async function RepoDetailPage({
               ))}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-zinc-500">No similar repos surfaced yet.</p>
+            <p className="mt-3 text-sm text-zinc-500">No similar repos surfaced yet — embeddings may still be generating.</p>
           )}
         </section>
       </main>

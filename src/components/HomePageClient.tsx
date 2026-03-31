@@ -15,12 +15,15 @@ import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
+import { NLFilterBar } from '@/components/NLFilterBar';
+import type { NLFilterResult } from '@/types/repo';
 
 // Lazy-load heavy components — they aren't needed for initial paint
 const FilterBar = dynamic(() => import('@/components/FilterBar').then(m => ({ default: m.FilterBar })), { ssr: false });
 const MetricsSidebar = dynamic(() => import('@/components/MetricsSidebar').then(m => ({ default: m.MetricsSidebar })), { ssr: false });
 const LibraryInsightsWidget = dynamic(() => import('@/components/LibraryInsightsWidget').then(m => ({ default: m.LibraryInsightsWidget })), { ssr: false });
 const CrossDimensionWidget = dynamic(() => import('@/components/CrossDimensionWidget').then(m => ({ default: m.CrossDimensionWidget })), { ssr: false });
+const RecommendationsWidget = dynamic(() => import('@/components/RecommendationsWidget').then(m => ({ default: m.RecommendationsWidget })), { ssr: false });
 
 
 
@@ -63,6 +66,11 @@ export function HomePageClient() {
   const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
   const [selectedDeploymentContexts, setSelectedDeploymentContexts] = useState<string[]>([]);
   const [selectedBuilders, setSelectedBuilders] = useState<string[]>([]);
+
+  // KAN-159: NL filter state
+  const [nlFilterInterpretation, setNlFilterInterpretation] = useState<string | null>(null);
+  const [nlMinStars, setNlMinStars] = useState<number | null>(null);
+  const [nlExcludeArchived, setNlExcludeArchived] = useState(false);
 
   // Security risk + Claude Plugin filter state
   const [showClaudePluginsOnly, setShowClaudePluginsOnly] = useState(false);
@@ -364,6 +372,14 @@ export function HomePageClient() {
         if (!matchesSearch) return false;
       }
 
+      // KAN-159: NL filter — min stars
+      if (nlMinStars !== null) {
+        const repoStars = repo.parentStats?.stars ?? repo.stars ?? 0;
+        if (repoStars < nlMinStars) return false;
+      }
+      // KAN-159: NL filter — exclude archived
+      if (nlExcludeArchived && repo.isArchived) return false;
+
       // Type filter
       if (selectedType === 'built' && repo.isFork) return false;
       if (selectedType === 'forked' && !repo.isFork) return false;
@@ -636,6 +652,24 @@ export function HomePageClient() {
   const handlePluginToggle = useCallback(() => setShowClaudePluginsOnly(v => !v), []);
   const handleCategoryClick = useCallback((id: string) => setSelectedCategory(prev => prev === id ? '' : id), []);
 
+  // KAN-159: apply NL filter result to existing filter state
+  const handleNLFilter = useCallback((result: NLFilterResult) => {
+    setNlFilterInterpretation(result.interpretation);
+    setNlMinStars(result.min_stars ?? null);
+    setNlExcludeArchived(result.exclude_archived);
+    if (result.language) setSelectedLanguage(result.language);
+    if (result.category) setSelectedDbCategory(result.category);
+    if (result.sort === 'stars') setSortBy('stars' as SortOption);
+    else if (result.sort === 'updated') setSortBy('updated' as SortOption);
+    if (result.tags?.length) setSelectedTags(result.tags);
+  }, []);
+
+  const handleNLFilterClear = useCallback(() => {
+    setNlFilterInterpretation(null);
+    setNlMinStars(null);
+    setNlExcludeArchived(false);
+  }, []);
+
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* ── Main content ── */}
@@ -755,6 +789,13 @@ export function HomePageClient() {
             <MiniAskBar />
           </div>
 
+          {/* KAN-159: NL Smart Filter bar */}
+          <NLFilterBar
+            onApply={handleNLFilter}
+            onClear={handleNLFilterClear}
+            activeInterpretation={nlFilterInterpretation}
+          />
+
           {dashboardMode !== 'minimized' && (
             <>
               <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
@@ -845,6 +886,13 @@ export function HomePageClient() {
                 onSecurityRiskChange={setSelectedSecurityRisk}
               />
             </>
+          )}
+
+          {/* KAN-159: Recommendations based on recently viewed */}
+          {data && !isLoading && (
+            <ErrorBoundary fallback={null}>
+              <RecommendationsWidget />
+            </ErrorBoundary>
           )}
 
           {/* KAN-57: 16-category filter chips */}
