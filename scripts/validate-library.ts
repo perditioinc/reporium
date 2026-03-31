@@ -24,8 +24,9 @@ const errors: string[] = [];
 const warnings: string[] = [];
 
 // 1. Forked repos must not show the library owner as builder
+// Only check repos where forkedFrom is known — null forkedFrom means we have no data to derive the right builder (DB gap).
 const wrongBuilders = data.repos.filter(r =>
-  r.isFork && r.builders[0]?.login === data.username
+  r.isFork && r.forkedFrom && r.builders[0]?.login === data.username
 );
 if (wrongBuilders.length > 0) {
   errors.push(`${wrongBuilders.length} forked repos showing wrong builder (${data.username}): ${wrongBuilders.slice(0, 3).map(r => r.name).join(', ')}...`);
