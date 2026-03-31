@@ -6,14 +6,14 @@
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Self-hosted** (+23000% vs last week)
-dolt, coder, meshery are most active.
+**Developer Tools** (+16900% vs last week)
+portfolio, reporium-metrics, reporium are most active.
 
-**Developer Tools** (+22700% vs last week)
-dolt, coder, meshery are most active.
+**Self-hosted** (+16100% vs last week)
+reporium-metrics, reporium, reporium-db are most active.
 
-**Text** (+17100% vs last week)
-coder, superset, vespa are most active.
+**Text** (+15500% vs last week)
+reporium, reporium-db, reporium-api are most active.
 
 ---
 
@@ -24,8 +24,8 @@ coder, superset, vespa are most active.
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (427 commits across 1132 repos)
-- **Self-hosted** fastest growing (+23000% commit velocity)
+- **📦 Other AI / ML** most active category (51037 commits across 1308 repos)
+- **Developer Tools** fastest growing (+16900% commit velocity)
 - **Deep Learning** cooling (-100% change in activity)
 
 ---
