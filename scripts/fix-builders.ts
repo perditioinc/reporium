@@ -28,8 +28,9 @@ const data: LibraryData = JSON.parse(fs.readFileSync(libraryPath, 'utf-8'));
 let fixed = 0;
 
 data.repos = data.repos.map((repo) => {
-  const login = repo.isFork && repo.forkedFrom
-    ? repo.forkedFrom.split('/')[0]
+  // For forks: prefer forkedFrom, fall back to parentStats.owner, then fullName owner
+  const login = repo.isFork
+    ? (repo.forkedFrom?.split('/')[0] ?? repo.parentStats?.owner ?? repo.fullName.split('/')[0])
     : repo.fullName.split('/')[0];
 
   const key = login.toLowerCase();
