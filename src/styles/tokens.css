@@ -1,0 +1,38 @@
+/* Design tokens — auto-generated from tokens.ts */
+:root {
+  /* Surfaces */
+  --color-bg-void: #0a0a0f;
+  --color-bg-base: #09090b;
+  --color-bg-raised: #18181b;
+  --color-bg-overlay: #27272a;
+  /* Borders */
+  --color-border-subtle: #27272a;
+  --color-border-default: #3f3f46;
+  --color-border-strong: #52525b;
+  /* Text */
+  --color-text-primary: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-text-dim: #52525b;
+  /* Accent */
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #7c3aed;
+  --color-accent-subtle: rgba(139,92,246,0.1);
+  /* Semantic */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  /* Radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  /* Transitions */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
+  /* Layout */
+  --layout-max-width: 1400px;
+  --layout-sidebar: 340px;
+  --layout-grid-gap: 16px;
+}
