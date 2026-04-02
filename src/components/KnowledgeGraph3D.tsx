@@ -1,15 +1,14 @@
 'use client';
 
 /**
- * KAN-124: 3D constellation knowledge graph using Three.js.
+ * KAN-160: Interactive 3D knowledge graph with Three.js.
  *
- * Features:
- * - 3D force-directed layout with orbit controls (zoom, rotate, pan)
- * - Category-colored glowing nodes sized by connections
- * - Hover info bubbles with repo details
- * - Click to expand info panel (no forced navigation)
- * - Constellation aesthetic: dark background, glow, depth
- * - Fullscreen toggle
+ * Interactions:
+ * - Hover node → highlight connected edges + connected nodes, dim rest
+ * - Click node → info panel with connections list, edges light up
+ * - Category legend → clickable filters, responsive horizontal layout
+ * - Cluster labels → category centroids rendered as text sprites
+ * - Fullscreen toggle, auto-rotation, zoom/rotate/pan
  */
 
 import {
@@ -57,7 +56,6 @@ interface GNode extends SimulationNodeDatum {
   label: string;
   category: string | null;
   connections: number;
-  // 3D position
   z?: number;
   vz?: number;
 }
@@ -110,6 +108,35 @@ function buildLinks(edges: GraphEdge[], nodeIds: Set<string>): GLink[] {
     }));
 }
 
+/** Build adjacency map: nodeId → Set of connected nodeIds */
+function buildAdjacency(edges: GraphEdge[]): Map<string, Set<string>> {
+  const adj = new Map<string, Set<string>>();
+  for (const e of edges) {
+    if (!adj.has(e.source)) adj.set(e.source, new Set());
+    if (!adj.has(e.target)) adj.set(e.target, new Set());
+    adj.get(e.source)!.add(e.target);
+    adj.get(e.target)!.add(e.source);
+  }
+  return adj;
+}
+
+/** Build edge index: for each nodeId, which link indices connect to it */
+function buildEdgeIndex(links: GLink[], nodes: GNode[]): Map<string, number[]> {
+  const idx = new Map<string, number[]>();
+  for (const n of nodes) idx.set(n.id, []);
+  for (let i = 0; i < links.length; i++) {
+    const sId = typeof links[i].source === 'string'
+      ? links[i].source as string
+      : (links[i].source as unknown as GNode).id;
+    const tId = typeof links[i].target === 'string'
+      ? links[i].target as string
+      : (links[i].target as unknown as GNode).id;
+    idx.get(sId)?.push(i);
+    idx.get(tId)?.push(i);
+  }
+  return idx;
+}
+
 function hexToRGB(hex: string): THREE.Color {
   return new THREE.Color(hex);
 }
@@ -119,13 +146,10 @@ function force3D(nodes: GNode[], alpha: number) {
   for (const node of nodes) {
     if (node.z === undefined) node.z = 0;
     if (node.vz === undefined) node.vz = 0;
-    // Stronger center pull on z to keep graph flatter
     node.vz += -node.z * 0.03 * alpha;
-    // Damping
     node.vz *= 0.85;
     node.z += node.vz;
   }
-  // Mild z-repulsion (only sample pairs for perf with large graphs)
   const maxPairs = Math.min(nodes.length, 200);
   for (let i = 0; i < maxPairs; i++) {
     for (let j = i + 1; j < maxPairs; j++) {
@@ -143,6 +167,31 @@ function force3D(nodes: GNode[], alpha: number) {
   }
 }
 
+/** Create a text sprite for cluster labels */
+function createTextSprite(text: string, color: string): THREE.Sprite {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = 256;
+  canvas.height = 64;
+  ctx.clearRect(0, 0, 256, 64);
+  ctx.font = 'bold 22px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.6;
+  ctx.fillText(text, 128, 32);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  const mat = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthWrite: false,
+  });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(30, 7.5, 1);
+  return sprite;
+}
+
 // ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
@@ -151,7 +200,7 @@ interface KnowledgeGraph3DProps {
   nodeMetadata: Map<string, NodeMeta>;
   height?: number;
   onNodeClick?: (nodeId: string) => void;
-  compact?: boolean; // true for home page widget
+  compact?: boolean;
 }
 
 export function KnowledgeGraph3D({
@@ -173,12 +222,20 @@ export function KnowledgeGraph3D({
   const glowMeshesRef = useRef<THREE.Mesh[]>([]);
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2(-9999, -9999));
+  const adjacencyRef = useRef<Map<string, Set<string>>>(new Map());
+  const edgeIndexRef = useRef<Map<string, number[]>>(new Map());
+  const baseEdgeColorsRef = useRef<Float32Array>(new Float32Array(0));
+  const linksRef = useRef<GLink[]>([]);
+  const containerSizeRef = useRef({ w: 0, h: 0 });
 
   const [hoveredNode, setHoveredNode] = useState<GNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<GNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
+  // Track which node IDs are connected to hovered/selected node for the info panel
+  const [connectedNames, setConnectedNames] = useState<string[]>([]);
 
   // Active categories for legend
   const activeCategories = useMemo(() => {
@@ -190,12 +247,24 @@ export function KnowledgeGraph3D({
   }, [nodeMetadata]);
 
   // Build node/link data
-  const { nodes, links } = useMemo(() => {
+  const { nodes, links, adjacency, edgeIndex } = useMemo(() => {
     const nodes = buildNodes(edges, nodeMetadata);
     const nodeIds = new Set(nodes.map((n) => n.id));
     const links = buildLinks(edges, nodeIds);
-    return { nodes, links };
+    const adjacency = buildAdjacency(edges);
+    const edgeIndex = buildEdgeIndex(links, nodes);
+    return { nodes, links, adjacency, edgeIndex };
   }, [edges, nodeMetadata]);
+
+  // Refs for highlight logic (accessible from animate loop)
+  const hoveredNodeRef = useRef<GNode | null>(null);
+  const selectedNodeRef = useRef<GNode | null>(null);
+  const hiddenCategoriesRef = useRef<Set<string>>(new Set());
+
+  // Sync state → refs
+  useEffect(() => { hoveredNodeRef.current = hoveredNode; }, [hoveredNode]);
+  useEffect(() => { selectedNodeRef.current = selectedNode; }, [selectedNode]);
+  useEffect(() => { hiddenCategoriesRef.current = hiddenCategories; }, [hiddenCategories]);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -204,14 +273,15 @@ export function KnowledgeGraph3D({
 
     const width = container.clientWidth;
     const h = height;
+    containerSizeRef.current = { w: width, h };
 
     // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#0a0a0f');
-    scene.fog = new THREE.FogExp2('#0a0a0f', 0.002);
+    scene.fog = new THREE.FogExp2('#0a0a0f', 0.0018);
     sceneRef.current = scene;
 
-    // Camera — far enough to see the whole graph
+    // Camera
     const camera = new THREE.PerspectiveCamera(60, width / h, 0.1, 2000);
     camera.position.set(0, 0, compact ? 260 : 320);
     cameraRef.current = camera;
@@ -234,11 +304,17 @@ export function KnowledgeGraph3D({
     controls.enablePan = true;
     controlsRef.current = controls;
 
-    // Ambient light
+    // Lights
     scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    dirLight.position.set(100, 100, 100);
+    scene.add(dirLight);
 
-    // Store nodes ref for simulation
+    // Store refs
     nodesRef.current = nodes;
+    adjacencyRef.current = adjacency;
+    edgeIndexRef.current = edgeIndex;
+    linksRef.current = links;
 
     // Create node meshes
     const meshes: THREE.Mesh[] = [];
@@ -247,7 +323,6 @@ export function KnowledgeGraph3D({
       const r = nodeRadius(node.connections);
       const color = hexToRGB(getCategoryColor(node.category));
 
-      // Core sphere
       const geo = new THREE.SphereGeometry(r, 16, 12);
       const mat = new THREE.MeshPhongMaterial({
         color,
@@ -259,11 +334,10 @@ export function KnowledgeGraph3D({
       });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(node.x ?? 0, node.y ?? 0, node.z ?? 0);
-      mesh.userData = { nodeId: node.id };
+      mesh.userData = { nodeId: node.id, baseColor: color.clone(), baseOpacity: 0.95 };
       scene.add(mesh);
       meshes.push(mesh);
 
-      // Glow sprite
       const glowGeo = new THREE.SphereGeometry(r * 2.2, 12, 8);
       const glowMat = new THREE.MeshBasicMaterial({
         color,
@@ -286,25 +360,31 @@ export function KnowledgeGraph3D({
       const idx = i * 6;
       positions[idx] = positions[idx + 1] = positions[idx + 2] = 0;
       positions[idx + 3] = positions[idx + 4] = positions[idx + 5] = 0;
-      // Edge color: very subtle, weight-proportional
       const w = links[i].weight ?? 0.6;
-      const intensity = 0.06 + w * 0.12;
+      const intensity = 0.08 + w * 0.14;
       colors[idx] = colors[idx + 3] = intensity * 0.7;
       colors[idx + 1] = colors[idx + 4] = intensity * 0.8;
-      colors[idx + 2] = colors[idx + 5] = intensity; // subtle blue tint
+      colors[idx + 2] = colors[idx + 5] = intensity;
     }
     lineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     lineGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    // Save base edge colors for reset
+    baseEdgeColorsRef.current = new Float32Array(colors);
+
     const lineMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.18,
+      opacity: 0.22,
     });
     const lineSegments = new THREE.LineSegments(lineGeo, lineMat);
     scene.add(lineSegments);
     lineRef.current = lineSegments;
 
-    // Run d3-force simulation
+    // Category cluster labels — computed after simulation settles
+    const clusterSprites: THREE.Sprite[] = [];
+    let clustersCreated = false;
+
+    // Force simulation
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
     const simLinks = links.map((l) => ({
       source: l.source as string,
@@ -325,10 +405,8 @@ export function KnowledgeGraph3D({
       .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 0.5))
       .alphaDecay(0.02)
       .on('tick', () => {
-        // Apply 3D z-forces
         force3D(nodes, sim.alpha());
 
-        // Update mesh positions
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
           const pos = new THREE.Vector3(n.x ?? 0, n.y ?? 0, n.z ?? 0);
@@ -336,7 +414,6 @@ export function KnowledgeGraph3D({
           glows[i].position.copy(pos);
         }
 
-        // Update edge lines
         const posArr = lineSegments.geometry.attributes.position.array as Float32Array;
         for (let i = 0; i < simLinks.length; i++) {
           const src = typeof simLinks[i].source === 'string'
@@ -355,12 +432,129 @@ export function KnowledgeGraph3D({
           posArr[idx + 5] = tgt.z ?? 0;
         }
         lineSegments.geometry.attributes.position.needsUpdate = true;
+
+        // Create cluster labels once simulation is mostly settled
+        if (!clustersCreated && sim.alpha() < 0.15) {
+          clustersCreated = true;
+          const catPositions = new Map<string, { sx: number; sy: number; sz: number; count: number }>();
+          for (const n of nodes) {
+            if (!n.category) continue;
+            const entry = catPositions.get(n.category) ?? { sx: 0, sy: 0, sz: 0, count: 0 };
+            entry.sx += n.x ?? 0;
+            entry.sy += n.y ?? 0;
+            entry.sz += n.z ?? 0;
+            entry.count++;
+            catPositions.set(n.category, entry);
+          }
+          for (const [cat, pos] of catPositions) {
+            if (pos.count < 3) continue; // skip tiny clusters
+            const label = getCategoryLabel(cat);
+            const color = getCategoryColor(cat);
+            const sprite = createTextSprite(label, color);
+            sprite.position.set(
+              pos.sx / pos.count,
+              pos.sy / pos.count + 8, // offset above centroid
+              pos.sz / pos.count,
+            );
+            sprite.userData = { category: cat };
+            scene.add(sprite);
+            clusterSprites.push(sprite);
+          }
+        }
       });
 
-    // Animation loop
+    // Animation loop with highlight logic
     function animate() {
       animFrameRef.current = requestAnimationFrame(animate);
       controls.update();
+
+      const activeNode = selectedNodeRef.current ?? hoveredNodeRef.current;
+      const hidden = hiddenCategoriesRef.current;
+      const colArr = lineSegments.geometry.attributes.color.array as Float32Array;
+      const baseCol = baseEdgeColorsRef.current;
+
+      if (activeNode) {
+        // Get connected set
+        const connSet = adjacencyRef.current.get(activeNode.id) ?? new Set<string>();
+        const connEdgeIndices = new Set(edgeIndexRef.current.get(activeNode.id) ?? []);
+        const activeColor = hexToRGB(getCategoryColor(activeNode.category));
+
+        // Highlight/dim nodes
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i];
+          const mat = meshes[i].material as THREE.MeshPhongMaterial;
+          const gMat = glows[i].material as THREE.MeshBasicMaterial;
+          const isHidden = n.category && hidden.has(n.category);
+
+          if (isHidden) {
+            mat.opacity = 0.03;
+            gMat.opacity = 0.0;
+          } else if (n.id === activeNode.id) {
+            // The active node itself
+            mat.opacity = 1.0;
+            mat.emissiveIntensity = 1.2;
+            gMat.opacity = 0.45;
+          } else if (connSet.has(n.id)) {
+            // Connected node — bright
+            mat.opacity = 0.95;
+            mat.emissiveIntensity = 0.9;
+            gMat.opacity = 0.25;
+          } else {
+            // Unrelated — dim
+            mat.opacity = 0.08;
+            mat.emissiveIntensity = 0.2;
+            gMat.opacity = 0.0;
+          }
+        }
+
+        // Highlight/dim edges
+        for (let i = 0; i < links.length; i++) {
+          const idx = i * 6;
+          if (connEdgeIndices.has(i)) {
+            // Connected edge — bright with active node's color
+            colArr[idx] = colArr[idx + 3] = activeColor.r * 0.8;
+            colArr[idx + 1] = colArr[idx + 4] = activeColor.g * 0.8;
+            colArr[idx + 2] = colArr[idx + 5] = activeColor.b * 0.8;
+          } else {
+            // Dim edge
+            colArr[idx] = colArr[idx + 3] = baseCol[idx] * 0.15;
+            colArr[idx + 1] = colArr[idx + 4] = baseCol[idx + 1] * 0.15;
+            colArr[idx + 2] = colArr[idx + 5] = baseCol[idx + 2] * 0.15;
+          }
+        }
+        lineSegments.geometry.attributes.color.needsUpdate = true;
+        lineMat.opacity = 0.7; // Boost opacity when highlighting
+      } else {
+        // Reset all nodes
+        for (let i = 0; i < nodes.length; i++) {
+          const n = nodes[i];
+          const mat = meshes[i].material as THREE.MeshPhongMaterial;
+          const gMat = glows[i].material as THREE.MeshBasicMaterial;
+          const isHidden = n.category && hidden.has(n.category);
+
+          if (isHidden) {
+            mat.opacity = 0.03;
+            gMat.opacity = 0.0;
+          } else {
+            mat.opacity = 0.95;
+            mat.emissiveIntensity = 0.8;
+            gMat.opacity = 0.12;
+          }
+        }
+
+        // Reset edge colors
+        for (let i = 0; i < colArr.length; i++) {
+          colArr[i] = baseCol[i];
+        }
+        lineSegments.geometry.attributes.color.needsUpdate = true;
+        lineMat.opacity = 0.22;
+      }
+
+      // Hide cluster labels for hidden categories
+      for (const sprite of clusterSprites) {
+        const cat = sprite.userData.category as string;
+        sprite.visible = !hidden.has(cat);
+      }
 
       // Raycasting for hover
       raycasterRef.current.setFromCamera(mouseRef.current, camera);
@@ -368,28 +562,23 @@ export function KnowledgeGraph3D({
       if (intersects.length > 0) {
         const nodeId = intersects[0].object.userData.nodeId;
         const node = nodes.find((n) => n.id === nodeId);
-        if (node) {
-          // Project to screen for tooltip
+        if (node && !(node.category && hidden.has(node.category))) {
           const vec = new THREE.Vector3(node.x ?? 0, node.y ?? 0, node.z ?? 0);
           vec.project(camera);
-          const x = (vec.x * 0.5 + 0.5) * width;
-          const y = (-vec.y * 0.5 + 0.5) * h;
+          const cw = containerSizeRef.current.w;
+          const ch = containerSizeRef.current.h;
+          const x = (vec.x * 0.5 + 0.5) * cw;
+          const y = (-vec.y * 0.5 + 0.5) * ch;
           setHoveredNode(node);
           setTooltipPos({ x, y });
-
-          // Highlight: increase glow
-          const idx = nodes.indexOf(node);
-          if (idx >= 0 && glows[idx]) {
-            (glows[idx].material as THREE.MeshBasicMaterial).opacity = 0.35;
-          }
+          if (container) container.style.cursor = 'pointer';
         }
       } else {
-        setHoveredNode(null);
-        setTooltipPos(null);
-        // Reset all glows
-        for (const g of glows) {
-          (g.material as THREE.MeshBasicMaterial).opacity = 0.12;
+        if (hoveredNodeRef.current) {
+          setHoveredNode(null);
+          setTooltipPos(null);
         }
+        if (container) container.style.cursor = 'grab';
       }
 
       renderer.render(scene, camera);
@@ -400,6 +589,7 @@ export function KnowledgeGraph3D({
     const handleResize = () => {
       const w = container.clientWidth;
       const newH = isFullscreen ? window.innerHeight : height;
+      containerSizeRef.current = { w, h: newH };
       camera.aspect = w / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(w, newH);
@@ -428,7 +618,7 @@ export function KnowledgeGraph3D({
     }
   }, [isAutoRotating]);
 
-  // Esc key to exit fullscreen
+  // Esc key
   useEffect(() => {
     if (!isFullscreen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -437,6 +627,22 @@ export function KnowledgeGraph3D({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen]);
+
+  // Update connected names when selected node changes
+  useEffect(() => {
+    if (!selectedNode) {
+      setConnectedNames([]);
+      return;
+    }
+    const connSet = adjacency.get(selectedNode.id);
+    if (!connSet) {
+      setConnectedNames([]);
+      return;
+    }
+    // Sort by name, take top 20
+    const names = Array.from(connSet).sort().slice(0, 20);
+    setConnectedNames(names);
+  }, [selectedNode, adjacency]);
 
   // Mouse move handler
   const handleMouseMove = useCallback(
@@ -468,7 +674,6 @@ export function KnowledgeGraph3D({
         const node = nodesRef.current.find((n) => n.id === nodeId);
         if (node) {
           setSelectedNode((prev) => (prev?.id === node.id ? null : node));
-          // Stop auto-rotate when inspecting
           setIsAutoRotating(false);
         }
       } else {
@@ -482,11 +687,11 @@ export function KnowledgeGraph3D({
   const toggleFullscreen = useCallback(() => {
     setIsFullscreen((prev) => {
       const next = !prev;
-      // Trigger resize after state update
       setTimeout(() => {
         if (containerRef.current && rendererRef.current && cameraRef.current) {
           const w = containerRef.current.clientWidth;
           const h = next ? window.innerHeight : height;
+          containerSizeRef.current = { w, h };
           cameraRef.current.aspect = w / h;
           cameraRef.current.updateProjectionMatrix();
           rendererRef.current.setSize(w, h);
@@ -496,17 +701,26 @@ export function KnowledgeGraph3D({
     });
   }, [height]);
 
-  // Selected node details
+  // Toggle category filter
+  const toggleCategory = useCallback((cat: string) => {
+    setHiddenCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
+  }, []);
+
   const selectedMeta = selectedNode ? nodeMetadata.get(selectedNode.id) : null;
 
   return (
     <div
       className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-[#0a0a0f]' : ''}`}
     >
-      {/* 3D Canvas container */}
+      {/* 3D Canvas */}
       <div
         ref={containerRef}
-        className={`relative w-full ${isFullscreen ? '' : 'rounded-xl border border-zinc-800'} overflow-hidden cursor-grab active:cursor-grabbing`}
+        className={`relative w-full ${isFullscreen ? '' : 'rounded-xl border border-zinc-800'} overflow-hidden`}
         style={{ height: isFullscreen ? '100vh' : height }}
         onMouseMove={handleMouseMove}
         onClick={handleClick}
@@ -517,7 +731,7 @@ export function KnowledgeGraph3D({
         <div
           className="absolute pointer-events-none z-20 rounded-lg border border-zinc-700/80 bg-zinc-900/95 px-3 py-2 shadow-xl backdrop-blur-md"
           style={{
-            left: Math.min(tooltipPos.x + 16, (containerRef.current?.clientWidth ?? 800) - 220),
+            left: Math.min(tooltipPos.x + 16, (containerSizeRef.current.w) - 240),
             top: Math.max(tooltipPos.y - 50, 8),
           }}
         >
@@ -531,7 +745,9 @@ export function KnowledgeGraph3D({
               {getCategoryLabel(hoveredNode.category)}
             </p>
           )}
-          <p className="text-xs text-zinc-500 mt-0.5">{hoveredNode.connections} connections</p>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            {hoveredNode.connections} connections · click to explore
+          </p>
         </div>
       )}
 
@@ -545,6 +761,7 @@ export function KnowledgeGraph3D({
           } rounded-xl border border-zinc-700/80 bg-zinc-900/95 shadow-2xl backdrop-blur-md overflow-hidden`}
         >
           <div className="p-4">
+            {/* Header */}
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-zinc-100 font-mono truncate">
@@ -570,25 +787,56 @@ export function KnowledgeGraph3D({
               </button>
             </div>
 
+            {/* Description */}
             {selectedMeta?.description && (
               <p className="text-xs text-zinc-400 mt-2 line-clamp-3 leading-relaxed">
                 {selectedMeta.description}
               </p>
             )}
 
+            {/* Stats */}
             <div className="flex items-center gap-3 mt-3 text-xs text-zinc-500">
               <span>{selectedNode.connections} connections</span>
-              {selectedNode.category && (
-                <span className="flex items-center gap-1">
-                  <span
-                    className="inline-block w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: getCategoryColor(selectedNode.category) }}
-                  />
-                  {selectedNode.category}
-                </span>
-              )}
             </div>
 
+            {/* Connected repos list */}
+            {connectedNames.length > 0 && (
+              <div className="mt-3 border-t border-zinc-800 pt-3">
+                <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Connected repos
+                </p>
+                <div className="max-h-32 overflow-y-auto space-y-0.5 pr-1">
+                  {connectedNames.map((name) => {
+                    const meta = nodeMetadata.get(name);
+                    const label = name.includes('/') ? name.split('/').pop()! : name;
+                    return (
+                      <button
+                        key={name}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const node = nodesRef.current.find((n) => n.id === name);
+                          if (node) setSelectedNode(node);
+                        }}
+                        className="flex items-center gap-1.5 w-full text-left rounded px-1.5 py-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
+                      >
+                        <span
+                          className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: getCategoryColor(meta?.category ?? null) }}
+                        />
+                        <span className="font-mono truncate">{label}</span>
+                      </button>
+                    );
+                  })}
+                  {(adjacency.get(selectedNode.id)?.size ?? 0) > 20 && (
+                    <p className="text-[10px] text-zinc-600 px-1.5 pt-1">
+                      +{(adjacency.get(selectedNode.id)?.size ?? 0) - 20} more
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Open repo button */}
             {onNodeClick && (
               <button
                 onClick={(e) => {
@@ -604,20 +852,36 @@ export function KnowledgeGraph3D({
         </div>
       )}
 
-      {/* Category Legend (bottom-left) */}
-      <div className={`absolute ${isFullscreen ? 'bottom-6 left-6' : 'bottom-3 left-3'} flex flex-col gap-0.5 max-h-48 overflow-y-auto`}>
-        {activeCategories.map((cat) => (
-          <span
-            key={cat}
-            className="inline-flex items-center gap-1.5 text-[10px] text-zinc-400"
-          >
-            <span
-              className="inline-block w-2 h-2 rounded-full shrink-0"
-              style={{ backgroundColor: CATEGORY_COLORS[cat] ?? '#52525b' }}
-            />
-            {CATEGORY_LABELS[cat] ?? cat}
-          </span>
-        ))}
+      {/* Category Legend — responsive horizontal layout */}
+      <div className={`absolute ${
+        isFullscreen ? 'bottom-6 left-6 right-6' : 'bottom-3 left-3 right-3'
+      } flex flex-wrap gap-x-2 gap-y-1 justify-center`}>
+        {activeCategories.map((cat) => {
+          const isHidden = hiddenCategories.has(cat);
+          return (
+            <button
+              key={cat}
+              onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] transition-all ${
+                isHidden
+                  ? 'opacity-30 hover:opacity-60'
+                  : 'opacity-90 hover:opacity-100'
+              }`}
+              title={`${isHidden ? 'Show' : 'Hide'} ${CATEGORY_LABELS[cat] ?? cat}`}
+            >
+              <span
+                className="inline-block w-2 h-2 rounded-full shrink-0"
+                style={{
+                  backgroundColor: CATEGORY_COLORS[cat] ?? '#52525b',
+                  opacity: isHidden ? 0.3 : 1,
+                }}
+              />
+              <span className={`${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
+                {CATEGORY_LABELS[cat] ?? cat}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Controls (top-left) */}
@@ -656,16 +920,14 @@ export function KnowledgeGraph3D({
       {/* Fullscreen escape hint */}
       {isFullscreen && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-zinc-800/60 px-4 py-1.5 text-[11px] text-zinc-500 backdrop-blur-sm">
-          Press Esc or click the icon to exit fullscreen
+          Press Esc to exit fullscreen
         </div>
       )}
 
-      {/* Bottom info */}
-      {!compact && (
-        <div className={`absolute ${isFullscreen ? 'bottom-6 right-6' : 'bottom-3 right-3'} text-[10px] text-zinc-600`}>
-          Scroll to zoom &middot; Drag to rotate &middot; Right-drag to pan
-        </div>
-      )}
+      {/* Interaction hint */}
+      <div className={`absolute ${isFullscreen ? 'bottom-6 right-6' : 'bottom-10 right-3'} text-[10px] text-zinc-600`}>
+        Scroll to zoom · Drag to rotate · Click node to explore
+      </div>
     </div>
   );
 }
