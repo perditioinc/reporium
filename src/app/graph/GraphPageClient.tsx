@@ -1,7 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { KnowledgeGraph, type GraphEdge } from '@/components/KnowledgeGraph';
+/**
+ * KAN-124: Graph page client — fetches edges from the API, extracts node
+ * metadata (category, description), and renders KnowledgeGraphV2.
+ */
+
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { KnowledgeGraphV2, type GraphEdge, type NodeMeta } from '@/components/KnowledgeGraphV2';
 
 const EDGE_TYPES = ['ALL', 'ALTERNATIVE_TO', 'COMPATIBLE_WITH', 'DEPENDS_ON', 'SIMILAR_TO', 'EXTENDS'] as const;
 type EdgeTypeFilter = (typeof EDGE_TYPES)[number];
@@ -10,23 +16,19 @@ interface ApiRepoNode {
   name: string;
   description?: string | null;
   category?: string | null;
-  /** If present, the upstream owner/repo path (e.g. "langchain-ai/langchain") */
   upstream?: string | null;
   owner?: string | null;
 }
 
 interface ApiEdge {
-  /** Nested object form from the API */
   source?: ApiRepoNode;
   target?: ApiRepoNode;
-  /** Flat form (legacy / MCP remapped) */
   source_name?: string;
   source_owner?: string;
   source_upstream?: string;
   target_name?: string;
   target_owner?: string;
   target_upstream?: string;
-  /** API uses camelCase edgeType; flat form uses edge_type */
   edgeType?: string;
   edge_type?: string;
   weight?: number;
@@ -34,10 +36,8 @@ interface ApiEdge {
 }
 
 interface ApiResponse {
-  /** API uses "total"; MCP remaps to "total_edges" */
   total?: number;
   total_edges?: number;
-  /** API uses "edgeTypes"; MCP remaps to "edge_types_available" */
   edgeTypes?: string[];
   edge_types_available?: string[];
   edges: ApiEdge[];
@@ -48,12 +48,14 @@ interface GraphPageClientProps {
 }
 
 export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
+  const router = useRouter();
   const [allEdges, setAllEdges] = useState<GraphEdge[]>([]);
+  const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalEdges, setTotalEdges] = useState(0);
   const [edgeTypeFilter, setEdgeTypeFilter] = useState<EdgeTypeFilter>('ALL');
-  const [limit, setLimit] = useState(100);
+  const [limit, setLimit] = useState(200);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,9 +77,12 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
         setTotalEdges(data.total_edges ?? data.total ?? 0);
 
-        // Normalise edges — API returns nested source/target objects;
-        // legacy/MCP path returns flat source_name etc.
-        const nodeId = (node: ApiRepoNode | undefined, flatUpstream?: string, flatOwner?: string, flatName?: string): string => {
+        const nodeId = (
+          node: ApiRepoNode | undefined,
+          flatUpstream?: string,
+          flatOwner?: string,
+          flatName?: string,
+        ): string => {
           if (node) {
             return node.upstream ?? (node.owner ? `${node.owner}/${node.name}` : node.name);
           }
@@ -87,13 +92,13 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
         const edgeEvidence = (e: ApiEdge): string | undefined => {
           if (!e.evidence) return undefined;
           if (typeof e.evidence === 'string') return e.evidence;
-          // Object evidence — extract category or stringify first value
           const ev = e.evidence as Record<string, unknown>;
           if (ev.category) return String(ev.category);
           const vals = Object.values(ev);
           return vals.length ? String(vals[0]) : undefined;
         };
 
+        // Build edges
         const edges: GraphEdge[] = data.edges.map((e) => ({
           source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
           target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
@@ -102,7 +107,27 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           evidence: edgeEvidence(e),
         }));
 
+        // Extract node metadata (category, description)
+        const meta = new Map<string, NodeMeta>();
+        for (const e of data.edges) {
+          const srcId = nodeId(e.source, e.source_upstream, e.source_owner, e.source_name);
+          const tgtId = nodeId(e.target, e.target_upstream, e.target_owner, e.target_name);
+          if (!meta.has(srcId) && e.source) {
+            meta.set(srcId, {
+              category: e.source.category ?? null,
+              description: e.source.description ?? null,
+            });
+          }
+          if (!meta.has(tgtId) && e.target) {
+            meta.set(tgtId, {
+              category: e.target.category ?? null,
+              description: e.target.description ?? null,
+            });
+          }
+        }
+
         setAllEdges(edges);
+        setNodeMetadata(meta);
         setLoading(false);
       })
       .catch((err) => {
@@ -117,7 +142,18 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
     };
   }, [apiUrl, edgeTypeFilter, limit]);
 
-  const nodeCount = new Set(allEdges.flatMap((e) => [e.source, e.target])).size;
+  const nodeCount = useMemo(
+    () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
+    [allEdges],
+  );
+
+  const handleNodeClick = useCallback(
+    (id: string) => {
+      const name = id.includes('/') ? id.split('/').pop()! : id;
+      router.push(`/repo/${name}`);
+    },
+    [router],
+  );
 
   return (
     <div className="space-y-4">
@@ -135,7 +171,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
                   : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
               }`}
             >
-              {type === 'ALL' ? 'All types' : type.replace('_', ' ').toLowerCase()}
+              {type === 'ALL' ? 'All types' : type.replace(/_/g, ' ').toLowerCase()}
             </button>
           ))}
         </div>
@@ -149,6 +185,9 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           <option value={50}>50 edges</option>
           <option value={100}>100 edges</option>
           <option value={200}>200 edges</option>
+          <option value={500}>500 edges</option>
+          <option value={1000}>1000 edges</option>
+          <option value={2000}>2000 edges</option>
         </select>
       </div>
 
@@ -177,14 +216,12 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       )}
 
       {!loading && !error && (
-        <KnowledgeGraph edges={allEdges} height={560} />
-      )}
-
-      {/* Instructions */}
-      {!loading && !error && allEdges.length > 0 && (
-        <p className="text-xs text-zinc-700">
-          Click a node to see its connections. Hover to highlight edges. Nodes sized by connection count.
-        </p>
+        <KnowledgeGraphV2
+          edges={allEdges}
+          nodeMetadata={nodeMetadata}
+          height={560}
+          onNodeClick={handleNodeClick}
+        />
       )}
     </div>
   );
