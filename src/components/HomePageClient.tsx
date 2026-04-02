@@ -15,7 +15,6 @@ import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
-import { NLFilterBar } from '@/components/NLFilterBar';
 import type { NLFilterResult } from '@/types/repo';
 
 // Lazy-load heavy components — they aren't needed for initial paint
@@ -24,6 +23,7 @@ const MetricsSidebar = dynamic(() => import('@/components/MetricsSidebar').then(
 const LibraryInsightsWidget = dynamic(() => import('@/components/LibraryInsightsWidget').then(m => ({ default: m.LibraryInsightsWidget })), { ssr: false });
 const CrossDimensionWidget = dynamic(() => import('@/components/CrossDimensionWidget').then(m => ({ default: m.CrossDimensionWidget })), { ssr: false });
 const RecommendationsWidget = dynamic(() => import('@/components/RecommendationsWidget').then(m => ({ default: m.RecommendationsWidget })), { ssr: false });
+const HomeGraphWidget = dynamic(() => import('@/components/HomeGraphWidget').then(m => ({ default: m.HomeGraphWidget })), { ssr: false });
 
 
 
@@ -789,15 +789,13 @@ export function HomePageClient() {
             <MiniAskBar />
           </div>
 
-          {/* KAN-159: NL Smart Filter bar */}
-          <NLFilterBar
-            onApply={handleNLFilter}
-            onClear={handleNLFilterClear}
-            activeInterpretation={nlFilterInterpretation}
-          />
-
           {dashboardMode !== 'minimized' && (
             <>
+              {/* KAN-124: Knowledge Graph preview */}
+              <ErrorBoundary fallback={null}>
+                <HomeGraphWidget />
+              </ErrorBoundary>
+
               <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
                 {data && (
                   <LibraryInsightsWidget

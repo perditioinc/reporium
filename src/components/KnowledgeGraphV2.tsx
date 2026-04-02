@@ -255,10 +255,10 @@ function drawGraph(
       ctx.stroke();
     }
 
-    // Labels for high-connection or hovered nodes
-    if (isHovered || node.connections >= 4) {
-      ctx.font = `${isHovered ? '11px' : '10px'} system-ui, sans-serif`;
-      ctx.fillStyle = isHovered ? '#f9fafb' : '#a1a1aa';
+    // Labels — only on hover to reduce clutter
+    if (isHovered) {
+      ctx.font = '11px system-ui, sans-serif';
+      ctx.fillStyle = '#f9fafb';
       ctx.textAlign = 'center';
       ctx.fillText(node.label, node.x, node.y! - r - 4);
     }
@@ -478,15 +478,15 @@ export function KnowledgeGraphV2({
       linksRef.current = links;
 
       const sim = forceSimulation<GNode>(nodes)
-        .force('charge', forceManyBody().strength(-200))
+        .force('charge', forceManyBody().strength(-350))
         .force(
           'link',
           forceLink<GNode, GLink>(links)
             .id((d) => d.id)
-            .distance(80),
+            .distance(100),
         )
         .force('center', forceCenter(w / 2, h / 2))
-        .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 2))
+        .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 6))
         .force('x', forceX(w / 2).strength(0.05))
         .force('y', forceY(h / 2).strength(0.05))
         .alphaDecay(0.02);
