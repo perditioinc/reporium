@@ -69,23 +69,9 @@ interface ClusterLink extends SimulationLinkDatum<ClusterNode> {
 }
 
 // ---------------------------------------------------------------------------
-// Edge type styling (same as KnowledgeGraph.tsx for consistency)
+// Edge styling — edges are now similarity-based, color by weight
 // ---------------------------------------------------------------------------
-const EDGE_COLORS: Record<string, string> = {
-  ALTERNATIVE_TO: '#f59e0b',
-  COMPATIBLE_WITH: '#22c55e',
-  DEPENDS_ON: '#3b82f6',
-  SIMILAR_TO: '#a78bfa',
-  EXTENDS: '#f472b6',
-};
-
-const EDGE_LABELS: Record<string, string> = {
-  ALTERNATIVE_TO: 'alt',
-  COMPATIBLE_WITH: 'compat',
-  DEPENDS_ON: 'dep',
-  SIMILAR_TO: 'similar',
-  EXTENDS: 'extends',
-};
+const EDGE_COLOR = '#6b7280'; // neutral gray — weight controls opacity
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -211,29 +197,31 @@ function drawGraph(
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
 
-  // Draw edges
+  // Draw edges — opacity based on similarity weight
   for (const link of links) {
     const src = link.source as GNode;
     const tgt = link.target as GNode;
     if (src.x == null || tgt.x == null) continue;
     const isHighlighted = hoveredId === src.id || hoveredId === tgt.id;
+    // Weight ranges ~0.55-1.0; map to opacity 0.08-0.5
+    const weight = link.weight ?? 0.6;
+    const alpha = isHighlighted ? 0.7 : 0.08 + (weight - 0.5) * 0.8;
+    const alphaHex = Math.round(Math.min(1, Math.max(0, alpha)) * 255).toString(16).padStart(2, '0');
 
     ctx.beginPath();
     ctx.moveTo(src.x, src.y!);
     ctx.lineTo(tgt.x, tgt.y!);
-    ctx.strokeStyle = isHighlighted
-      ? (EDGE_COLORS[link.edge_type] ?? '#6b7280')
-      : (EDGE_COLORS[link.edge_type] ?? '#6b7280') + '40';
-    ctx.lineWidth = isHighlighted ? 1.8 : 0.6;
+    ctx.strokeStyle = isHighlighted ? '#a78bfa' : EDGE_COLOR + alphaHex;
+    ctx.lineWidth = isHighlighted ? 1.8 : 0.5 + weight * 0.8;
     ctx.stroke();
 
     if (isHighlighted) {
       const mx = (src.x + tgt.x) / 2;
       const my = (src.y! + tgt.y!) / 2;
       ctx.font = '9px monospace';
-      ctx.fillStyle = EDGE_COLORS[link.edge_type] ?? '#9ca3af';
+      ctx.fillStyle = '#a78bfa';
       ctx.textAlign = 'center';
-      ctx.fillText(EDGE_LABELS[link.edge_type] ?? link.edge_type, mx, my - 3);
+      ctx.fillText(`${Math.round(weight * 100)}%`, mx, my - 3);
     }
   }
 
@@ -741,20 +729,9 @@ export function KnowledgeGraphV2({
           ))}
         </div>
 
-        {/* Edge Type Legend (bottom-right) */}
-        <div className="absolute bottom-3 right-3 flex flex-col gap-0.5">
-          {Object.entries(EDGE_COLORS).map(([type, color]) => (
-            <span
-              key={type}
-              className="inline-flex items-center gap-1.5 text-[10px] text-zinc-400"
-            >
-              <span
-                className="inline-block w-3 h-0.5 rounded shrink-0"
-                style={{ backgroundColor: color }}
-              />
-              {EDGE_LABELS[type]}
-            </span>
-          ))}
+        {/* Similarity info (bottom-right) */}
+        <div className="absolute bottom-3 right-3 text-[10px] text-zinc-500">
+          Edges = embedding similarity
         </div>
 
         {/* Cluster mode indicator */}

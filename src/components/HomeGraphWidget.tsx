@@ -56,7 +56,7 @@ export function HomeGraphWidget() {
     let cancelled = false;
     const controller = new AbortController();
 
-    fetch(`${API_URL}/graph/edges?limit=100`, {
+    fetch(`${API_URL}/graph/edges?limit=300&neighbours=5`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     })
@@ -65,7 +65,7 @@ export function HomeGraphWidget() {
         const data: ApiResponse = await res.json();
         if (cancelled) return;
 
-        setTotalEdges(data.total_edges ?? data.total ?? 0);
+        setTotalEdges(data.total ?? data.total_edges ?? 0);
 
         const nodeId = (
           node: ApiRepoNode | undefined,

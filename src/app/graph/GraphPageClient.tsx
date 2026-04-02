@@ -1,16 +1,13 @@
 'use client';
 
 /**
- * KAN-124: Graph page client — fetches edges from the API, extracts node
- * metadata (category, description), and renders KnowledgeGraphV2.
+ * KAN-124: Graph page client — fetches similarity edges from the API,
+ * extracts node metadata (category, description), and renders KnowledgeGraphV2.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { KnowledgeGraphV2, type GraphEdge, type NodeMeta } from '@/components/KnowledgeGraphV2';
-
-const EDGE_TYPES = ['ALL', 'ALTERNATIVE_TO', 'COMPATIBLE_WITH', 'DEPENDS_ON', 'SIMILAR_TO', 'EXTENDS'] as const;
-type EdgeTypeFilter = (typeof EDGE_TYPES)[number];
 
 interface ApiRepoNode {
   name: string;
@@ -37,6 +34,7 @@ interface ApiEdge {
 
 interface ApiResponse {
   total?: number;
+  total_repos?: number;
   total_edges?: number;
   edgeTypes?: string[];
   edge_types_available?: string[];
@@ -53,9 +51,8 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [totalEdges, setTotalEdges] = useState(0);
-  const [edgeTypeFilter, setEdgeTypeFilter] = useState<EdgeTypeFilter>('ALL');
-  const [limit, setLimit] = useState(200);
+  const [totalRepos, setTotalRepos] = useState(0);
+  const [limit, setLimit] = useState(500);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,7 +61,6 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
     const controller = new AbortController();
     const params = new URLSearchParams({ limit: String(limit) });
-    if (edgeTypeFilter !== 'ALL') params.set('edge_type', edgeTypeFilter);
 
     fetch(`${apiUrl}/graph/edges?${params}`, {
       signal: controller.signal,
@@ -75,7 +71,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
         const data: ApiResponse = await res.json();
         if (cancelled) return;
 
-        setTotalEdges(data.total_edges ?? data.total ?? 0);
+        setTotalRepos(data.total_repos ?? 0);
 
         const nodeId = (
           node: ApiRepoNode | undefined,
@@ -89,22 +85,12 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
         };
 
-        const edgeEvidence = (e: ApiEdge): string | undefined => {
-          if (!e.evidence) return undefined;
-          if (typeof e.evidence === 'string') return e.evidence;
-          const ev = e.evidence as Record<string, unknown>;
-          if (ev.category) return String(ev.category);
-          const vals = Object.values(ev);
-          return vals.length ? String(vals[0]) : undefined;
-        };
-
         // Build edges
         const edges: GraphEdge[] = data.edges.map((e) => ({
           source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
           target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
-          edge_type: e.edgeType ?? e.edge_type ?? 'UNKNOWN',
+          edge_type: e.edgeType ?? e.edge_type ?? 'SIMILAR_TO',
           weight: e.weight,
-          evidence: edgeEvidence(e),
         }));
 
         // Extract node metadata (category, description)
@@ -140,7 +126,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, [apiUrl, edgeTypeFilter, limit]);
+  }, [apiUrl, limit]);
 
   const nodeCount = useMemo(
     () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
@@ -158,44 +144,31 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Edge type filter */}
-        <div className="flex flex-wrap gap-1.5">
-          {EDGE_TYPES.map((type) => (
-            <button
-              key={type}
-              onClick={() => setEdgeTypeFilter(type)}
-              className={`rounded-full px-3 py-1 text-xs transition-colors ${
-                edgeTypeFilter === type
-                  ? 'bg-zinc-200 text-zinc-900'
-                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-              }`}
-            >
-              {type === 'ALL' ? 'All types' : type.replace(/_/g, ' ').toLowerCase()}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-zinc-500">
+          Nodes are repos colored by category. Edges connect repos with similar embeddings.
+          Hover for details, click to open.
+        </p>
 
         {/* Limit selector */}
         <select
           value={limit}
           onChange={(e) => setLimit(Number(e.target.value))}
-          className="ml-auto rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
+          className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
         >
-          <option value={50}>50 edges</option>
-          <option value={100}>100 edges</option>
           <option value={200}>200 edges</option>
           <option value={500}>500 edges</option>
           <option value={1000}>1000 edges</option>
           <option value={2000}>2000 edges</option>
+          <option value={5000}>5000 edges</option>
         </select>
       </div>
 
       {/* Stats */}
       {!loading && !error && (
         <p className="text-xs text-zinc-600">
-          {nodeCount} nodes · {allEdges.length} edges shown
-          {totalEdges > allEdges.length ? ` · ${totalEdges} total` : ''}
+          {nodeCount} repos · {allEdges.length} edges shown
+          {totalRepos > nodeCount ? ` · ${totalRepos} in library` : ''}
         </p>
       )}
 
