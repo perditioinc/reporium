@@ -1,13 +1,19 @@
 'use client';
 
 /**
- * KAN-124: Graph page client — fetches similarity edges from the API,
- * extracts node metadata (category, description), and renders KnowledgeGraphV2.
+ * KAN-124: Compact knowledge graph preview for the home page.
+ * Fetches a small subset of edges and renders KnowledgeGraphV2 at reduced height.
+ * Links to /graph for the full interactive experience.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { KnowledgeGraphV2, type GraphEdge, type NodeMeta } from '@/components/KnowledgeGraphV2';
+
+const API_URL =
+  process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
+  'https://reporium-api-573778300586.us-central1.run.app';
 
 interface ApiRepoNode {
   name: string;
@@ -34,35 +40,23 @@ interface ApiEdge {
 
 interface ApiResponse {
   total?: number;
-  total_repos?: number;
   total_edges?: number;
-  edgeTypes?: string[];
-  edge_types_available?: string[];
   edges: ApiEdge[];
 }
 
-interface GraphPageClientProps {
-  apiUrl: string;
-}
-
-export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
+export function HomeGraphWidget() {
   const router = useRouter();
-  const [allEdges, setAllEdges] = useState<GraphEdge[]>([]);
+  const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [totalRepos, setTotalRepos] = useState(0);
-  const [limit, setLimit] = useState(500);
+  const [totalEdges, setTotalEdges] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-
     const controller = new AbortController();
-    const params = new URLSearchParams({ limit: String(limit) });
 
-    fetch(`${apiUrl}/graph/edges?${params}`, {
+    fetch(`${API_URL}/graph/edges?limit=300&neighbours=5`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     })
@@ -71,7 +65,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
         const data: ApiResponse = await res.json();
         if (cancelled) return;
 
-        setTotalRepos(data.total_repos ?? 0);
+        setTotalEdges(data.total ?? data.total_edges ?? 0);
 
         const nodeId = (
           node: ApiRepoNode | undefined,
@@ -85,15 +79,13 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
         };
 
-        // Build edges
-        const edges: GraphEdge[] = data.edges.map((e) => ({
+        const edgesList: GraphEdge[] = data.edges.map((e) => ({
           source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
           target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
-          edge_type: e.edgeType ?? e.edge_type ?? 'SIMILAR_TO',
+          edge_type: e.edgeType ?? e.edge_type ?? 'UNKNOWN',
           weight: e.weight,
         }));
 
-        // Extract node metadata (category, description)
         const meta = new Map<string, NodeMeta>();
         for (const e of data.edges) {
           const srcId = nodeId(e.source, e.source_upstream, e.source_owner, e.source_name);
@@ -112,7 +104,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           }
         }
 
-        setAllEdges(edges);
+        setEdges(edgesList);
         setNodeMetadata(meta);
         setLoading(false);
       })
@@ -126,11 +118,11 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, [apiUrl, limit]);
+  }, []);
 
   const nodeCount = useMemo(
-    () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
-    [allEdges],
+    () => new Set(edges.flatMap((e) => [e.source, e.target])).size,
+    [edges],
   );
 
   const handleNodeClick = useCallback(
@@ -141,58 +133,41 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
     [router],
   );
 
-  return (
-    <div className="space-y-4">
-      {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs text-zinc-500">
-          Nodes are repos colored by category. Edges connect repos with similar embeddings.
-          Hover for details, click to open.
-        </p>
+  // Don't render anything if graph fails to load — it's not critical on the home page
+  if (error) return null;
 
-        {/* Limit selector */}
-        <select
-          value={limit}
-          onChange={(e) => setLimit(Number(e.target.value))}
-          className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-200">Knowledge Graph</h2>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            {loading
+              ? 'Loading relationships...'
+              : `${nodeCount} repos \u00b7 ${edges.length} of ${totalEdges.toLocaleString()} edges`}
+          </p>
+        </div>
+        <Link
+          href="/graph"
+          className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 transition-colors"
         >
-          <option value={200}>200 edges</option>
-          <option value={500}>500 edges</option>
-          <option value={1000}>1000 edges</option>
-          <option value={2000}>2000 edges</option>
-          <option value={5000}>5000 edges</option>
-        </select>
+          Explore full graph
+          <span aria-hidden="true">&rarr;</span>
+        </Link>
       </div>
 
-      {/* Stats */}
-      {!loading && !error && (
-        <p className="text-xs text-zinc-600">
-          {nodeCount} repos · {allEdges.length} edges shown
-          {totalRepos > nodeCount ? ` · ${totalRepos} in library` : ''}
-        </p>
-      )}
-
-      {/* Graph */}
-      {loading && (
-        <div className="flex items-center justify-center h-64 rounded-xl border border-zinc-800 bg-zinc-900/60">
+      {loading ? (
+        <div className="flex items-center justify-center h-48 rounded-lg border border-zinc-800 bg-zinc-900/60">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading graph…
+            Loading graph...
           </span>
         </div>
-      )}
-
-      {error && (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-400">
-          Failed to load knowledge graph: {error}
-        </div>
-      )}
-
-      {!loading && !error && (
+      ) : (
         <KnowledgeGraphV2
-          edges={allEdges}
+          edges={edges}
           nodeMetadata={nodeMetadata}
-          height={560}
+          height={360}
           onNodeClick={handleNodeClick}
         />
       )}
