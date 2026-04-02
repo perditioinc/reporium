@@ -6,8 +6,10 @@ Follow these rules on every task, no exceptions.
 ## Git & JIRA Process
 
 ### GitFlow
-- Feature branches off main: `claude/feature/KAN-XX-description` or `codex/feature/KAN-XX-description`
-- PRs always target **main** (no develop branch)
+- Feature branches off **dev**: `claude/feature/KAN-XX-description` or `codex/feature/KAN-XX-description`
+- PRs target **dev** (not main)
+- `dev` → `main` promotion via PR after testing on Vercel preview
+- Hotfixes can go direct to **main** when urgent
 - Every commit must reference a JIRA ticket: `KAN-XX: description`
 - One feature/fix per branch, one branch per ticket
 
