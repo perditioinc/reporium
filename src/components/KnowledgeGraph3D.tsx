@@ -71,7 +71,7 @@ interface GLink extends SimulationLinkDatum<GNode> {
 // Helpers
 // ---------------------------------------------------------------------------
 function nodeRadius(connections: number): number {
-  return 1.2 + Math.min(connections * 0.4, 4);
+  return 1.0 + Math.min(connections * 0.35, 3.5);
 }
 
 function buildNodes(
@@ -91,9 +91,9 @@ function buildNodes(
       label: id.includes('/') ? id.split('/').pop()! : id,
       category: meta?.category ?? null,
       connections: count,
-      x: (Math.random() - 0.5) * 200,
-      y: (Math.random() - 0.5) * 200,
-      z: (Math.random() - 0.5) * 200,
+      x: (Math.random() - 0.5) * 80,
+      y: (Math.random() - 0.5) * 80,
+      z: (Math.random() - 0.5) * 40,
     });
   }
   return nodes;
@@ -119,22 +119,23 @@ function force3D(nodes: GNode[], alpha: number) {
   for (const node of nodes) {
     if (node.z === undefined) node.z = 0;
     if (node.vz === undefined) node.vz = 0;
-    // Center pull
-    node.vz += -node.z * 0.01 * alpha;
+    // Stronger center pull on z to keep graph flatter
+    node.vz += -node.z * 0.03 * alpha;
     // Damping
-    node.vz *= 0.9;
+    node.vz *= 0.85;
     node.z += node.vz;
   }
-  // Repulsion in z
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
+  // Mild z-repulsion (only sample pairs for perf with large graphs)
+  const maxPairs = Math.min(nodes.length, 200);
+  for (let i = 0; i < maxPairs; i++) {
+    for (let j = i + 1; j < maxPairs; j++) {
       const a = nodes[i];
       const b = nodes[j];
       const dz = (a.z ?? 0) - (b.z ?? 0);
       const dx = (a.x ?? 0) - (b.x ?? 0);
       const dy = (a.y ?? 0) - (b.y ?? 0);
       const dist2 = dx * dx + dy * dy + dz * dz + 1;
-      const force = (alpha * 80) / dist2;
+      const force = (alpha * 20) / dist2;
       const fz = dz * force;
       a.vz = (a.vz ?? 0) + fz;
       b.vz = (b.vz ?? 0) - fz;
@@ -207,12 +208,12 @@ export function KnowledgeGraph3D({
     // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#0a0a0f');
-    scene.fog = new THREE.FogExp2('#0a0a0f', 0.0015);
+    scene.fog = new THREE.FogExp2('#0a0a0f', 0.002);
     sceneRef.current = scene;
 
-    // Camera
+    // Camera — far enough to see the whole graph
     const camera = new THREE.PerspectiveCamera(60, width / h, 0.1, 2000);
-    camera.position.set(0, 0, compact ? 180 : 250);
+    camera.position.set(0, 0, compact ? 260 : 320);
     cameraRef.current = camera;
 
     // Renderer
@@ -234,23 +235,7 @@ export function KnowledgeGraph3D({
     controlsRef.current = controls;
 
     // Ambient light
-    scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-
-    // Background stars
-    const starGeometry = new THREE.BufferGeometry();
-    const starCount = 800;
-    const starPositions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount * 3; i++) {
-      starPositions[i] = (Math.random() - 0.5) * 1200;
-    }
-    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.5,
-      transparent: true,
-      opacity: 0.4,
-    });
-    scene.add(new THREE.Points(starGeometry, starMaterial));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
     // Store nodes ref for simulation
     nodesRef.current = nodes;
@@ -267,10 +252,10 @@ export function KnowledgeGraph3D({
       const mat = new THREE.MeshPhongMaterial({
         color,
         emissive: color,
-        emissiveIntensity: 0.6,
-        shininess: 80,
+        emissiveIntensity: 0.8,
+        shininess: 90,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.95,
       });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(node.x ?? 0, node.y ?? 0, node.z ?? 0);
@@ -299,22 +284,21 @@ export function KnowledgeGraph3D({
     const colors = new Float32Array(links.length * 6);
     for (let i = 0; i < links.length; i++) {
       const idx = i * 6;
-      // Will be updated in simulation tick
       positions[idx] = positions[idx + 1] = positions[idx + 2] = 0;
       positions[idx + 3] = positions[idx + 4] = positions[idx + 5] = 0;
-      // Edge color: subtle white with weight-based alpha
+      // Edge color: very subtle, weight-proportional
       const w = links[i].weight ?? 0.6;
-      const intensity = 0.15 + w * 0.25;
-      colors[idx] = colors[idx + 3] = intensity;
-      colors[idx + 1] = colors[idx + 4] = intensity;
-      colors[idx + 2] = colors[idx + 5] = intensity * 1.3; // slight blue tint
+      const intensity = 0.06 + w * 0.12;
+      colors[idx] = colors[idx + 3] = intensity * 0.7;
+      colors[idx + 1] = colors[idx + 4] = intensity * 0.8;
+      colors[idx + 2] = colors[idx + 5] = intensity; // subtle blue tint
     }
     lineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     lineGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     const lineMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.18,
     });
     const lineSegments = new THREE.LineSegments(lineGeo, lineMat);
     scene.add(lineSegments);
@@ -329,17 +313,17 @@ export function KnowledgeGraph3D({
     }));
 
     const sim = forceSimulation<GNode>(nodes)
-      .force('charge', forceManyBody().strength(-40))
+      .force('charge', forceManyBody().strength(-18).distanceMax(120))
       .force(
         'link',
         forceLink<GNode, SimulationLinkDatum<GNode>>(simLinks as SimulationLinkDatum<GNode>[])
           .id((d) => (d as GNode).id)
-          .distance(30)
-          .strength(0.3),
+          .distance(15)
+          .strength(0.5),
       )
-      .force('center', forceCenter(0, 0))
-      .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 1))
-      .alphaDecay(0.015)
+      .force('center', forceCenter(0, 0).strength(0.08))
+      .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 0.5))
+      .alphaDecay(0.02)
       .on('tick', () => {
         // Apply 3D z-forces
         force3D(nodes, sim.alpha());
