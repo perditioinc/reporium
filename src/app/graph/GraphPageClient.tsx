@@ -1,13 +1,19 @@
 'use client';
 
 /**
- * KAN-124: Graph page client — fetches similarity edges from the API,
- * extracts node metadata (category, description), and renders KnowledgeGraphV2.
+ * KAN-124: Full graph page — 3D constellation knowledge graph
+ * with full controls, zoom, rotation, and info panels.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { KnowledgeGraphV2, type GraphEdge, type NodeMeta } from '@/components/KnowledgeGraphV2';
+import dynamic from 'next/dynamic';
+import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+
+const KnowledgeGraph3D = dynamic(
+  () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
+  { ssr: false },
+);
 
 interface ApiRepoNode {
   name: string;
@@ -36,8 +42,6 @@ interface ApiResponse {
   total?: number;
   total_repos?: number;
   total_edges?: number;
-  edgeTypes?: string[];
-  edge_types_available?: string[];
   edges: ApiEdge[];
 }
 
@@ -52,7 +56,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
-  const [limit, setLimit] = useState(500);
+  const [limit, setLimit] = useState(2000);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +64,11 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
     setError(null);
 
     const controller = new AbortController();
-    const params = new URLSearchParams({ limit: String(limit) });
+    const params = new URLSearchParams({
+      limit: String(limit),
+      neighbours: '5',
+      min_similarity: '0.5',
+    });
 
     fetch(`${apiUrl}/graph/edges?${params}`, {
       signal: controller.signal,
@@ -85,7 +93,6 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
         };
 
-        // Build edges
         const edges: GraphEdge[] = data.edges.map((e) => ({
           source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
           target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
@@ -93,7 +100,6 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           weight: e.weight,
         }));
 
-        // Extract node metadata (category, description)
         const meta = new Map<string, NodeMeta>();
         for (const e of data.edges) {
           const srcId = nodeId(e.source, e.source_upstream, e.source_owner, e.source_name);
@@ -146,17 +152,14 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-zinc-500">
-          Nodes are repos colored by category. Edges connect repos with similar embeddings.
-          Hover for details, click to open.
+          3D constellation of your AI repo library. Scroll to zoom, drag to rotate, right-drag to pan.
+          Click a node for details.
         </p>
-
-        {/* Limit selector */}
         <select
           value={limit}
           onChange={(e) => setLimit(Number(e.target.value))}
           className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
         >
-          <option value={200}>200 edges</option>
           <option value={500}>500 edges</option>
           <option value={1000}>1000 edges</option>
           <option value={2000}>2000 edges</option>
@@ -167,17 +170,17 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       {/* Stats */}
       {!loading && !error && (
         <p className="text-xs text-zinc-600">
-          {nodeCount} repos · {allEdges.length} edges shown
-          {totalRepos > nodeCount ? ` · ${totalRepos} in library` : ''}
+          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} similarity edges
+          {totalRepos > nodeCount ? ` \u00b7 ${totalRepos.toLocaleString()} in library` : ''}
         </p>
       )}
 
       {/* Graph */}
       {loading && (
-        <div className="flex items-center justify-center h-64 rounded-xl border border-zinc-800 bg-zinc-900/60">
+        <div className="flex items-center justify-center h-[600px] rounded-xl border border-zinc-800 bg-[#0a0a0f]">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading graph…
+            Loading constellation...
           </span>
         </div>
       )}
@@ -189,10 +192,10 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       )}
 
       {!loading && !error && (
-        <KnowledgeGraphV2
+        <KnowledgeGraph3D
           edges={allEdges}
           nodeMetadata={nodeMetadata}
-          height={560}
+          height={600}
           onNodeClick={handleNodeClick}
         />
       )}

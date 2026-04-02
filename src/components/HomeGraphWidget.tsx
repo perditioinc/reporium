@@ -1,15 +1,21 @@
 'use client';
 
 /**
- * KAN-124: Compact knowledge graph preview for the home page.
- * Fetches a small subset of edges and renders KnowledgeGraphV2 at reduced height.
- * Links to /graph for the full interactive experience.
+ * KAN-124: 3D constellation knowledge graph widget for the home page.
+ * Fetches edges from the API and renders an interactive 3D graph
+ * with zoom, rotation, info bubbles, and fullscreen support.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { KnowledgeGraphV2, type GraphEdge, type NodeMeta } from '@/components/KnowledgeGraphV2';
+import dynamic from 'next/dynamic';
+import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+
+// Dynamic import — Three.js doesn't work with SSR/static export
+const KnowledgeGraph3D = dynamic(
+  () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
+  { ssr: false },
+);
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
@@ -41,6 +47,7 @@ interface ApiEdge {
 interface ApiResponse {
   total?: number;
   total_edges?: number;
+  total_repos?: number;
   edges: ApiEdge[];
 }
 
@@ -82,7 +89,7 @@ export function HomeGraphWidget() {
         const edgesList: GraphEdge[] = data.edges.map((e) => ({
           source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
           target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
-          edge_type: e.edgeType ?? e.edge_type ?? 'UNKNOWN',
+          edge_type: e.edgeType ?? e.edge_type ?? 'SIMILAR_TO',
           weight: e.weight,
         }));
 
@@ -133,42 +140,36 @@ export function HomeGraphWidget() {
     [router],
   );
 
-  // Don't render anything if graph fails to load — it's not critical on the home page
+  // Don't render anything if graph fails to load
   if (error) return null;
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
         <div>
           <h2 className="text-sm font-semibold text-zinc-200">Knowledge Graph</h2>
           <p className="text-xs text-zinc-500 mt-0.5">
             {loading
-              ? 'Loading relationships...'
-              : `${nodeCount} repos \u00b7 ${edges.length} of ${totalEdges.toLocaleString()} edges`}
+              ? 'Loading constellation...'
+              : `${nodeCount} repos \u00b7 ${edges.length.toLocaleString()} similarity edges`}
           </p>
         </div>
-        <Link
-          href="/graph"
-          className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 transition-colors"
-        >
-          Explore full graph
-          <span aria-hidden="true">&rarr;</span>
-        </Link>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-48 rounded-lg border border-zinc-800 bg-zinc-900/60">
+        <div className="flex items-center justify-center h-[420px]">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading graph...
+            Loading constellation...
           </span>
         </div>
       ) : (
-        <KnowledgeGraphV2
+        <KnowledgeGraph3D
           edges={edges}
           nodeMetadata={nodeMetadata}
-          height={360}
+          height={420}
           onNodeClick={handleNodeClick}
+          compact
         />
       )}
     </div>
