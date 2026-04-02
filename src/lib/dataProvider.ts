@@ -10,10 +10,19 @@ import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsigh
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
 
+export interface LoadProgress {
+  stage: 'connecting' | 'repos' | 'trends' | 'taxonomy' | 'ready' | 'error'
+  /** 0-100 within the current stage */
+  percent: number
+  /** e.g. "Loading repos (500/1400)" */
+  detail: string
+}
+
 export interface DataProvider {
   mode: DataMode
   getOwnedLibrary(): Promise<LibraryData | null>
-  getLibrary(): Promise<LibraryData>
+  getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData>
+  getDegradedState(): boolean
   getTrends(): Promise<TrendData | null>
   getGaps(): Promise<GapAnalysis | null>
   getRepo(name: string): Promise<EnrichedRepo | null>
@@ -32,6 +41,11 @@ export function createDataProvider(): DataProvider {
 
 class JsonDataProvider implements DataProvider {
   mode: DataMode = 'lite'
+  private libraryCache: LibraryData | null = null
+
+  getDegradedState(): boolean {
+    return false
+  }
 
   private estimateActivityScore(repo: EnrichedRepo): number {
     const last7 = repo.commitStats?.last7Days ?? 0
@@ -50,11 +64,14 @@ class JsonDataProvider implements DataProvider {
     } catch { return null }
   }
 
-  async getLibrary(): Promise<LibraryData> {
+  async getLibrary(_onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
+    if (this.libraryCache) return this.libraryCache
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
     const res = await fetch(`${basePath}/data/library.json`)
     if (!res.ok) throw new Error('Library data not found. Run npm run generate to generate it.')
-    return res.json()
+    const data: LibraryData = await res.json()
+    this.libraryCache = data
+    return data
   }
 
   async getTrends(): Promise<TrendData | null> {
@@ -137,8 +154,10 @@ class JsonDataProvider implements DataProvider {
     const staleRepos = [...library.repos]
       .map((repo) => ({
         repo_name: repo.name,
-        owner: repo.fullName.split('/')[0] ?? '',
-        github_url: repo.url,
+        // For forks, show the upstream owner so the display reads "ggml-org/llama.cpp"
+        // rather than the fork owner ("perditioinc/llama.cpp").
+        owner: (repo.isFork && repo.parentStats?.owner) ? repo.parentStats.owner : (repo.fullName.split('/')[0] ?? ''),
+        github_url: (repo.isFork && repo.parentStats?.url) ? repo.parentStats.url : repo.url,
         parent_stars: repo.parentStats?.stars ?? repo.stars,
         activity_score: this.estimateActivityScore(repo),
         last_updated_at: repo.lastUpdated,
@@ -151,8 +170,10 @@ class JsonDataProvider implements DataProvider {
     const velocityLeaders = [...library.repos]
       .map((repo) => ({
         repo_name: repo.name,
-        owner: repo.fullName.split('/')[0] ?? '',
-        github_url: repo.url,
+        // For forks, show the upstream owner so the display reads "ggml-org/llama.cpp"
+        // rather than the fork owner ("perditioinc/llama.cpp").
+        owner: (repo.isFork && repo.parentStats?.owner) ? repo.parentStats.owner : (repo.fullName.split('/')[0] ?? ''),
+        github_url: (repo.isFork && repo.parentStats?.url) ? repo.parentStats.url : repo.url,
         commits_last_7_days: repo.commitStats?.last7Days ?? 0,
         commits_last_30_days: repo.commitStats?.last30Days ?? 0,
         activity_score: this.estimateActivityScore(repo),
@@ -213,6 +234,10 @@ class ApiDataProvider implements DataProvider {
   mode: DataMode = 'production'
   private apiUrl: string
   private fallback: JsonDataProvider
+  private degraded = false
+  /** In-memory cache so subsequent getLibrary() calls don't re-fetch */
+  private libraryCache: LibraryData | null = null
+  private libraryPromise: Promise<LibraryData> | null = null
 
   constructor(apiUrl: string) {
     this.apiUrl = apiUrl.replace(/\/$/, '')
@@ -231,30 +256,62 @@ class ApiDataProvider implements DataProvider {
     return this.fallback.getOwnedLibrary()
   }
 
-  async getLibrary(): Promise<LibraryData> {
+  getDegradedState(): boolean {
+    return this.degraded
+  }
+
+  async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
+    // Use pre-generated static JSON for instant load (built fresh every deploy).
+    // The API is still used for real-time features (/ask, /nl-filter, /similar).
+    return this.fallback.getLibrary(onProgress)
+  }
+
+  private async _fetchLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
+    const report = onProgress ?? (() => {})
     try {
+      this.degraded = false
+      report({ stage: 'connecting', percent: 0, detail: 'Connecting to API…' })
+
       const PAGE_SIZE = 500
       // Fetch page 1 to get totalPages + corpus aggregates
       const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&pageSize=${PAGE_SIZE}`)
       const totalPages = page1.totalPages ?? 1
-      if (totalPages <= 1) return page1
+      const totalRepos = page1.totalRepos ?? page1.repos.length
 
-      // Fetch remaining pages in parallel (cap at reasonable limit)
+      if (totalPages <= 1) {
+        report({ stage: 'repos', percent: 100, detail: `Loaded ${totalRepos} repos` })
+        return page1
+      }
+
+      // Track progress as each page resolves
+      let loaded = page1.repos.length
+      report({ stage: 'repos', percent: Math.round((loaded / totalRepos) * 100), detail: `Loading repos (${loaded}/${totalRepos})…` })
+
+      const pages: LibraryData[] = []
       const remaining = Array.from({ length: totalPages - 1 }, (_, i) =>
-        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&pageSize=${PAGE_SIZE}`)
+        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&pageSize=${PAGE_SIZE}`).then(page => {
+          loaded += page.repos.length
+          report({ stage: 'repos', percent: Math.min(Math.round((loaded / totalRepos) * 100), 100), detail: `Loading repos (${loaded}/${totalRepos})…` })
+          pages.push(page)
+          return page
+        })
       )
-      const pages = await Promise.all(remaining)
+      await Promise.all(remaining)
       const allRepos = pages.reduce((acc, p) => acc.concat(p.repos), page1.repos)
+      report({ stage: 'repos', percent: 100, detail: `Loaded ${allRepos.length} repos` })
       return { ...page1, repos: allRepos }
     } catch {
+      this.degraded = true
+      report({ stage: 'error', percent: 0, detail: 'API unavailable — using cached data' })
       console.warn('API unreachable, falling back to JSON')
       return this.fallback.getLibrary()
     }
   }
 
   async getTrends(): Promise<TrendData | null> {
-    try { return await this.apiFetch<TrendData>('/trends') }
-    catch { return this.fallback.getTrends() }
+    try {
+      return await this.apiFetch<TrendData>('/trends/report')
+    } catch { return this.fallback.getTrends() }
   }
 
   async getGaps(): Promise<GapAnalysis | null> {

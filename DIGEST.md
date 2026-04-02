@@ -1,40 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 21, 2026
+**perditioinc's GitHub Knowledge Library** · Generated March 31, 2026
 
 ---
 
-## Today's Activity
-**170 commits** across **57 repos** in your library
+## Trending This Week
+These areas in your library are seeing accelerating activity:
 
-| Repo | Commits | Category |
-|------|---------|----------|
-| get-shit-done | 19 | AI Agents |
-| vscode | 14 | Learning Resources |
-| superset | 13 | Foundation Models |
-| portfolio | 10 | Dev Tools & Automation |
-| clawteam | 8 | Dev Tools & Automation |
-| vllm | 7 | Inference & Serving |
+**Developer Tools** (+16900% vs last week)
+portfolio, reporium-metrics, reporium are most active.
 
----
+**Self-hosted** (+16100% vs last week)
+reporium-metrics, reporium, reporium-db are most active.
 
-## Gaps in Your Library
-Based on your collection, you might want to explore:
-
-**Observability & Monitoring** — You have 33 repos covering Observability & Monitoring.
-
-**Evals & Benchmarking** — You have 228 repos covering Evals & Benchmarking.
-
-**Inference & Serving** — You have 185 repos covering Inference & Serving.
+**Text** (+15500% vs last week)
+reporium, reporium-db, reporium-api are most active.
 
 ---
 
 ## Library Health
-- **831 repos** · **21 categories** · **253 unique tags**
+- **1576 repos** · **28 categories** · **12604 unique tags**
+- **1559 forks** up to date · **0 forks** behind upstream
 
 ---
 
 ## 30-Day Summary
-- **🛠️ Dev Tools & Automation** most active category (32062 commits across 727 repos)
+- **📦 Other AI / ML** most active category (51037 commits across 1308 repos)
+- **Developer Tools** fastest growing (+16900% commit velocity)
+- **Deep Learning** cooling (-100% change in activity)
 
 ---
 

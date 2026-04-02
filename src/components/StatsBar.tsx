@@ -1,7 +1,31 @@
 'use client';
 
-import { LibraryData, TagMetrics } from '@/types/repo';
+import { useMemo } from 'react';
+import { LibraryData, SkillStats, TagMetrics } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
+
+/**
+ * Maps the 16 DB primary_category values to human-readable AI Dev skill labels.
+ * Used to compute coverage badges from dbCategory when aiDevSkillStats is empty.
+ */
+const DB_CATEGORY_LABELS: Record<string, string> = {
+  'agents':           'Agents & Orchestration',
+  'orchestration':    'Agents & Orchestration',
+  'rag-retrieval':    'RAG & Knowledge',
+  'vector-databases': 'RAG & Knowledge',
+  'llm-serving':      'Inference & Serving',
+  'fine-tuning':      'Model Training',
+  'evaluation':       'Evals & Benchmarking',
+  'observability':    'Observability',
+  'security-safety':  'Security & Safety',
+  'code-generation':  'Code Generation',
+  'data-processing':  'Data Processing',
+  'computer-vision':  'Computer Vision',
+  'nlp-text':         'NLP & Text',
+  'speech-audio':     'Speech & Audio',
+  'generative-media': 'Generative Media',
+  'infrastructure':   'Infrastructure',
+};
 interface StatsBarProps {
   data: LibraryData;
   tagMetrics?: TagMetrics[];
@@ -83,8 +107,32 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
     .filter(b => b.category !== 'individual')
     .slice(0, 25);
 
-  // AI Dev Coverage — use raw stats so skill keys always match
-  const aiDevStats = data.aiDevSkillStats ?? [];
+  // AI Dev Coverage — always computed from the 16-category dbCategory taxonomy.
+  // The legacy aiDevSkillStats (28-skill pre-taxonomy) is ignored; it contained
+  // stale counts and led to ❌ badges for skills like "Structured Output" even when
+  // repos were present under a different category name in the new taxonomy.
+  const aiDevStats = useMemo<SkillStats[]>(() => {
+    // Build from dbCategory counts using the current 16-category taxonomy
+    const counts = new Map<string, { count: number; repos: string[] }>();
+    for (const repo of repos) {
+      const cat = repo.dbCategory;
+      if (!cat) continue;
+      const label = DB_CATEGORY_LABELS[cat];
+      if (!label) continue;
+      const entry = counts.get(label) ?? { count: 0, repos: [] };
+      entry.count += 1;
+      if (entry.repos.length < 3) entry.repos.push(repo.name);
+      counts.set(label, entry);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([skill, { count, repos: topRepos }]) => ({
+        skill,
+        repoCount: count,
+        coverage: count >= 10 ? 'strong' : count >= 3 ? 'moderate' : count >= 1 ? 'weak' : 'none',
+        topRepos,
+      } as SkillStats));
+  }, [repos]);
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 space-y-4">
@@ -99,29 +147,29 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
           </p>
         </div>
 
-        {/* Core counts */}
-        <div className="flex gap-6">
-          <div>
+        {/* Core counts — scrollable on mobile */}
+        <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-1 min-w-0">
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-zinc-100">{stats.total}</p>
             <p className="text-xs text-zinc-500">Repos</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-emerald-400">{stats.built}</p>
             <p className="text-xs text-zinc-500">Built</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-violet-400">{stats.forked}</p>
             <p className="text-xs text-zinc-500">Forked</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-blue-400">{activeCount}</p>
             <p className="text-xs text-zinc-500">Active 30d</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-zinc-100">{allTags.size}</p>
             <p className="text-xs text-zinc-500">Unique Tags</p>
           </div>
-          <div>
+          <div className="shrink-0">
             <p className="text-2xl font-bold text-zinc-100">{categoryCount}</p>
             <p className="text-xs text-zinc-500">Categories</p>
           </div>
@@ -209,7 +257,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
                 .slice(0, 30);
               const maxCount = visibleMetrics[0]?.repoCount ?? 1;
               return visibleMetrics.map((m) => {
-                const fontSize = Math.min(48, Math.max(12, 12 + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * 36));
+                const fontSize = Math.min(28, Math.max(11, 11 + (Math.log(m.repoCount + 1) / Math.log(maxCount + 1)) * 17));
                 const opacity = 0.4 + (m.activityScore / 100) * 0.6;
                 return (
                   <button

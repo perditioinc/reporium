@@ -133,12 +133,30 @@ export interface PortfolioInsights {
 }
 
 export interface QualitySignals {
-  has_tests: boolean;
-  has_ci: boolean;
-  commit_velocity_30d: number;
-  activity_score: number;
-  is_active: boolean;
-  overall_score: number;
+  // Legacy fields (computed by ingestion pipeline)
+  has_tests?: boolean;
+  has_ci?: boolean;
+  commit_velocity_30d?: number;
+  activity_score?: number;
+  is_active?: boolean;
+  overall_score?: number;
+  // AI enricher fields (written by ai_enricher.py into quality_signals JSONB)
+  quality?: 'high' | 'medium' | 'low';
+  maturity?: 'research' | 'prototype' | 'beta' | 'production' | null;
+}
+
+/** Security risk signals — manually curated via admin API */
+export interface SecuritySignals {
+  /** Overall risk level */
+  risk_level: 'critical' | 'high' | 'medium' | 'low' | null;
+  /** True when a publicly disclosed security incident has been recorded */
+  incident_reported: boolean;
+  /** ISO date of incident, e.g. "2024-05-20" */
+  incident_date: string | null;
+  /** URL to CVE / advisory / blog post */
+  incident_url: string | null;
+  /** One-sentence human-readable summary of the incident */
+  incident_summary: string | null;
 }
 
 export interface CrossDimensionCell {
@@ -156,9 +174,27 @@ export interface CrossDimensionAnalytics {
 
 export interface SimilarRepo {
   name: string;
+  owner?: string;
   description: string | null;
   primary_language?: string | null;
+  primary_category?: string | null;
+  stars?: number | null;
+  readme_summary?: string | null;
   similarity?: number;
+}
+
+export interface NLFilterResult {
+  language: string | null;
+  category: string | null;
+  min_stars: number | null;
+  max_stars: number | null;
+  sort: string | null;
+  tags: string[];
+  quality: string | null;
+  maturity: string | null;
+  exclude_archived: boolean;
+  interpretation: string;
+  query_params: string;
 }
 
 export type GapSeverity = 'missing' | 'weak' | 'moderate' | 'strong';
@@ -267,7 +303,7 @@ export interface EnrichedRepo {
   recentCommits: CommitSummary[];   // last N commits from parent (or own) repo
 
   // Date metadata
-  createdAt: string;                    // when the original repo was created (parent's created_at for forks, repo.created_at for built)
+  createdAt: string | null;             // when the original repo was created (parent's created_at for forks, repo.created_at for built)
   forkedAt: string | null;              // when THIS user forked it (null for built repos)
   yourLastPushAt: string | null;        // when perditioinc last pushed to their fork (null for built repos)
   upstreamLastPushAt: string | null;    // when upstream owner last pushed (null for built repos)
@@ -289,6 +325,8 @@ export interface EnrichedRepo {
   // Category assignment
   primaryCategory: string;              // top-level category (from buildCategories)
   allCategories: string[];              // all categories this repo belongs to
+  dbCategory?: string | null;           // KAN-41 16-category taxonomy from DB (agents, rag-retrieval, etc.)
+  dbSecondaryCategories?: string[];     // secondary DB categories
 
   // Accurate commit stats with true counts (paginated if needed)
   commitStats: {
@@ -310,6 +348,8 @@ export interface EnrichedRepo {
   qualitySignals?: QualitySignals | null;
   quality_signals?: QualitySignals | null;
   taxonomy?: TaxonomyEntry[];
+  /** Security risk metadata — present only when manually marked via admin API */
+  securitySignals?: SecuritySignals | null;
 }
 
 /** Summary statistics for a user's library */
@@ -358,7 +398,7 @@ export interface IntersectionMetrics {
 }
 
 /** Sort options for the repo grid */
-export type SortOption = 'updated' | 'stars' | 'tags' | 'alpha' | 'oldest' | 'most-outdated' | 'upstream-updated' | 'fork-oldest' | 'fork-newest';
+export type SortOption = 'updated' | 'stars' | 'tags' | 'alpha' | 'oldest' | 'most-outdated' | 'upstream-updated' | 'fork-oldest' | 'fork-newest' | 'trending' | 'health';
 
 /** Full API response shape */
 export interface LibraryData {

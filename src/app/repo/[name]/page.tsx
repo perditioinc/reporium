@@ -6,7 +6,9 @@ import type { Metadata } from 'next';
 import { QualityBadge } from '@/components/QualityBadge';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { CATEGORIES } from '@/lib/buildCategories';
-import type { EnrichedRepo, QualitySignals, SimilarRepo } from '@/types/repo';
+import type { EnrichedRepo, QualitySignals } from '@/types/repo';
+import { ViewTracker } from '@/components/ViewTracker'
+import { SimilarReposPanel } from '@/components/SimilarReposPanel';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
@@ -245,18 +247,6 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
   }
 }
 
-async function getSimilarRepos(name: string): Promise<SimilarRepo[]> {
-  try {
-    const response = await fetch(`${API_URL}/repos/${encodeURIComponent(name)}/similar?limit=5`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) return [];
-    return (await response.json()) as SimilarRepo[];
-  } catch {
-    return [];
-  }
-}
 
 interface RepoPageProps {
   params: Promise<{ name: string }>;
@@ -312,16 +302,48 @@ export default async function RepoDetailPage({
   const { name } = await params;
   const repo = await getRepoDetail(decodeURIComponent(name));
   if (!repo) notFound();
-  const similarRepos = await getSimilarRepos(repo.name);
-
   const skillGroups = groupSkills(repo.ai_dev_skills ?? []);
   const taxonomyGroups = groupTaxonomy(repo.taxonomy ?? []);
   const stars = repo.is_fork ? repo.parent_stars : repo.stargazers_count;
   const forks = repo.is_fork ? repo.parent_forks : 0;
   const builder = repo.builders?.[0] ?? null;
 
+  // JSON-LD structured data for Google / schema.org
+  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: upstream,
+    description: repo.readme_summary ?? repo.description ?? undefined,
+    url: `https://www.reporium.com/repo/${encodeURIComponent(repo.name)}`,
+    codeRepository: repo.is_fork && repo.forked_from
+      ? `https://github.com/${repo.forked_from}`
+      : repo.github_url,
+    programmingLanguage: repo.primary_language ?? undefined,
+    ...(stars != null && { aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: Math.min(5, Math.round((stars / 10000) * 10) / 2 + 2.5),
+      reviewCount: stars,
+      bestRating: 5,
+      worstRating: 1,
+    }}),
+    ...(repo.primary_language && { inLanguage: repo.primary_language }),
+    keywords: repo.tags?.slice(0, 10).join(', ') ?? undefined,
+    ...(builder && { author: {
+      '@type': builder.is_known_org ? 'Organization' : 'Person',
+      name: builder.display_name ?? builder.login,
+      url: `https://github.com/${builder.login}`,
+    }}),
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* KAN-159: track view for homepage recommendations */}
+      <ViewTracker repoName={repo.name} />
       <WikiNavBar title={repo.name} />
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8 md:px-8">
@@ -543,22 +565,42 @@ export default async function RepoDetailPage({
               </div>
               {repo.quality_signals ? (
                 <dl className="mt-4 space-y-3 text-sm">
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Has tests</dt>
-                    <dd className="text-zinc-200">{repo.quality_signals.has_tests ? 'Yes' : 'No'}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Has CI</dt>
-                    <dd className="text-zinc-200">{repo.quality_signals.has_ci ? 'Yes' : 'No'}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Commit velocity (30d)</dt>
-                    <dd className="text-zinc-200">{repo.quality_signals.commit_velocity_30d.toFixed(1)}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <dt className="text-zinc-500">Overall score</dt>
-                    <dd className="text-zinc-200">{Math.round(repo.quality_signals.overall_score)}/100</dd>
-                  </div>
+                  {repo.quality_signals.quality != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Quality</dt>
+                      <dd className="text-zinc-200 capitalize">{repo.quality_signals.quality}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.maturity != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Maturity</dt>
+                      <dd className="text-zinc-200 capitalize">{repo.quality_signals.maturity}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.has_tests != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Has tests</dt>
+                      <dd className="text-zinc-200">{repo.quality_signals.has_tests ? 'Yes' : 'No'}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.has_ci != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Has CI</dt>
+                      <dd className="text-zinc-200">{repo.quality_signals.has_ci ? 'Yes' : 'No'}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.commit_velocity_30d != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Commit velocity (30d)</dt>
+                      <dd className="text-zinc-200">{repo.quality_signals.commit_velocity_30d.toFixed(1)}</dd>
+                    </div>
+                  )}
+                  {repo.quality_signals.overall_score != null && (
+                    <div className="flex items-center justify-between gap-4">
+                      <dt className="text-zinc-500">Overall score</dt>
+                      <dd className="text-zinc-200">{Math.round(repo.quality_signals.overall_score)}/100</dd>
+                    </div>
+                  )}
                 </dl>
               ) : (
                 <p className="mt-3 text-sm text-zinc-500">Quality signals are not available for this repo yet.</p>
@@ -616,12 +658,12 @@ export default async function RepoDetailPage({
                   <div key={language.language}>
                     <div className="mb-1 flex items-center justify-between text-xs text-zinc-400">
                       <span>{language.language}</span>
-                      <span>{language.percentage.toFixed(1)}%</span>
+                      <span>{(language.percentage ?? 0).toFixed(1)}%</span>
                     </div>
                     <div className="h-2 rounded-full bg-zinc-800">
                       <div
                         className="h-2 rounded-full bg-sky-400"
-                        style={{ width: `${Math.max(language.percentage, 4)}%` }}
+                        style={{ width: `${Math.max(language.percentage ?? 0, 4)}%` }}
                       />
                     </div>
                   </div>
@@ -684,44 +726,7 @@ export default async function RepoDetailPage({
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-zinc-100">Similar Repos</h2>
-            <p className="text-xs text-zinc-500">Cosine similarity from repo embeddings</p>
-          </div>
-          {similarRepos.length > 0 ? (
-            <div className="mt-4 space-y-3">
-              {similarRepos.map((similar) => (
-                <Link
-                  key={similar.name}
-                  href={`/repo/${encodeURIComponent(similar.name)}`}
-                  className="flex items-start justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 transition-colors hover:border-zinc-700"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-zinc-100">{similar.name}</p>
-                    <p className="mt-1 line-clamp-1 text-xs text-zinc-500">
-                      {similar.description ?? 'No description available.'}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    {similar.primary_language ? (
-                      <span className="rounded-full border border-zinc-700 bg-zinc-800/70 px-2 py-0.5 text-xs text-zinc-300">
-                        {similar.primary_language}
-                      </span>
-                    ) : null}
-                    {typeof similar.similarity === 'number' ? (
-                      <span className="rounded-full border border-sky-700/30 bg-sky-900/30 px-2 py-0.5 text-xs font-medium text-sky-300">
-                        {Math.round(similar.similarity * 100)}% match
-                      </span>
-                    ) : null}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-3 text-sm text-zinc-500">No similar repos surfaced yet.</p>
-          )}
-        </section>
+        <SimilarReposPanel repoName={repo.name} />
       </main>
     </div>
   );

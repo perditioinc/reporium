@@ -1,16 +1,187 @@
 {
-  "generatedAt": "2026-03-14T08:05:25.721Z",
+  "generatedAt": "2026-03-31T09:44:28.960Z",
   "period": {
-    "from": "2026-03-14T08:05:25.721Z",
-    "to": "2026-03-14T08:05:25.721Z",
-    "snapshots": 2
+    "from": "2026-03-22 16:57:33 -0700",
+    "to": "2026-03-31 07:49:26 +0000",
+    "snapshots": 14
   },
-  "trending": [],
+  "trending": [
+    {
+      "name": "Developer Tools",
+      "type": "tag",
+      "currentActivity": 169,
+      "previousActivity": 0,
+      "changePercent": 16900,
+      "repoCount": 467,
+      "representativeRepos": [
+        "portfolio",
+        "reporium-metrics",
+        "reporium"
+      ]
+    },
+    {
+      "name": "Self-hosted",
+      "type": "tag",
+      "currentActivity": 161,
+      "previousActivity": 0,
+      "changePercent": 16100,
+      "repoCount": 1144,
+      "representativeRepos": [
+        "reporium-metrics",
+        "reporium",
+        "reporium-db"
+      ]
+    },
+    {
+      "name": "Text",
+      "type": "tag",
+      "currentActivity": 155,
+      "previousActivity": 0,
+      "changePercent": 15500,
+      "repoCount": 973,
+      "representativeRepos": [
+        "reporium",
+        "reporium-db",
+        "reporium-api"
+      ]
+    },
+    {
+      "name": "Code",
+      "type": "tag",
+      "currentActivity": 143,
+      "previousActivity": 0,
+      "changePercent": 14300,
+      "repoCount": 229,
+      "representativeRepos": [
+        "reporium",
+        "reporium-db",
+        "reporium-api"
+      ]
+    },
+    {
+      "name": "Cloud API",
+      "type": "tag",
+      "currentActivity": 115,
+      "previousActivity": 0,
+      "changePercent": 11500,
+      "repoCount": 624,
+      "representativeRepos": [
+        "reporium",
+        "reporium-db",
+        "reporium-api"
+      ]
+    },
+    {
+      "name": "Natural Language Processing",
+      "type": "tag",
+      "currentActivity": 88,
+      "previousActivity": 0,
+      "changePercent": 8800,
+      "repoCount": 221,
+      "representativeRepos": [
+        "reporium",
+        "reporium-ingestion"
+      ]
+    },
+    {
+      "name": "Data Pipeline Engineering",
+      "type": "tag",
+      "currentActivity": 55,
+      "previousActivity": 0,
+      "changePercent": 5500,
+      "repoCount": 25,
+      "representativeRepos": [
+        "reporium",
+        "reporium-db"
+      ]
+    },
+    {
+      "name": "Repository Mining",
+      "type": "tag",
+      "currentActivity": 52,
+      "previousActivity": 0,
+      "changePercent": 5200,
+      "repoCount": 5,
+      "representativeRepos": [
+        "reporium",
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "Technology Research",
+      "type": "tag",
+      "currentActivity": 50,
+      "previousActivity": 0,
+      "changePercent": 5000,
+      "repoCount": 4,
+      "representativeRepos": [
+        "reporium"
+      ]
+    },
+    {
+      "name": "Graph Neural Networks",
+      "type": "tag",
+      "currentActivity": 50,
+      "previousActivity": 0,
+      "changePercent": 5000,
+      "repoCount": 21,
+      "representativeRepos": [
+        "reporium"
+      ]
+    }
+  ],
   "emerging": [],
-  "cooling": [],
+  "cooling": [
+    {
+      "name": "Deep Learning",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 895,
+      "changePercent": -100,
+      "repoCount": 64,
+      "representativeRepos": []
+    },
+    {
+      "name": "Computer Vision",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 753,
+      "changePercent": -100,
+      "repoCount": 214,
+      "representativeRepos": []
+    },
+    {
+      "name": "Data Science",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 765,
+      "changePercent": -100,
+      "repoCount": 9,
+      "representativeRepos": []
+    },
+    {
+      "name": "Reinforcement Learning",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 638,
+      "changePercent": -100,
+      "repoCount": 46,
+      "representativeRepos": []
+    },
+    {
+      "name": "AI Safety",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 511,
+      "changePercent": -100,
+      "repoCount": 98,
+      "representativeRepos": []
+    }
+  ],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Trend data builds up over time. Check back in a few days."
+    "Developer Tools is the fastest-growing area this week with +16900% commit velocity.",
+    "Activity in Deep Learning has slowed by 100% this week."
   ]
 }

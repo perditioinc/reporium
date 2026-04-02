@@ -2,11 +2,18 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { metadata } from '@/app/runs/page';
 import { RunsTable } from '@/components/RunsTable';
 
 const API_URL = 'https://api.example.com';
 
 describe('RunsTable', () => {
+  test('exports runs page metadata', () => {
+    // Root layout applies "| Reporium" template at runtime — raw metadata.title is just the page title
+    expect(metadata.title).toBe('Ingestion Run History');
+    expect(metadata.description).toBe('Recent ingestion pipeline runs for the Reporium AI dev tool library.');
+  });
+
   test('renders empty state', () => {
     render(<RunsTable runs={[]} apiUrl={API_URL} showRefresh />);
 
