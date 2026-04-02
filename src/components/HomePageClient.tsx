@@ -3,14 +3,17 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { LibraryData, EnrichedRepo, SortOption } from '@/types/repo';
 import type { TrendData } from '@/types/repo';
 import { StatsBar } from '@/components/StatsBar';
 import { SearchBar } from '@/components/SearchBar';
 import { RepoGrid } from '@/components/RepoGrid';
+import { RepoCardMinimal } from '@/components/RepoCardMinimal';
+import { RepoDetailPanel } from '@/components/RepoDetailPanel';
 import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
-import { MiniAskBar } from '@/components/MiniAskBar';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -94,6 +97,10 @@ export function HomePageClient() {
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dashboardMode, setDashboardMode] = useState<'normal' | 'minimized' | 'fullscreen'>('normal');
+
+  // KAN-84: Explore mode
+  const [exploreMode, setExploreMode] = useState(true);
+  const [selectedRepoName, setSelectedRepoName] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -670,6 +677,29 @@ export function HomePageClient() {
     setNlExcludeArchived(false);
   }, []);
 
+  // KAN-84: explore mode handlers
+  const router = useRouter();
+  const handleExploreSelect = useCallback((name: string) => {
+    setSelectedRepoName(prev => (prev === name ? null : name));
+  }, []);
+  const handleExploreClose = useCallback(() => setSelectedRepoName(null), []);
+  const handleOpenRepo = useCallback((name: string) => {
+    router.push(`/repo/${name}`);
+  }, [router]);
+
+  // Related repos: same dbCategory as selected repo
+  const selectedRepo = useMemo(
+    () => (selectedRepoName ? filteredAndSortedRepos.find(r => r.name === selectedRepoName) ?? null : null),
+    [selectedRepoName, filteredAndSortedRepos],
+  );
+  const relatedRepos = useMemo(() => {
+    if (!selectedRepo) return [];
+    const cat = selectedRepo.dbCategory;
+    if (!cat) return [];
+    return filteredAndSortedRepos.filter(r => r.name !== selectedRepo.name && r.dbCategory === cat).slice(0, 4);
+  }, [selectedRepo, filteredAndSortedRepos]);
+  const relatedNames = useMemo(() => new Set(relatedRepos.map(r => r.name)), [relatedRepos]);
+
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* ── Main content ── */}
@@ -694,6 +724,20 @@ export function HomePageClient() {
                 <span>·</span>
                 <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link>
               </nav>
+              {/* KAN-84: Explore mode toggle */}
+              <button
+                onClick={() => { setExploreMode(v => !v); setSelectedRepoName(null); }}
+                className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition-colors"
+                style={{
+                  borderColor: exploreMode ? 'rgba(139,92,246,0.5)' : '#3f3f46',
+                  backgroundColor: exploreMode ? 'rgba(139,92,246,0.1)' : 'transparent',
+                  color: exploreMode ? '#c4b5fd' : '#71717a',
+                }}
+                title={exploreMode ? 'Switch to classic mode' : 'Switch to explore mode'}
+              >
+                <span>{exploreMode ? '◈' : '◇'}</span>
+                <span className="hidden sm:inline">{exploreMode ? 'Explore' : 'Classic'}</span>
+              </button>
               {/* Dashboard view controls */}
               <div className="flex items-center border border-zinc-700 rounded-lg overflow-hidden">
                 <button
@@ -784,10 +828,6 @@ export function HomePageClient() {
             />
           )}
 
-          {/* Mini Ask — sticky as user scrolls */}
-          <div className="sticky top-0 z-20 -mx-3 sm:-mx-4 md:-mx-6 px-3 sm:px-4 md:px-6 py-2 bg-zinc-950/90 backdrop-blur-sm border-b border-zinc-800/50">
-            <MiniAskBar />
-          </div>
 
           {dashboardMode !== 'minimized' && (
             <>
@@ -902,14 +942,38 @@ export function HomePageClient() {
             />
           )}
 
-          {/* Grid */}
+          {/* Grid — explore mode or classic mode */}
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
             {isLoading ? (
               <LoadingState />
+            ) : exploreMode ? (
+              <motion.div
+                layout
+                className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              >
+                {filteredAndSortedRepos.map(repo => (
+                  <RepoCardMinimal
+                    key={repo.id}
+                    repo={repo}
+                    onSelect={handleExploreSelect}
+                    isSelected={repo.name === selectedRepoName}
+                    isRelated={relatedNames.has(repo.name)}
+                    anySelected={selectedRepoName !== null}
+                  />
+                ))}
+              </motion.div>
             ) : (
               <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={handleCategoryClick} />
             )}
           </ErrorBoundary>
+
+          {/* KAN-84: Detail panel overlay (explore mode) */}
+          <RepoDetailPanel
+            repo={selectedRepo}
+            relatedRepos={relatedRepos}
+            onClose={handleExploreClose}
+            onOpenRepo={handleOpenRepo}
+          />
         </div>
       </div>
 

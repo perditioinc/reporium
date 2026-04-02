@@ -1,0 +1,461 @@
+'use client';
+
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SPRING } from '@/styles/tokens';
+
+// ---------------------------------------------------------------------------
+// Session ID management (KAN-158/KAN-159)
+// ---------------------------------------------------------------------------
+const SESSION_KEY = 'reporium_ask_session_id';
+
+function getOrCreateSessionId(): string {
+  if (typeof window === 'undefined') return crypto.randomUUID();
+  const existing = sessionStorage.getItem(SESSION_KEY);
+  if (existing) return existing;
+  const id = crypto.randomUUID();
+  sessionStorage.setItem(SESSION_KEY, id);
+  return id;
+}
+
+function clearSessionId(): void {
+  if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_KEY);
+}
+
+// ---------------------------------------------------------------------------
+// Types matching /intelligence/ask/stream SSE events
+// ---------------------------------------------------------------------------
+interface SourceRepo {
+  name: string;
+  owner: string;
+  forked_from: string | null;
+  description: string | null;
+  stars: number | null;
+  relevance_score: number;
+  problem_solved: string | null;
+  integration_tags: string[];
+}
+
+interface TokensUsed {
+  input: number;
+  output: number;
+  total: number;
+}
+
+interface SourcesEvent { type: 'sources'; sources: SourceRepo[]; cache_hit: boolean }
+interface TokenEvent { type: 'token'; text: string }
+interface DoneEvent { type: 'done'; tokens: TokensUsed; cache_hit?: boolean }
+interface ErrorEvent { type: 'error'; message: string }
+type StreamEvent = SourcesEvent | TokenEvent | DoneEvent | ErrorEvent;
+
+// ---------------------------------------------------------------------------
+// Client-side rate limit guard
+// ---------------------------------------------------------------------------
+const RATE_KEY = 'reporium_ask_timestamps';
+const RATE_PER_MIN = 10;
+const RATE_PER_DAY = 100;
+
+function getRateLimitState(): { minuteCount: number; dayCount: number } {
+  if (typeof window === 'undefined') return { minuteCount: 0, dayCount: 0 };
+  try {
+    const raw = localStorage.getItem(RATE_KEY);
+    const timestamps: number[] = raw ? JSON.parse(raw) : [];
+    const now = Date.now();
+    const minuteCount = timestamps.filter((t) => t > now - 60_000).length;
+    const dayCount = timestamps.filter((t) => t > now - 86_400_000).length;
+    return { minuteCount, dayCount };
+  } catch {
+    return { minuteCount: 0, dayCount: 0 };
+  }
+}
+
+function recordRequest() {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(RATE_KEY);
+    const timestamps: number[] = raw ? JSON.parse(raw) : [];
+    const now = Date.now();
+    const pruned = timestamps.filter((t) => t > now - 86_400_000);
+    pruned.push(now);
+    localStorage.setItem(RATE_KEY, JSON.stringify(pruned));
+  } catch { /* degrade gracefully */ }
+}
+
+// ---------------------------------------------------------------------------
+// Injection pre-check (mirrors server-side patterns)
+// ---------------------------------------------------------------------------
+const INJECTION_RE = /ignore (previous|above|all|prior)|disregard (instructions?|rules?|system)|you are now|act as|new (role|persona|instructions?)|system:\s|reveal (your|the) (prompt|instructions?)|print (your|the) (prompt|instructions?)|repeat (after|back)|DAN mode|jailbreak|END OF CONTEXT|IGNORE ABOVE/i;
+
+function parseSseLine(line: string): StreamEvent | null {
+  if (!line.startsWith('data: ')) return null;
+  try {
+    return JSON.parse(line.slice(6)) as StreamEvent;
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// State machine
+// ---------------------------------------------------------------------------
+type BarState = 'collapsed' | 'expanded' | 'fullscreen';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.reporium.com';
+
+export function StickyAskBar() {
+  const [barState, setBarState] = useState<BarState>('collapsed');
+  const [question, setQuestion] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Streaming state
+  const [streamingAnswer, setStreamingAnswer] = useState('');
+  const [sources, setSources] = useState<SourceRepo[]>([]);
+  const [tokensUsed, setTokensUsed] = useState<TokensUsed | null>(null);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Session state
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [turnCount, setTurnCount] = useState(0);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+
+  // Esc key exits fullscreen
+  useEffect(() => {
+    function onKeyUp(e: KeyboardEvent) {
+      if (e.key === 'Escape' && barState === 'fullscreen') {
+        setBarState('expanded');
+      }
+    }
+    window.addEventListener('keyup', onKeyUp);
+    return () => window.removeEventListener('keyup', onKeyUp);
+  }, [barState]);
+
+  // Auto-scroll answer area as tokens arrive
+  useEffect(() => {
+    if (answerRef.current) {
+      answerRef.current.scrollTop = answerRef.current.scrollHeight;
+    }
+  }, [streamingAnswer]);
+
+  const handleNewConversation = useCallback(() => {
+    clearSessionId();
+    setSessionId(null);
+    setTurnCount(0);
+    setStreamingAnswer('');
+    setSources([]);
+    setTokensUsed(null);
+    setDone(false);
+    setError(null);
+    setQuestion('');
+    setBarState('collapsed');
+    inputRef.current?.focus();
+  }, []);
+
+  const { minuteCount, dayCount } = getRateLimitState();
+  const atMinuteLimit = minuteCount >= RATE_PER_MIN;
+  const atDayLimit = dayCount >= RATE_PER_DAY;
+  const nearMinuteLimit = minuteCount >= RATE_PER_MIN - 2;
+  const nearDayLimit = dayCount >= RATE_PER_DAY - 5;
+  const remainingMin = Math.max(0, RATE_PER_MIN - minuteCount);
+  const remainingDay = Math.max(0, RATE_PER_DAY - dayCount);
+
+  async function handleAsk() {
+    const q = question.trim();
+    if (!q || q.length < 3) { setError('Please enter at least 3 characters.'); return; }
+    if (q.length > 500) { setError('Question must be 500 characters or fewer.'); return; }
+    if (INJECTION_RE.test(q)) { setError('That question contains disallowed content. Please rephrase.'); return; }
+    if (atMinuteLimit) { setError('Rate limit: 10 questions per minute. Please wait a moment.'); return; }
+    if (atDayLimit) { setError('Daily limit of 100 questions reached. Try again tomorrow.'); return; }
+
+    setLoading(true);
+    setError(null);
+    setStreamingAnswer('');
+    setSources([]);
+    setTokensUsed(null);
+    setDone(false);
+    setBarState('expanded');
+    recordRequest();
+
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    try {
+      const sid = sessionId ?? getOrCreateSessionId();
+      if (!sessionId) setSessionId(sid);
+
+      const res = await fetch(`${API_URL}/intelligence/ask/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q, top_k: 8, session_id: sid }),
+        signal: controller.signal,
+      });
+
+      if (res.status === 429) { setError('Rate limit exceeded. Please wait before asking again.'); return; }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body?.detail ?? `Server error (${res.status}). Please try again.`);
+        return;
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) { setError('Streaming not supported by this browser. Please try again.'); return; }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          const event = parseSseLine(trimmed);
+          if (!event) continue;
+
+          if (event.type === 'sources') {
+            setSources(event.sources);
+          } else if (event.type === 'token') {
+            setStreamingAnswer((prev) => prev + event.text);
+          } else if (event.type === 'done') {
+            setTokensUsed(event.tokens);
+            setDone(true);
+            setTurnCount((n) => n + 1);
+          } else if (event.type === 'error') {
+            setError(event.message);
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return;
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAsk();
+    }
+  }
+
+  const hasAnswer = streamingAnswer.length > 0;
+
+  const heightValue =
+    barState === 'collapsed' ? 56 :
+    barState === 'fullscreen' ? '100vh' :
+    '50vh';
+
+  return (
+    <motion.div
+      className="fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-zinc-950/95 backdrop-blur-md border-t border-zinc-800 overflow-hidden"
+      initial={{ height: 56 }}
+      animate={{ height: heightValue }}
+      transition={SPRING.snappy}
+    >
+      {/* Input bar — always visible */}
+      <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
+        {/* Spark icon */}
+        <span className="text-zinc-500 text-sm select-none shrink-0">✦</span>
+
+        <input
+          ref={inputRef}
+          type="text"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask anything about the repo library..."
+          maxLength={500}
+          disabled={atMinuteLimit || atDayLimit}
+          className="flex-1 min-w-0 rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500/50 disabled:opacity-50 transition-colors"
+        />
+
+        {/* Ask / Stop button */}
+        <button
+          type="button"
+          onClick={loading ? () => abortRef.current?.abort() : handleAsk}
+          disabled={(!loading && (atMinuteLimit || atDayLimit))}
+          className="shrink-0 rounded-lg bg-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? (
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-zinc-400 border-t-transparent" />
+              Stop
+            </span>
+          ) : 'Ask'}
+        </button>
+
+        {/* Divider */}
+        <div className="h-5 w-px bg-zinc-700 shrink-0" />
+
+        {/* Minimize (collapse) button — only when expanded/fullscreen */}
+        {barState !== 'collapsed' && (
+          <button
+            type="button"
+            onClick={() => setBarState(barState === 'fullscreen' ? 'expanded' : 'collapsed')}
+            aria-label={barState === 'fullscreen' ? 'Exit fullscreen' : 'Minimize'}
+            className="shrink-0 rounded-md p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+          >
+            {/* Chevron down */}
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="4 6 8 10 12 6" />
+            </svg>
+          </button>
+        )}
+
+        {/* Fullscreen button — only when expanded */}
+        {barState === 'expanded' && (
+          <button
+            type="button"
+            onClick={() => setBarState('fullscreen')}
+            aria-label="Fullscreen"
+            className="shrink-0 rounded-md p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+          >
+            {/* Expand icon */}
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="5 3 3 3 3 5" /><polyline points="11 3 13 3 13 5" />
+              <polyline points="5 13 3 13 3 11" /><polyline points="11 13 13 13 13 11" />
+            </svg>
+          </button>
+        )}
+
+        {/* Clear / close button — when there is content */}
+        {(hasAnswer || error || question) && (
+          <button
+            type="button"
+            onClick={handleNewConversation}
+            aria-label="Clear"
+            className="shrink-0 rounded-md p-1.5 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+          >
+            {/* X icon */}
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="4" x2="12" y2="12" /><line x1="12" y1="4" x2="4" y2="12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Answer / content area — visible when expanded or fullscreen */}
+      <AnimatePresence>
+        {barState !== 'collapsed' && (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 space-y-3"
+            ref={answerRef}
+          >
+            {/* Session continuity indicator */}
+            {sessionId && turnCount > 0 && (
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <span className="flex items-center gap-1.5 text-xs text-sky-400/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+                  Continuing conversation ({turnCount} {turnCount === 1 ? 'turn' : 'turns'})
+                </span>
+                <button
+                  onClick={handleNewConversation}
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors underline-offset-2 hover:underline"
+                >
+                  New conversation
+                </button>
+              </div>
+            )}
+
+            {/* Loading status */}
+            {loading && sources.length === 0 && (
+              <p className="text-xs text-zinc-500 pt-1">Searching repos and finding the best matches…</p>
+            )}
+            {loading && sources.length > 0 && !hasAnswer && (
+              <p className="text-xs text-zinc-500 pt-1">Generating answer from {sources.length} repos…</p>
+            )}
+
+            {/* Rate limit warning */}
+            {(nearMinuteLimit || nearDayLimit) && !atMinuteLimit && !atDayLimit && (
+              <p className="text-xs text-amber-500/80">
+                {nearDayLimit
+                  ? `${remainingDay} questions remaining today`
+                  : `${remainingMin} questions remaining this minute`}
+              </p>
+            )}
+
+            {/* Error */}
+            {error && (
+              <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2 text-sm text-red-400">
+                {error}
+              </div>
+            )}
+
+            {/* Source repos */}
+            {sources.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                  Sources · {sources.length} repos
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {sources.map((repo) => {
+                    const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
+                    const ghUrl = `https://github.com/${upstream}`;
+                    const score = Math.round(repo.relevance_score * 100);
+                    return (
+                      <a
+                        key={`${repo.owner}/${repo.name}`}
+                        href={ghUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
+                            {upstream}
+                          </span>
+                          <span className="shrink-0 text-xs text-zinc-600">{score}% match</span>
+                        </div>
+                        {repo.description && (
+                          <p className="mt-1 text-xs text-zinc-500 line-clamp-2">{repo.description}</p>
+                        )}
+                        {repo.stars != null && (
+                          <p className="mt-1 text-xs text-zinc-600">★ {repo.stars.toLocaleString()}</p>
+                        )}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Streaming answer */}
+            {hasAnswer && (
+              <div className="space-y-2">
+                <div className="rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap">
+                  {streamingAnswer}
+                  {loading && (
+                    <span className="inline-block w-0.5 h-4 ml-0.5 bg-zinc-400 align-middle animate-pulse" />
+                  )}
+                </div>
+                {done && tokensUsed && (
+                  <p className="text-xs text-zinc-600">
+                    {sources.length > 0 ? `${sources.length} repos searched` : ''}
+                    {sources.length > 0 && tokensUsed ? ' · ' : ''}
+                    {tokensUsed ? `${tokensUsed.total} tokens` : ''}
+                  </p>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
