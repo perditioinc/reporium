@@ -168,18 +168,18 @@ function force3D(nodes: GNode[], alpha: number) {
 }
 
 /** Create a text sprite for cluster labels */
-function createTextSprite(text: string, color: string): THREE.Sprite {
+function createTextSprite(text: string, color: string, fontSize = 22, alpha = 0.6, scale: [number, number, number] = [30, 7.5, 1]): THREE.Sprite {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
-  canvas.width = 256;
+  canvas.width = 512;
   canvas.height = 64;
-  ctx.clearRect(0, 0, 256, 64);
-  ctx.font = 'bold 22px Inter, sans-serif';
+  ctx.clearRect(0, 0, 512, 64);
+  ctx.font = `bold ${fontSize}px Inter, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = color;
-  ctx.globalAlpha = 0.6;
-  ctx.fillText(text, 128, 32);
+  ctx.globalAlpha = alpha;
+  ctx.fillText(text, 256, 32);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   const mat = new THREE.SpriteMaterial({
@@ -188,8 +188,13 @@ function createTextSprite(text: string, color: string): THREE.Sprite {
     depthWrite: false,
   });
   const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(30, 7.5, 1);
+  sprite.scale.set(...scale);
   return sprite;
+}
+
+/** Create a smaller name label sprite for node hover labels */
+function createNodeLabel(text: string, color: string): THREE.Sprite {
+  return createTextSprite(text, color, 28, 0.95, [18, 3.5, 1]);
 }
 
 // ---------------------------------------------------------------------------
@@ -227,6 +232,7 @@ export function KnowledgeGraph3D({
   const baseEdgeColorsRef = useRef<Float32Array>(new Float32Array(0));
   const linksRef = useRef<GLink[]>([]);
   const containerSizeRef = useRef({ w: 0, h: 0 });
+  const nodeLabelSpritesRef = useRef<THREE.Sprite[]>([]);
 
   const [hoveredNode, setHoveredNode] = useState<GNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<GNode | null>(null);
@@ -352,6 +358,18 @@ export function KnowledgeGraph3D({
     nodeMeshesRef.current = meshes;
     glowMeshesRef.current = glows;
 
+    // Create name label sprites (one per node, hidden by default)
+    const nodeLabels: THREE.Sprite[] = [];
+    for (const node of nodes) {
+      const color = getCategoryColor(node.category);
+      const label = createNodeLabel(node.label, color);
+      label.visible = false;
+      label.position.set(node.x ?? 0, (node.y ?? 0) + nodeRadius(node.connections) + 3, node.z ?? 0);
+      scene.add(label);
+      nodeLabels.push(label);
+    }
+    nodeLabelSpritesRef.current = nodeLabels;
+
     // Create edge lines
     const lineGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(links.length * 6);
@@ -412,6 +430,10 @@ export function KnowledgeGraph3D({
           const pos = new THREE.Vector3(n.x ?? 0, n.y ?? 0, n.z ?? 0);
           meshes[i].position.copy(pos);
           glows[i].position.copy(pos);
+          // Keep label above node
+          if (nodeLabels[i]) {
+            nodeLabels[i].position.set(n.x ?? 0, (n.y ?? 0) + nodeRadius(n.connections) + 3, n.z ?? 0);
+          }
         }
 
         const posArr = lineSegments.geometry.attributes.position.array as Float32Array;
@@ -479,7 +501,7 @@ export function KnowledgeGraph3D({
         const connEdgeIndices = new Set(edgeIndexRef.current.get(activeNode.id) ?? []);
         const activeColor = hexToRGB(getCategoryColor(activeNode.category));
 
-        // Highlight/dim nodes
+        // Highlight/dim nodes + show/hide name labels
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
           const mat = meshes[i].material as THREE.MeshPhongMaterial;
@@ -489,21 +511,25 @@ export function KnowledgeGraph3D({
           if (isHidden) {
             mat.opacity = 0.03;
             gMat.opacity = 0.0;
+            nodeLabels[i].visible = false;
           } else if (n.id === activeNode.id) {
             // The active node itself
             mat.opacity = 1.0;
             mat.emissiveIntensity = 1.2;
             gMat.opacity = 0.45;
+            nodeLabels[i].visible = true;
           } else if (connSet.has(n.id)) {
-            // Connected node — bright
+            // Connected node — bright + show label
             mat.opacity = 0.95;
             mat.emissiveIntensity = 0.9;
             gMat.opacity = 0.25;
+            nodeLabels[i].visible = true;
           } else {
             // Unrelated — dim
             mat.opacity = 0.08;
             mat.emissiveIntensity = 0.2;
             gMat.opacity = 0.0;
+            nodeLabels[i].visible = false;
           }
         }
 
@@ -525,7 +551,7 @@ export function KnowledgeGraph3D({
         lineSegments.geometry.attributes.color.needsUpdate = true;
         lineMat.opacity = 0.7; // Boost opacity when highlighting
       } else {
-        // Reset all nodes
+        // Reset all nodes + hide all labels
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
           const mat = meshes[i].material as THREE.MeshPhongMaterial;
@@ -540,6 +566,7 @@ export function KnowledgeGraph3D({
             mat.emissiveIntensity = 0.8;
             gMat.opacity = 0.12;
           }
+          nodeLabels[i].visible = false;
         }
 
         // Reset edge colors
@@ -588,7 +615,7 @@ export function KnowledgeGraph3D({
     // Resize handler
     const handleResize = () => {
       const w = container.clientWidth;
-      const newH = isFullscreen ? window.innerHeight : height;
+      const newH = isFullscreen ? window.innerHeight - 56 : height;
       containerSizeRef.current = { w, h: newH };
       camera.aspect = w / newH;
       camera.updateProjectionMatrix();
@@ -690,7 +717,7 @@ export function KnowledgeGraph3D({
       setTimeout(() => {
         if (containerRef.current && rendererRef.current && cameraRef.current) {
           const w = containerRef.current.clientWidth;
-          const h = next ? window.innerHeight : height;
+          const h = next ? window.innerHeight - 56 : height;
           containerSizeRef.current = { w, h };
           cameraRef.current.aspect = w / h;
           cameraRef.current.updateProjectionMatrix();
@@ -715,13 +742,14 @@ export function KnowledgeGraph3D({
 
   return (
     <div
-      className={`relative ${isFullscreen ? 'fixed inset-0 z-50 bg-[#0a0a0f]' : ''}`}
+      className={`relative ${isFullscreen ? 'fixed top-0 left-0 right-0 z-40 bg-[#0a0a0f]' : ''}`}
+      style={isFullscreen ? { bottom: '56px' } : undefined}
     >
       {/* 3D Canvas */}
       <div
         ref={containerRef}
         className={`relative w-full ${isFullscreen ? '' : 'rounded-xl border border-zinc-800'} overflow-hidden`}
-        style={{ height: isFullscreen ? '100vh' : height }}
+        style={{ height: isFullscreen ? 'calc(100vh - 56px)' : height }}
         onMouseMove={handleMouseMove}
         onClick={handleClick}
       />
@@ -852,36 +880,41 @@ export function KnowledgeGraph3D({
         </div>
       )}
 
-      {/* Category Legend — responsive horizontal layout */}
+      {/* Category Legend — responsive horizontal layout with background */}
       <div className={`absolute ${
-        isFullscreen ? 'bottom-6 left-6 right-6' : 'bottom-3 left-3 right-3'
-      } flex flex-wrap gap-x-2 gap-y-1 justify-center`}>
-        {activeCategories.map((cat) => {
-          const isHidden = hiddenCategories.has(cat);
-          return (
-            <button
-              key={cat}
-              onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] transition-all ${
-                isHidden
-                  ? 'opacity-30 hover:opacity-60'
-                  : 'opacity-90 hover:opacity-100'
-              }`}
-              title={`${isHidden ? 'Show' : 'Hide'} ${CATEGORY_LABELS[cat] ?? cat}`}
-            >
-              <span
-                className="inline-block w-2 h-2 rounded-full shrink-0"
-                style={{
-                  backgroundColor: CATEGORY_COLORS[cat] ?? '#52525b',
-                  opacity: isHidden ? 0.3 : 1,
-                }}
-              />
-              <span className={`${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
-                {CATEGORY_LABELS[cat] ?? cat}
-              </span>
-            </button>
-          );
-        })}
+        isFullscreen ? 'bottom-4 left-4 right-4' : 'bottom-2 left-2 right-2'
+      } rounded-lg bg-zinc-900/80 backdrop-blur-sm px-3 py-2`}>
+        <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center items-center">
+          {activeCategories.map((cat) => {
+            const isHidden = hiddenCategories.has(cat);
+            return (
+              <button
+                key={cat}
+                onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] whitespace-nowrap transition-all ${
+                  isHidden
+                    ? 'opacity-30 hover:opacity-60'
+                    : 'opacity-90 hover:opacity-100'
+                }`}
+                title={`${isHidden ? 'Show' : 'Hide'} ${CATEGORY_LABELS[cat] ?? cat}`}
+              >
+                <span
+                  className="inline-block w-2 h-2 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: CATEGORY_COLORS[cat] ?? '#52525b',
+                    opacity: isHidden ? 0.3 : 1,
+                  }}
+                />
+                <span className={`${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
+                  {CATEGORY_LABELS[cat] ?? cat}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="text-center text-[9px] text-zinc-600 mt-1">
+          Scroll to zoom · Drag to rotate · Click node to explore
+        </div>
       </div>
 
       {/* Controls (top-left) */}
@@ -924,10 +957,6 @@ export function KnowledgeGraph3D({
         </div>
       )}
 
-      {/* Interaction hint */}
-      <div className={`absolute ${isFullscreen ? 'bottom-6 right-6' : 'bottom-10 right-3'} text-[10px] text-zinc-600`}>
-        Scroll to zoom · Drag to rotate · Click node to explore
-      </div>
     </div>
   );
 }
