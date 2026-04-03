@@ -97,6 +97,9 @@ export function HomePageClient() {
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Dashboard collapsed by default — explore mode prioritizes the repo grid
+  const [dashboardOpen, setDashboardOpen] = useState(false);
+
   // KAN-84: Explore mode (always on)
   const [selectedRepoName, setSelectedRepoName] = useState<string | null>(null);
 
@@ -786,30 +789,56 @@ export function HomePageClient() {
             </div>
           )}
 
-          {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
-          {data && (
-            <StatsBar
-              data={data}
-              tagMetrics={data.tagMetrics}
-              onTagClick={toggleTag}
-            />
-          )}
+          {/* Dashboard — collapsible widget */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
+            <button
+              onClick={() => setDashboardOpen(v => !v)}
+              className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-zinc-800/40 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-zinc-200">Stats Panel</span>
+                {data && (
+                  <span className="text-xs text-zinc-500">
+                    {data.repos.length} repos · {data.stats?.categories ?? 0} categories
+                  </span>
+                )}
+              </div>
+              <svg
+                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                className={`text-zinc-500 transition-transform ${dashboardOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            {dashboardOpen && (
+              <div className="px-4 pb-4 space-y-4 border-t border-zinc-800">
+                {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
+                {data && (
+                  <StatsBar
+                    data={data}
+                    tagMetrics={data.tagMetrics}
+                    onTagClick={toggleTag}
+                  />
+                )}
 
-          {/* KAN-124: Knowledge Graph preview */}
-          <ErrorBoundary fallback={null}>
-            <HomeGraphWidget />
-          </ErrorBoundary>
+                {/* KAN-124: Knowledge Graph preview */}
+                <ErrorBoundary fallback={null}>
+                  <HomeGraphWidget />
+                </ErrorBoundary>
 
-          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
-            {data && (
-              <LibraryInsightsWidget
-                repos={data.repos}
-                onTagClick={toggleTag}
-              />
+                <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
+                  {data && (
+                    <LibraryInsightsWidget
+                      repos={data.repos}
+                      onTagClick={toggleTag}
+                    />
+                  )}
+                </ErrorBoundary>
+
+                <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
+              </div>
             )}
-          </ErrorBoundary>
-
-          <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
+          </div>
 
           {/* Search + Filter */}
           {data && (
