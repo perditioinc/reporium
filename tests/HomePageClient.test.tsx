@@ -35,6 +35,12 @@ jest.mock('@/components/PortfolioInsightsWidget', () => ({ PortfolioInsightsWidg
 jest.mock('@/components/CrossDimensionWidget', () => ({ CrossDimensionWidget: () => <div>CrossDimensionWidget</div> }));
 jest.mock('@/components/TrendingThisWeekWidget', () => ({ TrendingThisWeekWidget: () => <div>TrendingThisWeekWidget</div> }));
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn(), prefetch: jest.fn(), back: jest.fn() }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 mockProvider = {
   mode: 'production',
   getOwnedLibrary: jest.fn(),
