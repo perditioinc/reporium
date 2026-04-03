@@ -851,7 +851,7 @@ export function HomePageClient() {
           {/* Filter bar — sticky below widget tabs */}
           {data && (
             <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6">
-              <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50">
+              <div className="flex items-center justify-start sm:justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50 overflow-x-auto sm:overflow-x-visible">
                   <button
                     onClick={() => setFiltersOpen(v => !v)}
                     className={`flex items-center gap-1 sm:gap-1.5 rounded-lg border px-1.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium transition-colors shrink-0 ${
