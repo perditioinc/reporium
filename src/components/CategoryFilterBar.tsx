@@ -61,23 +61,23 @@ export function CategoryFilterBar({ repos, selected, onSelect }: Props) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-2">
         {/* All chip */}
         <button
           onClick={() => onSelect('')}
           className={[
-            'flex-shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all',
+            'flex-shrink-0 flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all',
             !selected
-              ? 'bg-zinc-100 text-zinc-900 ring-1 ring-zinc-300'
-              : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50',
+              ? 'bg-zinc-700 text-zinc-100 ring-1 ring-zinc-600'
+              : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800',
           ].join(' ')}
         >
           All
-          <span className="text-xs text-zinc-400">{totalRepos.toLocaleString()}</span>
+          <span className="text-[10px] sm:text-xs text-zinc-400">{totalRepos.toLocaleString()}</span>
         </button>
 
         {/* Divider */}
-        <div className="flex-shrink-0 w-px h-5 bg-zinc-200" />
+        <div className="flex-shrink-0 w-px h-4 sm:h-5 bg-zinc-700" />
 
         {/* Category chips */}
         {chips.map(cat => {
@@ -87,15 +87,15 @@ export function CategoryFilterBar({ repos, selected, onSelect }: Props) {
               key={cat.id}
               onClick={() => onSelect(isActive ? '' : cat.id)}
               className={[
-                'flex-shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all whitespace-nowrap',
+                'flex-shrink-0 flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap',
                 isActive
-                  ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-300'
-                  : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50',
+                  ? 'bg-purple-500/15 text-purple-300 ring-1 ring-purple-500/40'
+                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800',
               ].join(' ')}
             >
               <span>{cat.icon}</span>
               <span>{cat.label}</span>
-              <span className={`text-xs ${isActive ? 'text-indigo-400' : 'text-zinc-400'}`}>
+              <span className={`text-[10px] sm:text-xs ${isActive ? 'text-purple-400' : 'text-zinc-500'}`}>
                 {cat.count.toLocaleString()}
               </span>
             </button>
