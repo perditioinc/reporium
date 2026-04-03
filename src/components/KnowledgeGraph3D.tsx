@@ -742,7 +742,7 @@ export function KnowledgeGraph3D({
 
   return (
     <div
-      className={`relative ${isFullscreen ? 'fixed inset-0 z-[45] bg-[#0a0a0f]' : ''}`}
+      className={`${isFullscreen ? 'fixed inset-0 z-[45] bg-[#0a0a0f]' : 'relative'}`}
       style={isFullscreen ? { bottom: '56px', top: '0px' } : undefined}
     >
       {/* 3D Canvas */}
@@ -884,7 +884,7 @@ export function KnowledgeGraph3D({
       <div className={`absolute ${
         isFullscreen ? 'bottom-4 left-2 right-2 sm:left-4 sm:right-4' : 'bottom-2 left-2 right-2'
       } rounded-lg bg-zinc-900/80 backdrop-blur-sm px-2 sm:px-3 py-1.5 sm:py-2`}>
-        <div className="flex gap-x-2 sm:gap-x-3 gap-y-1 items-center overflow-x-auto sm:flex-wrap sm:justify-center pb-0.5 sm:pb-0">
+        <div className="flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-1 items-center pb-0.5 sm:pb-0">
           {activeCategories.map((cat) => {
             const isHidden = hiddenCategories.has(cat);
             return (
