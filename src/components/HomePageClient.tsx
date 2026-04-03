@@ -9,7 +9,7 @@ import { LibraryData, EnrichedRepo, SortOption } from '@/types/repo';
 import type { TrendData } from '@/types/repo';
 import { StatsBar } from '@/components/StatsBar';
 import { SearchBar } from '@/components/SearchBar';
-import { RepoGrid } from '@/components/RepoGrid';
+
 import { RepoCardMinimal } from '@/components/RepoCardMinimal';
 import { RepoDetailPanel } from '@/components/RepoDetailPanel';
 import { LoadingState } from '@/components/LoadingState';
@@ -96,10 +96,8 @@ export function HomePageClient() {
 
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [dashboardMode, setDashboardMode] = useState<'normal' | 'minimized' | 'fullscreen'>('normal');
 
-  // KAN-84: Explore mode
-  const [exploreMode, setExploreMode] = useState(true);
+  // KAN-84: Explore mode (always on)
   const [selectedRepoName, setSelectedRepoName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -724,37 +722,6 @@ export function HomePageClient() {
                 <span>·</span>
                 <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link>
               </nav>
-              {/* KAN-84: Explore mode toggle */}
-              <button
-                onClick={() => { setExploreMode(v => !v); setSelectedRepoName(null); }}
-                className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition-colors"
-                style={{
-                  borderColor: exploreMode ? 'rgba(139,92,246,0.5)' : '#3f3f46',
-                  backgroundColor: exploreMode ? 'rgba(139,92,246,0.1)' : 'transparent',
-                  color: exploreMode ? '#c4b5fd' : '#71717a',
-                }}
-                title={exploreMode ? 'Switch to classic mode' : 'Switch to explore mode'}
-              >
-                <span>{exploreMode ? '◈' : '◇'}</span>
-                <span className="hidden sm:inline">{exploreMode ? 'Explore' : 'Classic'}</span>
-              </button>
-              {/* Dashboard view controls */}
-              <div className="flex items-center border border-zinc-700 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setDashboardMode(dashboardMode === 'minimized' ? 'normal' : 'minimized')}
-                  title={dashboardMode === 'minimized' ? 'Expand dashboard' : 'Minimize dashboard'}
-                  className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-200 transition-colors"
-                >
-                  {dashboardMode === 'minimized' ? '▢' : '▬'}
-                </button>
-                <button
-                  onClick={() => setDashboardMode(dashboardMode === 'fullscreen' ? 'normal' : 'fullscreen')}
-                  title={dashboardMode === 'fullscreen' ? 'Exit fullscreen' : 'Fullscreen'}
-                  className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-200 transition-colors border-l border-zinc-700"
-                >
-                  {dashboardMode === 'fullscreen' ? '⊡' : '⛶'}
-                </button>
-              </div>
               {/* Live API status badge */}
               {provider.mode === 'production' && (
                 <span className={[
@@ -820,7 +787,7 @@ export function HomePageClient() {
           )}
 
           {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
-          {dashboardMode !== 'minimized' && data && (
+          {data && (
             <StatsBar
               data={data}
               tagMetrics={data.tagMetrics}
@@ -828,26 +795,21 @@ export function HomePageClient() {
             />
           )}
 
+          {/* KAN-124: Knowledge Graph preview */}
+          <ErrorBoundary fallback={null}>
+            <HomeGraphWidget />
+          </ErrorBoundary>
 
-          {dashboardMode !== 'minimized' && (
-            <>
-              {/* KAN-124: Knowledge Graph preview */}
-              <ErrorBoundary fallback={null}>
-                <HomeGraphWidget />
-              </ErrorBoundary>
+          <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
+            {data && (
+              <LibraryInsightsWidget
+                repos={data.repos}
+                onTagClick={toggleTag}
+              />
+            )}
+          </ErrorBoundary>
 
-              <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
-                {data && (
-                  <LibraryInsightsWidget
-                    repos={data.repos}
-                    onTagClick={toggleTag}
-                  />
-                )}
-              </ErrorBoundary>
-
-              <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
-            </>
-          )}
+          <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
 
           {/* Search + Filter */}
           {data && (
@@ -942,11 +904,11 @@ export function HomePageClient() {
             />
           )}
 
-          {/* Grid — explore mode or classic mode */}
+          {/* Grid — explore mode */}
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
             {isLoading ? (
               <LoadingState />
-            ) : exploreMode ? (
+            ) : (
               <motion.div
                 layout
                 className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
@@ -962,8 +924,6 @@ export function HomePageClient() {
                   />
                 ))}
               </motion.div>
-            ) : (
-              <RepoGrid repos={filteredAndSortedRepos} allRepos={data?.repos} onTagClick={toggleTag} onCategoryClick={handleCategoryClick} />
             )}
           </ErrorBoundary>
 
