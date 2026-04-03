@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ import { StatsBar } from '@/components/StatsBar';
 import { SearchBar } from '@/components/SearchBar';
 
 import { RepoCardMinimal } from '@/components/RepoCardMinimal';
-import { RepoDetailPanel } from '@/components/RepoDetailPanel';
+// RepoDetailPanel replaced by inline expansion in grid
 import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
@@ -97,8 +97,14 @@ export function HomePageClient() {
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Dashboard collapsed by default — explore mode prioritizes the repo grid
-  const [dashboardOpen, setDashboardOpen] = useState(false);
+  // Widget tabs — only one expanded at a time, null = all collapsed
+  const [activeWidget, setActiveWidget] = useState<'stats' | 'insights' | 'analytics' | 'dashboard' | null>(null);
+  const toggleWidget = useCallback((w: 'stats' | 'insights' | 'analytics' | 'dashboard') => {
+    setActiveWidget(prev => prev === w ? null : w);
+  }, []);
+
+  // Filters collapsed by default — clean home page, filters accessible via toggle
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // KAN-84: Explore mode (always on)
   const [selectedRepoName, setSelectedRepoName] = useState<string | null>(null);
@@ -361,6 +367,30 @@ export function HomePageClient() {
     if (!data || selectedTags.length < 2) return null;
     return buildIntersectionMetrics(selectedTags, data.repos);
   }, [data, selectedTags]);
+
+  // Count active filters for the toggle badge
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedType !== 'all') count++;
+    if (selectedLanguage) count++;
+    if (selectedLicense) count++;
+    if (selectedTags.length > 0) count += selectedTags.length;
+    if (selectedActivity !== 'all') count++;
+    if (selectedSyncStatus !== 'all') count++;
+    if (selectedCategory) count++;
+    if (selectedDbCategory) count++;
+    if (selectedAiDevSkills.length > 0) count++;
+    if (selectedPmSkills.length > 0) count++;
+    if (selectedAiTrends.length > 0) count++;
+    if (selectedIndustries.length > 0) count++;
+    if (selectedUseCases.length > 0) count++;
+    if (selectedModalities.length > 0) count++;
+    if (selectedDeploymentContexts.length > 0) count++;
+    if (selectedBuilders.length > 0) count++;
+    if (showClaudePluginsOnly) count++;
+    if (selectedSecurityRisk !== 'all') count++;
+    return count;
+  }, [selectedType, selectedLanguage, selectedLicense, selectedTags, selectedActivity, selectedSyncStatus, selectedCategory, selectedDbCategory, selectedAiDevSkills, selectedPmSkills, selectedAiTrends, selectedIndustries, selectedUseCases, selectedModalities, selectedDeploymentContexts, selectedBuilders, showClaudePluginsOnly, selectedSecurityRisk]);
 
   const filteredAndSortedRepos = useMemo<EnrichedRepo[]>(() => {
     if (!data) return [];
@@ -683,7 +713,22 @@ export function HomePageClient() {
   const handleExploreSelect = useCallback((name: string) => {
     setSelectedRepoName(prev => (prev === name ? null : name));
   }, []);
-  const handleExploreClose = useCallback(() => setSelectedRepoName(null), []);
+  const handleExploreClose = useCallback(() => { setSelectedRepoName(null); setExpandedSections({}); }, []);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const toggleSection = useCallback((key: string) => setExpandedSections(prev => ({ ...prev, [key]: !prev[key] })), []);
+  const expandedCardRef = React.useRef<HTMLDivElement>(null);
+
+  // Close expanded card when clicking outside it
+  useEffect(() => {
+    if (!selectedRepoName) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (expandedCardRef.current && !expandedCardRef.current.contains(e.target as Node)) {
+        setSelectedRepoName(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedRepoName]);
   const handleOpenRepo = useCallback((name: string) => {
     router.push(`/repo/${name}`);
   }, [router]);
@@ -707,77 +752,43 @@ export function HomePageClient() {
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Stage 2 loading banner — fades in/out while owned repos stay visible */}
         <LoadingBanner visible={isLoadingFull} progress={loadProgress} />
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5">
-          {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-zinc-100">Reporium</h1>
-              <p className="text-sm text-zinc-500">
-                {data ? `${data.username}'s GitHub Library` : 'Your GitHub Knowledge Library'}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* Nav links */}
-              <nav className="hidden sm:flex items-center gap-2 text-xs text-zinc-500">
-                <Link href="/trends" className="hover:text-zinc-300 transition-colors">Trends</Link>
-                <span>·</span>
-                <Link href="/insights" className="hover:text-zinc-300 transition-colors">Insights</Link>
-                <span>·</span>
-                <Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link>
-              </nav>
-              {/* Live API status badge */}
-              {provider.mode === 'production' && (
-                <span className={[
-                  'text-xs border rounded px-2 py-0.5 flex items-center gap-1.5 transition-colors duration-300',
-                  loadProgress?.stage === 'ready'
-                    ? 'text-emerald-400 border-emerald-800/60'
-                    : loadProgress?.stage === 'error'
-                    ? 'text-amber-400 border-amber-800/60'
-                    : 'text-blue-400 border-blue-800/60',
-                ].join(' ')}>
-                  {/* Status dot */}
-                  {loadProgress?.stage === 'ready' ? (
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  ) : loadProgress?.stage === 'error' ? (
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  ) : (
-                    <span className="relative flex h-1.5 w-1.5 shrink-0">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-blue-500" />
-                    </span>
-                  )}
-                  {loadProgress?.stage === 'ready'
-                    ? 'API ready'
-                    : loadProgress?.stage === 'error'
-                    ? 'Cached mode'
-                    : loadProgress?.stage === 'repos'
-                    ? 'Loading repos…'
-                    : loadProgress?.stage === 'trends'
-                    ? 'Loading trends…'
-                    : loadProgress?.stage === 'taxonomy'
-                    ? 'Loading taxonomy…'
-                    : 'Connecting…'}
-                </span>
-              )}
-              {/* Mobile sidebar toggle */}
-              <button
-                onClick={() => setSidebarOpen((v) => !v)}
-                className="lg:hidden rounded-lg border border-zinc-700 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
-              >
-                {sidebarOpen ? 'Hide Panel' : 'Stats Panel'}
-              </button>
-            </div>
-          </div>
 
+        <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-5">
+
+          {/* Widget tabs — sticky at top */}
+          {data && (
+            <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 border-b border-zinc-800">
+              <div className="flex">
+                {([
+                  { key: 'stats', label: 'Stats' },
+                  { key: 'insights', label: 'Insights' },
+                  { key: 'analytics', label: 'Analytics' },
+                  { key: 'dashboard', label: 'Dashboard' },
+                ] as const).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => toggleWidget(key)}
+                    className={`flex-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                      activeWidget === key
+                        ? 'text-purple-300 bg-purple-500/10 border-b-2 border-purple-500'
+                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/40'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {/* Generic error */}
           {error && (
-            <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
+            <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
               {error}
             </div>
           )}
 
           {apiDegraded && (
-            <div className="flex items-start justify-between gap-4 rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
+            <div className="mx-3 sm:mx-4 md:mx-6 flex items-start justify-between gap-4 rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
               <p>Live data is unavailable right now — showing your last cached snapshot.</p>
               <button
                 type="button"
@@ -789,151 +800,191 @@ export function HomePageClient() {
             </div>
           )}
 
-          {/* Dashboard — collapsible widget */}
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden">
-            <button
-              onClick={() => setDashboardOpen(v => !v)}
-              className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-zinc-800/40 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-zinc-200">Stats Panel</span>
-                {data && (
-                  <span className="text-xs text-zinc-500">
-                    {data.repos.length} repos · {data.stats?.categories ?? 0} categories
-                  </span>
-                )}
-              </div>
-              <svg
-                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                className={`text-zinc-500 transition-transform ${dashboardOpen ? 'rotate-180' : ''}`}
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
-            {dashboardOpen && (
-              <div className="px-4 pb-4 space-y-4 border-t border-zinc-800">
-                {/* Stats — library overview, languages, builders, AI dev coverage, tag cloud */}
-                {data && (
-                  <StatsBar
-                    data={data}
-                    tagMetrics={data.tagMetrics}
-                    onTagClick={toggleTag}
-                  />
-                )}
+          {/* Widget content panels */}
+          {data && activeWidget === 'stats' && (
+            <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+              <StatsBar data={data} tagMetrics={data.tagMetrics} onTagClick={toggleTag} />
+            </div>
+          )}
+          {data && activeWidget === 'insights' && (
+            <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+              <ErrorBoundary fallback={null}>
+                <LibraryInsightsWidget repos={data.repos} onTagClick={toggleTag} />
+              </ErrorBoundary>
+            </div>
+          )}
+          {data && activeWidget === 'analytics' && (
+            <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+              <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
+            </div>
+          )}
+          {data && activeWidget === 'dashboard' && (
+            <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+              <ErrorBoundary fallback={null}>
+                <MetricsSidebar
+                  data={sidebarData!}
+                  selectedTags={selectedTags}
+                  tagMetrics={data.tagMetrics ?? []}
+                  intersectionMetrics={intersectionMetrics}
+                  onTagClick={handleSidebarTagClick}
+                  onTagRemove={removeTag}
+                  onRepoClick={handleRepoClick}
+                  onViewArchived={handleViewArchived}
+                  onViewStale={handleViewStale}
+                  onViewOutdated={handleViewOutdated}
+                  onSyncFilter={handleSyncFilter}
+                  onCategoryFilter={setSelectedCategory}
+                  selectedCategory={selectedCategory}
+                  trends={trends}
+                />
+              </ErrorBoundary>
+            </div>
+          )}
 
-                {/* KAN-124: Knowledge Graph preview */}
-                <ErrorBoundary fallback={null}>
-                  <HomeGraphWidget />
-                </ErrorBoundary>
-
-                <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Library Insights unavailable.</div>}>
-                  {data && (
-                    <LibraryInsightsWidget
-                      repos={data.repos}
-                      onTagClick={toggleTag}
-                    />
-                  )}
-                </ErrorBoundary>
-
-                <CrossDimensionWidget analytics={crossDimensionAnalytics} repos={data?.repos} />
-              </div>
-            )}
+          {/* Knowledge Graph */}
+          <div className="px-3 sm:px-4 md:px-6">
+            <ErrorBoundary fallback={null}>
+              <HomeGraphWidget />
+            </ErrorBoundary>
           </div>
 
-          {/* Search + Filter */}
+          {/* Filter bar — sticky below widget tabs */}
           {data && (
-            <>
-              <SearchBar
-                value={search}
-                onChange={setSearch}
-                searchMode={searchMode}
-                onSearchModeChange={setSearchMode}
-                resultCount={filteredAndSortedRepos.length}
-                totalCount={data.repos.length}
-              />
-              {searchMode === 'semantic' && search.trim() && (
-                <p className="text-xs text-zinc-500">
-                  {isSearchingSemantic
-                    ? 'Running semantic search against repo embeddings...'
-                    : 'Showing semantic matches ranked by cosine similarity.'}
-                </p>
+            <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50">
+                  <button
+                    onClick={() => setFiltersOpen(v => !v)}
+                    className={`flex items-center gap-1 sm:gap-1.5 rounded-lg border px-1.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium transition-colors shrink-0 ${
+                      filtersOpen || activeFilterCount > 0
+                        ? 'border-purple-500/50 bg-purple-500/10 text-purple-300'
+                        : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600'
+                    }`}
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span className="hidden sm:inline">Filters</span>
+                    {activeFilterCount > 0 && (
+                      <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-purple-500 px-1 text-[10px] font-bold text-white">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                  {activeFilterCount > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
+                    >
+                      Clear
+                    </button>
+                  )}
+                  {/* Quick category shortcuts — emoji on mobile, full label on desktop */}
+                  {[
+                    { label: 'Agents', emoji: '🤖', value: 'agents' },
+                    { label: 'RAG', emoji: '🔍', value: 'rag-retrieval' },
+                    { label: 'LLM', emoji: '⚡', value: 'llm-serving' },
+                    { label: 'Code Gen', emoji: '💻', value: 'code-generation' },
+                    { label: 'Orchestration', emoji: '🔀', value: 'orchestration' },
+                    { label: 'NLP', emoji: '📝', value: 'nlp-text' },
+                    { label: 'Vision', emoji: '👁', value: 'computer-vision' },
+                    { label: 'Data', emoji: '⚙️', value: 'data-processing' },
+                    { label: 'Infra', emoji: '🏗️', value: 'infrastructure' },
+                  ].map(shortcut => {
+                    const isActive = selectedDbCategory === shortcut.value;
+                    return (
+                      <button
+                        key={shortcut.label}
+                        onClick={() => setSelectedDbCategory(prev => prev === shortcut.value ? '' : shortcut.value)}
+                        className={`inline-flex items-center gap-1 px-1 sm:px-2 py-0.5 rounded-md text-[10px] font-medium transition-colors shrink-0 ${
+                          isActive
+                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                            : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/60 border border-transparent'
+                        }`}
+                        title={shortcut.label}
+                      >
+                        <span className="text-sm sm:text-[10px]">{shortcut.emoji}</span>
+                        <span className="hidden sm:inline">{shortcut.label}</span>
+                      </button>
+                    );
+                  })}
+                  <span className="hidden sm:inline text-xs text-zinc-500 shrink-0">{filteredAndSortedRepos.length} of {data.repos.length}</span>
+                  <span className="sm:hidden text-[10px] text-zinc-500 shrink-0 text-center leading-tight">
+                    <span className="block font-medium text-zinc-400">{filteredAndSortedRepos.length}</span>
+                    <span className="block text-[9px]">{data.repos.length}</span>
+                  </span>
+              </div>
+
+              {/* Expandable filter panel */}
+              {filtersOpen && (
+                <div className="max-h-[60vh] overflow-y-auto space-y-3 border-t border-zinc-800/50 bg-zinc-900/95 px-3 sm:px-4 md:px-6 py-3">
+                  <CategoryFilterBar
+                    repos={data.repos}
+                    selected={selectedDbCategory}
+                    onSelect={setSelectedDbCategory}
+                  />
+                  <FilterBar
+                    languages={allLanguages}
+                    allTags={allTags}
+                    tagMetrics={data.tagMetrics ?? []}
+                    selectedType={selectedType}
+                    selectedLanguage={selectedLanguage}
+                    selectedLicense={selectedLicense}
+                    selectedTags={selectedTags}
+                    selectedActivity={selectedActivity}
+                    selectedSyncStatus={selectedSyncStatus}
+                    sortBy={sortBy}
+                    categories={normalizedCategories}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={setSelectedCategory}
+                    onTypeChange={setSelectedType}
+                    onLanguageChange={setSelectedLanguage}
+                    onLicenseChange={setSelectedLicense}
+                    onTagToggle={toggleTag}
+                    onTagRemove={removeTag}
+                    onActivityChange={setSelectedActivity}
+                    onSyncStatusChange={setSelectedSyncStatus}
+                    onSortChange={setSortBy}
+                    onClear={clearFilters}
+                    filteredCount={filteredAndSortedRepos.length}
+                    aiDevSkillStats={data.aiDevSkillStats ?? []}
+                    pmSkillStats={data.pmSkillStats ?? []}
+                    builderStats={data.builderStats ?? []}
+                    aiTrendValues={aiTrendValues}
+                    industryValues={industryValues}
+                    useCaseValues={useCaseValues}
+                    modalityValues={modalityValues}
+                    deploymentContextValues={deploymentContextValues}
+                    selectedAiTrends={selectedAiTrends}
+                    selectedAiDevSkills={selectedAiDevSkills}
+                    selectedPmSkills={selectedPmSkills}
+                    selectedIndustries={selectedIndustries}
+                    selectedUseCases={selectedUseCases}
+                    selectedModalities={selectedModalities}
+                    selectedDeploymentContexts={selectedDeploymentContexts}
+                    selectedBuilders={selectedBuilders}
+                    onAiTrendToggle={toggleAiTrend}
+                    onAiDevSkillToggle={toggleAiDevSkill}
+                    onPmSkillToggle={togglePmSkill}
+                    onIndustryToggle={toggleIndustry}
+                    onUseCaseToggle={toggleUseCase}
+                    onModalityToggle={toggleModality}
+                    onDeploymentContextToggle={toggleDeploymentContext}
+                    onBuilderToggle={toggleBuilder}
+                    industryStats={industryStats}
+                    languageCounts={languageCounts}
+                    licenseCounts={licenseCounts}
+                    showClaudePluginsOnly={showClaudePluginsOnly}
+                    onPluginToggle={handlePluginToggle}
+                    selectedSecurityRisk={selectedSecurityRisk}
+                    onSecurityRiskChange={setSelectedSecurityRisk}
+                  />
+                </div>
               )}
-              <FilterBar
-                languages={allLanguages}
-                allTags={allTags}
-                tagMetrics={data.tagMetrics ?? []}
-                selectedType={selectedType}
-                selectedLanguage={selectedLanguage}
-                selectedLicense={selectedLicense}
-                selectedTags={selectedTags}
-                selectedActivity={selectedActivity}
-                selectedSyncStatus={selectedSyncStatus}
-                sortBy={sortBy}
-                categories={normalizedCategories}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                onTypeChange={setSelectedType}
-                onLanguageChange={setSelectedLanguage}
-                onLicenseChange={setSelectedLicense}
-                onTagToggle={toggleTag}
-                onTagRemove={removeTag}
-                onActivityChange={setSelectedActivity}
-                onSyncStatusChange={setSelectedSyncStatus}
-                onSortChange={setSortBy}
-                onClear={clearFilters}
-                filteredCount={filteredAndSortedRepos.length}
-                aiDevSkillStats={data.aiDevSkillStats ?? []}
-                pmSkillStats={data.pmSkillStats ?? []}
-                builderStats={data.builderStats ?? []}
-                aiTrendValues={aiTrendValues}
-                industryValues={industryValues}
-                useCaseValues={useCaseValues}
-                modalityValues={modalityValues}
-                deploymentContextValues={deploymentContextValues}
-                selectedAiTrends={selectedAiTrends}
-                selectedAiDevSkills={selectedAiDevSkills}
-                selectedPmSkills={selectedPmSkills}
-                selectedIndustries={selectedIndustries}
-                selectedUseCases={selectedUseCases}
-                selectedModalities={selectedModalities}
-                selectedDeploymentContexts={selectedDeploymentContexts}
-                selectedBuilders={selectedBuilders}
-                onAiTrendToggle={toggleAiTrend}
-                onAiDevSkillToggle={toggleAiDevSkill}
-                onPmSkillToggle={togglePmSkill}
-                onIndustryToggle={toggleIndustry}
-                onUseCaseToggle={toggleUseCase}
-                onModalityToggle={toggleModality}
-                onDeploymentContextToggle={toggleDeploymentContext}
-                onBuilderToggle={toggleBuilder}
-                industryStats={industryStats}
-                languageCounts={languageCounts}
-                licenseCounts={licenseCounts}
-                showClaudePluginsOnly={showClaudePluginsOnly}
-                onPluginToggle={handlePluginToggle}
-                selectedSecurityRisk={selectedSecurityRisk}
-                onSecurityRiskChange={setSelectedSecurityRisk}
-              />
-            </>
+            </div>
           )}
 
-          {/* KAN-159: Recommendations based on recently viewed */}
-          {data && !isLoading && (
-            <ErrorBoundary fallback={null}>
-              <RecommendationsWidget />
-            </ErrorBoundary>
-          )}
-
-          {/* KAN-57: 16-category filter chips */}
-          {data && !isLoading && (
-            <CategoryFilterBar
-              repos={data.repos}
-              selected={selectedDbCategory}
-              onSelect={setSelectedDbCategory}
-            />
-          )}
-
-          {/* Grid — explore mode */}
+          {/* Grid — explore mode with inline expansion */}
+          <div className="px-3 sm:px-4 md:px-6">
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
             {isLoading ? (
               <LoadingState />
@@ -942,86 +993,206 @@ export function HomePageClient() {
                 layout
                 className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               >
-                {filteredAndSortedRepos.map(repo => (
-                  <RepoCardMinimal
-                    key={repo.id}
-                    repo={repo}
-                    onSelect={handleExploreSelect}
-                    isSelected={repo.name === selectedRepoName}
-                    isRelated={relatedNames.has(repo.name)}
-                    anySelected={selectedRepoName !== null}
-                  />
-                ))}
+                {filteredAndSortedRepos.map(repo => {
+                  const isSelected = repo.name === selectedRepoName;
+                  return (
+                    <React.Fragment key={repo.id}>
+                      {/* When selected: replace mini card with expanded detail spanning full row */}
+                      {isSelected && selectedRepo ? (
+                        <motion.div
+                          ref={expandedCardRef}
+                          layout
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.2 }}
+                          className="sticky top-10 z-10"
+                          style={{ gridColumn: '1 / -1' }}
+                        >
+                          <div className="rounded-xl border border-purple-500/30 bg-zinc-900/80 p-3 sm:p-4 space-y-2 sm:space-y-3">
+                            {/* Header: name + badges + close */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                  <h3 className="text-sm sm:text-base font-bold text-zinc-100 break-words">{selectedRepo.name}</h3>
+                                  {selectedRepo.dbCategory && (
+                                    <span className="text-[10px] sm:text-[11px] font-medium text-purple-300 bg-purple-500/15 border border-purple-500/30 rounded-full px-1.5 sm:px-2 py-0.5 uppercase tracking-wide">
+                                      {selectedRepo.dbCategory}
+                                    </span>
+                                  )}
+                                  {selectedRepo.language && (
+                                    <span className="text-[10px] sm:text-[11px] text-zinc-500 bg-zinc-800 rounded-full px-1.5 sm:px-2 py-0.5">{selectedRepo.language}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <button
+                                onClick={handleExploreClose}
+                                className="shrink-0 w-7 h-7 rounded-md border border-zinc-700 text-zinc-500 hover:text-zinc-300 flex items-center justify-center text-sm"
+                              >
+                                ✕
+                              </button>
+                            </div>
+
+                            {/* Description — full text, no clamp */}
+                            {selectedRepo.description && (
+                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">{selectedRepo.description}</p>
+                            )}
+
+                            {/* Builder + stats row */}
+                            <div className="flex gap-3 sm:gap-4 flex-wrap items-center text-xs sm:text-[13px] text-zinc-400">
+                              {selectedRepo.isFork && selectedRepo.parentStats?.owner && (
+                                <span className="text-zinc-300">by <span className="font-medium">{selectedRepo.parentStats.owner}</span></span>
+                              )}
+                              {!selectedRepo.isFork && (
+                                <span className="text-zinc-300">by <span className="font-medium">{selectedRepo.fullName.split('/')[0]}</span></span>
+                              )}
+                              {(selectedRepo.parentStats?.stars ?? selectedRepo.stars ?? 0) > 0 && (
+                                <span>★ {(() => { const s = selectedRepo.parentStats?.stars ?? selectedRepo.stars ?? 0; return s >= 1000 ? `${(s/1000).toFixed(1)}k` : s; })()} stars</span>
+                              )}
+                              {(selectedRepo.parentStats?.forks ?? selectedRepo.forks ?? 0) > 0 && (
+                                <span>⑂ {(() => { const f = selectedRepo.parentStats?.forks ?? selectedRepo.forks ?? 0; return f >= 1000 ? `${(f/1000).toFixed(1)}k` : f; })()} forks</span>
+                              )}
+                              <a
+                                href={selectedRepo.isFork && selectedRepo.parentStats?.url ? selectedRepo.parentStats.url : selectedRepo.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-zinc-400 hover:text-zinc-200 transition-colors"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                                GitHub
+                              </a>
+                            </div>
+
+                            {/* Tags — expandable on mobile, always visible on desktop */}
+                            {selectedRepo.enrichedTags.length > 0 && (
+                              <div>
+                                <button
+                                  onClick={() => toggleSection('tags')}
+                                  className="sm:hidden flex items-center gap-1 text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1"
+                                >
+                                  Tags ({selectedRepo.enrichedTags.length})
+                                  <svg className={`w-3 h-3 transition-transform ${expandedSections.tags ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                <div className={`${expandedSections.tags ? 'flex flex-wrap' : 'hidden'} sm:flex sm:flex-wrap gap-1.5`}>
+                                  {selectedRepo.enrichedTags.map(tag => {
+                                    const isProtocol = /^(mcp|a2a|cli|sdk|api|grpc|rest|graphql|websocket|model-context-protocol)$/i.test(tag);
+                                    return (
+                                      <span
+                                        key={tag}
+                                        className={`text-[10px] sm:text-[11px] rounded-full px-2 py-0.5 ${
+                                          isProtocol
+                                            ? 'text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 font-medium'
+                                            : 'text-zinc-400 bg-zinc-800/80 border border-zinc-700'
+                                        }`}
+                                      >
+                                        {tag}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Related repos — expandable on mobile */}
+                            {relatedRepos.length > 0 && (
+                              <div>
+                                <button
+                                  onClick={() => toggleSection('related')}
+                                  className="sm:hidden flex items-center gap-1 text-[10px] font-semibold text-zinc-600 uppercase tracking-wider mb-1"
+                                >
+                                  Related ({relatedRepos.length})
+                                  <svg className={`w-3 h-3 transition-transform ${expandedSections.related ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                <p className="hidden sm:block text-[11px] font-semibold text-zinc-600 uppercase tracking-wider mb-1">Related</p>
+                                <div className={`${expandedSections.related ? 'flex flex-wrap' : 'hidden'} sm:flex sm:flex-wrap gap-1.5`}>
+                                  {relatedRepos.map(r => (
+                                    <button
+                                      key={r.name}
+                                      onClick={() => handleExploreSelect(r.name)}
+                                      className="text-[11px] sm:text-xs text-purple-300 bg-purple-500/10 border border-purple-500/25 rounded-md px-2 sm:px-2.5 py-1 hover:bg-purple-500/20 transition-colors"
+                                    >
+                                      {r.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Open full page */}
+                            <Link
+                              href={`/repo/${selectedRepo.name}`}
+                              className="inline-block mt-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors"
+                            >
+                              Open full page →
+                            </Link>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <RepoCardMinimal
+                          repo={repo}
+                          onSelect={handleExploreSelect}
+                          isSelected={false}
+                          isRelated={relatedNames.has(repo.name)}
+                          anySelected={selectedRepoName !== null}
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </motion.div>
             )}
           </ErrorBoundary>
+          </div>
 
-          {/* KAN-84: Detail panel overlay (explore mode) */}
-          <RepoDetailPanel
-            repo={selectedRepo}
-            relatedRepos={relatedRepos}
-            onClose={handleExploreClose}
-            onOpenRepo={handleOpenRepo}
-          />
-        </div>
-      </div>
-
-      {/* ── Sidebar — persistent on desktop, slide-in on mobile ── */}
-      {data && (
-        <>
-          {/* Desktop sidebar */}
-          <aside className="hidden lg:flex flex-col w-[380px] shrink-0 border-l border-zinc-800 bg-zinc-950">
-            <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
-              <MetricsSidebar
-                data={sidebarData!}
-                selectedTags={selectedTags}
-                tagMetrics={data.tagMetrics ?? []}
-                intersectionMetrics={intersectionMetrics}
-                onTagClick={handleSidebarTagClick}
-                onTagRemove={removeTag}
-                onRepoClick={handleRepoClick}
-                onViewArchived={handleViewArchived}
-                onViewStale={handleViewStale}
-                onViewOutdated={handleViewOutdated}
-                onSyncFilter={handleSyncFilter}
-                onCategoryFilter={setSelectedCategory}
-                selectedCategory={selectedCategory}
-                trends={trends}
-              />
-            </ErrorBoundary>
-          </aside>
-
-          {/* Mobile sidebar overlay */}
-          {sidebarOpen && (
-            <div className="lg:hidden fixed inset-0 z-50 flex">
-              <div
-                className="flex-1 bg-black/60"
-                onClick={() => setSidebarOpen(false)}
-              />
-              <div className="w-[340px] border-l border-zinc-800 bg-zinc-950 overflow-y-auto">
-                <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 m-4 px-4 py-3 text-sm text-zinc-400">Metrics sidebar unavailable.</div>}>
-                  <MetricsSidebar
-                    data={sidebarData!}
-                    selectedTags={selectedTags}
-                    tagMetrics={data.tagMetrics ?? []}
-                    intersectionMetrics={intersectionMetrics}
-                    onTagClick={handleSidebarTagClick}
-                    onTagRemove={removeTag}
-                    onRepoClick={handleRepoClick}
-                    onViewArchived={handleViewArchived}
-                    onViewStale={handleViewStale}
-                    onViewOutdated={handleViewOutdated}
-                    onSyncFilter={handleSyncFilter}
-                    onCategoryFilter={setSelectedCategory}
-                    selectedCategory={selectedCategory}
-                    trends={trends}
-                  />
-                </ErrorBoundary>
+          {/* Footer */}
+          <footer className="mx-3 sm:mx-4 md:mx-6 mt-8 border-t border-zinc-800 pt-6 pb-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs text-zinc-500">
+              <div>
+                <h4 className="text-zinc-300 font-medium mb-2">Explore</h4>
+                <ul className="space-y-1.5">
+                  <li><Link href="/graph" className="hover:text-zinc-300 transition-colors">Knowledge Graph</Link></li>
+                  <li><Link href="/trends" className="hover:text-zinc-300 transition-colors">Trends</Link></li>
+                  <li><Link href="/stacks" className="hover:text-zinc-300 transition-colors">Tech Stacks</Link></li>
+                  <li><Link href="/taxonomy" className="hover:text-zinc-300 transition-colors">Taxonomy</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-zinc-300 font-medium mb-2">Intelligence</h4>
+                <ul className="space-y-1.5">
+                  <li><Link href="/insights" className="hover:text-zinc-300 transition-colors">Insights</Link></li>
+                  <li><Link href="/runs" className="hover:text-zinc-300 transition-colors">Run History</Link></li>
+                  <li><Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link></li>
+                  <li><Link href="/wiki/digest" className="hover:text-zinc-300 transition-colors">Daily Digest</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-zinc-300 font-medium mb-2">Wiki</h4>
+                <ul className="space-y-1.5">
+                  <li><Link href="/wiki/roadmap" className="hover:text-zinc-300 transition-colors">Roadmap</Link></li>
+                  <li><Link href="/wiki/categories/transformer-architecture" className="hover:text-zinc-300 transition-colors">Categories</Link></li>
+                  <li><Link href="/wiki/builders/google" className="hover:text-zinc-300 transition-colors">Builders</Link></li>
+                  <li><Link href="/wiki/skills/observability-monitoring" className="hover:text-zinc-300 transition-colors">Skills</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-zinc-300 font-medium mb-2">About</h4>
+                <ul className="space-y-1.5">
+                  <li><span className="text-zinc-600">Built by perditioinc</span></li>
+                  <li><span className="text-zinc-600">{data?.repos.length ?? 0} repos indexed</span></li>
+                  <li><span className="text-zinc-600">Next.js + FastAPI</span></li>
+                </ul>
               </div>
             </div>
-          )}
-        </>
-      )}
+            <div className="mt-6 pt-4 border-t border-zinc-800/50 flex items-center justify-between">
+              <span className="text-[10px] text-zinc-600">Reporium — AI Dev Tool Library</span>
+              <span className="text-[10px] text-zinc-700">{new Date().getFullYear()}</span>
+            </div>
+          </footer>
+        </div>
+      </div>
     </div>
   );
 }
