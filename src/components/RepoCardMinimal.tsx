@@ -19,11 +19,23 @@ function getDisplayTag(repo: EnrichedRepo): string | null {
   return contentTag ?? repo.dbCategory ?? null;
 }
 
+function formatNum(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
+
+function getBuilder(repo: EnrichedRepo): string {
+  if (repo.isFork && repo.parentStats?.owner) return repo.parentStats.owner;
+  return repo.fullName.split('/')[0];
+}
+
 export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySelected }: RepoCardMinimalProps) {
   const [hovered, setHovered] = useState(false);
 
   const stars = repo.parentStats?.stars ?? repo.stars ?? 0;
+  const forks = repo.parentStats?.forks ?? repo.forks ?? 0;
   const displayTag = getDisplayTag(repo);
+  const builder = getBuilder(repo);
 
   // Determine opacity for dimming
   let opacity = 1;
@@ -81,19 +93,23 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
         >
           {repo.name}
         </span>
-        {stars > 0 && (
-          <span
-            style={{
-              fontSize: '0.6875rem',
-              color: '#a1a1aa',
-              whiteSpace: 'nowrap',
-              paddingTop: 2,
-              flexShrink: 0,
-            }}
-          >
-            ★ {stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}
-          </span>
-        )}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0, paddingTop: 2 }}>
+          {stars > 0 && (
+            <span style={{ fontSize: '0.6875rem', color: '#a1a1aa', whiteSpace: 'nowrap' }}>
+              ★ {formatNum(stars)}
+            </span>
+          )}
+          {forks > 0 && (
+            <span style={{ fontSize: '0.6875rem', color: '#71717a', whiteSpace: 'nowrap' }}>
+              ⑂ {formatNum(forks)}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Builder */}
+      <div style={{ marginTop: 3, fontSize: '0.625rem', color: '#52525b' }}>
+        {builder}
       </div>
 
       {/* Tag badge */}

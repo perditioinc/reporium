@@ -26,3 +26,16 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Hide scrollbars globally while keeping scroll functional */
+@layer base {
+  *, *::before, *::after {
+    scrollbar-width: none !important; /* Firefox */
+    -ms-overflow-style: none !important; /* IE/Edge */
+  }
+  *::-webkit-scrollbar {
+    display: none !important; /* Chrome, Safari, Edge */
+    width: 0 !important;
+    height: 0 !important;
+  }
+}

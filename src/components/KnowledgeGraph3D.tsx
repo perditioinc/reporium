@@ -742,8 +742,8 @@ export function KnowledgeGraph3D({
 
   return (
     <div
-      className={`relative ${isFullscreen ? 'fixed top-0 left-0 right-0 z-40 bg-[#0a0a0f]' : ''}`}
-      style={isFullscreen ? { bottom: '56px' } : undefined}
+      className={`${isFullscreen ? 'fixed inset-0 z-[45] bg-[#0a0a0f]' : 'relative'}`}
+      style={isFullscreen ? { bottom: '56px', top: '0px' } : undefined}
     >
       {/* 3D Canvas */}
       <div
@@ -880,18 +880,18 @@ export function KnowledgeGraph3D({
         </div>
       )}
 
-      {/* Category Legend — responsive horizontal layout with background */}
+      {/* Category Legend — scrollable on mobile, wraps on desktop */}
       <div className={`absolute ${
-        isFullscreen ? 'bottom-4 left-4 right-4' : 'bottom-2 left-2 right-2'
-      } rounded-lg bg-zinc-900/80 backdrop-blur-sm px-3 py-2`}>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center items-center">
+        isFullscreen ? 'bottom-4 left-2 right-2 sm:left-4 sm:right-4' : 'bottom-2 left-2 right-2'
+      } rounded-lg bg-zinc-900/80 backdrop-blur-sm px-2 sm:px-3 py-1.5 sm:py-2`}>
+        <div className="flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-1 items-center pb-0.5 sm:pb-0">
           {activeCategories.map((cat) => {
             const isHidden = hiddenCategories.has(cat);
             return (
               <button
                 key={cat}
                 onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] whitespace-nowrap transition-all ${
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] whitespace-nowrap transition-all shrink-0 ${
                   isHidden
                     ? 'opacity-30 hover:opacity-60'
                     : 'opacity-90 hover:opacity-100'
@@ -912,7 +912,7 @@ export function KnowledgeGraph3D({
             );
           })}
         </div>
-        <div className="text-center text-[9px] text-zinc-600 mt-1">
+        <div className="hidden sm:block text-center text-[9px] text-zinc-600 mt-1">
           Scroll to zoom · Drag to rotate · Click node to explore
         </div>
       </div>
@@ -950,11 +950,23 @@ export function KnowledgeGraph3D({
         </button>
       </div>
 
-      {/* Fullscreen escape hint */}
+      {/* Fullscreen close button (top-right, always visible) + escape hint (desktop only) */}
       {isFullscreen && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-zinc-800/60 px-4 py-1.5 text-[11px] text-zinc-500 backdrop-blur-sm">
-          Press Esc to exit fullscreen
-        </div>
+        <>
+          <button
+            onClick={toggleFullscreen}
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-lg bg-zinc-800/80 p-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/80 transition-colors backdrop-blur-sm z-10"
+            aria-label="Exit fullscreen"
+            title="Exit fullscreen"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="hidden sm:block absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-zinc-800/60 px-4 py-1.5 text-[11px] text-zinc-500 backdrop-blur-sm">
+            Press Esc to exit fullscreen
+          </div>
+        </>
       )}
 
     </div>
