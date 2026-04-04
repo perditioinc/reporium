@@ -5,7 +5,6 @@ import { checkRateLimit, batchFetch } from '@/lib/rateLimit';
 import { cacheGet, cacheSet } from '@/lib/cache';
 import { buildTagMetrics } from '@/lib/buildTagMetrics';
 import { LibraryData, LibraryStats, EnrichedRepo, CommitSummary, ForkSyncStatus } from '@/types/repo';
-import { config } from '@/config';
 
 /** Calculate percentage breakdown from bytes map */
 function computePercentages(breakdown: Record<string, number>): Record<string, number> {
@@ -66,7 +65,7 @@ export async function GET(
       });
     }
 
-    const rawRepos = await fetchAllRepos(username, config.githubToken || undefined);
+    const rawRepos = await fetchAllRepos(username, process.env.GH_TOKEN || undefined);
 
     // The list-repos endpoint omits the parent object entirely for forks.
     // Call GET /repos/{fork_full_name} for every fork — one call yields:
@@ -75,7 +74,7 @@ export async function GET(
     //   • full parentStats (stars, forks, open issues, last commit, archived status)
     const allForkFullNames = rawRepos.filter((r) => r.fork).map((r) => r.full_name);
     const forkInfoMap = allForkFullNames.length > 0
-      ? await fetchAllForkInfo(allForkFullNames, config.githubToken || undefined)
+      ? await fetchAllForkInfo(allForkFullNames, process.env.GH_TOKEN || undefined)
       : new Map<string, import('@/lib/github').ForkInfo>();
 
     // Build README fetch targets: forks use the original owner's repo, built repos use username.
@@ -120,7 +119,7 @@ export async function GET(
     const commitResults = await Promise.race([
       batchFetch(
         commitTargets,
-        ({ owner, repo }) => fetchRecentCommits(owner, repo, config.githubToken || undefined),
+        ({ owner, repo }) => fetchRecentCommits(owner, repo, process.env.GH_TOKEN || undefined),
         8,
         50
       ),
@@ -155,7 +154,7 @@ export async function GET(
       batchFetch(
         forkSyncTargets,
         ({ repo, upstreamOwner, upstreamBranch }) =>
-          fetchForkSyncStatus(username, repo.name, upstreamOwner, upstreamBranch, config.githubToken || undefined),
+          fetchForkSyncStatus(username, repo.name, upstreamOwner, upstreamBranch, process.env.GH_TOKEN || undefined),
         8,
         50
       ),
@@ -190,7 +189,7 @@ export async function GET(
     const weeklyResults = await Promise.race([
       batchFetch(
         weeklyTargets,
-        ({ owner, repo }) => fetchWeeklyCommitCount(owner, repo, config.githubToken || undefined),
+        ({ owner, repo }) => fetchWeeklyCommitCount(owner, repo, process.env.GH_TOKEN || undefined),
         8,
         50
       ),
@@ -212,7 +211,7 @@ export async function GET(
     const langResults = await Promise.race([
       batchFetch(
         langTargets,
-        ({ owner, repo }) => fetchLanguageBreakdown(owner, repo, config.githubToken || undefined),
+        ({ owner, repo }) => fetchLanguageBreakdown(owner, repo, process.env.GH_TOKEN || undefined),
         8,
         50
       ),

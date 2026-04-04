@@ -16,7 +16,7 @@ import type { NLFilterResult } from '@/types/repo';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
-  'https://reporium-api-573778300586.us-central1.run.app';
+  'https://api.reporium.com';
 
 interface NLFilterBarProps {
   onApply: (result: NLFilterResult) => void;

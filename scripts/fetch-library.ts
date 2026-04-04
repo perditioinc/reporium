@@ -8,7 +8,7 @@
  *   npx tsx scripts/fetch-library.ts
  *
  * Environment:
- *   NEXT_PUBLIC_REPORIUM_API_URL — required (e.g. https://reporium-api-573778300586.us-central1.run.app)
+ *   NEXT_PUBLIC_REPORIUM_API_URL — required (e.g. https://api.reporium.com)
  */
 
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs'
@@ -35,7 +35,7 @@ const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL
 if (!API_URL) {
   console.error('ERROR: NEXT_PUBLIC_REPORIUM_API_URL is not set.')
   console.error('Set it in .env.local or pass it as an environment variable.')
-  console.error('Example: NEXT_PUBLIC_REPORIUM_API_URL=https://reporium-api-573778300586.us-central1.run.app')
+  console.error('Example: NEXT_PUBLIC_REPORIUM_API_URL=https://api.reporium.com')
   process.exit(1)
 }
 
