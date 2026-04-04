@@ -30,6 +30,8 @@ interface QueryResponse {
 // ---------------------------------------------------------------------------
 // Inner panel — reads ?q= from URL on the client side
 // ---------------------------------------------------------------------------
+const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
+
 interface AskPanelProps {
   apiUrl: string;
 }
@@ -70,7 +72,10 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
     try {
       const res = await fetch(`${apiUrl}/intelligence/ask`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
+        },
         body: JSON.stringify({ question: queryText, top_k: 8 }),
       });
 
