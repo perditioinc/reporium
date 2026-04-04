@@ -4,7 +4,7 @@ import { AskPanel } from '@/components/AskPanel';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
-  'https://reporium-api-573778300586.us-central1.run.app';
+  'https://api.reporium.com';
 
 export const metadata: Metadata = {
   title: 'Ask Reporium - Natural language search',

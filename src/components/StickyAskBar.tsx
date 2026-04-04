@@ -100,7 +100,9 @@ function parseSseLine(line: string): StreamEvent | null {
 // ---------------------------------------------------------------------------
 type BarState = 'collapsed' | 'expanded' | 'fullscreen';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.reporium.com';
+const API_URL =
+  process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
+  'https://reporium-api-573778300586.us-central1.run.app';
 
 export function StickyAskBar() {
   const [barState, setBarState] = useState<BarState>('collapsed');
@@ -113,6 +115,8 @@ export function StickyAskBar() {
   const [tokensUsed, setTokensUsed] = useState<TokensUsed | null>(null);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cacheHit, setCacheHit] = useState(false);
+  const [routeLabel, setRouteLabel] = useState<string | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -149,6 +153,8 @@ export function StickyAskBar() {
     setTokensUsed(null);
     setDone(false);
     setError(null);
+    setCacheHit(false);
+    setRouteLabel(null);
     setQuestion('');
     setBarState('collapsed');
     inputRef.current?.focus();
@@ -176,6 +182,8 @@ export function StickyAskBar() {
     setSources([]);
     setTokensUsed(null);
     setDone(false);
+    setCacheHit(false);
+    setRouteLabel(null);
     setBarState('expanded');
     recordRequest();
 
@@ -222,6 +230,9 @@ export function StickyAskBar() {
 
           if (event.type === 'sources') {
             setSources(event.sources);
+            // Track if this was a smart-routed or cached response
+            if ('cache_hit' in event && event.cache_hit) setCacheHit(true);
+            if ('route' in event) setRouteLabel((event as Record<string, unknown>).route as string);
           } else if (event.type === 'token') {
             setStreamingAnswer((prev) => prev + event.text);
           } else if (event.type === 'done') {
@@ -249,6 +260,15 @@ export function StickyAskBar() {
     }
   }
 
+  // Fetch suggested questions on mount
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  useEffect(() => {
+    fetch(`${API_URL}/intelligence/suggestions`, { signal: AbortSignal.timeout(5000) })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.suggestions) setSuggestions(d.suggestions); })
+      .catch(() => {}); // silently degrade — suggestions are a nice-to-have
+  }, []);
+
   const hasAnswer = streamingAnswer.length > 0;
 
   const heightValue =
@@ -263,6 +283,22 @@ export function StickyAskBar() {
       animate={{ height: heightValue }}
       transition={SPRING.snappy}
     >
+      {/* Suggestion chips — show when idle */}
+      {!hasAnswer && !loading && !error && barState === 'collapsed' && suggestions.length > 0 && !question && (
+        <div className="flex items-center gap-1.5 px-3 pt-1.5 overflow-x-auto">
+          <span className="text-[10px] text-zinc-600 shrink-0">Try:</span>
+          {suggestions.slice(0, 4).map((s) => (
+            <button
+              key={s}
+              onClick={() => { setQuestion(s); inputRef.current?.focus(); }}
+              className="shrink-0 rounded-full border border-zinc-800 bg-zinc-900/80 px-2.5 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors truncate max-w-[200px]"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
         {/* Spark icon */}
@@ -445,10 +481,13 @@ export function StickyAskBar() {
                   )}
                 </div>
                 {done && tokensUsed && (
-                  <p className="text-xs text-zinc-600">
+                  <p className="text-xs text-zinc-600 flex items-center gap-1.5">
+                    {(cacheHit || routeLabel) && (
+                      <span className="text-emerald-500/80">⚡ Instant</span>
+                    )}
                     {sources.length > 0 ? `${sources.length} repos searched` : ''}
-                    {sources.length > 0 && tokensUsed ? ' · ' : ''}
-                    {tokensUsed ? `${tokensUsed.total} tokens` : ''}
+                    {sources.length > 0 && tokensUsed.total > 0 ? ' · ' : ''}
+                    {tokensUsed.total > 0 ? `${tokensUsed.total} tokens` : ''}
                   </p>
                 )}
               </div>
