@@ -16,7 +16,7 @@ import type { SimilarRepo } from '@/types/repo';
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
-  'https://reporium-api-573778300586.us-central1.run.app';
+  'https://api.reporium.com';
 
 const VIEWED_KEY = 'reporium_viewed_repos';
 const MAX_VIEWED = 10;

@@ -100,7 +100,9 @@ function parseSseLine(line: string): StreamEvent | null {
 // ---------------------------------------------------------------------------
 type BarState = 'collapsed' | 'expanded' | 'fullscreen';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.reporium.com';
+const API_URL =
+  process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
+  'https://reporium-api-573778300586.us-central1.run.app';
 
 export function StickyAskBar() {
   const [barState, setBarState] = useState<BarState>('collapsed');
@@ -261,8 +263,7 @@ export function StickyAskBar() {
   // Fetch suggested questions on mount
   const [suggestions, setSuggestions] = useState<string[]>([]);
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? 'https://reporium-api-573778300586.us-central1.run.app';
-    fetch(`${apiUrl}/intelligence/suggestions`, { signal: AbortSignal.timeout(5000) })
+    fetch(`${API_URL}/intelligence/suggestions`, { signal: AbortSignal.timeout(5000) })
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.suggestions) setSuggestions(d.suggestions); })
       .catch(() => {}); // silently degrade — suggestions are a nice-to-have
