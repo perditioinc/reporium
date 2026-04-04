@@ -14,6 +14,8 @@
 import { useState, useRef } from 'react';
 import type { NLFilterResult } from '@/types/repo';
 
+const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
+
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
   'https://api.reporium.com';
@@ -47,7 +49,10 @@ export function NLFilterBar({ onApply, onClear, activeInterpretation }: NLFilter
     try {
       const res = await fetch(`${API_URL}/intelligence/nl-filter`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
+        },
         body: JSON.stringify({ query: q }),
       });
 
