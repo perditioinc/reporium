@@ -340,7 +340,7 @@ export default async function RepoDetailPage({
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       {/* KAN-159: track view for homepage recommendations */}
       <ViewTracker repoName={repo.name} />
