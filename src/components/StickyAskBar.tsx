@@ -100,6 +100,8 @@ function parseSseLine(line: string): StreamEvent | null {
 // ---------------------------------------------------------------------------
 type BarState = 'collapsed' | 'expanded' | 'fullscreen';
 
+const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
+
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
   'https://reporium-api-573778300586.us-central1.run.app';
@@ -197,7 +199,10 @@ export function StickyAskBar() {
 
       const res = await fetch(`${API_URL}/intelligence/ask/stream`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
+        },
         body: JSON.stringify({ question: q, top_k: 8, session_id: sid }),
         signal: controller.signal,
       });
