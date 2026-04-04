@@ -844,7 +844,10 @@ export function HomePageClient() {
           {/* Knowledge Graph */}
           <div className="px-3 sm:px-4 md:px-6">
             <ErrorBoundary fallback={null}>
-              <HomeGraphWidget />
+              <HomeGraphWidget
+                selectedRepoName={selectedRepoName}
+                onGraphNodeSelect={handleExploreSelect}
+              />
             </ErrorBoundary>
           </div>
 

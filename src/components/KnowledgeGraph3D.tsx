@@ -206,6 +206,8 @@ interface KnowledgeGraph3DProps {
   height?: number;
   onNodeClick?: (nodeId: string) => void;
   compact?: boolean;
+  /** External selection — when set, auto-selects and focuses the matching node */
+  selectedNodeId?: string | null;
 }
 
 export function KnowledgeGraph3D({
@@ -214,6 +216,7 @@ export function KnowledgeGraph3D({
   height = 560,
   onNodeClick,
   compact = false,
+  selectedNodeId,
 }: KnowledgeGraph3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -271,6 +274,36 @@ export function KnowledgeGraph3D({
   useEffect(() => { hoveredNodeRef.current = hoveredNode; }, [hoveredNode]);
   useEffect(() => { selectedNodeRef.current = selectedNode; }, [selectedNode]);
   useEffect(() => { hiddenCategoriesRef.current = hiddenCategories; }, [hiddenCategories]);
+
+  // Sync external selection → internal state
+  useEffect(() => {
+    if (selectedNodeId === undefined) return; // prop not provided
+    if (selectedNodeId === null) {
+      // External deselection
+      if (selectedNode) {
+        setSelectedNode(null);
+        setIsAutoRotating(true);
+      }
+      return;
+    }
+    // Find matching node — try exact match first, then match by label (short name)
+    const match =
+      nodes.find((n) => n.id === selectedNodeId) ??
+      nodes.find((n) => n.label === selectedNodeId) ??
+      nodes.find((n) => n.id.endsWith(`/${selectedNodeId}`));
+    if (match && match.id !== selectedNode?.id) {
+      setSelectedNode(match);
+      setIsAutoRotating(false);
+      // Pan camera toward the selected node
+      const camera = cameraRef.current;
+      const controls = controlsRef.current;
+      if (camera && controls && match.x !== undefined && match.y !== undefined) {
+        const targetPos = new THREE.Vector3(match.x, match.y, match.z ?? 0);
+        controls.target.lerp(targetPos, 0.5);
+        controls.update();
+      }
+    }
+  }, [selectedNodeId, nodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize Three.js scene
   useEffect(() => {
