@@ -119,6 +119,8 @@ function parseSseLine(line: string): StreamEvent | null {
 // ---------------------------------------------------------------------------
 // AskBar component
 // ---------------------------------------------------------------------------
+const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
+
 interface AskBarProps {
   apiUrl: string;
 }
@@ -206,7 +208,10 @@ export function AskBar({ apiUrl }: AskBarProps) {
 
       const res = await fetch(`${apiUrl}/intelligence/ask/stream`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
+        },
         body: JSON.stringify({ question: q, top_k: 8, session_id: sid }),
         signal: controller.signal,
       });
