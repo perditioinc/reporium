@@ -63,7 +63,7 @@ export function HomeGraphWidget() {
     let cancelled = false;
     const controller = new AbortController();
 
-    fetch(`${API_URL}/graph/edges?limit=5000&neighbours=5&min_similarity=0.40`, {
+    fetch(`${API_URL}/graph/edges?limit=6000&neighbours=5&min_similarity=0.40`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     })
