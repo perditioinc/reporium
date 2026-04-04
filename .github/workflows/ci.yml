@@ -13,7 +13,7 @@ jobs:
   lint-and-build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_REPORIUM_API_URL: https://reporium-api-573778300586.us-central1.run.app
+      NEXT_PUBLIC_REPORIUM_API_URL: https://api.reporium.com
     steps:
       - name: Checkout
         uses: actions/checkout@v4
