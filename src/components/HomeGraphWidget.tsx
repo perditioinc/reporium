@@ -19,7 +19,7 @@ const KnowledgeGraph3D = dynamic(
 
 const API_URL =
   process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
-  'https://reporium-api-573778300586.us-central1.run.app';
+  'https://api.reporium.com';
 
 interface ApiRepoNode {
   name: string;
@@ -51,7 +51,14 @@ interface ApiResponse {
   edges: ApiEdge[];
 }
 
-export function HomeGraphWidget() {
+interface HomeGraphWidgetProps {
+  /** When a repo card is selected externally, highlight it on the graph */
+  selectedRepoName?: string | null;
+  /** Callback when a node is clicked on the graph (repo name, not full id) */
+  onGraphNodeSelect?: (repoName: string) => void;
+}
+
+export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGraphWidgetProps = {}) {
   const router = useRouter();
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
@@ -135,9 +142,15 @@ export function HomeGraphWidget() {
   const handleNodeClick = useCallback(
     (id: string) => {
       const name = id.includes('/') ? id.split('/').pop()! : id;
-      router.push(`/repo/${name}`);
+      if (onGraphNodeSelect) {
+        // Bidirectional sync: notify parent so repo card gets highlighted
+        onGraphNodeSelect(name);
+      } else {
+        // Fallback: navigate to repo page
+        router.push(`/repo/${name}`);
+      }
     },
-    [router],
+    [router, onGraphNodeSelect],
   );
 
   // Don't render anything if graph fails to load
@@ -170,6 +183,7 @@ export function HomeGraphWidget() {
           height={420}
           onNodeClick={handleNodeClick}
           compact
+          selectedNodeId={selectedRepoName}
         />
       )}
     </div>
