@@ -31,6 +31,32 @@ interface QueryResponse {
 // Inner panel — reads ?q= from URL on the client side
 // ---------------------------------------------------------------------------
 const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
+const SESSION_STORAGE_KEY = 'reporium:ask:session_id';
+
+/**
+ * Return a stable session id persisted in localStorage.
+ * KAN-158: the backend uses session_id to thread conversational memory
+ * across requests, so we must reuse the same value for the lifetime of
+ * the browser session (and across reloads) rather than minting one per
+ * request.
+ */
+function getOrCreateSessionId(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    if (existing) return existing;
+    const fresh =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `sess_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    window.localStorage.setItem(SESSION_STORAGE_KEY, fresh);
+    return fresh;
+  } catch {
+    // localStorage unavailable (private mode, quota) — fall back to an
+    // ephemeral per-page id so we still send a stable value within the tab.
+    return `sess_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  }
+}
 
 interface AskPanelProps {
   apiUrl: string;
@@ -44,7 +70,13 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QueryResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Initialize (or load) the conversational session id on mount.
+  useEffect(() => {
+    setSessionId(getOrCreateSessionId());
+  }, []);
 
   // Auto-submit if ?q= param provided (navigated from mini bar)
   useEffect(() => {
@@ -76,7 +108,13 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
           'Content-Type': 'application/json',
           ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
         },
-        body: JSON.stringify({ question: queryText, top_k: 8 }),
+        body: JSON.stringify({
+          question: queryText,
+          top_k: 8,
+          // KAN-158: thread session id so the backend can link this turn
+          // to prior turns for conversational memory.
+          ...(sessionId ? { session_id: sessionId } : {}),
+        }),
       });
 
       if (res.status === 429) {
