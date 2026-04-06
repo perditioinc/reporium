@@ -1,8 +1,9 @@
 'use client';
 
 /**
- * KAN-124: D3-force knowledge graph with category-colored nodes,
- * HTML tooltips, click-to-navigate, and cluster mode for large graphs.
+ * KAN-124: D3-force knowledge graph V2 with category-colored nodes,
+ * HTML tooltips, click-to-navigate, drag-to-reposition, mouse-wheel zoom,
+ * and cluster mode for large graphs.
  */
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
@@ -69,9 +70,9 @@ interface ClusterLink extends SimulationLinkDatum<ClusterNode> {
 }
 
 // ---------------------------------------------------------------------------
-// Edge styling — edges are now similarity-based, color by weight
+// Edge styling
 // ---------------------------------------------------------------------------
-const EDGE_COLOR = '#6b7280'; // neutral gray — weight controls opacity
+const EDGE_COLOR = '#6b7280';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -79,7 +80,7 @@ const EDGE_COLOR = '#6b7280'; // neutral gray — weight controls opacity
 const CLUSTER_THRESHOLD = 500;
 
 function nodeRadius(connections: number): number {
-  return 5 + Math.min(connections * 1.5, 12);
+  return Math.max(4, Math.min(20, Math.sqrt(connections) * 3));
 }
 
 function clusterRadius(memberCount: number): number {
@@ -126,7 +127,6 @@ function buildClusterData(
   edges: GraphEdge[],
   metadata: Map<string, NodeMeta>,
 ): { nodes: ClusterNode[]; links: ClusterLink[] } {
-  // Count members per category
   const allNodeIds = new Set<string>();
   const connCount = new Map<string, number>();
   for (const e of edges) {
@@ -155,13 +155,12 @@ function buildClusterData(
     });
   }
 
-  // Aggregate edges between categories
   const linkKey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
   const linkMap = new Map<string, { source: string; target: string; weight: number; count: number; edge_type: string }>();
   for (const e of edges) {
     const srcCat = metadata.get(e.source)?.category ?? 'uncategorized';
     const tgtCat = metadata.get(e.target)?.category ?? 'uncategorized';
-    if (srcCat === tgtCat) continue; // skip intra-cluster
+    if (srcCat === tgtCat) continue;
     const key = linkKey(`cluster:${srcCat}`, `cluster:${tgtCat}`);
     const existing = linkMap.get(key);
     if (existing) {
@@ -184,6 +183,12 @@ function buildClusterData(
 // ---------------------------------------------------------------------------
 // Canvas drawing
 // ---------------------------------------------------------------------------
+interface Transform {
+  x: number;
+  y: number;
+  k: number;
+}
+
 function drawGraph(
   ctx: CanvasRenderingContext2D,
   nodes: GNode[],
@@ -192,20 +197,25 @@ function drawGraph(
   H: number,
   hoveredId: string | null,
   dpr: number,
+  transform: Transform,
 ) {
   ctx.save();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
 
-  // Draw edges — opacity based on similarity weight
+  // Apply zoom/pan transform
+  ctx.save();
+  ctx.translate(transform.x, transform.y);
+  ctx.scale(transform.k, transform.k);
+
+  // Draw edges -- thin gray lines with 0.3 opacity
   for (const link of links) {
     const src = link.source as GNode;
     const tgt = link.target as GNode;
     if (src.x == null || tgt.x == null) continue;
     const isHighlighted = hoveredId === src.id || hoveredId === tgt.id;
-    // Weight ranges ~0.55-1.0; map to opacity 0.08-0.5
     const weight = link.weight ?? 0.6;
-    const alpha = isHighlighted ? 0.7 : 0.08 + (weight - 0.5) * 0.8;
+    const alpha = isHighlighted ? 0.7 : 0.3;
     const alphaHex = Math.round(Math.min(1, Math.max(0, alpha)) * 255).toString(16).padStart(2, '0');
 
     ctx.beginPath();
@@ -225,7 +235,7 @@ function drawGraph(
     }
   }
 
-  // Draw nodes
+  // Draw nodes -- filled circles with 1px darker border
   for (const node of nodes) {
     if (node.x == null) continue;
     const r = nodeRadius(node.connections);
@@ -237,13 +247,12 @@ function drawGraph(
     ctx.fillStyle = isHovered ? lightenColor(color, 0.3) : color;
     ctx.fill();
 
-    if (isHovered) {
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+    // 1px darker border
+    ctx.strokeStyle = isHovered ? '#ffffff' : darkenColor(color, 0.3);
+    ctx.lineWidth = isHovered ? 2 : 1;
+    ctx.stroke();
 
-    // Labels — only on hover to reduce clutter
+    // Labels on hover
     if (isHovered) {
       ctx.font = '11px system-ui, sans-serif';
       ctx.fillStyle = '#f9fafb';
@@ -252,7 +261,8 @@ function drawGraph(
     }
   }
 
-  ctx.restore();
+  ctx.restore(); // pop zoom/pan transform
+  ctx.restore(); // pop dpr transform
 }
 
 function drawClusters(
@@ -263,10 +273,15 @@ function drawClusters(
   H: number,
   hoveredId: string | null,
   dpr: number,
+  transform: Transform,
 ) {
   ctx.save();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.translate(transform.x, transform.y);
+  ctx.scale(transform.k, transform.k);
 
   // Draw edges
   for (const link of links) {
@@ -326,6 +341,7 @@ function drawClusters(
   }
 
   ctx.restore();
+  ctx.restore();
 }
 
 function lightenColor(hex: string, amount: number): string {
@@ -336,6 +352,16 @@ function lightenColor(hex: string, amount: number): string {
   const lg = Math.min(255, Math.round(g + (255 - g) * amount));
   const lb = Math.min(255, Math.round(b + (255 - b) * amount));
   return `#${lr.toString(16).padStart(2, '0')}${lg.toString(16).padStart(2, '0')}${lb.toString(16).padStart(2, '0')}`;
+}
+
+function darkenColor(hex: string, amount: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const dr = Math.max(0, Math.round(r * (1 - amount)));
+  const dg = Math.max(0, Math.round(g * (1 - amount)));
+  const db = Math.max(0, Math.round(b * (1 - amount)));
+  return `#${dr.toString(16).padStart(2, '0')}${dg.toString(16).padStart(2, '0')}${db.toString(16).padStart(2, '0')}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -355,6 +381,11 @@ function hitTestNodes(
     if (dx * dx + dy * dy <= r * r) return node.id;
   }
   return null;
+}
+
+/** Convert screen-space coordinates to graph-space, accounting for zoom/pan */
+function screenToGraph(sx: number, sy: number, transform: Transform): [number, number] {
+  return [(sx - transform.x) / transform.k, (sy - transform.y) / transform.k];
 }
 
 // ---------------------------------------------------------------------------
@@ -379,12 +410,22 @@ export function KnowledgeGraphV2({
   const nodesRef = useRef<GNode[] | ClusterNode[]>([]);
   const linksRef = useRef<GLink[] | ClusterLink[]>([]);
   const animRef = useRef<number>(0);
+  const transformRef = useRef<Transform>({ x: 0, y: 0, k: 1 });
+
+  // Drag state
+  const dragRef = useRef<{
+    nodeId: string;
+    active: boolean;
+    wasDragged: boolean;
+  } | null>(null);
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; id: string } | null>(null);
   const [dimensions, setDimensions] = useState({ w: 800, h: height });
   const [mode, setMode] = useState<'auto' | 'cluster' | 'detail'>('auto');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  // Force re-render when transform changes (for React-managed UI)
+  const [, setTransformTick] = useState(0);
 
   // Determine if we should cluster
   const nodeCount = useMemo(() => {
@@ -410,7 +451,7 @@ export function KnowledgeGraphV2({
     return () => obs.disconnect();
   }, [height]);
 
-  // Active categories for legend (only categories that appear in current data)
+  // Active categories for legend (only present in data)
   const activeCategories = useMemo(() => {
     const cats = new Set<string>();
     for (const [, meta] of nodeMetadata) {
@@ -418,6 +459,11 @@ export function KnowledgeGraphV2({
     }
     return Array.from(cats).sort();
   }, [nodeMetadata]);
+
+  // Reset transform when data changes
+  useEffect(() => {
+    transformRef.current = { x: 0, y: 0, k: 1 };
+  }, [edges, isClusterMode, expandedCategory]);
 
   // Build & run simulation
   useEffect(() => {
@@ -428,7 +474,6 @@ export function KnowledgeGraphV2({
     simRef.current?.stop();
 
     if (isClusterMode && !expandedCategory) {
-      // Cluster mode
       const { nodes, links } = buildClusterData(edges, nodeMetadata);
       nodesRef.current = nodes;
       linksRef.current = links;
@@ -449,7 +494,6 @@ export function KnowledgeGraphV2({
 
       simRef.current = sim as unknown as Simulation<GNode, GLink>;
     } else {
-      // Detail mode — either all edges or filtered to expanded category
       let filteredEdges = edges;
       if (expandedCategory) {
         filteredEdges = edges.filter((e) => {
@@ -474,7 +518,7 @@ export function KnowledgeGraphV2({
             .distance(100),
         )
         .force('center', forceCenter(w / 2, h / 2))
-        .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 6))
+        .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 6).strength(0.7))
         .force('x', forceX(w / 2).strength(0.05))
         .force('y', forceY(h / 2).strength(0.05))
         .alphaDecay(0.02);
@@ -508,6 +552,8 @@ export function KnowledgeGraphV2({
         canvas!.style.height = `${h}px`;
       }
 
+      const t = transformRef.current;
+
       if (isClusterMode && !expandedCategory) {
         drawClusters(
           ctx,
@@ -517,6 +563,7 @@ export function KnowledgeGraphV2({
           h,
           hoveredId,
           dpr,
+          t,
         );
       } else {
         drawGraph(
@@ -527,6 +574,7 @@ export function KnowledgeGraphV2({
           h,
           hoveredId,
           dpr,
+          t,
         );
       }
 
@@ -537,12 +585,41 @@ export function KnowledgeGraphV2({
     return () => cancelAnimationFrame(animRef.current);
   }, [dimensions, hoveredId, isClusterMode, expandedCategory]);
 
-  const handleMouseMove = useCallback(
+  // Zoom with mouse wheel
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    function handleWheel(e: WheelEvent) {
+      e.preventDefault();
+      const rect = canvas!.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const t = transformRef.current;
+
+      const scaleFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      const newK = Math.max(0.1, Math.min(10, t.k * scaleFactor));
+
+      // Zoom towards mouse position
+      const newX = mx - (mx - t.x) * (newK / t.k);
+      const newY = my - (my - t.y) * (newK / t.k);
+
+      transformRef.current = { x: newX, y: newY, k: newK };
+      setTransformTick((c) => c + 1);
+    }
+
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  // Drag support
+  const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const [gx, gy] = screenToGraph(sx, sy, transformRef.current);
 
       const nodes = nodesRef.current;
       let hit: string | null = null;
@@ -550,17 +627,70 @@ export function KnowledgeGraphV2({
       if (isClusterMode && !expandedCategory) {
         hit = hitTestNodes(
           (nodes as ClusterNode[]).map((n) => ({ ...n, connections: n.memberCount })),
-          mx,
-          my,
+          gx,
+          gy,
           (n) => clusterRadius(n.connections),
         );
       } else {
-        hit = hitTestNodes(nodes as GNode[], mx, my, (n) => nodeRadius(n.connections));
+        hit = hitTestNodes(nodes as GNode[], gx, gy, (n) => nodeRadius(n.connections));
+      }
+
+      if (hit) {
+        dragRef.current = { nodeId: hit, active: true, wasDragged: false };
+        // Reheat simulation so the dragged node stays in place
+        const sim = simRef.current;
+        if (sim) {
+          sim.alphaTarget(0.3).restart();
+        }
+        // Fix the node position
+        const node = (nodesRef.current as (GNode | ClusterNode)[]).find((n) => n.id === hit);
+        if (node) {
+          node.fx = node.x;
+          node.fy = node.y;
+        }
+      }
+    },
+    [isClusterMode, expandedCategory],
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const [gx, gy] = screenToGraph(sx, sy, transformRef.current);
+
+      // Handle drag
+      if (dragRef.current?.active) {
+        dragRef.current.wasDragged = true;
+        const node = (nodesRef.current as (GNode | ClusterNode)[]).find(
+          (n) => n.id === dragRef.current!.nodeId,
+        );
+        if (node) {
+          node.fx = gx;
+          node.fy = gy;
+        }
+        return;
+      }
+
+      const nodes = nodesRef.current;
+      let hit: string | null = null;
+
+      if (isClusterMode && !expandedCategory) {
+        hit = hitTestNodes(
+          (nodes as ClusterNode[]).map((n) => ({ ...n, connections: n.memberCount })),
+          gx,
+          gy,
+          (n) => clusterRadius(n.connections),
+        );
+      } else {
+        hit = hitTestNodes(nodes as GNode[], gx, gy, (n) => nodeRadius(n.connections));
       }
 
       setHoveredId(hit);
       if (hit) {
-        setTooltip({ x: e.clientX - rect.left, y: e.clientY - rect.top, id: hit });
+        setTooltip({ x: sx, y: sy, id: hit });
       } else {
         setTooltip(null);
       }
@@ -568,23 +698,49 @@ export function KnowledgeGraphV2({
     [isClusterMode, expandedCategory],
   );
 
+  const handleMouseUp = useCallback(() => {
+    if (dragRef.current?.active) {
+      const node = (nodesRef.current as (GNode | ClusterNode)[]).find(
+        (n) => n.id === dragRef.current!.nodeId,
+      );
+      if (node) {
+        node.fx = null;
+        node.fy = null;
+      }
+      const sim = simRef.current;
+      if (sim) {
+        sim.alphaTarget(0);
+      }
+      dragRef.current = null;
+    }
+  }, []);
+
   const handleMouseLeave = useCallback(() => {
     setHoveredId(null);
     setTooltip(null);
-  }, []);
+    // End any in-progress drag
+    handleMouseUp();
+  }, [handleMouseUp]);
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
+      // Ignore clicks that were actually drags
+      if (dragRef.current?.wasDragged) {
+        dragRef.current = null;
+        return;
+      }
+
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const [gx, gy] = screenToGraph(sx, sy, transformRef.current);
 
       if (isClusterMode && !expandedCategory) {
         const hit = hitTestNodes(
           (nodesRef.current as ClusterNode[]).map((n) => ({ ...n, connections: n.memberCount })),
-          mx,
-          my,
+          gx,
+          gy,
           (n) => clusterRadius(n.connections),
         );
         if (hit) {
@@ -593,7 +749,7 @@ export function KnowledgeGraphV2({
           setMode('detail');
         }
       } else {
-        const hit = hitTestNodes(nodesRef.current as GNode[], mx, my, (n) => nodeRadius(n.connections));
+        const hit = hitTestNodes(nodesRef.current as GNode[], gx, gy, (n) => nodeRadius(n.connections));
         if (hit && onNodeClick) {
           onNodeClick(hit);
         }
@@ -659,7 +815,9 @@ export function KnowledgeGraphV2({
         <canvas
           ref={canvasRef}
           className="block cursor-crosshair"
+          onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
         />
@@ -706,7 +864,7 @@ export function KnowledgeGraphV2({
                   </p>
                 )}
                 <p className="text-xs text-zinc-500 mt-0.5">
-                  {tooltipContent.connections} connections
+                  {tooltipContent.connections} edges
                 </p>
               </>
             )}
@@ -746,8 +904,8 @@ export function KnowledgeGraphV2({
       {edges.length > 0 && (
         <p className="text-xs text-zinc-700">
           {isClusterMode && !expandedCategory
-            ? 'Click a category cluster to see individual repos. Hover to see details.'
-            : 'Click a node to open repo details. Hover to see name, category, and connections.'}
+            ? 'Click a category cluster to see individual repos. Hover to see details. Scroll to zoom.'
+            : 'Click a node to open repo details. Hover to see name, category, and connections. Drag to reposition. Scroll to zoom.'}
         </p>
       )}
     </div>
