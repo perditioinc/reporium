@@ -9,6 +9,32 @@ interface RepoGridProps {
   allRepos?: EnrichedRepo[];
   onTagClick?: (tag: string) => void;
   onCategoryClick?: (categoryId: string) => void;
+  isLoading?: boolean;
+}
+
+/** Animated skeleton placeholder matching RepoCard dimensions */
+function RepoCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 animate-pulse">
+      <div className="flex items-start justify-between mb-3">
+        <div className="h-5 w-40 rounded bg-zinc-800" />
+        <div className="h-4 w-16 rounded bg-zinc-800" />
+      </div>
+      <div className="space-y-2 mb-4">
+        <div className="h-3 w-full rounded bg-zinc-800" />
+        <div className="h-3 w-3/4 rounded bg-zinc-800" />
+      </div>
+      <div className="flex gap-2 mb-3">
+        <div className="h-5 w-16 rounded-full bg-zinc-800" />
+        <div className="h-5 w-20 rounded-full bg-zinc-800" />
+        <div className="h-5 w-14 rounded-full bg-zinc-800" />
+      </div>
+      <div className="flex items-center justify-between mt-3">
+        <div className="h-3 w-24 rounded bg-zinc-800" />
+        <div className="h-3 w-16 rounded bg-zinc-800" />
+      </div>
+    </div>
+  );
 }
 
 const SYSTEM_TAGS = new Set(['Forked', 'Built by Me', 'Active', 'Inactive', 'Archived', 'Popular']);
@@ -60,7 +86,7 @@ function buildSimilarCountMap(allRepos: EnrichedRepo[]): Map<string | number, nu
 }
 
 /** Grid of repo cards with infinite scroll */
-export function RepoGrid({ repos, allRepos, onTagClick, onCategoryClick }: RepoGridProps) {
+export function RepoGrid({ repos, allRepos, onTagClick, onCategoryClick, isLoading }: RepoGridProps) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -96,6 +122,16 @@ export function RepoGrid({ repos, allRepos, onTagClick, onCategoryClick }: RepoG
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, [loadMore]);
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <RepoCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
 
   if (repos.length === 0) {
     return (
