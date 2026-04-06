@@ -276,6 +276,29 @@ export function StickyAskBar() {
 
   const hasAnswer = streamingAnswer.length > 0;
 
+  // Cycling placeholder text
+  const FALLBACK_SUGGESTIONS = [
+    'What agent frameworks are the most popular?',
+    'Compare LangChain and LlamaIndex',
+    'Which repos support MCP?',
+    'What are the best RAG tools?',
+    'Show me repos for model evaluation',
+    'What inference servers are available?',
+  ];
+  const placeholderOptions = suggestions.length > 0 ? suggestions : FALLBACK_SUGGESTIONS;
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (isFocused || question || loading || hasAnswer) return;
+    const interval = setInterval(() => {
+      setPlaceholderIdx((i) => (i + 1) % placeholderOptions.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isFocused, question, loading, hasAnswer, placeholderOptions.length]);
+
+  const currentPlaceholder = placeholderOptions[placeholderIdx % placeholderOptions.length] ?? 'Ask anything about the repo library...';
+
   const heightValue =
     barState === 'collapsed' ? 56 :
     barState === 'fullscreen' ? '100vh' :
@@ -288,38 +311,74 @@ export function StickyAskBar() {
       animate={{ height: heightValue }}
       transition={SPRING.snappy}
     >
-      {/* Suggestion chips — show when idle */}
-      {!hasAnswer && !loading && !error && barState === 'collapsed' && suggestions.length > 0 && !question && (
-        <div className="flex items-center gap-1.5 px-3 pt-1.5 overflow-x-auto">
-          <span className="text-[10px] text-zinc-600 shrink-0">Try:</span>
-          {suggestions.slice(0, 4).map((s) => (
-            <button
-              key={s}
-              onClick={() => { setQuestion(s); inputRef.current?.focus(); }}
-              className="shrink-0 rounded-full border border-zinc-800 bg-zinc-900/80 px-2.5 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors truncate max-w-[200px]"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
-        {/* Spark icon */}
-        <span className="text-zinc-500 text-sm select-none shrink-0">✦</span>
+        {/* Jellyfish mascot */}
+        <button
+          type="button"
+          onClick={() => {
+            if (!question && !loading) {
+              setQuestion(currentPlaceholder);
+              inputRef.current?.focus();
+            }
+          }}
+          className="shrink-0 group"
+          aria-label="Ask a suggestion"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 32 32"
+            fill="none"
+            className="transition-transform group-hover:scale-110"
+          >
+            {/* Bell / head */}
+            <ellipse cx="16" cy="11" rx="9" ry="8" className="fill-violet-500/80 group-hover:fill-violet-400/90 transition-colors">
+              <animate attributeName="ry" values="8;8.6;8" dur="2.5s" repeatCount="indefinite" />
+            </ellipse>
+            {/* Inner glow */}
+            <ellipse cx="16" cy="10" rx="5" ry="4.5" className="fill-violet-300/25">
+              <animate attributeName="ry" values="4.5;5;4.5" dur="2.5s" repeatCount="indefinite" />
+            </ellipse>
+            {/* Eyes */}
+            <circle cx="13" cy="10" r="1.2" className="fill-white/90" />
+            <circle cx="19" cy="10" r="1.2" className="fill-white/90" />
+            <circle cx="13.3" cy="10.2" r="0.5" className="fill-zinc-900" />
+            <circle cx="19.3" cy="10.2" r="0.5" className="fill-zinc-900" />
+            {/* Tentacles */}
+            <path d="M9 17 Q8 22 10 26" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M9 17 Q8 22 10 26;M9 17 Q7 22 9 26;M9 17 Q8 22 10 26" dur="3s" repeatCount="indefinite" />
+            </path>
+            <path d="M12 18 Q11 23 12 27" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.6">
+              <animate attributeName="d" values="M12 18 Q11 23 12 27;M12 18 Q12.5 23 11 27;M12 18 Q11 23 12 27" dur="2.8s" repeatCount="indefinite" />
+            </path>
+            <path d="M16 18 Q16 24 16 28" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M16 18 Q16 24 16 28;M16 18 Q15 24 17 28;M16 18 Q16 24 16 28" dur="3.2s" repeatCount="indefinite" />
+            </path>
+            <path d="M20 18 Q21 23 20 27" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.6">
+              <animate attributeName="d" values="M20 18 Q21 23 20 27;M20 18 Q19.5 23 21 27;M20 18 Q21 23 20 27" dur="2.6s" repeatCount="indefinite" />
+            </path>
+            <path d="M23 17 Q24 22 22 26" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M23 17 Q24 22 22 26;M23 17 Q25 22 23 26;M23 17 Q24 22 22 26" dur="3.1s" repeatCount="indefinite" />
+            </path>
+          </svg>
+        </button>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask anything about the repo library..."
-          maxLength={500}
-          disabled={atMinuteLimit || atDayLimit}
-          className="flex-1 min-w-0 rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500/50 disabled:opacity-50 transition-colors"
-        />
+        <div className="flex-1 min-w-0 relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={currentPlaceholder}
+            maxLength={500}
+            disabled={atMinuteLimit || atDayLimit}
+            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
+          />
+        </div>
 
         {/* Ask / Stop button */}
         <button
