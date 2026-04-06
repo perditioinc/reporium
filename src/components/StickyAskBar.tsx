@@ -278,12 +278,16 @@ export function StickyAskBar() {
 
   // Cycling placeholder text
   const FALLBACK_SUGGESTIONS = [
-    'What agent frameworks are the most popular?',
-    'Compare LangChain and LlamaIndex',
-    'Which repos support MCP?',
-    'What are the best RAG tools?',
-    'Show me repos for model evaluation',
-    'What inference servers are available?',
+    'Which agent frameworks support tool use and MCP?',
+    'Compare RAG approaches: LlamaIndex vs LangChain vs Haystack',
+    'What repos help with prompt injection defense?',
+    'Best open-source alternatives to GPT-4 for code generation?',
+    'Which fine-tuning tools support LoRA and QLoRA?',
+    'What observability tools trace LLM chains end-to-end?',
+    'Show me repos for building multi-agent systems',
+    'What embedding models work best for semantic search?',
+    'Which repos have the strongest community health signals?',
+    'What tools exist for LLM evaluation and red teaming?',
   ];
   const placeholderOptions = suggestions.length > 0 ? suggestions : FALLBACK_SUGGESTIONS;
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
