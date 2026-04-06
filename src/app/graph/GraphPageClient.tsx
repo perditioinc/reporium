@@ -141,8 +141,12 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
   const handleNodeClick = useCallback(
     (id: string) => {
-      const name = id.includes('/') ? id.split('/').pop()! : id;
-      router.push(`/repo/${name}`);
+      // id is typically "owner/name" — navigate to /repo/owner/name
+      if (id.includes('/')) {
+        router.push(`/repo/${id}`);
+      } else {
+        router.push(`/repo/${id}`);
+      }
     },
     [router],
   );
