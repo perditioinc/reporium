@@ -43,7 +43,7 @@ const MAX_RETRIES = 3
 const RETRY_DELAYS_MS = [2000, 5000, 10000] as const
 
 function isRetryableStatus(status: number): boolean {
-  return status >= 500 && status <= 599
+  return status === 429 || (status >= 500 && status <= 599)
 }
 
 class PermanentFetchError extends Error {}
@@ -126,6 +126,8 @@ async function main() {
   let allRepos = [...page1.repos]
 
   for (let page = 2; page <= totalPages; page++) {
+    // Rate-limit guard: wait between pages to avoid 429s
+    await new Promise(r => setTimeout(r, 15_000))
     const pageUrl = `${baseUrl}?page=${page}&pageSize=${PAGE_SIZE}`
     console.log(`Fetching page ${page}/${totalPages} from ${pageUrl}...`)
     const res = await fetchWithRetry(pageUrl)

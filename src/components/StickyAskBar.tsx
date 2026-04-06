@@ -276,6 +276,134 @@ export function StickyAskBar() {
 
   const hasAnswer = streamingAnswer.length > 0;
 
+  // 100 AI-native cycling suggestions showcasing Reporium's capabilities
+  const FALLBACK_SUGGESTIONS = [
+    // Agent frameworks & MCP
+    'Which agent frameworks support tool use and MCP?',
+    'Compare CrewAI vs AutoGen vs LangGraph for multi-agent orchestration',
+    'What repos implement the Model Context Protocol?',
+    'Show me agent memory systems for long-running conversations',
+    'What tools support chain-of-thought reasoning in agents?',
+    'Which repos enable function calling for LLM agents?',
+    'Best frameworks for building autonomous coding agents?',
+    'What agent planning systems are production-ready?',
+    'Compare agent architectures: ReAct vs plan-and-execute vs tree of thought',
+    'Which repos support structured output from LLM agents?',
+    // RAG & retrieval
+    'Compare RAG approaches: LlamaIndex vs LangChain vs Haystack',
+    'What vector databases have the best hybrid search?',
+    'Which repos implement advanced chunking strategies?',
+    'Best reranking models for RAG pipelines?',
+    'What tools handle multi-modal RAG with images and tables?',
+    'Show me document parsing repos for PDFs and Office files',
+    'Which repos support graph-based RAG?',
+    'What embedding models work best for semantic search?',
+    'Compare Chroma vs Weaviate vs Qdrant vs Milvus',
+    'Which RAG frameworks handle real-time streaming retrieval?',
+    // Model training & fine-tuning
+    'Which fine-tuning tools support LoRA and QLoRA?',
+    'Best repos for RLHF and preference learning?',
+    'What synthetic data generators work with open models?',
+    'Compare Unsloth vs Axolotl vs TRL for efficient fine-tuning',
+    'Which repos support distributed training with DeepSpeed?',
+    'What tools exist for dataset curation and cleaning?',
+    'Show me repos for training custom embedding models',
+    'Best open-source model merging and pruning tools?',
+    'What repos support continued pre-training of LLMs?',
+    'Which training frameworks handle vision-language models?',
+    // Foundation models & inference
+    'Best open-source alternatives to GPT-4 for code generation?',
+    'Which inference engines support speculative decoding?',
+    'Compare vLLM vs TGI vs Ollama for local model serving',
+    'What repos optimize transformer inference with quantization?',
+    'Show me model routers that switch between LLM providers',
+    'Which repos serve models with sub-100ms latency?',
+    'Best tools for running LLMs on consumer GPUs?',
+    'What repos handle batch inference at scale?',
+    'Compare quantization methods: GPTQ vs AWQ vs GGUF',
+    'Which repos support multi-model orchestration?',
+    // Evals & benchmarking
+    'What tools exist for LLM evaluation and red teaming?',
+    'Best repos for automated prompt testing at scale?',
+    'Which evaluation frameworks measure hallucination rates?',
+    'Compare LLM eval tools: lm-eval-harness vs HELM vs Eleuther',
+    'What repos benchmark multi-turn conversation quality?',
+    'Show me tools for testing LLM safety and alignment',
+    'Which repos evaluate code generation accuracy?',
+    'Best frameworks for A/B testing different prompts?',
+    'What tools measure semantic correctness vs reference answers?',
+    'Which repos track model regression over time?',
+    // Observability & monitoring
+    'What observability tools trace LLM chains end-to-end?',
+    'Compare LangSmith vs Phoenix vs Langfuse for LLM monitoring',
+    'Which repos provide cost tracking across LLM providers?',
+    'Best tools for logging and replaying LLM conversations?',
+    'What repos detect prompt injection in production?',
+    'Show me LLM error analysis and debugging tools',
+    'Which observability platforms support streaming traces?',
+    'Best open-source alternatives to LangSmith?',
+    'What repos visualize token usage and latency distributions?',
+    'Which monitoring tools alert on quality regressions?',
+    // Security & safety
+    'What repos help with prompt injection defense?',
+    'Best guardrail frameworks for content filtering?',
+    'Which repos implement output sanitization for LLMs?',
+    'Compare NeMo Guardrails vs Guardrails AI vs Rebuff',
+    'What tools detect jailbreak attempts in real-time?',
+    'Show me repos for PII redaction in LLM pipelines',
+    'Which repos handle secrets management for AI apps?',
+    'Best tools for rate limiting and abuse prevention?',
+    'What repos audit LLM outputs for compliance?',
+    'Which security scanning tools work with AI codebases?',
+    // Code generation & dev tools
+    'Best open-source coding assistants and copilots?',
+    'Which repos generate unit tests from source code?',
+    'Compare Continue vs Cody vs Tabby for code completion',
+    'What tools auto-generate API documentation?',
+    'Show me repos that convert natural language to SQL',
+    'Which repos do automated code review with LLMs?',
+    'Best tools for generating frontend UI from descriptions?',
+    'What repos handle code translation between languages?',
+    'Which developer tools integrate LLMs into CI/CD?',
+    'Show me AI-powered git commit message generators',
+    // Data engineering & MLOps
+    'What repos handle data labeling with LLM assistance?',
+    'Best MLOps platforms for managing model lifecycle?',
+    'Which repos support feature stores for ML pipelines?',
+    'Compare Weights & Biases vs MLflow vs Neptune',
+    'What tools automate model deployment to Kubernetes?',
+    'Show me repos for data versioning and lineage tracking',
+    'Which repos handle experiment tracking at scale?',
+    'Best tools for model registry and artifact management?',
+    'What repos support A/B testing deployed ML models?',
+    'Which data pipeline frameworks handle streaming ML?',
+    // Community & discovery
+    'Which repos have the strongest community health signals?',
+    'What are the fastest-growing repos this month?',
+    'Show me repos with active discussions and contributors',
+    'Which projects have the best documentation?',
+    'What repos were most mentioned on Hacker News?',
+    'Compare community activity: LangChain vs LlamaIndex',
+    'Which repos have the most professional test suites?',
+    'Show me repos maintained by major AI labs',
+    'What new repos were added this week?',
+    'Which repos have the best production readiness signals?',
+  ];
+  const placeholderOptions = suggestions.length > 0 ? suggestions : FALLBACK_SUGGESTIONS;
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
+  const [showSuggestionOverlay, setShowSuggestionOverlay] = useState(true);
+
+  useEffect(() => {
+    if (isFocused || question || loading || hasAnswer) return;
+    const interval = setInterval(() => {
+      setPlaceholderIdx((i) => (i + 1) % placeholderOptions.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isFocused, question, loading, hasAnswer, placeholderOptions.length]);
+
+  const currentPlaceholder = placeholderOptions[placeholderIdx % placeholderOptions.length] ?? 'Ask anything about the repo library...';
+
   const heightValue =
     barState === 'collapsed' ? 56 :
     barState === 'fullscreen' ? '100vh' :
@@ -288,38 +416,88 @@ export function StickyAskBar() {
       animate={{ height: heightValue }}
       transition={SPRING.snappy}
     >
-      {/* Suggestion chips — show when idle */}
-      {!hasAnswer && !loading && !error && barState === 'collapsed' && suggestions.length > 0 && !question && (
-        <div className="flex items-center gap-1.5 px-3 pt-1.5 overflow-x-auto">
-          <span className="text-[10px] text-zinc-600 shrink-0">Try:</span>
-          {suggestions.slice(0, 4).map((s) => (
-            <button
-              key={s}
-              onClick={() => { setQuestion(s); inputRef.current?.focus(); }}
-              className="shrink-0 rounded-full border border-zinc-800 bg-zinc-900/80 px-2.5 py-0.5 text-[11px] text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors truncate max-w-[200px]"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
-        {/* Spark icon */}
-        <span className="text-zinc-500 text-sm select-none shrink-0">✦</span>
+        {/* Jellyfish mascot */}
+        <button
+          type="button"
+          onClick={() => {
+            if (!question && !loading) {
+              setQuestion(currentPlaceholder);
+              inputRef.current?.focus();
+            }
+          }}
+          className="shrink-0 group"
+          aria-label="Ask a suggestion"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 32 32"
+            fill="none"
+            className="transition-transform group-hover:scale-110"
+          >
+            {/* Bell / head */}
+            <ellipse cx="16" cy="11" rx="9" ry="8" className="fill-violet-500/80 group-hover:fill-violet-400/90 transition-colors">
+              <animate attributeName="ry" values="8;8.6;8" dur="2.5s" repeatCount="indefinite" />
+            </ellipse>
+            {/* Inner glow */}
+            <ellipse cx="16" cy="10" rx="5" ry="4.5" className="fill-violet-300/25">
+              <animate attributeName="ry" values="4.5;5;4.5" dur="2.5s" repeatCount="indefinite" />
+            </ellipse>
+            {/* Eyes */}
+            <circle cx="13" cy="10" r="1.2" className="fill-white/90" />
+            <circle cx="19" cy="10" r="1.2" className="fill-white/90" />
+            <circle cx="13.3" cy="10.2" r="0.5" className="fill-zinc-900" />
+            <circle cx="19.3" cy="10.2" r="0.5" className="fill-zinc-900" />
+            {/* Tentacles */}
+            <path d="M9 17 Q8 22 10 26" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M9 17 Q8 22 10 26;M9 17 Q7 22 9 26;M9 17 Q8 22 10 26" dur="3s" repeatCount="indefinite" />
+            </path>
+            <path d="M12 18 Q11 23 12 27" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.6">
+              <animate attributeName="d" values="M12 18 Q11 23 12 27;M12 18 Q12.5 23 11 27;M12 18 Q11 23 12 27" dur="2.8s" repeatCount="indefinite" />
+            </path>
+            <path d="M16 18 Q16 24 16 28" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M16 18 Q16 24 16 28;M16 18 Q15 24 17 28;M16 18 Q16 24 16 28" dur="3.2s" repeatCount="indefinite" />
+            </path>
+            <path d="M20 18 Q21 23 20 27" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.6">
+              <animate attributeName="d" values="M20 18 Q21 23 20 27;M20 18 Q19.5 23 21 27;M20 18 Q21 23 20 27" dur="2.6s" repeatCount="indefinite" />
+            </path>
+            <path d="M23 17 Q24 22 22 26" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M23 17 Q24 22 22 26;M23 17 Q25 22 23 26;M23 17 Q24 22 22 26" dur="3.1s" repeatCount="indefinite" />
+            </path>
+          </svg>
+        </button>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask anything about the repo library..."
-          maxLength={500}
-          disabled={atMinuteLimit || atDayLimit}
-          className="flex-1 min-w-0 rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500/50 disabled:opacity-50 transition-colors"
-        />
+        <div className="flex-1 min-w-0 relative">
+          <input
+            ref={inputRef}
+            type="text"
+            value={question}
+            onChange={(e) => { setQuestion(e.target.value); setShowSuggestionOverlay(false); }}
+            onKeyDown={handleKeyDown}
+            onFocus={() => { setIsFocused(true); setShowSuggestionOverlay(false); }}
+            onBlur={() => { setIsFocused(false); if (!question) setShowSuggestionOverlay(true); }}
+            placeholder={isFocused ? 'Ask anything about the repo library...' : ''}
+            maxLength={500}
+            disabled={atMinuteLimit || atDayLimit}
+            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
+          />
+          {/* Cycling suggestion overlay — click to select, focus to dismiss */}
+          {showSuggestionOverlay && !question && !isFocused && !loading && !hasAnswer && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuestion(currentPlaceholder);
+                setShowSuggestionOverlay(false);
+                inputRef.current?.focus();
+              }}
+              className="absolute inset-0 flex items-center px-3 text-sm text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer truncate text-left"
+            >
+              {currentPlaceholder}
+            </button>
+          )}
+        </div>
 
         {/* Ask / Stop button */}
         <button
