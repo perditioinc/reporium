@@ -276,22 +276,123 @@ export function StickyAskBar() {
 
   const hasAnswer = streamingAnswer.length > 0;
 
-  // Cycling placeholder text
+  // 100 AI-native cycling suggestions showcasing Reporium's capabilities
   const FALLBACK_SUGGESTIONS = [
+    // Agent frameworks & MCP
     'Which agent frameworks support tool use and MCP?',
+    'Compare CrewAI vs AutoGen vs LangGraph for multi-agent orchestration',
+    'What repos implement the Model Context Protocol?',
+    'Show me agent memory systems for long-running conversations',
+    'What tools support chain-of-thought reasoning in agents?',
+    'Which repos enable function calling for LLM agents?',
+    'Best frameworks for building autonomous coding agents?',
+    'What agent planning systems are production-ready?',
+    'Compare agent architectures: ReAct vs plan-and-execute vs tree of thought',
+    'Which repos support structured output from LLM agents?',
+    // RAG & retrieval
     'Compare RAG approaches: LlamaIndex vs LangChain vs Haystack',
-    'What repos help with prompt injection defense?',
-    'Best open-source alternatives to GPT-4 for code generation?',
-    'Which fine-tuning tools support LoRA and QLoRA?',
-    'What observability tools trace LLM chains end-to-end?',
-    'Show me repos for building multi-agent systems',
+    'What vector databases have the best hybrid search?',
+    'Which repos implement advanced chunking strategies?',
+    'Best reranking models for RAG pipelines?',
+    'What tools handle multi-modal RAG with images and tables?',
+    'Show me document parsing repos for PDFs and Office files',
+    'Which repos support graph-based RAG?',
     'What embedding models work best for semantic search?',
-    'Which repos have the strongest community health signals?',
+    'Compare Chroma vs Weaviate vs Qdrant vs Milvus',
+    'Which RAG frameworks handle real-time streaming retrieval?',
+    // Model training & fine-tuning
+    'Which fine-tuning tools support LoRA and QLoRA?',
+    'Best repos for RLHF and preference learning?',
+    'What synthetic data generators work with open models?',
+    'Compare Unsloth vs Axolotl vs TRL for efficient fine-tuning',
+    'Which repos support distributed training with DeepSpeed?',
+    'What tools exist for dataset curation and cleaning?',
+    'Show me repos for training custom embedding models',
+    'Best open-source model merging and pruning tools?',
+    'What repos support continued pre-training of LLMs?',
+    'Which training frameworks handle vision-language models?',
+    // Foundation models & inference
+    'Best open-source alternatives to GPT-4 for code generation?',
+    'Which inference engines support speculative decoding?',
+    'Compare vLLM vs TGI vs Ollama for local model serving',
+    'What repos optimize transformer inference with quantization?',
+    'Show me model routers that switch between LLM providers',
+    'Which repos serve models with sub-100ms latency?',
+    'Best tools for running LLMs on consumer GPUs?',
+    'What repos handle batch inference at scale?',
+    'Compare quantization methods: GPTQ vs AWQ vs GGUF',
+    'Which repos support multi-model orchestration?',
+    // Evals & benchmarking
     'What tools exist for LLM evaluation and red teaming?',
+    'Best repos for automated prompt testing at scale?',
+    'Which evaluation frameworks measure hallucination rates?',
+    'Compare LLM eval tools: lm-eval-harness vs HELM vs Eleuther',
+    'What repos benchmark multi-turn conversation quality?',
+    'Show me tools for testing LLM safety and alignment',
+    'Which repos evaluate code generation accuracy?',
+    'Best frameworks for A/B testing different prompts?',
+    'What tools measure semantic correctness vs reference answers?',
+    'Which repos track model regression over time?',
+    // Observability & monitoring
+    'What observability tools trace LLM chains end-to-end?',
+    'Compare LangSmith vs Phoenix vs Langfuse for LLM monitoring',
+    'Which repos provide cost tracking across LLM providers?',
+    'Best tools for logging and replaying LLM conversations?',
+    'What repos detect prompt injection in production?',
+    'Show me LLM error analysis and debugging tools',
+    'Which observability platforms support streaming traces?',
+    'Best open-source alternatives to LangSmith?',
+    'What repos visualize token usage and latency distributions?',
+    'Which monitoring tools alert on quality regressions?',
+    // Security & safety
+    'What repos help with prompt injection defense?',
+    'Best guardrail frameworks for content filtering?',
+    'Which repos implement output sanitization for LLMs?',
+    'Compare NeMo Guardrails vs Guardrails AI vs Rebuff',
+    'What tools detect jailbreak attempts in real-time?',
+    'Show me repos for PII redaction in LLM pipelines',
+    'Which repos handle secrets management for AI apps?',
+    'Best tools for rate limiting and abuse prevention?',
+    'What repos audit LLM outputs for compliance?',
+    'Which security scanning tools work with AI codebases?',
+    // Code generation & dev tools
+    'Best open-source coding assistants and copilots?',
+    'Which repos generate unit tests from source code?',
+    'Compare Continue vs Cody vs Tabby for code completion',
+    'What tools auto-generate API documentation?',
+    'Show me repos that convert natural language to SQL',
+    'Which repos do automated code review with LLMs?',
+    'Best tools for generating frontend UI from descriptions?',
+    'What repos handle code translation between languages?',
+    'Which developer tools integrate LLMs into CI/CD?',
+    'Show me AI-powered git commit message generators',
+    // Data engineering & MLOps
+    'What repos handle data labeling with LLM assistance?',
+    'Best MLOps platforms for managing model lifecycle?',
+    'Which repos support feature stores for ML pipelines?',
+    'Compare Weights & Biases vs MLflow vs Neptune',
+    'What tools automate model deployment to Kubernetes?',
+    'Show me repos for data versioning and lineage tracking',
+    'Which repos handle experiment tracking at scale?',
+    'Best tools for model registry and artifact management?',
+    'What repos support A/B testing deployed ML models?',
+    'Which data pipeline frameworks handle streaming ML?',
+    // Community & discovery
+    'Which repos have the strongest community health signals?',
+    'What are the fastest-growing repos this month?',
+    'Show me repos with active discussions and contributors',
+    'Which projects have the best documentation?',
+    'What repos were most mentioned on Hacker News?',
+    'Compare community activity: LangChain vs LlamaIndex',
+    'Which repos have the most professional test suites?',
+    'Show me repos maintained by major AI labs',
+    'What new repos were added this week?',
+    'Which repos have the best production readiness signals?',
   ];
   const placeholderOptions = suggestions.length > 0 ? suggestions : FALLBACK_SUGGESTIONS;
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
+  const [showSuggestionOverlay, setShowSuggestionOverlay] = useState(true);
 
   useEffect(() => {
     if (isFocused || question || loading || hasAnswer) return;
@@ -373,15 +474,29 @@ export function StickyAskBar() {
             ref={inputRef}
             type="text"
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={(e) => { setQuestion(e.target.value); setShowSuggestionOverlay(false); }}
             onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder={currentPlaceholder}
+            onFocus={() => { setIsFocused(true); setShowSuggestionOverlay(false); }}
+            onBlur={() => { setIsFocused(false); if (!question) setShowSuggestionOverlay(true); }}
+            placeholder={isFocused ? 'Ask anything about the repo library...' : ''}
             maxLength={500}
             disabled={atMinuteLimit || atDayLimit}
             className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
           />
+          {/* Cycling suggestion overlay — click to select, focus to dismiss */}
+          {showSuggestionOverlay && !question && !isFocused && !loading && !hasAnswer && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuestion(currentPlaceholder);
+                setShowSuggestionOverlay(false);
+                inputRef.current?.focus();
+              }}
+              className="absolute inset-0 flex items-center px-3 text-sm text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer truncate text-left"
+            >
+              {currentPlaceholder}
+            </button>
+          )}
         </div>
 
         {/* Ask / Stop button */}
