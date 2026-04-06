@@ -55,7 +55,7 @@ export function RunsTable({ runs: initialRuns, apiUrl, showRefresh }: RunsTableP
   const refresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const res = await fetch(`${apiUrl}/admin/runs`, {
+      const res = await fetch(`${apiUrl}/runs`, {
         headers: { Accept: 'application/json' },
       });
       if (res.ok) {
