@@ -43,6 +43,7 @@ interface RepoDetail {
   behind_by: number;
   ahead_by: number;
   upstream_created_at: string | null;
+  github_created_at: string | null;
   forked_at: string | null;
   your_last_push_at: string | null;
   upstream_last_push_at: string | null;
@@ -218,6 +219,7 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
         behind_by: repo.forkSync?.behindBy ?? 0,
         ahead_by: repo.forkSync?.aheadBy ?? 0,
         upstream_created_at: repo.upstreamCreatedAt,
+        github_created_at: (repo as EnrichedRepo & { githubCreatedAt?: string }).githubCreatedAt ?? null,
         forked_at: repo.forkedAt,
         your_last_push_at: repo.yourLastPushAt,
         upstream_last_push_at: repo.upstreamLastPushAt,
@@ -394,7 +396,7 @@ export default async function RepoDetailPage({
               </div>
 
               <div>
-                <p className="text-sm text-zinc-500">{repo.owner}/{repo.name}</p>
+                <p className="text-sm text-zinc-500">{repo.is_fork && repo.forked_from ? repo.forked_from : `${repo.owner}/${repo.name}`}</p>
                 <h1 className="mt-1 text-3xl font-semibold tracking-tight text-white md:text-4xl">
                   {repo.name}
                 </h1>
@@ -407,7 +409,7 @@ export default async function RepoDetailPage({
 
               <div className="flex flex-wrap gap-3">
                 <a
-                  href={repo.github_url}
+                  href={repo.is_fork && repo.forked_from ? `https://github.com/${repo.forked_from}` : repo.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full bg-blue-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-400"
@@ -461,7 +463,7 @@ export default async function RepoDetailPage({
           <StatCard label="Forks" value={formatCount(forks)} note={repo.is_fork ? 'Using upstream fork count' : 'Repository forks'} />
           <StatCard label="Open Issues" value={formatCount(repo.open_issues_count)} />
           <StatCard label="Activity Score" value={`${repo.activity_score}/100`} note={`${repo.commits_last_30_days} commits in 30d`} />
-          <StatCard label="Created" value={formatDate(repo.upstream_created_at)} note={repo.upstream_created_at ? 'Project creation date' : 'Date not available'} />
+          <StatCard label="Created" value={formatDate(repo.upstream_created_at ?? repo.github_created_at)} note={(repo.upstream_created_at ?? repo.github_created_at) ? 'Project creation date' : undefined} />
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.5fr,1fr]">
