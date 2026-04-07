@@ -110,9 +110,9 @@ const TAXONOMY_DIMENSION_STYLES: Record<string, string> = {
 };
 
 function formatRelativeDate(value: string | null): string {
-  if (!value) return 'Unclear';
+  if (!value) return '—';
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Unclear';
+  if (Number.isNaN(date.getTime())) return '—';
 
   const days = Math.floor((Date.now() - date.getTime()) / 86400000);
   if (days < 0) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -124,9 +124,9 @@ function formatRelativeDate(value: string | null): string {
 }
 
 function formatDate(value: string | null): string {
-  if (!value) return 'Unclear';
+  if (!value) return '—';
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Unclear';
+  if (Number.isNaN(date.getTime())) return '—';
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -163,6 +163,29 @@ function groupTaxonomy(taxonomy: RepoDetail['taxonomy']) {
     const bLabel = TAXONOMY_DIMENSION_LABELS[b[0]] ?? b[0];
     return aLabel.localeCompare(bLabel);
   });
+}
+
+interface RepoEvaluation {
+  pros: string[];
+  cons: string[];
+  best_for: string;
+  avoid_if: string;
+  comparable_to: string[];
+  community_verdict: string;
+}
+
+async function getRepoEvaluation(name: string): Promise<RepoEvaluation | null> {
+  try {
+    const response = await fetch(`${API_URL}/repos/${encodeURIComponent(name)}/evaluation`, {
+      next: { revalidate: 300 },
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return (data?.evaluation as RepoEvaluation) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function getRepoDetail(name: string): Promise<RepoDetail | null> {
@@ -300,7 +323,11 @@ export default async function RepoDetailPage({
   params: Promise<{ name: string }>;
 }) {
   const { name } = await params;
-  const repo = await getRepoDetail(decodeURIComponent(name));
+  const decodedName = decodeURIComponent(name);
+  const [repo, evaluation] = await Promise.all([
+    getRepoDetail(decodedName),
+    getRepoEvaluation(decodedName),
+  ]);
   if (!repo) notFound();
   const skillGroups = groupSkills(repo.ai_dev_skills ?? []);
   const taxonomyGroups = groupTaxonomy(repo.taxonomy ?? []);
@@ -423,7 +450,7 @@ export default async function RepoDetailPage({
                   </div>
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-zinc-500">Unclear</p>
+                <p className="mt-3 text-sm text-zinc-500">Open-source project</p>
               )}
             </div>
           </div>
@@ -434,7 +461,7 @@ export default async function RepoDetailPage({
           <StatCard label="Forks" value={formatCount(forks)} note={repo.is_fork ? 'Using upstream fork count' : 'Repository forks'} />
           <StatCard label="Open Issues" value={formatCount(repo.open_issues_count)} />
           <StatCard label="Activity Score" value={`${repo.activity_score}/100`} note={`${repo.commits_last_30_days} commits in 30d`} />
-          <StatCard label="Created" value={formatDate(repo.upstream_created_at)} note={repo.upstream_created_at ? 'Project creation date' : 'Unclear in current API contract'} />
+          <StatCard label="Created" value={formatDate(repo.upstream_created_at)} note={repo.upstream_created_at ? 'Project creation date' : 'Date not available'} />
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1.5fr,1fr]">
@@ -442,9 +469,80 @@ export default async function RepoDetailPage({
             <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
               <h2 className="text-lg font-semibold text-zinc-100">README Summary</h2>
               <p className="mt-3 text-sm leading-7 text-zinc-300">
-                {repo.readme_summary ?? 'Unclear'}
+                {repo.readme_summary ?? 'No summary available yet.'}
               </p>
             </section>
+
+            {evaluation && (
+              <section className="rounded-[24px] border border-zinc-800 bg-gradient-to-br from-zinc-900/80 via-zinc-900/60 to-zinc-950/60 p-5">
+                <h2 className="text-lg font-semibold text-zinc-100">Community Evaluation</h2>
+                {evaluation.community_verdict && (
+                  <p className="mt-3 text-sm leading-7 text-zinc-300 italic">
+                    &ldquo;{evaluation.community_verdict}&rdquo;
+                  </p>
+                )}
+
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {evaluation.pros?.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-xs uppercase tracking-[0.18em] text-emerald-400">Pros</p>
+                      <ul className="space-y-2">
+                        {evaluation.pros.map((pro, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                            <span className="mt-0.5 text-emerald-500">✓</span>
+                            <span>{pro}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {evaluation.cons?.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-xs uppercase tracking-[0.18em] text-red-400">Cons</p>
+                      <ul className="space-y-2">
+                        {evaluation.cons.map((con, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                            <span className="mt-0.5 text-red-500">✕</span>
+                            <span>{con}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {evaluation.best_for && (
+                    <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-400">Best for</p>
+                      <p className="mt-1.5 text-sm text-zinc-300">{evaluation.best_for}</p>
+                    </div>
+                  )}
+                  {evaluation.avoid_if && (
+                    <div className="rounded-xl border border-red-900/40 bg-red-950/20 px-4 py-3">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-red-400">Avoid if</p>
+                      <p className="mt-1.5 text-sm text-zinc-300">{evaluation.avoid_if}</p>
+                    </div>
+                  )}
+                </div>
+
+                {evaluation.comparable_to?.length > 0 && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs uppercase tracking-[0.18em] text-zinc-500">Comparable to</p>
+                    <div className="flex flex-wrap gap-2">
+                      {evaluation.comparable_to.map((alt) => (
+                        <span
+                          key={alt}
+                          className="rounded-full border border-zinc-700 bg-zinc-800/50 px-3 py-1 text-xs text-zinc-300"
+                        >
+                          {alt}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
 
             <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
               <h2 className="text-lg font-semibold text-zinc-100">AI Dev Skills</h2>
