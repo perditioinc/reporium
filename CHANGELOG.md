@@ -12,6 +12,7 @@ Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning]
 - **Knowledge graph edge legend**: Now always visible; moves from top-right to bottom-right when the node info panel is open to prevent overlap.
 - **Camera and fog**: Moved camera back (z=320→900), fog density 0.0018→0.0006, far plane 2000→4000, maxDistance 600→2000 to accommodate new z-spread.
 - **StickyAskBar hydration mismatch**: Rotating placeholder overlay now initializes hidden (`useState(false)`) and enables after mount via `useEffect`, eliminating the React SSR hydration warning.
+- **Knowledge graph edge coloring**: SIMILAR_TO edges now colored by source node's category color (at 0.45 dim), making cluster structure visible across the whole graph without selecting anything. Typed relationship edges keep their vivid colors (amber/green/blue/pink at 0.75–1.0). Edge legend updated with "Similarity by cluster" gradient swatch.
 
 ## [Unreleased] - 2026-03-24
 
