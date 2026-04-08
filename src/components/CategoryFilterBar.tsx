@@ -8,6 +8,7 @@
 
 import { useMemo } from 'react';
 import { EnrichedRepo } from '@/types/repo';
+import { getCategoryColor } from '@/lib/categoryColors';
 
 interface CategoryChip {
   id: string;
@@ -79,23 +80,47 @@ export function CategoryFilterBar({ repos, selected, onSelect }: Props) {
         {/* Divider */}
         <div className="flex-shrink-0 w-px h-4 sm:h-5 bg-zinc-700" />
 
-        {/* Category chips */}
+        {/* Category chips — color coded per category */}
         {chips.map(cat => {
           const isActive = selected === cat.id;
+          const catColor = getCategoryColor(cat.id);
           return (
             <button
               key={cat.id}
               onClick={() => onSelect(isActive ? '' : cat.id)}
-              className={[
-                'flex-shrink-0 flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap',
+              className="flex-shrink-0 flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap"
+              style={
                 isActive
-                  ? 'bg-purple-500/15 text-purple-300 ring-1 ring-purple-500/40'
-                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800',
-              ].join(' ')}
+                  ? {
+                      backgroundColor: `color-mix(in srgb, ${catColor} 22%, transparent)`,
+                      border: `1px solid color-mix(in srgb, ${catColor} 65%, transparent)`,
+                      color: catColor,
+                    }
+                  : {
+                      backgroundColor: 'transparent',
+                      border: '1px solid rgba(255,255,255,0.14)',
+                      color: '#a1a1aa',
+                    }
+              }
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLElement).style.border = `1px solid color-mix(in srgb, ${catColor} 40%, transparent)`;
+                  (e.currentTarget as HTMLElement).style.color = '#e4e4e7';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLElement).style.border = '1px solid rgba(255,255,255,0.14)';
+                  (e.currentTarget as HTMLElement).style.color = '#a1a1aa';
+                }
+              }}
             >
               <span>{cat.icon}</span>
               <span>{cat.label}</span>
-              <span className={`text-[10px] sm:text-xs ${isActive ? 'text-purple-400' : 'text-zinc-500'}`}>
+              <span
+                className="text-[10px] sm:text-xs"
+                style={{ opacity: isActive ? 0.75 : 0.6 }}
+              >
                 {cat.count.toLocaleString()}
               </span>
             </button>

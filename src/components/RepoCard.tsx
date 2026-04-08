@@ -326,13 +326,14 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
     return Object.fromEntries(assigned.map(a => [a.tag, a]));
   }, [dedupedTags]);
 
+  const accentColor = pluginType ? '#c2410c' : catStyle.borderColor;
+
   return (
     <div
       className="repo-card-glass group relative flex flex-col gap-3 p-5"
       style={{
-        borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor,
-        borderLeftWidth: '4px',
-        borderLeftStyle: 'solid',
+        borderTop: `3px solid ${accentColor}`,
+        backgroundColor: pluginType ? 'rgba(194,65,12,0.06)' : catStyle.backgroundColor,
       }}
     >
       {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
@@ -367,14 +368,21 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
 
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <a
-          href={repo.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="truncate text-sm font-semibold text-blue-400 hover:underline"
-        >
-          {repo.name}
-        </a>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {/* Category color dot */}
+          <span
+            className="inline-block w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: accentColor, opacity: 0.85 }}
+          />
+          <a
+            href={repo.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="truncate text-sm font-semibold text-blue-400 hover:underline"
+          >
+            {repo.name}
+          </a>
+        </div>
         <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
           {typeof repo.similarity === 'number' && (
             <span className="rounded-full bg-sky-900/40 border border-sky-700/40 px-2 py-0.5 text-xs font-medium text-sky-300">
