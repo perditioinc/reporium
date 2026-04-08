@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -215,40 +215,45 @@ export function HomePageClient() {
   useEffect(() => {
     let cancelled = false;
 
-    async function runSemanticSearch() {
-      if (!data || searchMode !== 'semantic' || !search.trim()) {
-        setSemanticResults(null);
-        setIsSearchingSemantic(false);
-        return;
+    // Debounce semantic search by 300ms to avoid firing on every keystroke
+    const timer = setTimeout(() => {
+      async function runSemanticSearch() {
+        if (!data || searchMode !== 'semantic' || !search.trim()) {
+          setSemanticResults(null);
+          setIsSearchingSemantic(false);
+          return;
+        }
+
+        setIsSearchingSemantic(true);
+        try {
+          const rawResults = await provider.searchRepos(search.trim(), 'semantic');
+          if (cancelled) return;
+
+          const repoMap = new Map(data.repos.map((repo) => [repo.name, repo]));
+          const merged = rawResults.reduce<EnrichedRepo[]>((acc, result) => {
+            const existing = repoMap.get(result.name);
+            if (!existing) return acc;
+            acc.push({
+              ...existing,
+              similarity: result.similarity,
+            });
+            return acc;
+          }, []);
+
+          setSemanticResults(merged);
+        } catch {
+          if (!cancelled) setSemanticResults([]);
+        } finally {
+          if (!cancelled) setIsSearchingSemantic(false);
+        }
       }
 
-      setIsSearchingSemantic(true);
-      try {
-        const rawResults = await provider.searchRepos(search.trim(), 'semantic');
-        if (cancelled) return;
+      runSemanticSearch();
+    }, 300);
 
-        const repoMap = new Map(data.repos.map((repo) => [repo.name, repo]));
-        const merged = rawResults.reduce<EnrichedRepo[]>((acc, result) => {
-          const existing = repoMap.get(result.name);
-          if (!existing) return acc;
-          acc.push({
-            ...existing,
-            similarity: result.similarity,
-          });
-          return acc;
-        }, []);
-
-        setSemanticResults(merged);
-      } catch {
-        if (!cancelled) setSemanticResults([]);
-      } finally {
-        if (!cancelled) setIsSearchingSemantic(false);
-      }
-    }
-
-    runSemanticSearch();
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [data, search, searchMode]);
 
@@ -718,6 +723,33 @@ export function HomePageClient() {
   const toggleSection = useCallback((key: string) => setExpandedSections(prev => ({ ...prev, [key]: !prev[key] })), []);
   const expandedCardRef = React.useRef<HTMLDivElement>(null);
 
+  // Windowed grid rendering — only render GRID_PAGE_SIZE cards initially,
+  // load more on scroll via IntersectionObserver to avoid 1,400+ DOM nodes.
+  const GRID_PAGE_SIZE = 60;
+  const [gridVisibleCount, setGridVisibleCount] = useState(GRID_PAGE_SIZE);
+  const gridSentinelRef = useRef<HTMLDivElement>(null);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setGridVisibleCount(GRID_PAGE_SIZE);
+  }, [filteredAndSortedRepos.length]);
+
+  // IntersectionObserver to load more cards on scroll
+  useEffect(() => {
+    const sentinel = gridSentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setGridVisibleCount(prev => Math.min(prev + GRID_PAGE_SIZE, filteredAndSortedRepos.length));
+        }
+      },
+      { rootMargin: '600px' },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [filteredAndSortedRepos.length]);
+
   // Close expanded card when clicking outside it
   useEffect(() => {
     if (!selectedRepoName) return;
@@ -996,7 +1028,7 @@ export function HomePageClient() {
                 layout
                 className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               >
-                {filteredAndSortedRepos.map(repo => {
+                {filteredAndSortedRepos.slice(0, gridVisibleCount).map(repo => {
                   const isSelected = repo.name === selectedRepoName;
                   return (
                     <React.Fragment key={repo.id}>
@@ -1146,6 +1178,15 @@ export function HomePageClient() {
                   );
                 })}
               </motion.div>
+            )}
+
+            {/* Scroll sentinel for progressive loading */}
+            {gridVisibleCount < filteredAndSortedRepos.length && (
+              <div ref={gridSentinelRef} className="flex items-center justify-center py-4">
+                <span className="text-xs text-zinc-600">
+                  Showing {gridVisibleCount} of {filteredAndSortedRepos.length} repos — scroll for more
+                </span>
+              </div>
             )}
           </ErrorBoundary>
           </div>

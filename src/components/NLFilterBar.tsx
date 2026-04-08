@@ -112,7 +112,7 @@ export function NLFilterBar({ onApply, onClear, activeInterpretation }: NLFilter
             placeholder={'Smart filter: \u201cPython RAG repos with 1000+ stars\u201d\u2026'}
             maxLength={300}
             disabled={loading}
-            className="w-full rounded-lg border border-purple-900/50 bg-zinc-900/80 py-2 pl-8 pr-4 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-purple-700/60 focus:outline-none focus:ring-1 focus:ring-purple-700/40 disabled:opacity-50 transition-colors"
+            className="w-full rounded-lg border border-purple-900/50 bg-zinc-900/80 py-2 pl-8 pr-4 text-base sm:text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-purple-700/60 focus:outline-none focus:ring-1 focus:ring-purple-700/40 disabled:opacity-50 transition-colors"
           />
         </div>
 
