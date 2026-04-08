@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { EnrichedRepo } from '@/types/repo';
+import { getCategoryColor } from '@/lib/categoryColors';
 
 interface RepoCardMinimalProps {
   repo: EnrichedRepo;
@@ -36,6 +37,7 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
   const forks = repo.parentStats?.forks ?? repo.forks ?? 0;
   const displayTag = getDisplayTag(repo);
   const builder = getBuilder(repo);
+  const catColor = getCategoryColor(repo.dbCategory);
 
   // Determine opacity for dimming
   let opacity = 1;
@@ -46,20 +48,22 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
   const borderColor = isSelected
     ? '#8b5cf6'
     : hovered
-    ? 'rgba(139,92,246,0.5)'
-    : '#27272a';
+    ? `${catColor}80`
+    : 'rgba(255,255,255,0.10)';
+
+  const topBorderColor = isSelected ? '#8b5cf6' : catColor;
 
   const boxShadow = isSelected
-    ? '0 0 0 1px #8b5cf6, 0 8px 24px rgba(139,92,246,0.25)'
+    ? `0 0 0 1px #8b5cf6, 0 8px 24px rgba(139,92,246,0.25)`
     : hovered
-    ? '0 0 0 1px rgba(139,92,246,0.3), 0 4px 12px rgba(0,0,0,0.4)'
-    : '0 1px 2px rgba(0,0,0,0.3)';
+    ? `0 4px 16px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)`
+    : '0 2px 8px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.07)';
 
   const bgColor = isSelected
-    ? 'rgba(139,92,246,0.08)'
+    ? 'rgba(139,92,246,0.10)'
     : isRelated && anySelected
-    ? 'rgba(139,92,246,0.04)'
-    : '#18181b';
+    ? 'rgba(139,92,246,0.05)'
+    : 'rgba(255,255,255,0.03)';
 
   return (
     <motion.div
@@ -73,26 +77,36 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
       style={{
         borderRadius: '0.5rem',
         border: `1px solid ${borderColor}`,
+        borderTop: `3px solid ${topBorderColor}`,
         boxShadow,
         backgroundColor: bgColor,
+        backdropFilter: 'blur(20px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
         cursor: 'pointer',
-        padding: '12px 14px',
+        padding: '10px 14px 12px',
         transition: 'border-color 150ms ease-out, background-color 150ms ease-out, box-shadow 150ms ease-out',
+        position: 'relative' as const,
       }}
     >
       {/* Name row */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-        <span
-          style={{
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            color: isSelected ? '#c4b5fd' : '#f4f4f5',
-            lineHeight: 1.3,
-            wordBreak: 'break-word',
-          }}
-        >
-          {repo.name}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+          <span style={{
+            display: 'inline-block', width: 7, height: 7, borderRadius: '50%',
+            backgroundColor: topBorderColor, opacity: 0.85, flexShrink: 0,
+          }} />
+          <span
+            style={{
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: isSelected ? '#c4b5fd' : '#f4f4f5',
+              lineHeight: 1.3,
+              wordBreak: 'break-word',
+            }}
+          >
+            {repo.name}
+          </span>
+        </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0, paddingTop: 2 }}>
           {stars > 0 && (
             <span style={{ fontSize: '0.6875rem', color: '#a1a1aa', whiteSpace: 'nowrap' }}>

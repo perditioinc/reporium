@@ -1,5 +1,5 @@
 'use client';
-
+// @refresh reset
 /**
  * KAN-160: Interactive 3D knowledge graph with Three.js.
  *
@@ -32,8 +32,6 @@ import {
 import {
   getCategoryColor,
   getCategoryLabel,
-  CATEGORY_COLORS,
-  CATEGORY_LABELS,
 } from '@/lib/categoryColors';
 
 // ---------------------------------------------------------------------------

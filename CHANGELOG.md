@@ -16,3 +16,7 @@
 - **Repo Cards: Category color dot** — Colored dot next to the repo name in the card header
 - **Filter Bar: Color-coded category pills** — `CategoryFilterBar` and `FilterBar` categories tab use each category's color for active/inactive/hover states
 - **Page background gradient** — Subtle radial gradient on body so `backdrop-filter` blur has texture to refract, making the glass effect visible
+
+### Fixed
+- **RepoCardMinimal glassmorphism** — Home-page cards use `RepoCardMinimal` (inline styles), not `RepoCard`; applied same glass treatment: `blur(20px) saturate(160%)`, category-color 3px top border, translucent background, and colored dot next to repo name
+- **ESLint: unused imports** — Removed `CATEGORY_COLORS` and `CATEGORY_LABELS` from `KnowledgeGraph3D.tsx` imports (no longer needed after typed-edge refactor)
