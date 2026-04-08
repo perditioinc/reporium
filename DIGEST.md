@@ -1,32 +1,33 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated March 31, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 8, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Developer Tools** (+16900% vs last week)
-portfolio, reporium-metrics, reporium are most active.
+**Conversational AI** (+241100% vs last week)
+openclaw, dify, posthog are most active.
 
-**Self-hosted** (+16100% vs last week)
-reporium-metrics, reporium, reporium-db are most active.
+**Cross-platform Development** (+194800% vs last week)
+openclaw, godot, ppsspp are most active.
 
-**Text** (+15500% vs last week)
-reporium, reporium-db, reporium-api are most active.
+**Cross-platform AI** (+193400% vs last week)
+openclaw, onnxruntime are most active.
 
 ---
 
 ## Library Health
-- **1576 repos** · **28 categories** · **12604 unique tags**
-- **1559 forks** up to date · **0 forks** behind upstream
+- **1641 repos** · **28 categories** · **13019 unique tags**
+- **677 forks** up to date · **947 forks** behind upstream
+- Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📦 Other AI / ML** most active category (51037 commits across 1308 repos)
-- **Developer Tools** fastest growing (+16900% commit velocity)
-- **Deep Learning** cooling (-100% change in activity)
+- **📦 Other AI / ML** most active category (57439 commits across 1422 repos)
+- **Conversational AI** fastest growing (+241100% commit velocity)
+- **Technology Research** cooling (-100% change in activity)
 
 ---
 
