@@ -89,9 +89,9 @@ function buildNodes(
       label: id.includes('/') ? id.split('/').pop()! : id,
       category: meta?.category ?? null,
       connections: count,
-      x: (Math.random() - 0.5) * 80,
-      y: (Math.random() - 0.5) * 80,
-      z: (Math.random() - 0.5) * 40,
+      x: (Math.random() - 0.5) * 300,
+      y: (Math.random() - 0.5) * 300,
+      z: (Math.random() - 0.5) * 300,
     });
   }
   return nodes;
@@ -141,29 +141,33 @@ function hexToRGB(hex: string): THREE.Color {
   return new THREE.Color(hex);
 }
 
-// 3D force: apply z-axis forces manually
+// 3D force: apply z-axis forces manually using random sampling for efficiency
 function force3D(nodes: GNode[], alpha: number) {
+  const n = nodes.length;
   for (const node of nodes) {
     if (node.z === undefined) node.z = 0;
     if (node.vz === undefined) node.vz = 0;
-    node.vz += -node.z * 0.03 * alpha;
-    node.vz *= 0.85;
+    // Weak centering force toward z=0
+    node.vz += -node.z * 0.008 * alpha;
+    node.vz *= 0.88;
     node.z += node.vz;
   }
-  const maxPairs = Math.min(nodes.length, 200);
-  for (let i = 0; i < maxPairs; i++) {
-    for (let j = i + 1; j < maxPairs; j++) {
-      const a = nodes[i];
-      const b = nodes[j];
-      const dz = (a.z ?? 0) - (b.z ?? 0);
-      const dx = (a.x ?? 0) - (b.x ?? 0);
-      const dy = (a.y ?? 0) - (b.y ?? 0);
-      const dist2 = dx * dx + dy * dy + dz * dz + 1;
-      const force = (alpha * 20) / dist2;
-      const fz = dz * force;
-      a.vz = (a.vz ?? 0) + fz;
-      b.vz = (b.vz ?? 0) - fz;
-    }
+  // Random-sampled z repulsion — covers all nodes proportionally
+  const samples = Math.min(n * 4, 4000);
+  for (let k = 0; k < samples; k++) {
+    const i = Math.floor(Math.random() * n);
+    const j = Math.floor(Math.random() * n);
+    if (i === j) continue;
+    const a = nodes[i];
+    const b = nodes[j];
+    const dz = (a.z ?? 0) - (b.z ?? 0);
+    const dx = (a.x ?? 0) - (b.x ?? 0);
+    const dy = (a.y ?? 0) - (b.y ?? 0);
+    const dist2 = dx * dx + dy * dy + dz * dz + 1;
+    const force = (alpha * 40) / dist2;
+    const fz = dz * force;
+    a.vz = (a.vz ?? 0) + fz;
+    b.vz = (b.vz ?? 0) - fz;
   }
 }
 
@@ -317,12 +321,12 @@ export function KnowledgeGraph3D({
     // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#0a0a0f');
-    scene.fog = new THREE.FogExp2('#0a0a0f', 0.0018);
+    scene.fog = new THREE.FogExp2('#0a0a0f', 0.0006);
     sceneRef.current = scene;
 
     // Camera
-    const camera = new THREE.PerspectiveCamera(60, width / h, 0.1, 2000);
-    camera.position.set(0, 0, compact ? 260 : 320);
+    const camera = new THREE.PerspectiveCamera(60, width / h, 0.1, 4000);
+    camera.position.set(0, 0, compact ? 700 : 900);
     cameraRef.current = camera;
 
     // Renderer
@@ -339,7 +343,7 @@ export function KnowledgeGraph3D({
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.3;
     controls.minDistance = 30;
-    controls.maxDistance = 600;
+    controls.maxDistance = 2000;
     controls.enablePan = true;
     controlsRef.current = controls;
 
@@ -421,9 +425,10 @@ export function KnowledgeGraph3D({
       const idx = i * 6;
       positions[idx] = positions[idx + 1] = positions[idx + 2] = 0;
       positions[idx + 3] = positions[idx + 4] = positions[idx + 5] = 0;
-      const [r, g, b] = EDGE_TYPE_COLORS[links[i].edge_type] ?? EDGE_DEFAULT_COLOR;
-      const w = links[i].weight ?? 0.6;
-      const dim = 0.18 + w * 0.12;
+      const edgeType = (links[i].edge_type ?? '').toUpperCase();
+      const [r, g, b] = EDGE_TYPE_COLORS[edgeType] ?? EDGE_DEFAULT_COLOR;
+      const w = links[i].weight ?? 0.5;
+      const dim = 0.55 + w * 0.35;
       colors[idx]     = colors[idx + 3] = r * dim;
       colors[idx + 1] = colors[idx + 4] = g * dim;
       colors[idx + 2] = colors[idx + 5] = b * dim;
@@ -436,7 +441,7 @@ export function KnowledgeGraph3D({
     const lineMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.5,
     });
     const lineSegments = new THREE.LineSegments(lineGeo, lineMat);
     scene.add(lineSegments);
@@ -455,17 +460,17 @@ export function KnowledgeGraph3D({
     }));
 
     const sim = forceSimulation<GNode>(nodes)
-      .force('charge', forceManyBody().strength(-18).distanceMax(120))
+      .force('charge', forceManyBody().strength(-60).distanceMax(300))
       .force(
         'link',
         forceLink<GNode, SimulationLinkDatum<GNode>>(simLinks as SimulationLinkDatum<GNode>[])
           .id((d) => (d as GNode).id)
-          .distance(15)
-          .strength(0.5),
+          .distance(30)
+          .strength(0.3),
       )
-      .force('center', forceCenter(0, 0).strength(0.08))
-      .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 0.5))
-      .alphaDecay(0.02)
+      .force('center', forceCenter(0, 0).strength(0.04))
+      .force('collide', forceCollide<GNode>().radius((d) => nodeRadius(d.connections) + 2))
+      .alphaDecay(0.015)
       .on('tick', () => {
         force3D(nodes, sim.alpha());
 
@@ -593,7 +598,7 @@ export function KnowledgeGraph3D({
           }
         }
         lineSegments.geometry.attributes.color.needsUpdate = true;
-        lineMat.opacity = 0.7; // Boost opacity when highlighting
+        lineMat.opacity = 0.9; // Boost opacity when highlighting
       } else {
         // Reset all nodes + hide all labels
         for (let i = 0; i < nodes.length; i++) {
@@ -618,7 +623,7 @@ export function KnowledgeGraph3D({
           colArr[i] = baseCol[i];
         }
         lineSegments.geometry.attributes.color.needsUpdate = true;
-        lineMat.opacity = 0.22;
+        lineMat.opacity = 0.5;
       }
 
       // Hide cluster labels for hidden categories
@@ -924,23 +929,25 @@ export function KnowledgeGraph3D({
         </div>
       )}
 
-      {/* Edge type legend — top-right corner */}
-      {!selectedNode && (
-        <div className={`absolute ${isFullscreen ? 'top-4 right-4' : 'top-3 right-3'} hidden sm:flex flex-col gap-1 rounded-lg bg-zinc-900/80 backdrop-blur-sm px-2 py-1.5`}>
-          {[
-            { type: 'ALTERNATIVE_TO',  color: '#f59e0b', label: 'Alternative' },
-            { type: 'COMPATIBLE_WITH', color: '#22c55e', label: 'Compatible'  },
-            { type: 'DEPENDS_ON',      color: '#3b82f6', label: 'Dependency'  },
-            { type: 'SIMILAR_TO',      color: '#a78bfa', label: 'Similar'     },
-            { type: 'EXTENDS',         color: '#f472b6', label: 'Extends'     },
-          ].map(({ color, label }) => (
-            <span key={label} className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
-              <span className="inline-block w-4 h-px rounded" style={{ backgroundColor: color, opacity: 0.7 }} />
-              {label}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Edge type legend — always visible; moves to bottom-right when info panel is open */}
+      <div className={`absolute hidden sm:flex flex-col gap-1 rounded-lg bg-zinc-900/80 backdrop-blur-sm px-2 py-1.5 z-10 ${
+        selectedNode
+          ? 'bottom-14 right-3'
+          : isFullscreen ? 'top-4 right-4' : 'top-3 right-3'
+      }`}>
+        {[
+          { color: '#f59e0b', label: 'Alternative' },
+          { color: '#22c55e', label: 'Compatible'  },
+          { color: '#3b82f6', label: 'Dependency'  },
+          { color: '#a78bfa', label: 'Similar'     },
+          { color: '#f472b6', label: 'Extends'     },
+        ].map(({ color, label }) => (
+          <span key={label} className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
+            <span className="inline-block w-4 h-px rounded" style={{ backgroundColor: color, opacity: 0.8 }} />
+            {label}
+          </span>
+        ))}
+      </div>
 
       {/* Category Legend — scrollable on mobile, wraps on desktop */}
       <div className={`absolute ${
@@ -958,17 +965,17 @@ export function KnowledgeGraph3D({
                     ? 'opacity-30 hover:opacity-60'
                     : 'opacity-90 hover:opacity-100'
                 }`}
-                title={`${isHidden ? 'Show' : 'Hide'} ${CATEGORY_LABELS[cat] ?? cat}`}
+                title={`${isHidden ? 'Show' : 'Hide'} ${getCategoryLabel(cat)}`}
               >
                 <span
                   className="inline-block w-2 h-2 rounded-full shrink-0"
                   style={{
-                    backgroundColor: CATEGORY_COLORS[cat] ?? '#52525b',
+                    backgroundColor: getCategoryColor(cat),
                     opacity: isHidden ? 0.3 : 1,
                   }}
                 />
                 <span className={`${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
-                  {CATEGORY_LABELS[cat] ?? cat}
+                  {getCategoryLabel(cat)}
                 </span>
               </button>
             );

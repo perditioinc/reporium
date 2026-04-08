@@ -389,7 +389,10 @@ export function StickyAskBar() {
   const placeholderOptions = suggestions.length > 0 ? suggestions : FALLBACK_SUGGESTIONS;
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
-  const [showSuggestionOverlay, setShowSuggestionOverlay] = useState(true);
+  const [showSuggestionOverlay, setShowSuggestionOverlay] = useState(false);
+
+  // Delay showing the overlay until after hydration to avoid SSR mismatch
+  useEffect(() => { setShowSuggestionOverlay(true); }, []);
 
   useEffect(() => {
     if (isFocused || question || loading || hasAnswer) return;
