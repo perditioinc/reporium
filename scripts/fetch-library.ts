@@ -65,7 +65,12 @@ async function fetchWithRetry(url: string): Promise<Response> {
         )
       }
 
-      const retryDelayMs = RETRY_DELAYS_MS[attempt - 1]
+      // Honour the Retry-After header if present; fall back to our own schedule.
+      const retryAfterSec = Number(res.headers.get('Retry-After') ?? NaN)
+      const retryDelayMs = isFinite(retryAfterSec)
+        ? retryAfterSec * 1000 + 2000  // add 2s buffer
+        : RETRY_DELAYS_MS[attempt - 1]
+
       console.warn(
         `[fetch-library] attempt ${attempt}/${MAX_RETRIES} failed with ${res.status}; retrying in ${retryDelayMs / 1000}s`
       )
