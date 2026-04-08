@@ -407,15 +407,18 @@ export function KnowledgeGraph3D({
     }
     nodeLabelSpritesRef.current = nodeLabels;
 
-    // Edge type → RGB color (muted for 3D)
-    const EDGE_TYPE_COLORS: Record<string, [number, number, number]> = {
-      ALTERNATIVE_TO: [0.60, 0.39, 0.04], // amber
-      COMPATIBLE_WITH: [0.08, 0.48, 0.16], // green
-      DEPENDS_ON:      [0.12, 0.30, 0.72], // blue
-      SIMILAR_TO:      [0.40, 0.27, 0.72], // violet
-      EXTENDS:         [0.72, 0.18, 0.42], // pink
+    // Typed edge → RGB color (vivid, full brightness)
+    const TYPED_EDGE_COLORS: Record<string, [number, number, number]> = {
+      ALTERNATIVE_TO: [0.95, 0.60, 0.05], // amber
+      COMPATIBLE_WITH: [0.10, 0.75, 0.25], // green
+      DEPENDS_ON:      [0.20, 0.50, 1.00], // blue
+      EXTENDS:         [0.95, 0.28, 0.60], // pink
     };
-    const EDGE_DEFAULT_COLOR: [number, number, number] = [0.18, 0.18, 0.22];
+    // Node id → category RGB (for SIMILAR_TO edge coloring by source cluster)
+    const nodeCatColor = new Map<string, THREE.Color>();
+    for (const node of nodes) {
+      nodeCatColor.set(node.id, hexToRGB(getCategoryColor(node.category)));
+    }
 
     // Create edge lines
     const lineGeo = new THREE.BufferGeometry();
@@ -426,12 +429,23 @@ export function KnowledgeGraph3D({
       positions[idx] = positions[idx + 1] = positions[idx + 2] = 0;
       positions[idx + 3] = positions[idx + 4] = positions[idx + 5] = 0;
       const edgeType = (links[i].edge_type ?? '').toUpperCase();
-      const [r, g, b] = EDGE_TYPE_COLORS[edgeType] ?? EDGE_DEFAULT_COLOR;
-      const w = links[i].weight ?? 0.5;
-      const dim = 0.55 + w * 0.35;
-      colors[idx]     = colors[idx + 3] = r * dim;
-      colors[idx + 1] = colors[idx + 4] = g * dim;
-      colors[idx + 2] = colors[idx + 5] = b * dim;
+      let r: number, g: number, b: number;
+      if (TYPED_EDGE_COLORS[edgeType]) {
+        // Typed relationship — full vivid color
+        [r, g, b] = TYPED_EDGE_COLORS[edgeType];
+        const dim = 0.75 + (links[i].weight ?? 0.5) * 0.25;
+        colors[idx]     = colors[idx + 3] = r * dim;
+        colors[idx + 1] = colors[idx + 4] = g * dim;
+        colors[idx + 2] = colors[idx + 5] = b * dim;
+      } else {
+        // SIMILAR_TO — color by source node's category (shows cluster structure)
+        const srcId = links[i].source as string;
+        const cat = nodeCatColor.get(srcId) ?? new THREE.Color('#8888aa');
+        const dim = 0.45;
+        colors[idx]     = colors[idx + 3] = cat.r * dim;
+        colors[idx + 1] = colors[idx + 4] = cat.g * dim;
+        colors[idx + 2] = colors[idx + 5] = cat.b * dim;
+      }
     }
     lineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     lineGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -939,14 +953,17 @@ export function KnowledgeGraph3D({
           { color: '#f59e0b', label: 'Alternative' },
           { color: '#22c55e', label: 'Compatible'  },
           { color: '#3b82f6', label: 'Dependency'  },
-          { color: '#a78bfa', label: 'Similar'     },
           { color: '#f472b6', label: 'Extends'     },
         ].map(({ color, label }) => (
           <span key={label} className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
-            <span className="inline-block w-4 h-px rounded" style={{ backgroundColor: color, opacity: 0.8 }} />
+            <span className="inline-block w-4 h-px rounded" style={{ backgroundColor: color, opacity: 0.9 }} />
             {label}
           </span>
         ))}
+        <span className="inline-flex items-center gap-1.5 text-[9px] text-zinc-600 mt-0.5 pt-0.5 border-t border-zinc-800">
+          <span className="inline-block w-4 h-px rounded bg-gradient-to-r from-violet-400 via-teal-400 to-amber-400 opacity-70" />
+          Similarity by cluster
+        </span>
       </div>
 
       {/* Category Legend — scrollable on mobile, wraps on desktop */}
