@@ -478,7 +478,7 @@ export function StickyAskBar() {
             placeholder={isFocused ? 'Ask anything about the repo library...' : ''}
             maxLength={500}
             disabled={atMinuteLimit || atDayLimit}
-            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
+            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-base sm:text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
           />
           {/* Cycling suggestion overlay — click to select, focus to dismiss */}
           {showSuggestionOverlay && !question && !isFocused && !loading && !hasAnswer && (

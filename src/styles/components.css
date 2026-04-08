@@ -54,6 +54,57 @@
 }
 .panel-body { padding: 12px 16px; }
 
+/* ===== Glassmorphism Repo Card ===== */
+@keyframes card-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.repo-card-glass {
+  position: relative;
+  backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255,255,255,0.06);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  overflow: hidden;
+}
+
+.repo-card-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255,255,255,0.04) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.repo-card-glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.20);
+  background: rgba(255,255,255,0.09);
+}
+
+.repo-card-glass:hover::before {
+  opacity: 1;
+  animation: card-shimmer 1.4s linear infinite;
+}
+
+.repo-card-glass:active {
+  transform: translateY(-2px) scale(0.985);
+  transition: transform 0.06s ease;
+}
+
 /* ===== Badge/Tag ===== */
 .badge {
   display: inline-flex;

@@ -403,6 +403,16 @@ export function KnowledgeGraph3D({
     }
     nodeLabelSpritesRef.current = nodeLabels;
 
+    // Edge type → RGB color (muted for 3D)
+    const EDGE_TYPE_COLORS: Record<string, [number, number, number]> = {
+      ALTERNATIVE_TO: [0.60, 0.39, 0.04], // amber
+      COMPATIBLE_WITH: [0.08, 0.48, 0.16], // green
+      DEPENDS_ON:      [0.12, 0.30, 0.72], // blue
+      SIMILAR_TO:      [0.40, 0.27, 0.72], // violet
+      EXTENDS:         [0.72, 0.18, 0.42], // pink
+    };
+    const EDGE_DEFAULT_COLOR: [number, number, number] = [0.18, 0.18, 0.22];
+
     // Create edge lines
     const lineGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(links.length * 6);
@@ -411,11 +421,12 @@ export function KnowledgeGraph3D({
       const idx = i * 6;
       positions[idx] = positions[idx + 1] = positions[idx + 2] = 0;
       positions[idx + 3] = positions[idx + 4] = positions[idx + 5] = 0;
+      const [r, g, b] = EDGE_TYPE_COLORS[links[i].edge_type] ?? EDGE_DEFAULT_COLOR;
       const w = links[i].weight ?? 0.6;
-      const intensity = 0.08 + w * 0.14;
-      colors[idx] = colors[idx + 3] = intensity * 0.7;
-      colors[idx + 1] = colors[idx + 4] = intensity * 0.8;
-      colors[idx + 2] = colors[idx + 5] = intensity;
+      const dim = 0.18 + w * 0.12;
+      colors[idx]     = colors[idx + 3] = r * dim;
+      colors[idx + 1] = colors[idx + 4] = g * dim;
+      colors[idx + 2] = colors[idx + 5] = b * dim;
     }
     lineGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     lineGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -910,6 +921,24 @@ export function KnowledgeGraph3D({
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Edge type legend — top-right corner */}
+      {!selectedNode && (
+        <div className={`absolute ${isFullscreen ? 'top-4 right-4' : 'top-3 right-3'} hidden sm:flex flex-col gap-1 rounded-lg bg-zinc-900/80 backdrop-blur-sm px-2 py-1.5`}>
+          {[
+            { type: 'ALTERNATIVE_TO',  color: '#f59e0b', label: 'Alternative' },
+            { type: 'COMPATIBLE_WITH', color: '#22c55e', label: 'Compatible'  },
+            { type: 'DEPENDS_ON',      color: '#3b82f6', label: 'Dependency'  },
+            { type: 'SIMILAR_TO',      color: '#a78bfa', label: 'Similar'     },
+            { type: 'EXTENDS',         color: '#f472b6', label: 'Extends'     },
+          ].map(({ color, label }) => (
+            <span key={label} className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
+              <span className="inline-block w-4 h-px rounded" style={{ backgroundColor: color, opacity: 0.7 }} />
+              {label}
+            </span>
+          ))}
         </div>
       )}
 

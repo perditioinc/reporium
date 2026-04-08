@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useMemo } from 'react';
 import { EnrichedRepo, CommitSummary } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 import { QualityBadge } from '@/components/QualityBadge';
+import { assignTagColors } from '@/lib/tagColors';
 
 /** Status tags that are not content tags — never show as clickable chips */
 const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
@@ -315,15 +316,24 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
     repo.commitsLast7Days?.length ?? 0,
   );
 
+  // Deduplicate tags and assign distinct colors
+  const dedupedTags = useMemo(
+    () => [...new Set((repo.enrichedTags || []).filter(t => !SYSTEM_TAGS.has(t)))].slice(0, 8),
+    [repo.enrichedTags],
+  );
+  const tagColorMap = useMemo(() => {
+    const assigned = assignTagColors(dedupedTags);
+    return Object.fromEntries(assigned.map(a => [a.tag, a]));
+  }, [dedupedTags]);
+
   return (
     <div
-      className={[
-        'group relative flex flex-col gap-3 rounded-xl border-t border-r border-b p-5 transition-all hover:shadow-lg hover:shadow-black/20',
-        pluginType
-          ? 'border-orange-700/60 hover:border-orange-500/80'
-          : 'border-zinc-700 hover:border-zinc-500',
-      ].join(' ')}
-      style={{ borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: pluginType ? 'rgba(154, 52, 18, 0.08)' : catStyle.backgroundColor }}
+      className="repo-card-glass group relative flex flex-col gap-3 p-5"
+      style={{
+        borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor,
+        borderLeftWidth: '4px',
+        borderLeftStyle: 'solid',
+      }}
     >
       {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
       {sec?.incident_reported && (
@@ -569,29 +579,29 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
         </div>
       )}
 
-      {/* Tags — system status tags excluded, aiDevSkills rendered separately below */}
+      {/* Tags — deduplicated, color-coded by deterministic hash */}
       <div className="flex flex-wrap gap-1.5">
-        {[...new Set(repo.enrichedTags || [])]
-          .filter(t => !SYSTEM_TAGS.has(t))
-          .slice(0, 8)
-          .map((tag) =>
-          onTagClick ? (
+        {dedupedTags.map((tag) => {
+          const tc = tagColorMap[tag];
+          return onTagClick ? (
             <button
               key={tag}
               onClick={() => onTagClick(tag)}
-              className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+              className="rounded-full px-2 py-0.5 text-xs transition-all hover:scale-105 hover:brightness-125"
+              style={{ background: tc?.background, border: tc?.border, color: tc?.color }}
             >
               {tag}
             </button>
           ) : (
             <span
               key={tag}
-              className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
+              className="rounded-full px-2 py-0.5 text-xs"
+              style={{ background: tc?.background, border: tc?.border, color: tc?.color }}
             >
               {tag}
             </span>
-          )
-        )}
+          );
+        })}
       </div>
 
       {/* AI Dev Skills — grouped by lifecycle, expandable */}
