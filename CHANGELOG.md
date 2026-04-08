@@ -1,6 +1,18 @@
 # Changelog
 Follows [Keep a Changelog](https://keepachangelog.com) and [Semantic Versioning](https://semver.org).
 
+## [Unreleased] - 2026-04-08
+
+### reporium (frontend)
+
+#### Fixed
+- **Knowledge graph 3D layout**: Nodes now spread across all 3 axes (±300 units). Root cause was z-init at ±20 vs x/y at ±40, z-centering force too strong (0.03→0.008), and z-repulsion only covering first 200 nodes. Fixed with random 4000-sample repulsion covering all nodes.
+- **Knowledge graph node colors**: Category strings from API (e.g. `"Code Generation"`, `"agents"`, `"RAG & Retrieval"`) weren't matching kebab-case CATEGORY_COLORS keys. Added `normalizeCategory()`, a CATEGORY_ALIASES map for old taxonomy names, and a deterministic HSL fallback for unknown categories so no node is grey by default.
+- **Knowledge graph edge colors**: Edges were nearly invisible due to `dim = 0.18 + w * 0.12` (max 0.25×). Changed to `0.55 + w * 0.35` (range 0.55–0.90×). Base opacity raised from 0.22 → 0.5. Edge type normalized to uppercase before color lookup.
+- **Knowledge graph edge legend**: Now always visible; moves from top-right to bottom-right when the node info panel is open to prevent overlap.
+- **Camera and fog**: Moved camera back (z=320→900), fog density 0.0018→0.0006, far plane 2000→4000, maxDistance 600→2000 to accommodate new z-spread.
+- **StickyAskBar hydration mismatch**: Rotating placeholder overlay now initializes hidden (`useState(false)`) and enables after mount via `useEffect`, eliminating the React SSR hydration warning.
+
 ## [Unreleased] - 2026-03-24
 
 ### reporium (frontend)
