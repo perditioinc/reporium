@@ -40,7 +40,9 @@ if (!API_URL) {
 }
 
 const MAX_RETRIES = 3
-const RETRY_DELAYS_MS = [2000, 5000, 10000] as const
+// Delays must exceed the API's 60-second rate-limit window so that a 429 retry
+// doesn't immediately hit the same "5 per 1 minute" ceiling again.
+const RETRY_DELAYS_MS = [15000, 35000, 65000] as const
 
 function isRetryableStatus(status: number): boolean {
   return status === 429 || (status >= 500 && status <= 599)
