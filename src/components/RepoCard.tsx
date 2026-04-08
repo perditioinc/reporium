@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useMemo } from 'react';
 import { EnrichedRepo, CommitSummary } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 import { QualityBadge } from '@/components/QualityBadge';
+import { assignTagColors } from '@/lib/tagColors';
 
 /** Status tags that are not content tags — never show as clickable chips */
 const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
@@ -315,15 +316,25 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
     repo.commitsLast7Days?.length ?? 0,
   );
 
+  // Deduplicate tags and assign distinct colors
+  const dedupedTags = useMemo(
+    () => [...new Set((repo.enrichedTags || []).filter(t => !SYSTEM_TAGS.has(t)))].slice(0, 8),
+    [repo.enrichedTags],
+  );
+  const tagColorMap = useMemo(() => {
+    const assigned = assignTagColors(dedupedTags);
+    return Object.fromEntries(assigned.map(a => [a.tag, a]));
+  }, [dedupedTags]);
+
+  const accentColor = pluginType ? '#c2410c' : catStyle.borderColor;
+
   return (
     <div
-      className={[
-        'group relative flex flex-col gap-3 rounded-xl border-t border-r border-b p-5 transition-all hover:shadow-lg hover:shadow-black/20',
-        pluginType
-          ? 'border-orange-700/60 hover:border-orange-500/80'
-          : 'border-zinc-700 hover:border-zinc-500',
-      ].join(' ')}
-      style={{ borderLeftColor: pluginType ? '#c2410c' : catStyle.borderColor, borderLeftWidth: '4px', backgroundColor: pluginType ? 'rgba(154, 52, 18, 0.08)' : catStyle.backgroundColor }}
+      className="repo-card-glass group relative flex flex-col gap-3 p-5"
+      style={{
+        borderTop: `3px solid ${accentColor}`,
+        backgroundColor: pluginType ? 'rgba(194,65,12,0.06)' : catStyle.backgroundColor,
+      }}
     >
       {/* ── Security Incident Banner (critical-priority top-of-card alert) ── */}
       {sec?.incident_reported && (
@@ -357,14 +368,21 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
 
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <a
-          href={repo.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="truncate text-sm font-semibold text-blue-400 hover:underline"
-        >
-          {repo.name}
-        </a>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {/* Category color dot */}
+          <span
+            className="inline-block w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: accentColor, opacity: 0.85 }}
+          />
+          <a
+            href={repo.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="truncate text-sm font-semibold text-blue-400 hover:underline"
+          >
+            {repo.name}
+          </a>
+        </div>
         <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
           {typeof repo.similarity === 'number' && (
             <span className="rounded-full bg-sky-900/40 border border-sky-700/40 px-2 py-0.5 text-xs font-medium text-sky-300">
@@ -432,6 +450,8 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
               src={`https://avatars.githubusercontent.com/${builder.login}`}
               alt={builder.name ?? builder.login}
               className="w-4 h-4 rounded-full"
+              loading="lazy"
+              decoding="async"
             />
             <span className={`text-xs font-medium ${color}`}>{builder.name ?? builder.login}</span>
           </div>
@@ -569,29 +589,29 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
         </div>
       )}
 
-      {/* Tags — system status tags excluded, aiDevSkills rendered separately below */}
+      {/* Tags — deduplicated, color-coded by deterministic hash */}
       <div className="flex flex-wrap gap-1.5">
-        {[...new Set(repo.enrichedTags || [])]
-          .filter(t => !SYSTEM_TAGS.has(t))
-          .slice(0, 8)
-          .map((tag) =>
-          onTagClick ? (
+        {dedupedTags.map((tag) => {
+          const tc = tagColorMap[tag];
+          return onTagClick ? (
             <button
               key={tag}
               onClick={() => onTagClick(tag)}
-              className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors"
+              className="rounded-full px-2 py-0.5 text-xs transition-all hover:scale-105 hover:brightness-125"
+              style={{ background: tc?.background, border: tc?.border, color: tc?.color }}
             >
               {tag}
             </button>
           ) : (
             <span
               key={tag}
-              className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
+              className="rounded-full px-2 py-0.5 text-xs"
+              style={{ background: tc?.background, border: tc?.border, color: tc?.color }}
             >
               {tag}
             </span>
-          )
-        )}
+          );
+        })}
       </div>
 
       {/* AI Dev Skills — grouped by lifecycle, expandable */}

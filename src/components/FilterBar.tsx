@@ -390,22 +390,40 @@ export function FilterBar({
                 >
                   All
                 </button>
-                {categories.filter(c => c.repoCount > 0).map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => onCategoryChange(selectedCategory === cat.id ? '' : cat.id)}
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
-                      selectedCategory === cat.id ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
-                    }`}
-                    style={selectedCategory === cat.id
-                      ? { backgroundColor: cat.color + '33', color: cat.color, border: `1px solid ${cat.color}66` }
-                      : {}}
-                  >
-                    <span>{cat.icon}</span>
-                    <span>{cat.name}</span>
-                    <span className={selectedCategory === cat.id ? 'opacity-70' : 'text-zinc-600'}>{cat.repoCount}</span>
-                  </button>
-                ))}
+                {categories.filter(c => c.repoCount > 0).map((cat) => {
+                  const isActive = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => onCategoryChange(isActive ? '' : cat.id)}
+                      className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all"
+                      style={
+                        isActive
+                          ? { backgroundColor: cat.color + '33', color: cat.color, border: `1px solid ${cat.color}66` }
+                          : { backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: '#a1a1aa' }
+                      }
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          (e.currentTarget as HTMLElement).style.border = `1px solid ${cat.color}44`;
+                          (e.currentTarget as HTMLElement).style.color = '#e4e4e7';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          (e.currentTarget as HTMLElement).style.border = '1px solid rgba(255,255,255,0.12)';
+                          (e.currentTarget as HTMLElement).style.color = '#a1a1aa';
+                        }
+                      }}
+                    >
+                      <span
+                        className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: cat.color, opacity: isActive ? 1 : 0.7 }}
+                      />
+                      <span>{cat.name}</span>
+                      <span style={{ opacity: isActive ? 0.7 : 0.5 }}>{cat.repoCount}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -639,7 +657,7 @@ export function FilterBar({
                           }`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={b.avatarUrl} alt={b.displayName} className="w-3.5 h-3.5 rounded-full" />
+                          <img src={b.avatarUrl} alt={b.displayName} className="w-3.5 h-3.5 rounded-full" loading="lazy" decoding="async" />
                           <span>{b.displayName}</span>
                           <span className={isSelected ? 'text-cyan-200' : 'text-zinc-600'}>{b.repoCount}</span>
                         </button>

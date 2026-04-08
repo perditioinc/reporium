@@ -141,15 +141,30 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
   const handleNodeClick = useCallback(
     (id: string) => {
-      // id is typically "owner/name" — navigate to /repo/owner/name
-      if (id.includes('/')) {
-        router.push(`/repo/${id}`);
-      } else {
-        router.push(`/repo/${id}`);
-      }
+      router.push(`/repo/${id}`);
     },
     [router],
   );
+
+  // Keyboard: [ / ] to cycle edge limit for graph navigation
+  useEffect(() => {
+    const LIMITS = [500, 1000, 2000, 5000];
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === ']') {
+        setLimit((prev) => {
+          const i = LIMITS.indexOf(prev);
+          return LIMITS[Math.min(i + 1, LIMITS.length - 1)];
+        });
+      } else if (e.key === '[') {
+        setLimit((prev) => {
+          const i = LIMITS.indexOf(prev);
+          return LIMITS[Math.max(i - 1, 0)];
+        });
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -157,7 +172,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-zinc-500">
           3D constellation of your AI repo library. Scroll to zoom, drag to rotate, right-drag to pan.
-          Click a node for details.
+          Click a node for details. Use <kbd className="font-mono bg-zinc-800 px-1 rounded">[</kbd> / <kbd className="font-mono bg-zinc-800 px-1 rounded">]</kbd> to adjust edge count.
         </p>
         <select
           value={limit}

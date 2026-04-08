@@ -27,7 +27,11 @@ html, body {
 }
 
 body {
-  background: var(--background);
+  /* Subtle gradient gives backdrop-filter something to refract — glass looks flat on solid black */
+  background:
+    radial-gradient(ellipse 140% 60% at 50% -5%, #18102a 0%, transparent 55%),
+    radial-gradient(ellipse 100% 40% at 80% 90%, #0d1a14 0%, transparent 50%),
+    #090910;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
