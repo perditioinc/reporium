@@ -1,5 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 8, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 9, 2026
 
 ---
 
@@ -18,14 +18,14 @@ openclaw, onnxruntime are most active.
 ---
 
 ## Library Health
-- **1641 repos** · **28 categories** · **13019 unique tags**
+- **1641 repos** · **28 categories** · **13075 unique tags**
 - **677 forks** up to date · **947 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📦 Other AI / ML** most active category (57439 commits across 1422 repos)
+- **📦 Other AI / ML** most active category (62495 commits across 1422 repos)
 - **Conversational AI** fastest growing (+241100% commit velocity)
 - **Technology Research** cooling (-100% change in activity)
 
