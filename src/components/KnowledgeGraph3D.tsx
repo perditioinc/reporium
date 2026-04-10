@@ -202,13 +202,19 @@ function hexToRGB(hex: string): THREE.Color {
 // IMPORTANT: These MUST NOT collide with any category color in categoryColors.ts.
 // Category palette uses: blue, amber, violet, red, green, teal, cyan, indigo,
 // lime, orange, pink, purple, sky, fuchsia, rose, stone.
-// Edge types use 4 maximally distinct hues (~90° apart on the color wheel):
-// rose (0°), green (120°), blue (240°), violet (300°) — none adjacent.
+// Edge type colors — each hex must be unique across all 16 category colors in
+// categoryColors.ts. Chosen from hue gaps between categories and at clearly
+// different lightness so they are never confusable with a node dot in the legend.
+//
+//   ALTERNATIVE_TO  yellow-400 #facc15  (58°)  — no category uses yellow
+//   COMPATIBLE_WITH emerald-400 #34d399 (160°) — sits between green(142°) and teal(174°)
+//   DEPENDS_ON      cyan-300 #67e8f9   (186°) — much lighter than cyan-500 #06b6d4
+//   EXTENDS         fuchsia-300 #f0abfc (292°) — much lighter than fuchsia-500 #d946ef
 const EDGE_TYPE_HEX: Record<string, string> = {
-  ALTERNATIVE_TO:  '#f43f5e', // rose-500    (~0°)   — vivid red/pink
-  COMPATIBLE_WITH: '#4ade80', // green-400   (~120°) — vivid green
-  DEPENDS_ON:      '#38bdf8', // sky-400     (~200°) — bright sky blue
-  EXTENDS:         '#c084fc', // purple-400  (~270°) — vivid violet
+  ALTERNATIVE_TO:  '#facc15', // yellow-400  (58°)  — unique; no category is yellow
+  COMPATIBLE_WITH: '#34d399', // emerald-400 (160°) — between green and teal
+  DEPENDS_ON:      '#67e8f9', // cyan-300    (186°) — lighter than cyan-500/sky-400
+  EXTENDS:         '#f0abfc', // fuchsia-300 (292°) — lighter than fuchsia-500/purple-500
 };
 
 

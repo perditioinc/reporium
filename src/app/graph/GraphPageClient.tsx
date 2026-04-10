@@ -59,6 +59,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
   const [totalGraphEdges, setTotalGraphEdges] = useState(0);
+  const [limit, setLimit] = useState(5000);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +68,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
     const controller = new AbortController();
     const params = new URLSearchParams({
+      limit: String(limit),
       neighbours: '5',
       min_similarity: '0.5',
     });
@@ -134,7 +136,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, []);
+  }, [limit]);
 
   const nodeCount = useMemo(
     () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
@@ -151,18 +153,33 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-xs text-zinc-500">
           3D constellation of your AI repo library. Scroll to zoom, drag to rotate, right-drag to pan.
           Click a node for details.
         </p>
+        {/* Edge count slider */}
+        <div className="flex items-center gap-3 min-w-[220px]">
+          <label className="text-xs text-zinc-500 shrink-0">Edges</label>
+          <input
+            type="range"
+            min={1000}
+            max={Math.max(totalGraphEdges || 20000, limit)}
+            step={1000}
+            value={limit}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-32 accent-zinc-400"
+          />
+          <span className="text-xs text-zinc-400 tabular-nums w-16 text-right">
+            {limit.toLocaleString()}
+          </span>
+        </div>
       </div>
 
       {/* Stats */}
       {!loading && !error && (
         <p className="text-xs text-zinc-600">
-          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} edges shown
-          {totalGraphEdges > allEdges.length ? ` of ${totalGraphEdges.toLocaleString()} total` : ''}
+          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} edges
           {totalRepos > nodeCount ? ` \u00b7 ${totalRepos.toLocaleString()} in library` : ''}
         </p>
       )}
