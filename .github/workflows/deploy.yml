@@ -35,6 +35,8 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
 
       - name: Generate library data
         run: npm run generate
