@@ -9,6 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+import { API_URL as CLIENT_API_URL } from '@/lib/apiUrl';
 
 const KnowledgeGraph3D = dynamic(
   () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
@@ -42,6 +43,7 @@ interface ApiResponse {
   total?: number;
   total_repos?: number;
   total_edges?: number;
+  total_knowledge_graph_edges?: number;
   edges: ApiEdge[];
 }
 
@@ -56,6 +58,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
+  const [totalGraphEdges, setTotalGraphEdges] = useState(0);
   const [limit, setLimit] = useState(2000);
 
   useEffect(() => {
@@ -70,7 +73,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       min_similarity: '0.5',
     });
 
-    fetch(`${apiUrl}/graph/edges?${params}`, {
+    fetch(`${CLIENT_API_URL}/graph/edges?${params}`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     })
@@ -80,6 +83,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
         if (cancelled) return;
 
         setTotalRepos(data.total_repos ?? 0);
+        setTotalGraphEdges(data.total_knowledge_graph_edges ?? data.total ?? 0);
 
         const nodeId = (
           node: ApiRepoNode | undefined,
@@ -132,7 +136,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, [apiUrl, limit]);
+  }, [limit]);
 
   const nodeCount = useMemo(
     () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
@@ -148,7 +152,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
   // Keyboard: [ / ] to cycle edge limit for graph navigation
   useEffect(() => {
-    const LIMITS = [500, 1000, 2000, 5000];
+    const LIMITS = [500, 1000, 2000, 5000, 10000];
     const handler = (e: KeyboardEvent) => {
       if (e.key === ']') {
         setLimit((prev) => {
@@ -180,16 +184,18 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
         >
           <option value={500}>500 edges</option>
-          <option value={1000}>1000 edges</option>
-          <option value={2000}>2000 edges</option>
-          <option value={5000}>5000 edges</option>
+          <option value={1000}>1,000 edges</option>
+          <option value={2000}>2,000 edges</option>
+          <option value={5000}>5,000 edges</option>
+          <option value={10000}>10,000 edges</option>
         </select>
       </div>
 
       {/* Stats */}
       {!loading && !error && (
         <p className="text-xs text-zinc-600">
-          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} similarity edges
+          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} edges shown
+          {totalGraphEdges > allEdges.length ? ` of ${totalGraphEdges.toLocaleString()} total` : ''}
           {totalRepos > nodeCount ? ` \u00b7 ${totalRepos.toLocaleString()} in library` : ''}
         </p>
       )}
