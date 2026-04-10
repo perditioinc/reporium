@@ -202,12 +202,13 @@ function hexToRGB(hex: string): THREE.Color {
 // IMPORTANT: These MUST NOT collide with any category color in categoryColors.ts.
 // Category palette uses: blue, amber, violet, red, green, teal, cyan, indigo,
 // lime, orange, pink, purple, sky, fuchsia, rose, stone.
-// Edge types use: warm-white, mint, steel-blue, coral — distinct from all 16.
+// Edge types use 4 maximally distinct hues (~90° apart on the color wheel):
+// rose (0°), green (120°), blue (240°), violet (300°) — none adjacent.
 const EDGE_TYPE_HEX: Record<string, string> = {
-  ALTERNATIVE_TO:  '#fbbf24', // warm gold (distinct from agents amber #f59e0b)
-  COMPATIBLE_WITH: '#34d399', // mint/emerald (distinct from evals green #22c55e)
-  DEPENDS_ON:      '#60a5fa', // light blue-400 (distinct from foundation blue #3b82f6)
-  EXTENDS:         '#fb923c', // orange-400 (distinct from pink #ec4899 and orange #f97316)
+  ALTERNATIVE_TO:  '#f43f5e', // rose-500    (~0°)   — vivid red/pink
+  COMPATIBLE_WITH: '#4ade80', // green-400   (~120°) — vivid green
+  DEPENDS_ON:      '#38bdf8', // sky-400     (~200°) — bright sky blue
+  EXTENDS:         '#c084fc', // purple-400  (~270°) — vivid violet
 };
 
 
