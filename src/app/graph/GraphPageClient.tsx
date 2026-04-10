@@ -47,11 +47,7 @@ interface ApiResponse {
   edges: ApiEdge[];
 }
 
-interface GraphPageClientProps {
-  apiUrl: string;
-}
-
-export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
+export function GraphPageClient() {
   const router = useRouter();
   const [allEdges, setAllEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
