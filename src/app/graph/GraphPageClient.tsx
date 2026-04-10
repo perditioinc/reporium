@@ -68,7 +68,6 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
     const controller = new AbortController();
     const params = new URLSearchParams({
-      limit: String(limit),
       neighbours: '5',
       min_similarity: '0.5',
     });
@@ -136,7 +135,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, [limit]);
+  }, []);
 
   const nodeCount = useMemo(
     () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
