@@ -16,9 +16,10 @@ import type { NLFilterResult } from '@/types/repo';
 
 const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
 
-const API_URL =
-  process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
-  'https://api.reporium.com';
+if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
+  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
+}
+const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
 
 interface NLFilterBarProps {
   onApply: (result: NLFilterResult) => void;
