@@ -523,7 +523,7 @@ export function KnowledgeGraph3D({
   const [isAutoRotating, setIsAutoRotating] = useState(true);
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
   // Track which node IDs are connected to hovered/selected node for the info panel
-  const [connectedNames, setConnectedNames] = useState<string[]>([]);
+  const [connectedNames, setConnectedNames] = useState<{ id: string; edgeType: string }[]>([]);
 
   // Active categories for legend
   const activeCategories = useMemo(() => {
@@ -1610,10 +1610,21 @@ export function KnowledgeGraph3D({
       setConnectedNames([]);
       return;
     }
-    // Sort by name, take top 20
-    const names = Array.from(connSet).sort().slice(0, 20);
-    setConnectedNames(names);
-  }, [selectedNode, adjacency]);
+    // Build id → edge_type map from raw edges
+    const edgeTypeMap = new Map<string, string>();
+    for (const e of edges) {
+      if (e.source === selectedNode.id && connSet.has(e.target)) {
+        if (!edgeTypeMap.has(e.target)) edgeTypeMap.set(e.target, e.edge_type);
+      } else if (e.target === selectedNode.id && connSet.has(e.source)) {
+        if (!edgeTypeMap.has(e.source)) edgeTypeMap.set(e.source, e.edge_type);
+      }
+    }
+    const items = Array.from(connSet)
+      .map((id) => ({ id, edgeType: edgeTypeMap.get(id) ?? 'SIMILAR_TO' }))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .slice(0, 20);
+    setConnectedNames(items);
+  }, [selectedNode, adjacency, edges]);
 
   // Mouse move handler
   const handleMouseMove = useCallback(
@@ -1810,16 +1821,23 @@ export function KnowledgeGraph3D({
                 <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
                   Connected repos
                 </p>
-                <div className="max-h-32 overflow-y-auto space-y-0.5 pr-1">
-                  {connectedNames.map((name) => {
-                    const meta = nodeMetadata.get(name);
-                    const label = name.includes('/') ? name.split('/').pop()! : name;
+                <div className="max-h-40 overflow-y-auto space-y-0.5 pr-1">
+                  {connectedNames.map(({ id, edgeType }) => {
+                    const meta = nodeMetadata.get(id);
+                    const label = id.includes('/') ? id.split('/').pop()! : id;
+                    const edgeColor = EDGE_TYPE_HEX[edgeType] ?? '#71717a';
+                    const edgeLabel = edgeType === 'SIMILAR_TO' ? 'similar'
+                      : edgeType === 'DEPENDS_ON' ? 'depends'
+                      : edgeType === 'COMPATIBLE_WITH' ? 'compatible'
+                      : edgeType === 'ALTERNATIVE_TO' ? 'alt'
+                      : edgeType === 'EXTENDS' ? 'extends'
+                      : edgeType.toLowerCase().replace(/_/g, ' ');
                     return (
                       <button
-                        key={name}
+                        key={id}
                         onClick={(e) => {
                           e.stopPropagation();
-                          const node = nodesRef.current.find((n) => n.id === name);
+                          const node = nodesRef.current.find((n) => n.id === id);
                           if (node) setSelectedNode(node);
                         }}
                         className="flex items-center gap-1.5 w-full text-left rounded px-1.5 py-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
@@ -1828,7 +1846,13 @@ export function KnowledgeGraph3D({
                           className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
                           style={{ backgroundColor: getCategoryColor(meta?.category ?? null) }}
                         />
-                        <span className="font-mono truncate">{label}</span>
+                        <span className="font-mono truncate flex-1">{label}</span>
+                        <span
+                          className="shrink-0 text-[9px] font-medium rounded px-1 py-0.5 uppercase tracking-wide"
+                          style={{ color: edgeColor, backgroundColor: `${edgeColor}22`, border: `1px solid ${edgeColor}44` }}
+                        >
+                          {edgeLabel}
+                        </span>
                       </button>
                     );
                   })}
