@@ -1,30 +1,43 @@
 {
-  "generatedAt": "2026-04-09T07:10:51.898Z",
+  "generatedAt": "2026-04-10T07:16:01.165Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-08 07:06:54 +0000",
-    "snapshots": 20
+    "to": "2026-04-09 07:10:54 +0000",
+    "snapshots": 21
   },
   "trending": [
     {
+      "name": "Agentic AI",
+      "type": "tag",
+      "currentActivity": 4541,
+      "previousActivity": 0,
+      "changePercent": 454100,
+      "repoCount": 394,
+      "representativeRepos": [
+        "openclaw",
+        "langflow",
+        "opencode"
+      ]
+    },
+    {
       "name": "Conversational AI",
       "type": "tag",
-      "currentActivity": 2411,
+      "currentActivity": 3218,
       "previousActivity": 0,
-      "changePercent": 241100,
+      "changePercent": 321800,
       "repoCount": 138,
       "representativeRepos": [
         "openclaw",
         "dify",
-        "posthog"
+        "airi"
       ]
     },
     {
       "name": "Cross-platform Development",
       "type": "tag",
-      "currentActivity": 1948,
+      "currentActivity": 2604,
       "previousActivity": 0,
-      "changePercent": 194800,
+      "changePercent": 260400,
       "repoCount": 14,
       "representativeRepos": [
         "openclaw",
@@ -33,11 +46,23 @@
       ]
     },
     {
+      "name": "Personal AI Assistant",
+      "type": "tag",
+      "currentActivity": 2586,
+      "previousActivity": 0,
+      "changePercent": 258600,
+      "repoCount": 4,
+      "representativeRepos": [
+        "openclaw",
+        "airi"
+      ]
+    },
+    {
       "name": "Cross-platform AI",
       "type": "tag",
-      "currentActivity": 1934,
+      "currentActivity": 2552,
       "previousActivity": 0,
-      "changePercent": 193400,
+      "changePercent": 255200,
       "repoCount": 4,
       "representativeRepos": [
         "openclaw",
@@ -45,23 +70,24 @@
       ]
     },
     {
-      "name": "AI Assistant Architecture",
+      "name": "Cross-platform",
       "type": "tag",
-      "currentActivity": 1914,
+      "currentActivity": 2532,
       "previousActivity": 0,
-      "changePercent": 191400,
-      "repoCount": 6,
+      "changePercent": 253200,
+      "repoCount": 15,
       "representativeRepos": [
-        "openclaw"
+        "openclaw",
+        "mediapipe"
       ]
     },
     {
-      "name": "Cross-platform",
+      "name": "AI Assistant Architecture",
       "type": "tag",
-      "currentActivity": 1914,
+      "currentActivity": 2526,
       "previousActivity": 0,
-      "changePercent": 191400,
-      "repoCount": 15,
+      "changePercent": 252600,
+      "repoCount": 6,
       "representativeRepos": [
         "openclaw"
       ]
@@ -69,9 +95,9 @@
     {
       "name": "Cross-platform AI Deployment",
       "type": "tag",
-      "currentActivity": 1914,
+      "currentActivity": 2526,
       "previousActivity": 0,
-      "changePercent": 191400,
+      "changePercent": 252600,
       "repoCount": 6,
       "representativeRepos": [
         "openclaw"
@@ -80,9 +106,9 @@
     {
       "name": "Personal AI Assistants",
       "type": "tag",
-      "currentActivity": 1914,
+      "currentActivity": 2526,
       "previousActivity": 0,
-      "changePercent": 191400,
+      "changePercent": 252600,
       "repoCount": 8,
       "representativeRepos": [
         "openclaw"
@@ -91,36 +117,12 @@
     {
       "name": "Customizable AI Chatbot",
       "type": "tag",
-      "currentActivity": 1914,
+      "currentActivity": 2526,
       "previousActivity": 0,
-      "changePercent": 191400,
+      "changePercent": 252600,
       "repoCount": 1,
       "representativeRepos": [
         "openclaw"
-      ]
-    },
-    {
-      "name": "Personal AI Assistant",
-      "type": "tag",
-      "currentActivity": 1914,
-      "previousActivity": 0,
-      "changePercent": 191400,
-      "repoCount": 4,
-      "representativeRepos": [
-        "openclaw"
-      ]
-    },
-    {
-      "name": "Multimodal",
-      "type": "tag",
-      "currentActivity": 1045,
-      "previousActivity": 1,
-      "changePercent": 104400,
-      "repoCount": 255,
-      "representativeRepos": [
-        "tensorflow",
-        "transformers",
-        "langflow"
       ]
     }
   ],
@@ -136,15 +138,6 @@
       "representativeRepos": []
     },
     {
-      "name": "Metadata",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 50,
-      "changePercent": -100,
-      "repoCount": 3,
-      "representativeRepos": []
-    },
-    {
       "name": "Knowledge Graph Construction",
       "type": "tag",
       "currentActivity": 0,
@@ -157,37 +150,48 @@
       "name": "Data-Driven Decision Making",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 9,
+      "previousActivity": 8,
       "changePercent": -100,
       "repoCount": 2,
       "representativeRepos": []
     },
     {
-      "name": "Audio Feature Extraction",
+      "name": "Trend Analysis",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 9,
+      "previousActivity": 50,
       "changePercent": -100,
-      "repoCount": 16,
+      "repoCount": 3,
+      "representativeRepos": []
+    },
+    {
+      "name": "Infrastructure Monitoring",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 8,
+      "changePercent": -100,
+      "repoCount": 3,
       "representativeRepos": []
     }
   ],
   "stable": [
     {
-      "name": "Code Intelligence",
+      "name": "Semantic Search",
       "type": "tag",
-      "currentActivity": 60,
-      "previousActivity": 54,
-      "changePercent": 11,
-      "repoCount": 11,
+      "currentActivity": 50,
+      "previousActivity": 50,
+      "changePercent": 0,
+      "repoCount": 61,
       "representativeRepos": [
-        "zed"
+        "meilisearch",
+        "milvus",
+        "weaviate"
       ]
     }
   ],
   "newReleases": [],
   "insights": [
-    "Conversational AI is the fastest-growing area this week with +241100% commit velocity.",
+    "Agentic AI is the fastest-growing area this week with +454100% commit velocity.",
     "Activity in Technology Research has slowed by 100% this week."
   ]
 }
