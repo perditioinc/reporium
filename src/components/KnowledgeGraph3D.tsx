@@ -1902,10 +1902,16 @@ export function KnowledgeGraph3D({
                 title={`${isHidden ? 'Show' : 'Hide'} ${getCategoryLabel(cat)}`}
               >
                 <span
-                  className="inline-block w-2 h-2 rounded-full shrink-0"
+                  className="inline-block w-3 h-3 rounded-full shrink-0"
                   style={{
-                    backgroundColor: getCategoryColor(cat),
                     opacity: isHidden ? 0.3 : 1,
+                    background: (() => {
+                      const c = getCategoryColor(cat);
+                      // Derive lighter and darker shades for the marble gradient
+                      // The radial gradient simulates the lit sphere look
+                      return `radial-gradient(circle at 35% 35%, ${c}ff 0%, ${c}cc 40%, ${c}66 75%, ${c}22 100%)`;
+                    })(),
+                    boxShadow: `0 0 4px 1px ${getCategoryColor(cat)}66`,
                   }}
                 />
                 <span className={`hidden sm:inline ${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
