@@ -59,7 +59,6 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
   const [error, setError] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
   const [totalGraphEdges, setTotalGraphEdges] = useState(0);
-  const [limit, setLimit] = useState(2000);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,7 +67,6 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
     const controller = new AbortController();
     const params = new URLSearchParams({
-      limit: String(limit),
       neighbours: '5',
       min_similarity: '0.5',
     });
@@ -136,7 +134,7 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, [limit]);
+  }, []);
 
   const nodeCount = useMemo(
     () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
@@ -150,45 +148,14 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
     [router],
   );
 
-  // Keyboard: [ / ] to cycle edge limit for graph navigation
-  useEffect(() => {
-    const LIMITS = [500, 1000, 2000, 5000, 10000];
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === ']') {
-        setLimit((prev) => {
-          const i = LIMITS.indexOf(prev);
-          return LIMITS[Math.min(i + 1, LIMITS.length - 1)];
-        });
-      } else if (e.key === '[') {
-        setLimit((prev) => {
-          const i = LIMITS.indexOf(prev);
-          return LIMITS[Math.max(i - 1, 0)];
-        });
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
-
   return (
     <div className="space-y-4">
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-zinc-500">
           3D constellation of your AI repo library. Scroll to zoom, drag to rotate, right-drag to pan.
-          Click a node for details. Use <kbd className="font-mono bg-zinc-800 px-1 rounded">[</kbd> / <kbd className="font-mono bg-zinc-800 px-1 rounded">]</kbd> to adjust edge count.
+          Click a node for details.
         </p>
-        <select
-          value={limit}
-          onChange={(e) => setLimit(Number(e.target.value))}
-          className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
-        >
-          <option value={500}>500 edges</option>
-          <option value={1000}>1,000 edges</option>
-          <option value={2000}>2,000 edges</option>
-          <option value={5000}>5,000 edges</option>
-          <option value={10000}>10,000 edges</option>
-        </select>
       </div>
 
       {/* Stats */}

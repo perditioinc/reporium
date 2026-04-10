@@ -17,10 +17,7 @@ const KnowledgeGraph3D = dynamic(
   { ssr: false },
 );
 
-if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
-  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
-}
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
+import { API_URL } from '@/lib/apiUrl';
 
 interface ApiRepoNode {
   name: string;
@@ -72,7 +69,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     let cancelled = false;
     const controller = new AbortController();
 
-    fetch(`${API_URL}/graph/edges?limit=10000&neighbours=5&min_similarity=0.40`, {
+    fetch(`${API_URL}/graph/edges?neighbours=5&min_similarity=0.40`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     })
