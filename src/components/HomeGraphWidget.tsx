@@ -49,6 +49,7 @@ interface ApiResponse {
   total?: number;
   total_edges?: number;
   total_repos?: number;
+  total_knowledge_graph_edges?: number;
   edges: ApiEdge[];
 }
 
@@ -71,7 +72,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     let cancelled = false;
     const controller = new AbortController();
 
-    fetch(`${API_URL}/graph/edges?limit=6000&neighbours=5&min_similarity=0.40`, {
+    fetch(`${API_URL}/graph/edges?limit=10000&neighbours=5&min_similarity=0.40`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     })
@@ -80,7 +81,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
         const data: ApiResponse = await res.json();
         if (cancelled) return;
 
-        setTotalEdges(data.total ?? data.total_edges ?? 0);
+        setTotalEdges(data.total_knowledge_graph_edges ?? data.total ?? data.total_edges ?? 0);
 
         const nodeId = (
           node: ApiRepoNode | undefined,
@@ -154,8 +155,11 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     [router, onGraphNodeSelect],
   );
 
-  // Don't render anything if graph fails to load
-  if (error) return null;
+  // Don't render anything if graph fails to load (logged for debugging)
+  if (error) {
+    if (typeof window !== 'undefined') console.warn('[HomeGraphWidget] Graph load failed:', error);
+    return null;
+  }
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
@@ -165,7 +169,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
           <p className="text-xs text-zinc-500 mt-0.5">
             {loading
               ? 'Loading constellation...'
-              : `${nodeCount} repos \u00b7 ${edges.length.toLocaleString()} similarity edges`}
+              : `${nodeCount} repos \u00b7 ${(totalEdges || edges.length).toLocaleString()} connections`}
           </p>
         </div>
       </div>
