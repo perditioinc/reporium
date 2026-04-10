@@ -40,7 +40,9 @@ if (!API_URL) {
 }
 
 const MAX_RETRIES = 3
-const RETRY_DELAYS_MS = [2000, 5000, 10000] as const
+// Delays must exceed the API's 60-second rate-limit window so that a 429 retry
+// doesn't immediately hit the same "5 per 1 minute" ceiling again.
+const RETRY_DELAYS_MS = [15000, 35000, 65000] as const
 
 function isRetryableStatus(status: number): boolean {
   return status === 429 || (status >= 500 && status <= 599)
@@ -63,7 +65,12 @@ async function fetchWithRetry(url: string): Promise<Response> {
         )
       }
 
-      const retryDelayMs = RETRY_DELAYS_MS[attempt - 1]
+      // Honour the Retry-After header if present; fall back to our own schedule.
+      const retryAfterSec = Number(res.headers.get('Retry-After') ?? NaN)
+      const retryDelayMs = isFinite(retryAfterSec)
+        ? retryAfterSec * 1000 + 2000  // add 2s buffer
+        : RETRY_DELAYS_MS[attempt - 1]
+
       console.warn(
         `[fetch-library] attempt ${attempt}/${MAX_RETRIES} failed with ${res.status}; retrying in ${retryDelayMs / 1000}s`
       )
