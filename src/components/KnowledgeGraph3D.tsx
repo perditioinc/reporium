@@ -68,7 +68,7 @@ interface GLink extends SimulationLinkDatum<GNode> {
 // ---------------------------------------------------------------------------
 function nodeRadius(connections: number): number {
   // Log-scale for high-connection nodes to prevent a few giant spheres
-  return 1.3 + Math.min(Math.sqrt(connections) * 0.6, 4.0);
+  return 3.0 + Math.min(Math.sqrt(connections) * 1.4, 8.0);
 }
 
 /**
@@ -196,6 +196,122 @@ function buildEdgeIndex(links: GLink[], nodes: GNode[]): Map<string, number[]> {
 
 function hexToRGB(hex: string): THREE.Color {
   return new THREE.Color(hex);
+}
+
+// ---------------------------------------------------------------------------
+// Planet marble shader — each node is a unique rotating glass-marble sphere
+// ---------------------------------------------------------------------------
+const PLANET_VERT = /* glsl */`
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  varying vec3 vLocalPos;
+  void main() {
+    vNormal    = normalize(normalMatrix * normal);
+    vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+    vViewDir   = normalize(-mvPos.xyz);
+    vLocalPos  = position; // local coords → texture rotates with sphere
+    gl_Position = projectionMatrix * mvPos;
+  }
+`;
+
+const PLANET_FRAG = /* glsl */`
+  uniform vec3  uC1;
+  uniform vec3  uC2;
+  uniform vec3  uC3;
+  uniform float uSeed;
+  uniform float uTime;
+  uniform float uEmissive;
+  uniform float uOpacity;
+
+  varying vec3 vNormal;
+  varying vec3 vViewDir;
+  varying vec3 vLocalPos;
+
+  float hash(float n) { return fract(sin(n) * 43758.5453); }
+
+  float noise3(vec3 p) {
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float n = i.x + i.y * 57.0 + i.z * 113.0;
+    return mix(
+      mix(mix(hash(n),      hash(n+1.0),   f.x),
+          mix(hash(n+57.0), hash(n+58.0),  f.x), f.y),
+      mix(mix(hash(n+113.0),hash(n+114.0), f.x),
+          mix(hash(n+170.0),hash(n+171.0), f.x), f.y), f.z);
+  }
+
+  float fbm(vec3 p) {
+    float v = 0.0; float a = 0.5;
+    for (int i = 0; i < 4; i++) { v += a * noise3(p); p = p * 2.01 + 0.5; a *= 0.5; }
+    return v;
+  }
+
+  void main() {
+    vec3 N = normalize(vNormal);
+    vec3 V = normalize(vViewDir);
+
+    // Marble / planet surface (attached to local coords so it rotates with the sphere)
+    vec3 p  = vLocalPos * 2.8 + uSeed * vec3(0.5, 0.3, 0.7);
+    float turb = fbm(p);
+    float t = sin(vLocalPos.x * 2.5 + turb * 5.0 + uSeed * 0.8) * 0.5 + 0.5;
+    float s = fbm(p * 1.6 + vec3(uSeed * 0.4, uSeed * 0.9, uSeed * 0.2));
+    t = clamp(t * 0.65 + s * 0.35, 0.0, 1.0);
+
+    // Subtle atmospheric shimmer over time
+    t += 0.015 * sin(uTime * 0.4 + uSeed);
+
+    // 3-color marble blend
+    vec3 col;
+    if (t < 0.42)       col = mix(uC1, uC2, t / 0.42);
+    else if (t < 0.75)  col = mix(uC2, uC3, (t - 0.42) / 0.33);
+    else                col = mix(uC3, uC1, (t - 0.75) / 0.25);
+
+    // Phong lighting — two directional lights for depth
+    vec3 L1   = normalize(vec3(1.2, 1.8, 2.0));
+    vec3 L2   = normalize(vec3(-1.5, 0.3, 0.8));
+    float diff = max(dot(N, L1), 0.0) * 0.70
+               + max(dot(N, L2), 0.0) * 0.22
+               + 0.08; // ambient floor
+    vec3 R    = reflect(-L1, N);
+    float spec = pow(max(dot(R, V), 0.0), 72.0) * 0.9;
+
+    // Fresnel rim — glass/planet edge
+    float NdotV  = max(dot(N, V), 0.0);
+    float fresnel = pow(1.0 - NdotV, 2.8);
+    vec3  rimCol  = mix(uC2 * 1.6, vec3(0.85, 0.92, 1.0), 0.45);
+
+    // Emissive breathing glow (driven by uEmissive uniform updated each frame)
+    vec3 emissive = uC1 * uEmissive * 0.38;
+
+    vec3 finalCol = col * diff + vec3(0.95, 1.0, 1.05) * spec + emissive;
+    finalCol = mix(finalCol, rimCol, fresnel * 0.50);
+
+    gl_FragColor = vec4(clamp(finalCol, 0.0, 1.6),
+                        uOpacity * (0.88 + NdotV * 0.12));
+  }
+`;
+
+/** Derive 3 unique marble colors from a base category color + per-node seed. */
+function deriveColors(hex: string, seed: number): [THREE.Color, THREE.Color, THREE.Color] {
+  const c1 = new THREE.Color(hex);
+  const hsl = { h: 0, s: 0, l: 0 };
+  c1.getHSL(hsl);
+  // Secondary: hue +shift, lighter + more saturated
+  const shift2 = 0.12 + (seed % 13) * 0.022;
+  const c2 = new THREE.Color().setHSL(
+    (hsl.h + shift2) % 1,
+    Math.min(hsl.s * 1.25 + 0.08, 1.0),
+    Math.min(hsl.l + 0.22, 0.88),
+  );
+  // Tertiary: hue –shift, darker
+  const shift3 = 0.21 + (seed % 7) * 0.025;
+  const c3 = new THREE.Color().setHSL(
+    (hsl.h - shift3 + 1) % 1,
+    Math.max(hsl.s * 0.72, 0.22),
+    Math.max(hsl.l - 0.20, 0.18),
+  );
+  return [c1, c2, c3];
 }
 
 // Canonical edge-type colors — single source of truth for 3D rendering AND legend.
@@ -355,6 +471,7 @@ export function KnowledgeGraph3D({
   const animFrameRef = useRef<number>(0);
   const nodesRef = useRef<GNode[]>([]);
   const nodeMeshesRef = useRef<THREE.Mesh[]>([]);
+  const timeUniformRef = useRef<{ value: number }>({ value: 0.0 });
   const lineRef = useRef<THREE.LineSegments | null>(null);
   const glowMeshesRef = useRef<THREE.Mesh[]>([]);
   const raycasterRef = useRef(new THREE.Raycaster());
@@ -505,11 +622,14 @@ export function KnowledgeGraph3D({
     controls.enablePan = true;
     controlsRef.current = controls;
 
-    // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.2);
-    dirLight.position.set(100, 100, 100);
-    scene.add(dirLight);
+    // Lights — ambient + two directional for 3D planet shading
+    scene.add(new THREE.AmbientLight(0xffffff, 0.12));
+    const dirLight1 = new THREE.DirectionalLight(0xfff5e0, 0.85);
+    dirLight1.position.set(150, 200, 300);
+    scene.add(dirLight1);
+    const dirLight2 = new THREE.DirectionalLight(0xc0d8ff, 0.30);
+    dirLight2.position.set(-200, -80, 150);
+    scene.add(dirLight2);
 
     // Store refs
     nodesRef.current = nodes;
@@ -517,33 +637,60 @@ export function KnowledgeGraph3D({
     linksRef.current = links;
     // edgeIndexRef will be rebuilt after link-type split to cover simLinks only
 
-    // Create node meshes
+    // Create planet-marble node meshes
     const meshes: THREE.Mesh[] = [];
     const glows: THREE.Mesh[] = [];
-    for (const node of nodes) {
-      const r = nodeRadius(node.connections);
-      const color = hexToRGB(getCategoryColor(node.category));
+    const sharedTime = timeUniformRef.current; // single object shared by all planet materials
 
-      const geo = new THREE.SphereGeometry(r, 16, 12);
-      const mat = new THREE.MeshPhongMaterial({
-        color,
-        emissive: color,
-        emissiveIntensity: 0.8,
-        shininess: 90,
+    for (let ni = 0; ni < nodes.length; ni++) {
+      const node = nodes[ni];
+      const r = nodeRadius(node.connections);
+      const [c1, c2, c3] = deriveColors(getCategoryColor(node.category), ni);
+
+      const geo = new THREE.SphereGeometry(r, 32, 24);
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          uC1:       { value: c1.clone() },
+          uC2:       { value: c2.clone() },
+          uC3:       { value: c3.clone() },
+          uSeed:     { value: ni * 1.618033 },
+          uTime:     sharedTime,            // shared reference — updated once per frame
+          uEmissive: { value: 0.8 },
+          uOpacity:  { value: 0.95 },
+        },
+        vertexShader:   PLANET_VERT,
+        fragmentShader: PLANET_FRAG,
         transparent: true,
-        opacity: 0.95,
+        depthWrite:  false,
       });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(node.x ?? 0, node.y ?? 0, node.z ?? 0);
-      mesh.userData = { nodeId: node.id, baseColor: color.clone(), baseOpacity: 0.95 };
+
+      // Per-node rotation axis (tilted like real planets) and speed
+      const rotAxis = new THREE.Vector3(
+        Math.sin(ni * 1.618) * 0.30,
+        1.0,
+        Math.cos(ni * 2.718) * 0.25,
+      ).normalize();
+      const rotSpeed = 0.004 + (ni % 13) * 0.0009; // 0.004..0.016 rad/frame
+
+      mesh.userData = {
+        nodeId:    node.id,
+        baseColor: c1.clone(),
+        baseOpacity: 0.95,
+        rotAxis,
+        rotSpeed,
+      };
       scene.add(mesh);
       meshes.push(mesh);
 
-      const glowGeo = new THREE.SphereGeometry(r * 2.2, 12, 8);
+      // Soft glow halo
+      const glowGeo = new THREE.SphereGeometry(r * 1.85, 12, 8);
       const glowMat = new THREE.MeshBasicMaterial({
-        color,
+        color: c1,
         transparent: true,
-        opacity: 0.12,
+        opacity: 0.10,
+        depthWrite: false,
       });
       const glow = new THREE.Mesh(glowGeo, glowMat);
       glow.position.copy(mesh.position);
@@ -1118,6 +1265,9 @@ export function KnowledgeGraph3D({
 
       // ── Visual motion: pulse nodes proportional to connection count ──────
       const elapsed = animClock.getElapsedTime();
+      // Update shared time uniform once per frame (all planet shaders read this)
+      timeUniformRef.current.value = elapsed;
+
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
         // More connections → faster & larger pulse
@@ -1135,9 +1285,12 @@ export function KnowledgeGraph3D({
         const glowPulse = 1 + Math.sin(elapsed * speed * 0.7 + phase + Math.PI * 0.5) * amplitude * 1.8;
         glows[i].scale.setScalar(glowPulse);
 
-        // Emissive pulse — highly connected repos glow brighter
-        const mat = meshes[i].material as THREE.MeshPhongMaterial;
-        mat.emissiveIntensity = 0.7 + intensity * 0.5 * (0.5 + 0.5 * Math.sin(elapsed * speed * 0.5 + phase));
+        // Emissive pulse — update shader uniform (planet ShaderMaterial)
+        const mat = meshes[i].material as THREE.ShaderMaterial;
+        mat.uniforms.uEmissive.value = 0.7 + intensity * 0.5 * (0.5 + 0.5 * Math.sin(elapsed * speed * 0.5 + phase));
+
+        // Planet self-rotation (independent of position/scale)
+        meshes[i].rotateOnAxis(meshes[i].userData.rotAxis as THREE.Vector3, meshes[i].userData.rotSpeed as number);
 
         // Ambient micro-drift — ALL nodes get subtle continuous motion so graph feels alive
         // Magnitude: 0.05 base + connection-proportional bonus (up to 0.8 total)
@@ -1152,23 +1305,26 @@ export function KnowledgeGraph3D({
       }
 
       // ── Animated flowing edges — energy pulses along connections ───────────
-      // SIMILAR_TO: wave of brightness flows through edges
+      // SIMILAR_TO: directional energy ripple along each edge
       {
         const simCol = lineSegments.geometry.attributes.color.array as Float32Array;
         const simBase = baseEdgeColorsRef.current;
-        const waveSpeed = 1.2;
         for (let i = 0; i < simLinks.length; i++) {
           const idx = i * 6;
-          // Each edge gets a unique phase from its index
-          const edgePhase = i * 0.13;
-          const wave = 0.5 + 0.5 * Math.sin(elapsed * waveSpeed + edgePhase);
-          const brightness = 0.6 + wave * 0.6; // range 0.6..1.2
-          simCol[idx]     = simBase[idx]     * brightness;
-          simCol[idx + 1] = simBase[idx + 1] * brightness;
-          simCol[idx + 2] = simBase[idx + 2] * brightness;
-          simCol[idx + 3] = simBase[idx + 3] * brightness;
-          simCol[idx + 4] = simBase[idx + 4] * brightness;
-          simCol[idx + 5] = simBase[idx + 5] * brightness;
+          const edgePhase = i * 0.19;
+          // Two-harmonic ripple: slow base wave + faster sparkle
+          const wave1 = Math.sin(elapsed * 1.0 + edgePhase);
+          const wave2 = Math.sin(elapsed * 3.5 + edgePhase * 2.3) * 0.3;
+          const wave  = Math.max(0.0, wave1 + wave2); // 0..1.3
+          // Source vertex brighter (leading edge) vs target vertex dimmer (trailing)
+          const bSrc = 0.15 + wave * 1.1;      // 0.15..1.4
+          const bTgt = 0.05 + wave * 0.45;     // 0.05..0.5 — trailing dim
+          simCol[idx]   = simBase[idx]   * bSrc;
+          simCol[idx+1] = simBase[idx+1] * bSrc;
+          simCol[idx+2] = simBase[idx+2] * bSrc;
+          simCol[idx+3] = simBase[idx+3] * bTgt;
+          simCol[idx+4] = simBase[idx+4] * bTgt;
+          simCol[idx+5] = simBase[idx+5] * bTgt;
         }
         lineSegments.geometry.attributes.color.needsUpdate = true;
       }
@@ -1188,8 +1344,9 @@ export function KnowledgeGraph3D({
           const edgePhase = i * phaseScale;
           for (let v = 0; v < vertsPerEdge; v++) {
             const segPhase = v / vertsPerEdge; // 0..1 along the edge
-            // Traveling wave: brightness moves along the edge over time
-            const wave = 0.4 + 0.6 * Math.max(0, Math.sin(elapsed * speed - segPhase * Math.PI * 3 + edgePhase));
+            // Sharp traveling pulse: squared sine for tighter energy bolts
+            const rawWave = Math.sin(elapsed * speed - segPhase * Math.PI * 4 + edgePhase);
+            const wave = 0.05 + 0.95 * Math.max(0, rawWave * rawWave * Math.sign(rawWave));
             const off = (i * vertsPerEdge + v) * 3;
             col[off]     = baseCol[off]     * wave;
             col[off + 1] = baseCol[off + 1] * wave;
@@ -1248,17 +1405,17 @@ export function KnowledgeGraph3D({
         // Nodes
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
-          const mat = meshes[i].material as THREE.MeshPhongMaterial;
+          const mat = meshes[i].material as THREE.ShaderMaterial;
           const gMat = glows[i].material as THREE.MeshBasicMaterial;
           const isHidden = n.category && hidden.has(n.category);
           if (isHidden) {
-            mat.opacity = 0.03; gMat.opacity = 0.0; nodeLabels[i].visible = false;
+            mat.uniforms.uOpacity.value = 0.03; gMat.opacity = 0.0; nodeLabels[i].visible = false;
           } else if (n.id === activeNode.id) {
-            mat.opacity = 1.0; mat.emissiveIntensity = 1.2; gMat.opacity = 0.45; nodeLabels[i].visible = true;
+            mat.uniforms.uOpacity.value = 1.0; mat.uniforms.uEmissive.value = 1.4; gMat.opacity = 0.50; nodeLabels[i].visible = true;
           } else if (connSet.has(n.id)) {
-            mat.opacity = 0.95; mat.emissiveIntensity = 0.9; gMat.opacity = 0.25; nodeLabels[i].visible = true;
+            mat.uniforms.uOpacity.value = 0.95; mat.uniforms.uEmissive.value = 1.0; gMat.opacity = 0.28; nodeLabels[i].visible = true;
           } else {
-            mat.opacity = 0.08; mat.emissiveIntensity = 0.2; gMat.opacity = 0.0; nodeLabels[i].visible = false;
+            mat.uniforms.uOpacity.value = 0.06; mat.uniforms.uEmissive.value = 0.1; gMat.opacity = 0.0; nodeLabels[i].visible = false;
           }
         }
 
@@ -1301,13 +1458,13 @@ export function KnowledgeGraph3D({
         // Reset all nodes + hide all labels
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
-          const mat = meshes[i].material as THREE.MeshPhongMaterial;
+          const mat = meshes[i].material as THREE.ShaderMaterial;
           const gMat = glows[i].material as THREE.MeshBasicMaterial;
           const isHidden = n.category && hidden.has(n.category);
           if (isHidden) {
-            mat.opacity = 0.03; gMat.opacity = 0.0;
+            mat.uniforms.uOpacity.value = 0.03; gMat.opacity = 0.0;
           } else {
-            mat.opacity = 0.95; mat.emissiveIntensity = 0.8; gMat.opacity = 0.12;
+            mat.uniforms.uOpacity.value = 0.95; mat.uniforms.uEmissive.value = 0.8; gMat.opacity = 0.12;
           }
           nodeLabels[i].visible = false;
         }
