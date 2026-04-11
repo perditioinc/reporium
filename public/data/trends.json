@@ -1,128 +1,125 @@
 {
-  "generatedAt": "2026-04-10T07:16:01.165Z",
+  "generatedAt": "2026-04-11T06:48:32.541Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-09 07:10:54 +0000",
-    "snapshots": 21
+    "to": "2026-04-10 07:16:03 +0000",
+    "snapshots": 22
   },
   "trending": [
     {
-      "name": "Agentic AI",
+      "name": "CLI",
       "type": "tag",
-      "currentActivity": 4541,
+      "currentActivity": 439,
       "previousActivity": 0,
-      "changePercent": 454100,
-      "repoCount": 394,
+      "changePercent": 43900,
+      "repoCount": 82,
       "representativeRepos": [
-        "openclaw",
-        "langflow",
-        "opencode"
+        "yt-dlp",
+        "node",
+        "codex"
       ]
     },
     {
-      "name": "Conversational AI",
+      "name": "Document Processing",
       "type": "tag",
-      "currentActivity": 3218,
+      "currentActivity": 251,
       "previousActivity": 0,
-      "changePercent": 321800,
-      "repoCount": 138,
+      "changePercent": 25100,
+      "repoCount": 43,
       "representativeRepos": [
-        "openclaw",
         "dify",
-        "airi"
+        "langextract",
+        "opendataloader-pdf"
       ]
     },
     {
-      "name": "Cross-platform Development",
+      "name": "Memory-Augmented AI",
       "type": "tag",
-      "currentActivity": 2604,
+      "currentActivity": 195,
       "previousActivity": 0,
-      "changePercent": 260400,
-      "repoCount": 14,
+      "changePercent": 19500,
+      "repoCount": 7,
       "representativeRepos": [
-        "openclaw",
-        "godot",
-        "ppsspp"
+        "hermes-agent",
+        "letta-code"
       ]
     },
     {
-      "name": "Personal AI Assistant",
+      "name": "Enterprise Automation",
       "type": "tag",
-      "currentActivity": 2586,
+      "currentActivity": 182,
       "previousActivity": 0,
-      "changePercent": 258600,
-      "repoCount": 4,
+      "changePercent": 18200,
+      "repoCount": 3,
       "representativeRepos": [
-        "openclaw",
-        "airi"
+        "hermes-agent",
+        "openai-agents-python"
       ]
     },
     {
-      "name": "Cross-platform AI",
+      "name": "Personalized AI",
       "type": "tag",
-      "currentActivity": 2552,
+      "currentActivity": 179,
       "previousActivity": 0,
-      "changePercent": 255200,
-      "repoCount": 4,
-      "representativeRepos": [
-        "openclaw",
-        "onnxruntime"
-      ]
-    },
-    {
-      "name": "Cross-platform",
-      "type": "tag",
-      "currentActivity": 2532,
-      "previousActivity": 0,
-      "changePercent": 253200,
-      "repoCount": 15,
-      "representativeRepos": [
-        "openclaw",
-        "mediapipe"
-      ]
-    },
-    {
-      "name": "AI Assistant Architecture",
-      "type": "tag",
-      "currentActivity": 2526,
-      "previousActivity": 0,
-      "changePercent": 252600,
+      "changePercent": 17900,
       "repoCount": 6,
       "representativeRepos": [
-        "openclaw"
+        "hermes-agent"
       ]
     },
     {
-      "name": "Cross-platform AI Deployment",
+      "name": "Multi-turn Dialogue Systems",
       "type": "tag",
-      "currentActivity": 2526,
+      "currentActivity": 179,
       "previousActivity": 0,
-      "changePercent": 252600,
-      "repoCount": 6,
-      "representativeRepos": [
-        "openclaw"
-      ]
-    },
-    {
-      "name": "Personal AI Assistants",
-      "type": "tag",
-      "currentActivity": 2526,
-      "previousActivity": 0,
-      "changePercent": 252600,
+      "changePercent": 17900,
       "repoCount": 8,
       "representativeRepos": [
-        "openclaw"
+        "hermes-agent"
       ]
     },
     {
-      "name": "Customizable AI Chatbot",
+      "name": "Personalized AI Tutoring",
       "type": "tag",
-      "currentActivity": 2526,
+      "currentActivity": 179,
       "previousActivity": 0,
-      "changePercent": 252600,
+      "changePercent": 17900,
+      "repoCount": 2,
+      "representativeRepos": [
+        "hermes-agent"
+      ]
+    },
+    {
+      "name": "Continuous Learning Systems",
+      "type": "tag",
+      "currentActivity": 179,
+      "previousActivity": 0,
+      "changePercent": 17900,
+      "repoCount": 2,
+      "representativeRepos": [
+        "hermes-agent"
+      ]
+    },
+    {
+      "name": "Adaptive Machine Learning",
+      "type": "tag",
+      "currentActivity": 179,
+      "previousActivity": 0,
+      "changePercent": 17900,
       "repoCount": 1,
       "representativeRepos": [
-        "openclaw"
+        "hermes-agent"
+      ]
+    },
+    {
+      "name": "Continuous Learning",
+      "type": "tag",
+      "currentActivity": 179,
+      "previousActivity": 0,
+      "changePercent": 17900,
+      "repoCount": 2,
+      "representativeRepos": [
+        "hermes-agent"
       ]
     }
   ],
@@ -138,60 +135,161 @@
       "representativeRepos": []
     },
     {
-      "name": "Knowledge Graph Construction",
+      "name": "Autonomous AI Agents",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 50,
+      "previousActivity": 33,
       "changePercent": -100,
-      "repoCount": 22,
+      "repoCount": 7,
       "representativeRepos": []
     },
     {
-      "name": "Data-Driven Decision Making",
+      "name": "Productivity Software",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 8,
+      "previousActivity": 39,
       "changePercent": -100,
-      "repoCount": 2,
+      "repoCount": 10,
       "representativeRepos": []
     },
     {
-      "name": "Trend Analysis",
+      "name": "Natural Language Programming",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 50,
+      "previousActivity": 6,
       "changePercent": -100,
-      "repoCount": 3,
+      "repoCount": 7,
       "representativeRepos": []
     },
     {
-      "name": "Infrastructure Monitoring",
+      "name": "Web Data Extraction",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 8,
+      "previousActivity": 16,
       "changePercent": -100,
-      "repoCount": 3,
+      "repoCount": 4,
       "representativeRepos": []
     }
   ],
   "stable": [
     {
-      "name": "Semantic Search",
+      "name": "API Integration",
       "type": "tag",
-      "currentActivity": 50,
-      "previousActivity": 50,
-      "changePercent": 0,
-      "repoCount": 61,
+      "currentActivity": 310,
+      "previousActivity": 279,
+      "changePercent": 11,
+      "repoCount": 69,
       "representativeRepos": [
-        "meilisearch",
-        "milvus",
-        "weaviate"
+        "yt-dlp",
+        "langflow",
+        "dify"
+      ]
+    },
+    {
+      "name": "Model Democratization",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 4,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Audio Processing",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 14,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Multimodal Learning",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 5,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Model Fine-tuning",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 24,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Pre-trained Model Usage",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 2,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Deep Learning Frameworks",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 3,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Tokenization",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 6,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Cross-framework Compatibility",
+      "type": "tag",
+      "currentActivity": 19,
+      "previousActivity": 19,
+      "changePercent": 0,
+      "repoCount": 1,
+      "representativeRepos": [
+        "transformers"
+      ]
+    },
+    {
+      "name": "Named Entity Recognition",
+      "type": "tag",
+      "currentActivity": 21,
+      "previousActivity": 19,
+      "changePercent": 11,
+      "repoCount": 21,
+      "representativeRepos": [
+        "transformers",
+        "autogluon",
+        "presidio"
       ]
     }
   ],
   "newReleases": [],
   "insights": [
-    "Agentic AI is the fastest-growing area this week with +454100% commit velocity.",
+    "CLI is the fastest-growing area this week with +43900% commit velocity.",
     "Activity in Technology Research has slowed by 100% this week."
   ]
 }

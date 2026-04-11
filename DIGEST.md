@@ -1,32 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 10, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 11, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Agentic AI** (+454100% vs last week)
-openclaw, langflow, opencode are most active.
+**CLI** (+43900% vs last week)
+yt-dlp, node, codex are most active.
 
-**Conversational AI** (+321800% vs last week)
-openclaw, dify, airi are most active.
+**Document Processing** (+25100% vs last week)
+dify, langextract, opendataloader-pdf are most active.
 
-**Cross-platform Development** (+260400% vs last week)
-openclaw, godot, ppsspp are most active.
+**Memory-Augmented AI** (+19500% vs last week)
+hermes-agent, letta-code are most active.
 
 ---
 
 ## Library Health
-- **1641 repos** · **28 categories** · **13071 unique tags**
-- **678 forks** up to date · **946 forks** behind upstream
+- **1641 repos** · **28 categories** · **13075 unique tags**
+- **677 forks** up to date · **947 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📦 Other AI / ML** most active category (66239 commits across 1422 repos)
-- **Agentic AI** fastest growing (+454100% commit velocity)
+- **📦 Other AI / ML** most active category (70055 commits across 1422 repos)
+- **CLI** fastest growing (+43900% commit velocity)
 - **Technology Research** cooling (-100% change in activity)
 
 ---
