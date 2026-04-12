@@ -33,6 +33,13 @@ import {
   getCategoryColor,
   getCategoryLabel,
 } from '@/lib/categoryColors';
+import {
+  derivePlanetColors,
+  getPlanetRotation,
+  PLANET_FRAG,
+  PLANET_VERT,
+} from '@/lib/planetShader';
+import { LegendRenderer } from '@/components/LegendRenderer';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -196,122 +203,6 @@ function buildEdgeIndex(links: GLink[], nodes: GNode[]): Map<string, number[]> {
 
 function hexToRGB(hex: string): THREE.Color {
   return new THREE.Color(hex);
-}
-
-// ---------------------------------------------------------------------------
-// Planet marble shader — each node is a unique rotating glass-marble sphere
-// ---------------------------------------------------------------------------
-const PLANET_VERT = /* glsl */`
-  varying vec3 vNormal;
-  varying vec3 vViewDir;
-  varying vec3 vLocalPos;
-  void main() {
-    vNormal    = normalize(normalMatrix * normal);
-    vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-    vViewDir   = normalize(-mvPos.xyz);
-    vLocalPos  = position; // local coords → texture rotates with sphere
-    gl_Position = projectionMatrix * mvPos;
-  }
-`;
-
-const PLANET_FRAG = /* glsl */`
-  uniform vec3  uC1;
-  uniform vec3  uC2;
-  uniform vec3  uC3;
-  uniform float uSeed;
-  uniform float uTime;
-  uniform float uEmissive;
-  uniform float uOpacity;
-
-  varying vec3 vNormal;
-  varying vec3 vViewDir;
-  varying vec3 vLocalPos;
-
-  float hash(float n) { return fract(sin(n) * 43758.5453); }
-
-  float noise3(vec3 p) {
-    vec3 i = floor(p);
-    vec3 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    float n = i.x + i.y * 57.0 + i.z * 113.0;
-    return mix(
-      mix(mix(hash(n),      hash(n+1.0),   f.x),
-          mix(hash(n+57.0), hash(n+58.0),  f.x), f.y),
-      mix(mix(hash(n+113.0),hash(n+114.0), f.x),
-          mix(hash(n+170.0),hash(n+171.0), f.x), f.y), f.z);
-  }
-
-  float fbm(vec3 p) {
-    float v = 0.0; float a = 0.5;
-    for (int i = 0; i < 4; i++) { v += a * noise3(p); p = p * 2.01 + 0.5; a *= 0.5; }
-    return v;
-  }
-
-  void main() {
-    vec3 N = normalize(vNormal);
-    vec3 V = normalize(vViewDir);
-
-    // Marble / planet surface (attached to local coords so it rotates with the sphere)
-    vec3 p  = vLocalPos * 2.8 + uSeed * vec3(0.5, 0.3, 0.7);
-    float turb = fbm(p);
-    float t = sin(vLocalPos.x * 2.5 + turb * 5.0 + uSeed * 0.8) * 0.5 + 0.5;
-    float s = fbm(p * 1.6 + vec3(uSeed * 0.4, uSeed * 0.9, uSeed * 0.2));
-    t = clamp(t * 0.65 + s * 0.35, 0.0, 1.0);
-
-    // Subtle atmospheric shimmer over time
-    t += 0.015 * sin(uTime * 0.4 + uSeed);
-
-    // 3-color marble blend
-    vec3 col;
-    if (t < 0.42)       col = mix(uC1, uC2, t / 0.42);
-    else if (t < 0.75)  col = mix(uC2, uC3, (t - 0.42) / 0.33);
-    else                col = mix(uC3, uC1, (t - 0.75) / 0.25);
-
-    // Phong lighting — two directional lights for depth
-    vec3 L1   = normalize(vec3(1.2, 1.8, 2.0));
-    vec3 L2   = normalize(vec3(-1.5, 0.3, 0.8));
-    float diff = max(dot(N, L1), 0.0) * 0.70
-               + max(dot(N, L2), 0.0) * 0.22
-               + 0.08; // ambient floor
-    vec3 R    = reflect(-L1, N);
-    float spec = pow(max(dot(R, V), 0.0), 72.0) * 0.9;
-
-    // Fresnel rim — glass/planet edge
-    float NdotV  = max(dot(N, V), 0.0);
-    float fresnel = pow(1.0 - NdotV, 2.8);
-    vec3  rimCol  = mix(uC2 * 1.6, vec3(0.85, 0.92, 1.0), 0.45);
-
-    // Emissive breathing glow (driven by uEmissive uniform updated each frame)
-    vec3 emissive = uC1 * uEmissive * 0.38;
-
-    vec3 finalCol = col * diff + vec3(0.95, 1.0, 1.05) * spec + emissive;
-    finalCol = mix(finalCol, rimCol, fresnel * 0.50);
-
-    gl_FragColor = vec4(clamp(finalCol, 0.0, 1.6),
-                        uOpacity * (0.88 + NdotV * 0.12));
-  }
-`;
-
-/** Derive 3 unique marble colors from a base category color + per-node seed. */
-function deriveColors(hex: string, seed: number): [THREE.Color, THREE.Color, THREE.Color] {
-  const c1 = new THREE.Color(hex);
-  const hsl = { h: 0, s: 0, l: 0 };
-  c1.getHSL(hsl);
-  // Secondary: hue +shift, lighter + more saturated
-  const shift2 = 0.12 + (seed % 13) * 0.022;
-  const c2 = new THREE.Color().setHSL(
-    (hsl.h + shift2) % 1,
-    Math.min(hsl.s * 1.25 + 0.08, 1.0),
-    Math.min(hsl.l + 0.22, 0.88),
-  );
-  // Tertiary: hue –shift, darker
-  const shift3 = 0.21 + (seed % 7) * 0.025;
-  const c3 = new THREE.Color().setHSL(
-    (hsl.h - shift3 + 1) % 1,
-    Math.max(hsl.s * 0.72, 0.22),
-    Math.max(hsl.l - 0.20, 0.18),
-  );
-  return [c1, c2, c3];
 }
 
 // Canonical edge-type colors — single source of truth for 3D rendering AND legend.
@@ -645,7 +536,7 @@ export function KnowledgeGraph3D({
     for (let ni = 0; ni < nodes.length; ni++) {
       const node = nodes[ni];
       const r = nodeRadius(node.connections);
-      const [c1, c2, c3] = deriveColors(getCategoryColor(node.category), ni);
+      const [c1, c2, c3] = derivePlanetColors(getCategoryColor(node.category), ni);
 
       const geo = new THREE.SphereGeometry(r, 32, 24);
       const mat = new THREE.ShaderMaterial({
@@ -667,12 +558,7 @@ export function KnowledgeGraph3D({
       mesh.position.set(node.x ?? 0, node.y ?? 0, node.z ?? 0);
 
       // Per-node rotation axis (tilted like real planets) and speed
-      const rotAxis = new THREE.Vector3(
-        Math.sin(ni * 1.618) * 0.30,
-        1.0,
-        Math.cos(ni * 2.718) * 0.25,
-      ).normalize();
-      const rotSpeed = 0.004 + (ni % 13) * 0.0009; // 0.004..0.016 rad/frame
+      const { rotAxis, rotSpeed } = getPlanetRotation(ni);
 
       mesh.userData = {
         nodeId:    node.id,
@@ -1910,41 +1796,11 @@ export function KnowledgeGraph3D({
         <div className="border-t border-zinc-700/60 mb-1.5" />
 
         {/* ── CATEGORIES section ──────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-center gap-x-2 sm:gap-x-3 gap-y-1 pb-0.5 sm:pb-0">
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500 mr-1">Nodes</span>
-          {activeCategories.map((cat) => {
-            const isHidden = hiddenCategories.has(cat);
-            return (
-              <button
-                key={cat}
-                onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
-                className={`inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] whitespace-nowrap transition-all shrink-0 ${
-                  isHidden
-                    ? 'opacity-30 hover:opacity-60'
-                    : 'opacity-90 hover:opacity-100'
-                }`}
-                title={`${isHidden ? 'Show' : 'Hide'} ${getCategoryLabel(cat)}`}
-              >
-                <span
-                  className="inline-block w-4 h-4 sm:w-5 sm:h-5 rounded-full shrink-0 sphere-legend"
-                  style={{
-                    opacity: isHidden ? 0.3 : 1,
-                    background: (() => {
-                      const c = getCategoryColor(cat);
-                      // Derive lighter and darker shades for the marble gradient
-                      // The radial gradient simulates the lit sphere look
-                      return `radial-gradient(circle at 35% 35%, ${c}ff 0%, ${c}dd 35%, ${c}77 70%, ${c}33 100%)`;
-                    })(),
-                    boxShadow: `0 0 4px 1px ${getCategoryColor(cat)}66`,
-                  }}
-                />
-                <span className={`hidden sm:inline ${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
-                  {getCategoryLabel(cat)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <LegendRenderer
+          categories={activeCategories}
+          hiddenCategories={hiddenCategories}
+          onToggleCategory={toggleCategory}
+        />
         <div className="hidden sm:block text-center text-[9px] text-zinc-600 mt-1">
           Scroll to zoom · Drag to rotate · Click node to explore
         </div>
