@@ -1,295 +1,245 @@
 {
-  "generatedAt": "2026-04-11T06:48:32.541Z",
+  "generatedAt": "2026-04-12T05:52:59.816Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-10 07:16:03 +0000",
-    "snapshots": 22
+    "to": "2026-04-11 06:48:35 +0000",
+    "snapshots": 23
   },
   "trending": [
     {
-      "name": "CLI",
+      "name": "Log Analytics",
       "type": "tag",
-      "currentActivity": 439,
-      "previousActivity": 0,
-      "changePercent": 43900,
-      "repoCount": 82,
-      "representativeRepos": [
-        "yt-dlp",
-        "node",
-        "codex"
-      ]
-    },
-    {
-      "name": "Document Processing",
-      "type": "tag",
-      "currentActivity": 251,
-      "previousActivity": 0,
-      "changePercent": 25100,
-      "repoCount": 43,
-      "representativeRepos": [
-        "dify",
-        "langextract",
-        "opendataloader-pdf"
-      ]
-    },
-    {
-      "name": "Memory-Augmented AI",
-      "type": "tag",
-      "currentActivity": 195,
-      "previousActivity": 0,
-      "changePercent": 19500,
-      "repoCount": 7,
-      "representativeRepos": [
-        "hermes-agent",
-        "letta-code"
-      ]
-    },
-    {
-      "name": "Enterprise Automation",
-      "type": "tag",
-      "currentActivity": 182,
-      "previousActivity": 0,
-      "changePercent": 18200,
+      "currentActivity": 961,
+      "previousActivity": 1,
+      "changePercent": 96000,
       "repoCount": 3,
       "representativeRepos": [
-        "hermes-agent",
-        "openai-agents-python"
+        "ClickHouse",
+        "vector",
+        "doris"
       ]
     },
     {
-      "name": "Personalized AI",
+      "name": "Real-time AI",
       "type": "tag",
-      "currentActivity": 179,
-      "previousActivity": 0,
-      "changePercent": 17900,
-      "repoCount": 6,
+      "currentActivity": 947,
+      "previousActivity": 1,
+      "changePercent": 94600,
+      "repoCount": 34,
       "representativeRepos": [
-        "hermes-agent"
+        "opencv",
+        "redis",
+        "ClickHouse"
       ]
     },
     {
-      "name": "Multi-turn Dialogue Systems",
+      "name": "AdTech",
       "type": "tag",
-      "currentActivity": 179,
-      "previousActivity": 0,
-      "changePercent": 17900,
-      "repoCount": 8,
+      "currentActivity": 936,
+      "previousActivity": 1,
+      "changePercent": 93500,
+      "repoCount": 3,
       "representativeRepos": [
-        "hermes-agent"
+        "ClickHouse",
+        "doris"
       ]
     },
     {
-      "name": "Personalized AI Tutoring",
+      "name": "Marketing Analytics",
       "type": "tag",
-      "currentActivity": 179,
+      "currentActivity": 857,
       "previousActivity": 0,
-      "changePercent": 17900,
-      "repoCount": 2,
+      "changePercent": 85700,
+      "repoCount": 7,
       "representativeRepos": [
-        "hermes-agent"
+        "ClickHouse",
+        "mindsdb",
+        "dbt-core"
       ]
     },
     {
-      "name": "Continuous Learning Systems",
+      "name": "Statistical Computing",
       "type": "tag",
-      "currentActivity": 179,
+      "currentActivity": 851,
       "previousActivity": 0,
-      "changePercent": 17900,
-      "repoCount": 2,
+      "changePercent": 85100,
+      "repoCount": 3,
       "representativeRepos": [
-        "hermes-agent"
+        "ClickHouse"
       ]
     },
     {
-      "name": "Adaptive Machine Learning",
+      "name": "OLAP Systems",
       "type": "tag",
-      "currentActivity": 179,
+      "currentActivity": 851,
       "previousActivity": 0,
-      "changePercent": 17900,
+      "changePercent": 85100,
       "repoCount": 1,
       "representativeRepos": [
-        "hermes-agent"
+        "ClickHouse"
       ]
     },
     {
-      "name": "Continuous Learning",
+      "name": "Columnar Database Design",
       "type": "tag",
-      "currentActivity": 179,
+      "currentActivity": 851,
       "previousActivity": 0,
-      "changePercent": 17900,
-      "repoCount": 2,
+      "changePercent": 85100,
+      "repoCount": 1,
       "representativeRepos": [
-        "hermes-agent"
+        "ClickHouse"
+      ]
+    },
+    {
+      "name": "Query Optimization",
+      "type": "tag",
+      "currentActivity": 851,
+      "previousActivity": 0,
+      "changePercent": 85100,
+      "repoCount": 4,
+      "representativeRepos": [
+        "ClickHouse"
+      ]
+    },
+    {
+      "name": "Data Warehousing",
+      "type": "tag",
+      "currentActivity": 851,
+      "previousActivity": 0,
+      "changePercent": 85100,
+      "repoCount": 3,
+      "representativeRepos": [
+        "ClickHouse"
+      ]
+    },
+    {
+      "name": "Distributed",
+      "type": "tag",
+      "currentActivity": 851,
+      "previousActivity": 0,
+      "changePercent": 85100,
+      "repoCount": 3,
+      "representativeRepos": [
+        "ClickHouse"
       ]
     }
   ],
   "emerging": [],
-  "cooling": [
-    {
-      "name": "Technology Research",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 50,
-      "changePercent": -100,
-      "repoCount": 4,
-      "representativeRepos": []
-    },
-    {
-      "name": "Autonomous AI Agents",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 33,
-      "changePercent": -100,
-      "repoCount": 7,
-      "representativeRepos": []
-    },
-    {
-      "name": "Productivity Software",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 39,
-      "changePercent": -100,
-      "repoCount": 10,
-      "representativeRepos": []
-    },
-    {
-      "name": "Natural Language Programming",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 6,
-      "changePercent": -100,
-      "repoCount": 7,
-      "representativeRepos": []
-    },
-    {
-      "name": "Web Data Extraction",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 16,
-      "changePercent": -100,
-      "repoCount": 4,
-      "representativeRepos": []
-    }
-  ],
+  "cooling": [],
   "stable": [
     {
-      "name": "API Integration",
+      "name": "Machine Learning Library Selection",
       "type": "tag",
-      "currentActivity": 310,
-      "previousActivity": 279,
-      "changePercent": 11,
-      "repoCount": 69,
-      "representativeRepos": [
-        "yt-dlp",
-        "langflow",
-        "dify"
-      ]
-    },
-    {
-      "name": "Model Democratization",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 4,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Audio Processing",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 14,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Multimodal Learning",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 5,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Model Fine-tuning",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 24,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Pre-trained Model Usage",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 2,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Deep Learning Frameworks",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 3,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Tokenization",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
-      "changePercent": 0,
-      "repoCount": 6,
-      "representativeRepos": [
-        "transformers"
-      ]
-    },
-    {
-      "name": "Cross-framework Compatibility",
-      "type": "tag",
-      "currentActivity": 19,
-      "previousActivity": 19,
+      "currentActivity": 14,
+      "previousActivity": 14,
       "changePercent": 0,
       "repoCount": 1,
       "representativeRepos": [
-        "transformers"
+        "awesome-python"
       ]
     },
     {
-      "name": "Named Entity Recognition",
+      "name": "Deep Learning Framework Evaluation",
       "type": "tag",
-      "currentActivity": 21,
-      "previousActivity": 19,
-      "changePercent": 11,
-      "repoCount": 21,
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 1,
       "representativeRepos": [
-        "transformers",
-        "autogluon",
-        "presidio"
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "Natural Language Processing Tools",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 2,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "Computer Vision Libraries",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 2,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "Data Science Stack Curation",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 1,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "Python Ecosystem Navigation",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 1,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "Framework Comparison and Selection",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 2,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "AI/ML Stack Planning",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 1,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "ML Engineering Best Practices",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 2,
+      "representativeRepos": [
+        "awesome-python"
+      ]
+    },
+    {
+      "name": "Deep Learning Library Evaluation",
+      "type": "tag",
+      "currentActivity": 14,
+      "previousActivity": 14,
+      "changePercent": 0,
+      "repoCount": 1,
+      "representativeRepos": [
+        "awesome-python"
       ]
     }
   ],
   "newReleases": [],
   "insights": [
-    "CLI is the fastest-growing area this week with +43900% commit velocity.",
-    "Activity in Technology Research has slowed by 100% this week."
+    "Log Analytics is the fastest-growing area this week with +96000% commit velocity."
   ]
 }

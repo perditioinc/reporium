@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 11, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 12, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**CLI** (+43900% vs last week)
-yt-dlp, node, codex are most active.
+**Log Analytics** (+96000% vs last week)
+ClickHouse, vector, doris are most active.
 
-**Document Processing** (+25100% vs last week)
-dify, langextract, opendataloader-pdf are most active.
+**Real-time AI** (+94600% vs last week)
+opencv, redis, ClickHouse are most active.
 
-**Memory-Augmented AI** (+19500% vs last week)
-hermes-agent, letta-code are most active.
+**AdTech** (+93500% vs last week)
+ClickHouse, doris are most active.
 
 ---
 
@@ -26,8 +26,7 @@ hermes-agent, letta-code are most active.
 
 ## 30-Day Summary
 - **📦 Other AI / ML** most active category (70055 commits across 1422 repos)
-- **CLI** fastest growing (+43900% commit velocity)
-- **Technology Research** cooling (-100% change in activity)
+- **Log Analytics** fastest growing (+96000% commit velocity)
 
 ---
 
