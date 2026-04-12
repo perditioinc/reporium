@@ -1,7 +1,6 @@
 /**
  * KAN-124: Category color mappings for the knowledge graph visualization.
- * Maps the 16 primary_category values to visually distinct colors
- * optimised for dark backgrounds and accessibility.
+ * Maps canonical category keys to visually distinct colors optimized for dark backgrounds.
  */
 
 export const CATEGORY_COLORS: Record<string, string> = {
@@ -50,7 +49,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
 
 const FALLBACK_COLOR = '#52525b';
 
-// Common aliases from older taxonomy / API variations → canonical kebab keys
+// Common aliases from older taxonomy / API variations -> canonical kebab keys
 const CATEGORY_ALIASES: Record<string, string> = {
   'agents':               'ai-agents',
   'ai-agent':             'ai-agents',
@@ -88,37 +87,36 @@ const CATEGORY_ALIASES: Record<string, string> = {
   'vector-databases':     'rag-retrieval',
 };
 
-// Normalize: lowercase + collapse spaces/& to hyphens
-function normalizeCategory(cat: string): string {
-  return cat.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function normalizeCategory(category: string): string {
+  return category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-// Deterministic hue from string for unknown categories
-function hashHue(s: string): number {
+function hashHue(value: string): number {
   let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h) ^ s.charCodeAt(i);
+  for (let i = 0; i < value.length; i++) h = ((h << 5) + h) ^ value.charCodeAt(i);
   return Math.abs(h) % 360;
 }
 
+export function resolveCategoryKey(category: string | null | undefined): string | null {
+  if (!category) return null;
+  if (CATEGORY_COLORS[category]) return category;
+
+  const normalized = normalizeCategory(category);
+  if (CATEGORY_COLORS[normalized]) return normalized;
+
+  return CATEGORY_ALIASES[normalized] ?? normalized;
+}
+
 export function getCategoryColor(category: string | null | undefined): string {
-  if (!category) return FALLBACK_COLOR;
-  // 1. Direct match
-  if (CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
-  // 2. Normalized match (handles "Code Generation" → "code-generation")
-  const norm = normalizeCategory(category);
-  if (CATEGORY_COLORS[norm]) return CATEGORY_COLORS[norm];
-  // 3. Alias match
-  const canonical = CATEGORY_ALIASES[norm];
-  if (canonical && CATEGORY_COLORS[canonical]) return CATEGORY_COLORS[canonical];
-  // 4. Deterministic color for unknown categories (not grey)
-  const hue = hashHue(norm);
-  return `hsl(${hue}, 65%, 55%)`;
+  const resolved = resolveCategoryKey(category);
+  if (!resolved) return FALLBACK_COLOR;
+  if (CATEGORY_COLORS[resolved]) return CATEGORY_COLORS[resolved];
+  return `hsl(${hashHue(resolved)}, 65%, 55%)`;
 }
 
 export function getCategoryLabel(category: string | null | undefined): string {
-  if (!category) return 'Uncategorized';
-  if (CATEGORY_LABELS[category]) return CATEGORY_LABELS[category];
-  const norm = normalizeCategory(category);
-  if (CATEGORY_LABELS[norm]) return CATEGORY_LABELS[norm];
-  return category;
+  const resolved = resolveCategoryKey(category);
+  if (!resolved) return 'Uncategorized';
+  if (CATEGORY_LABELS[resolved]) return CATEGORY_LABELS[resolved];
+  return resolved;
 }
