@@ -32,6 +32,7 @@ import {
 import {
   getCategoryColor,
   getCategoryLabel,
+  resolveCategoryKey,
 } from '@/lib/categoryColors';
 import {
   derivePlanetColors,
@@ -151,7 +152,7 @@ function buildNodes(
     nodes.push({
       id,
       label: id.includes('/') ? id.split('/').pop()! : id,
-      category: meta?.category ?? null,
+      category: resolveCategoryKey(meta?.category) ?? null,
       connections: count,
       x: seedX + (Math.random() - 0.5) * JITTER,
       y: yBase + (Math.random() - 0.5) * JITTER,
@@ -420,7 +421,8 @@ export function KnowledgeGraph3D({
   const activeCategories = useMemo(() => {
     const cats = new Set<string>();
     for (const [, meta] of nodeMetadata) {
-      if (meta.category) cats.add(meta.category);
+      const canonical = resolveCategoryKey(meta.category);
+      if (canonical) cats.add(canonical);
     }
     return Array.from(cats).sort();
   }, [nodeMetadata]);
