@@ -1926,14 +1926,14 @@ export function KnowledgeGraph3D({
                 title={`${isHidden ? 'Show' : 'Hide'} ${getCategoryLabel(cat)}`}
               >
                 <span
-                  className="inline-block w-3 h-3 rounded-full shrink-0"
+                  className="inline-block w-4 h-4 sm:w-5 sm:h-5 rounded-full shrink-0 sphere-legend"
                   style={{
                     opacity: isHidden ? 0.3 : 1,
                     background: (() => {
                       const c = getCategoryColor(cat);
                       // Derive lighter and darker shades for the marble gradient
                       // The radial gradient simulates the lit sphere look
-                      return `radial-gradient(circle at 35% 35%, ${c}ff 0%, ${c}cc 40%, ${c}66 75%, ${c}22 100%)`;
+                      return `radial-gradient(circle at 35% 35%, ${c}ff 0%, ${c}dd 35%, ${c}77 70%, ${c}33 100%)`;
                     })(),
                     boxShadow: `0 0 4px 1px ${getCategoryColor(cat)}66`,
                   }}

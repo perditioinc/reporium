@@ -36,6 +36,23 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sphere-legend {
+  animation: spin-slow 8s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sphere-legend {
+    animation: none;
+  }
+}
+
 /* Hide scrollbars globally while keeping scroll functional */
 @layer base {
   *, *::before, *::after {
