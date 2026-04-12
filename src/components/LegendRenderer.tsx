@@ -62,6 +62,9 @@ export function LegendRenderer({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    const initialRect = container.getBoundingClientRect();
+    const initialWidth = Math.max(Math.round(initialRect.width), 1);
+    const initialHeight = Math.max(Math.round(initialRect.height), 1);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -81,8 +84,9 @@ export function LegendRenderer({
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    const camera = new THREE.OrthographicCamera(0, 1, 1, 0, -500, 500);
-    camera.position.set(0, 0, 160);
+    const camera = new THREE.OrthographicCamera(0, initialWidth, initialHeight, 0, -500, 500);
+    camera.position.set(initialWidth / 2, initialHeight / 2, 160);
+    camera.lookAt(initialWidth / 2, initialHeight / 2, 0);
     cameraRef.current = camera;
 
     sphereGeoRef.current = new THREE.SphereGeometry(1, 24, 18);
