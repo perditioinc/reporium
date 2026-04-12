@@ -7,14 +7,17 @@
 export const CATEGORY_COLORS: Record<string, string> = {
   'foundation-models':    '#3b82f6', // blue
   'ai-agents':            '#f59e0b', // amber
+  'datasets':             '#34d399', // emerald
   'rag-retrieval':        '#8b5cf6', // violet
   'model-training':       '#ef4444', // red
   'evals-benchmarking':   '#22c55e', // green
+  'other':                '#6b7280', // gray
   'observability':        '#14b8a6', // teal
   'deployment-inference': '#06b6d4', // cyan
   'code-generation':      '#6366f1', // indigo
   'data-engineering':     '#84cc16', // lime
   'security-safety':      '#f97316', // orange
+  'tooling':              '#f59e0b', // amber
   'ui-frontend':          '#ec4899', // pink
   'mlops':                '#a855f7', // purple
   'multimodal':           '#0ea5e9', // sky
@@ -26,14 +29,17 @@ export const CATEGORY_COLORS: Record<string, string> = {
 export const CATEGORY_LABELS: Record<string, string> = {
   'foundation-models':    'Foundation Models',
   'ai-agents':            'AI Agents',
+  'datasets':             'Datasets',
   'rag-retrieval':        'RAG & Retrieval',
   'model-training':       'Model Training',
   'evals-benchmarking':   'Evals & Benchmarking',
+  'other':                'Other',
   'observability':        'Observability',
   'deployment-inference': 'Deployment & Inference',
   'code-generation':      'Code Generation',
   'data-engineering':     'Data Engineering',
   'security-safety':      'Security & Safety',
+  'tooling':              'Tooling',
   'ui-frontend':          'UI & Frontend',
   'mlops':                'MLOps',
   'multimodal':           'Multimodal',
