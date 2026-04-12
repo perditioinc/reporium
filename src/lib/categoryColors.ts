@@ -5,25 +5,25 @@
  */
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  'foundation-models':    '#3b82f6', // blue
-  'ai-agents':            '#f59e0b', // amber
-  'datasets':             '#34d399', // emerald
-  'rag-retrieval':        '#8b5cf6', // violet
-  'model-training':       '#ef4444', // red
-  'evals-benchmarking':   '#22c55e', // green
+  'foundation-models':    '#4078e7', // royal blue
+  'ai-agents':            '#e7b040', // gold
+  'datasets':             '#40e778', // spring green
+  'rag-retrieval':        '#40e7b0', // jade
+  'model-training':       '#e74040', // scarlet
+  'evals-benchmarking':   '#78e740', // lime green
   'other':                '#6b7280', // gray
-  'observability':        '#14b8a6', // teal
-  'deployment-inference': '#06b6d4', // cyan
-  'code-generation':      '#6366f1', // indigo
-  'data-engineering':     '#84cc16', // lime
-  'security-safety':      '#f97316', // orange
-  'tooling':              '#f59e0b', // amber
-  'ui-frontend':          '#ec4899', // pink
-  'mlops':                '#a855f7', // purple
-  'multimodal':           '#0ea5e9', // sky
-  'robotics-embodied':    '#d946ef', // fuchsia
-  'research-papers':      '#f43f5e', // rose
-  'developer-tools':      '#78716c', // stone
+  'observability':        '#40e7e7', // aqua
+  'deployment-inference': '#40b0e7', // sky blue
+  'code-generation':      '#4040e7', // indigo blue
+  'data-engineering':     '#b0e740', // chartreuse
+  'security-safety':      '#e77840', // orange
+  'tooling':              '#e7e740', // yellow
+  'ui-frontend':          '#e740b0', // hot pink
+  'mlops':                '#b040e7', // purple
+  'multimodal':           '#7840e7', // violet
+  'robotics-embodied':    '#e740e7', // magenta
+  'research-papers':      '#e74078', // rose
+  'developer-tools':      '#40e740', // vivid green
 };
 
 export const CATEGORY_LABELS: Record<string, string> = {
