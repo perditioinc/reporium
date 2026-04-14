@@ -396,6 +396,7 @@ interface KnowledgeGraphV2Props {
   nodeMetadata: Map<string, NodeMeta>;
   height?: number;
   onNodeClick?: (nodeId: string) => void;
+  selectedNodeId?: string | null;
 }
 
 export function KnowledgeGraphV2({
@@ -403,6 +404,7 @@ export function KnowledgeGraphV2({
   nodeMetadata,
   height = 560,
   onNodeClick,
+  selectedNodeId = null,
 }: KnowledgeGraphV2Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -426,6 +428,7 @@ export function KnowledgeGraphV2({
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   // Force re-render when transform changes (for React-managed UI)
   const [, setTransformTick] = useState(0);
+  const activeNodeId = hoveredId ?? selectedNodeId ?? null;
 
   // Determine if we should cluster
   const nodeCount = useMemo(() => {
@@ -561,7 +564,7 @@ export function KnowledgeGraphV2({
           linksRef.current as ClusterLink[],
           w,
           h,
-          hoveredId,
+          activeNodeId,
           dpr,
           t,
         );
@@ -572,7 +575,7 @@ export function KnowledgeGraphV2({
           linksRef.current as GLink[],
           w,
           h,
-          hoveredId,
+          activeNodeId,
           dpr,
           t,
         );
@@ -583,7 +586,7 @@ export function KnowledgeGraphV2({
 
     animRef.current = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(animRef.current);
-  }, [dimensions, hoveredId, isClusterMode, expandedCategory]);
+  }, [dimensions, activeNodeId, isClusterMode, expandedCategory]);
 
   // Zoom with mouse wheel
   useEffect(() => {

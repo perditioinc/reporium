@@ -1,22 +1,22 @@
 'use client';
 
 /**
- * KAN-124: 3D constellation knowledge graph widget for the home page.
- * Fetches edges from the API and renders an interactive 3D graph
- * with zoom, rotation, info bubbles, and fullscreen support.
+ * KAN-124: Stable knowledge graph widget for the home page.
+ * Fetches edges from the API and renders a lightweight canvas graph
+ * that stays visible even when WebGL is flaky on the client.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraphV2';
 import { loadGraphDataset } from '@/lib/graphData';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
 // Dynamic import — Three.js doesn't work with SSR/static export
-const KnowledgeGraph3D = dynamic(
-  () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
+const KnowledgeGraph = dynamic(
+  () => import('@/components/KnowledgeGraphV2').then((m) => ({ default: m.KnowledgeGraphV2 })),
   { ssr: false },
 );
 
@@ -99,7 +99,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
           <h2 className="text-sm font-semibold text-zinc-200">Knowledge Graph</h2>
           <p className="text-xs text-zinc-500 mt-0.5">
             {loading
-              ? 'Loading constellation...'
+              ? 'Loading graph...'
               : `${nodeCount} repos \u00b7 ${(totalEdges || edges.length).toLocaleString()} connections`}
           </p>
           {!loading && statusMessage && (
@@ -112,7 +112,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
         <div className="flex items-center justify-center h-[420px]">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading constellation...
+            Loading graph...
           </span>
         </div>
       ) : error ? (
@@ -128,18 +128,17 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
           fallback={
             <GraphFallbackPanel
               title="Knowledge graph preview unavailable"
-              message="Interactive rendering failed in this browser session. You can still open the dedicated graph page."
+              message="Graph rendering failed in this browser session. You can still open the dedicated graph page."
               compact
               height={420}
             />
           }
         >
-          <KnowledgeGraph3D
+          <KnowledgeGraph
             edges={edges}
             nodeMetadata={nodeMetadata}
             height={420}
             onNodeClick={handleNodeClick}
-            compact
             selectedNodeId={selectedRepoName}
           />
         </ErrorBoundary>

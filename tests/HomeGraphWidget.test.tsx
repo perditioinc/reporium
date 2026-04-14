@@ -12,7 +12,7 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/dynamic', () => {
   return () => {
-    const MockGraph = require('@/components/KnowledgeGraph3D').KnowledgeGraph3D;
+    const MockGraph = require('@/components/KnowledgeGraphV2').KnowledgeGraphV2;
     return MockGraph;
   };
 });
@@ -21,8 +21,8 @@ jest.mock('@/lib/graphData', () => ({
   loadGraphDataset: (...args: unknown[]) => loadGraphDataset(...args),
 }));
 
-jest.mock('@/components/KnowledgeGraph3D', () => ({
-  KnowledgeGraph3D: ({ onNodeClick }: { onNodeClick?: (id: string) => void }) => (
+jest.mock('@/components/KnowledgeGraphV2', () => ({
+  KnowledgeGraphV2: ({ onNodeClick }: { onNodeClick?: (id: string) => void }) => (
     <button type="button" onClick={() => onNodeClick?.('perditioinc/reporium-api')}>
       Graph canvas
     </button>
