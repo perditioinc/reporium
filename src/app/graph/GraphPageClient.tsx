@@ -11,6 +11,8 @@ import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
 import { API_URL as CLIENT_API_URL } from '@/lib/apiUrl';
 import { loadGraphDataset } from '@/lib/graphData';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
 const KnowledgeGraph3D = dynamic(
   () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
@@ -128,18 +130,35 @@ export function GraphPageClient() {
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-400">
-          Failed to load knowledge graph: {error}
-        </div>
+        <GraphFallbackPanel
+          title="Knowledge graph unavailable"
+          message="We couldn't load the live dataset for the graph right now."
+          detail={error}
+          height={600}
+          actionHref="/"
+          actionLabel="Back to library"
+        />
       )}
 
       {!loading && !error && (
-        <KnowledgeGraph3D
-          edges={allEdges}
-          nodeMetadata={nodeMetadata}
-          height={600}
-          onNodeClick={handleNodeClick}
-        />
+        <ErrorBoundary
+          fallback={
+            <GraphFallbackPanel
+              title="Knowledge graph renderer unavailable"
+              message="The dataset loaded, but interactive 3D rendering failed in this browser session."
+              height={600}
+              actionHref="/"
+              actionLabel="Back to library"
+            />
+          }
+        >
+          <KnowledgeGraph3D
+            edges={allEdges}
+            nodeMetadata={nodeMetadata}
+            height={600}
+            onNodeClick={handleNodeClick}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );
