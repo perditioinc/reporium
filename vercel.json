@@ -1,6 +1,6 @@
 {
   "fluid": true,
-  "buildCommand": "npm run generate || echo 'Generate failed, using existing library.json' && npm run build",
+  "buildCommand": "npm run generate:resilient && npm run build",
   "headers": [
     {
       "source": "/(.*)",
