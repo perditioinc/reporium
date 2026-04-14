@@ -10,53 +10,20 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
 import { API_URL as CLIENT_API_URL } from '@/lib/apiUrl';
+import { loadGraphDataset } from '@/lib/graphData';
 
 const KnowledgeGraph3D = dynamic(
   () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
   { ssr: false },
 );
 
-interface ApiRepoNode {
-  name: string;
-  description?: string | null;
-  category?: string | null;
-  upstream?: string | null;
-  owner?: string | null;
-}
-
-interface ApiEdge {
-  source?: ApiRepoNode;
-  target?: ApiRepoNode;
-  source_name?: string;
-  source_owner?: string;
-  source_upstream?: string;
-  target_name?: string;
-  target_owner?: string;
-  target_upstream?: string;
-  edgeType?: string;
-  edge_type?: string;
-  weight?: number;
-  evidence?: string | Record<string, unknown>;
-}
-
-interface ApiResponse {
-  total?: number;
-  total_repos?: number;
-  total_edges?: number;
-  total_knowledge_graph_edges?: number;
-  edges: ApiEdge[];
-}
-
-interface GraphPageClientProps {
-  apiUrl: string;
-}
-
-export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
+export function GraphPageClient() {
   const router = useRouter();
   const [allEdges, setAllEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
   const [totalGraphEdges, setTotalGraphEdges] = useState(0);
   const [limit, setLimit] = useState(5000);
@@ -65,65 +32,24 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setStatusMessage(null);
 
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      limit: String(limit),
-      neighbours: '5',
-      min_similarity: '0.5',
-    });
-
-    fetch(`${CLIENT_API_URL}/graph/edges?${params}`, {
+    loadGraphDataset({
+      apiUrl: CLIENT_API_URL,
+      limit,
+      neighbours: 5,
+      minSimilarity: 0.5,
       signal: controller.signal,
-      headers: { Accept: 'application/json' },
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        const data: ApiResponse = await res.json();
+      .then((dataset) => {
         if (cancelled) return;
 
-        setTotalRepos(data.total_repos ?? 0);
-        setTotalGraphEdges(data.total_knowledge_graph_edges ?? data.total ?? 0);
-
-        const nodeId = (
-          node: ApiRepoNode | undefined,
-          flatUpstream?: string,
-          flatOwner?: string,
-          flatName?: string,
-        ): string => {
-          if (node) {
-            return node.upstream ?? (node.owner ? `${node.owner}/${node.name}` : node.name);
-          }
-          return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
-        };
-
-        const edges: GraphEdge[] = data.edges.map((e) => ({
-          source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
-          target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
-          edge_type: e.edgeType ?? e.edge_type ?? 'SIMILAR_TO',
-          weight: e.weight,
-        }));
-
-        const meta = new Map<string, NodeMeta>();
-        for (const e of data.edges) {
-          const srcId = nodeId(e.source, e.source_upstream, e.source_owner, e.source_name);
-          const tgtId = nodeId(e.target, e.target_upstream, e.target_owner, e.target_name);
-          if (!meta.has(srcId) && e.source) {
-            meta.set(srcId, {
-              category: e.source.category ?? null,
-              description: e.source.description ?? null,
-            });
-          }
-          if (!meta.has(tgtId) && e.target) {
-            meta.set(tgtId, {
-              category: e.target.category ?? null,
-              description: e.target.description ?? null,
-            });
-          }
-        }
-
-        setAllEdges(edges);
-        setNodeMetadata(meta);
+        setTotalRepos(dataset.totalRepos);
+        setTotalGraphEdges(dataset.totalEdges);
+        setAllEdges(dataset.edges);
+        setNodeMetadata(dataset.nodeMetadata);
+        setStatusMessage(dataset.message);
         setLoading(false);
       })
       .catch((err) => {
@@ -145,7 +71,8 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
 
   const handleNodeClick = useCallback(
     (id: string) => {
-      router.push(`/repo/${id}`);
+      const name = id.includes('/') ? id.split('/').pop()! : id;
+      router.push(`/repo/${name}`);
     },
     [router],
   );
@@ -182,6 +109,12 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
           {nodeCount} repos &middot; {allEdges.length.toLocaleString()} edges
           {totalRepos > nodeCount ? ` \u00b7 ${totalRepos.toLocaleString()} in library` : ''}
         </p>
+      )}
+
+      {!loading && !error && statusMessage && (
+        <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">
+          {statusMessage}
+        </div>
       )}
 
       {/* Graph */}

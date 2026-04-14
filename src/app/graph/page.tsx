@@ -19,11 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
-  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
-}
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
-
 export default function GraphPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -38,7 +33,7 @@ export default function GraphPage() {
           </p>
         </div>
 
-        <GraphPageClient apiUrl={API_URL} />
+        <GraphPageClient />
       </main>
     </div>
   );
