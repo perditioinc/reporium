@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
 import { loadGraphDataset } from '@/lib/graphData';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
 // Dynamic import — Three.js doesn't work with SSR/static export
 const KnowledgeGraph3D = dynamic(
@@ -90,12 +92,6 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     [router, onGraphNodeSelect],
   );
 
-  // Don't render anything if graph fails to load (logged for debugging)
-  if (error) {
-    if (typeof window !== 'undefined') console.warn('[HomeGraphWidget] Graph load failed:', error);
-    return null;
-  }
-
   return (
     <div className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
@@ -119,15 +115,34 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
             Loading constellation...
           </span>
         </div>
-      ) : (
-        <KnowledgeGraph3D
-          edges={edges}
-          nodeMetadata={nodeMetadata}
-          height={420}
-          onNodeClick={handleNodeClick}
+      ) : error ? (
+        <GraphFallbackPanel
+          title="Knowledge graph temporarily unavailable"
+          message="The homepage preview could not load, but the graph route is still available."
+          detail={error}
           compact
-          selectedNodeId={selectedRepoName}
+          height={420}
         />
+      ) : (
+        <ErrorBoundary
+          fallback={
+            <GraphFallbackPanel
+              title="Knowledge graph preview unavailable"
+              message="Interactive rendering failed in this browser session. You can still open the dedicated graph page."
+              compact
+              height={420}
+            />
+          }
+        >
+          <KnowledgeGraph3D
+            edges={edges}
+            nodeMetadata={nodeMetadata}
+            height={420}
+            onNodeClick={handleNodeClick}
+            compact
+            selectedNodeId={selectedRepoName}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );
