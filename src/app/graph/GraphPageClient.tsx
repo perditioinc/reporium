@@ -8,14 +8,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraphV2';
 import { API_URL as CLIENT_API_URL } from '@/lib/apiUrl';
 import { loadGraphDataset } from '@/lib/graphData';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
-const KnowledgeGraph3D = dynamic(
-  () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
+const KnowledgeGraph = dynamic(
+  () => import('@/components/KnowledgeGraphV2').then((m) => ({ default: m.KnowledgeGraphV2 })),
   { ssr: false },
 );
 
@@ -84,8 +84,8 @@ export function GraphPageClient() {
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-xs text-zinc-500">
-          3D constellation of your AI repo library. Scroll to zoom, drag to rotate, right-drag to pan.
-          Click a node for details.
+          Interactive knowledge graph of your AI repo library. Scroll to zoom, drag to reposition,
+          and click a node for details.
         </p>
         {/* Edge count slider */}
         <div className="flex items-center gap-3 min-w-[220px]">
@@ -124,7 +124,7 @@ export function GraphPageClient() {
         <div className="flex items-center justify-center h-[600px] rounded-xl border border-zinc-800 bg-[#0a0a0f]">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading constellation...
+            Loading graph...
           </span>
         </div>
       )}
@@ -145,14 +145,14 @@ export function GraphPageClient() {
           fallback={
             <GraphFallbackPanel
               title="Knowledge graph renderer unavailable"
-              message="The dataset loaded, but interactive 3D rendering failed in this browser session."
+              message="The dataset loaded, but graph rendering failed in this browser session."
               height={600}
               actionHref="/"
               actionLabel="Back to library"
             />
           }
         >
-          <KnowledgeGraph3D
+          <KnowledgeGraph
             edges={allEdges}
             nodeMetadata={nodeMetadata}
             height={600}
