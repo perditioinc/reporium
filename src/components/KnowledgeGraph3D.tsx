@@ -427,6 +427,16 @@ export function KnowledgeGraph3D({
     return Array.from(cats).sort();
   }, [nodeMetadata]);
 
+  // Edge types actually present in the loaded edges — legend only shows these
+  const presentEdgeTypes = useMemo(() => {
+    const set = new Set<string>();
+    for (const edge of edges) {
+      const t = (edge.edge_type || 'SIMILAR_TO').toUpperCase();
+      set.add(t);
+    }
+    return set;
+  }, [edges]);
+
   // Build node/link data (edgeIndex rebuilt per-type in useEffect)
   const { nodes, links, adjacency } = useMemo(() => {
     const nodes = buildNodes(edges, nodeMetadata);
@@ -1774,35 +1784,45 @@ export function KnowledgeGraph3D({
         isFullscreen ? 'bottom-4 left-2 right-2 sm:left-4 sm:right-4' : 'bottom-2 left-2 right-2'
       } rounded-lg bg-zinc-900/85 backdrop-blur-sm px-2 sm:px-3 py-1.5 sm:py-2 z-10`}>
 
-        {/* ── EDGE TYPES section ──────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 pb-1.5">
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500 mr-1">Edges</span>
-          {[
-            { color: EDGE_TYPE_HEX.ALTERNATIVE_TO,  label: 'Alternative' },
-            { color: EDGE_TYPE_HEX.COMPATIBLE_WITH,  label: 'Compatible'  },
-            { color: EDGE_TYPE_HEX.DEPENDS_ON,       label: 'Dependency'  },
-            { color: EDGE_TYPE_HEX.EXTENDS,           label: 'Extends'     },
-          ].map(({ color, label }) => (
-            <span key={label} className="inline-flex items-center gap-1.5 text-[9px] text-zinc-400">
-              <span className="inline-block w-5 h-[2px] rounded-full" style={{ backgroundColor: color }} />
-              {label}
-            </span>
-          ))}
-          <span className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
-            <span className="inline-block w-5 h-[2px] rounded-full bg-gradient-to-r from-violet-400 via-teal-400 to-amber-400 opacity-70" />
-            Similarity
-          </span>
-        </div>
+        {/* ── EDGE TYPES section — only types actually present in the data ─── */}
+        {presentEdgeTypes.size > 0 && (
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 pb-1.5">
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500 mr-1">Edges</span>
+            {[
+              { key: 'ALTERNATIVE_TO',  color: EDGE_TYPE_HEX.ALTERNATIVE_TO,  label: 'Alternative' },
+              { key: 'COMPATIBLE_WITH', color: EDGE_TYPE_HEX.COMPATIBLE_WITH, label: 'Compatible'  },
+              { key: 'DEPENDS_ON',      color: EDGE_TYPE_HEX.DEPENDS_ON,      label: 'Dependency'  },
+              { key: 'EXTENDS',         color: EDGE_TYPE_HEX.EXTENDS,         label: 'Extends'     },
+            ]
+              .filter(({ key }) => presentEdgeTypes.has(key))
+              .map(({ color, label }) => (
+                <span key={label} className="inline-flex items-center gap-1.5 text-[9px] text-zinc-400">
+                  <span className="inline-block w-5 h-[2px] rounded-full" style={{ backgroundColor: color }} />
+                  {label}
+                </span>
+              ))}
+            {presentEdgeTypes.has('SIMILAR_TO') && (
+              <span className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
+                <span className="inline-block w-5 h-[2px] rounded-full bg-gradient-to-r from-violet-400 via-teal-400 to-amber-400 opacity-70" />
+                Similarity
+              </span>
+            )}
+          </div>
+        )}
 
-        {/* Divider */}
-        <div className="border-t border-zinc-700/60 mb-1.5" />
+        {/* Divider only when both sections render */}
+        {presentEdgeTypes.size > 0 && activeCategories.length > 0 && (
+          <div className="border-t border-zinc-700/60 mb-1.5" />
+        )}
 
-        {/* ── CATEGORIES section ──────────────────────────────────────────── */}
-        <LegendRenderer
-          categories={activeCategories}
-          hiddenCategories={hiddenCategories}
-          onToggleCategory={toggleCategory}
-        />
+        {/* ── CATEGORIES section — only when categories exist ────────────── */}
+        {activeCategories.length > 0 && (
+          <LegendRenderer
+            categories={activeCategories}
+            hiddenCategories={hiddenCategories}
+            onToggleCategory={toggleCategory}
+          />
+        )}
         <div className="hidden sm:block text-center text-[9px] text-zinc-600 mt-1">
           Scroll to zoom · Drag to rotate · Click node to explore
         </div>
