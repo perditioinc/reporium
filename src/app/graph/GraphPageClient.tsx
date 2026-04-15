@@ -28,7 +28,7 @@ export function GraphPageClient() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
   const [totalGraphEdges, setTotalGraphEdges] = useState(0);
-  const [limit, setLimit] = useState(5000);
+  const [limit, setLimit] = useState(10000);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,22 +87,24 @@ export function GraphPageClient() {
           Interactive knowledge graph of your AI repo library. Scroll to zoom, drag to reposition,
           and click a node for details.
         </p>
-        {/* Edge count slider */}
-        <div className="flex items-center gap-3 min-w-[220px]">
-          <label className="text-xs text-zinc-500 shrink-0">Edges</label>
-          <input
-            type="range"
-            min={1000}
-            max={Math.max(totalGraphEdges || 20000, limit)}
-            step={1000}
-            value={limit}
-            onChange={(e) => setLimit(Number(e.target.value))}
-            className="w-32 accent-zinc-400"
-          />
-          <span className="text-xs text-zinc-400 tabular-nums w-16 text-right">
-            {limit.toLocaleString()}
-          </span>
-        </div>
+        {/* Edge count slider — caps at actual total edges in graph (no hard cap) */}
+        {totalGraphEdges > 0 && (
+          <div className="flex items-center gap-3 min-w-[220px]">
+            <label className="text-xs text-zinc-500 shrink-0">Edges</label>
+            <input
+              type="range"
+              min={500}
+              max={totalGraphEdges}
+              step={500}
+              value={Math.min(limit, totalGraphEdges)}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className="w-32 accent-zinc-400"
+            />
+            <span className="text-xs text-zinc-400 tabular-nums w-16 text-right">
+              {Math.min(limit, totalGraphEdges).toLocaleString()}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Stats */}

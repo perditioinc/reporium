@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { getCategoryColor, getCategoryLabel } from '@/lib/categoryColors';
 import {
@@ -49,7 +49,6 @@ export function LegendRenderer({
   const measureRef = useRef<(() => void) | null>(null);
   const buildEntriesRef = useRef<(() => void) | null>(null);
   const reduceMotionRef = useRef(false);
-  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     hiddenCategoriesRef.current = hiddenCategories;
@@ -182,7 +181,6 @@ export function LegendRenderer({
       needsLayoutRef.current = true;
       requestAnimationFrame(() => {
         measureRef.current?.();
-        setIsReady(entriesRef.current.size > 0);
       });
     };
     buildEntriesRef.current = buildEntries;
@@ -274,7 +272,6 @@ export function LegendRenderer({
       cameraRef.current = null;
       buildEntriesRef.current = null;
       measureRef.current = null;
-      setIsReady(false);
     };
   }, []);
 
@@ -310,7 +307,11 @@ export function LegendRenderer({
                 ref={setSlotRef(category)}
                 className="inline-block w-4 h-4 sm:w-5 sm:h-5 rounded-full shrink-0"
                 style={{
-                  opacity: isReady ? 0 : (isHidden ? 0.3 : 1),
+                  // Always keep the CSS gradient dot visible as the base — the
+                  // WebGL sphere overlays it when positioned. If the measurement
+                  // pass misses a slot (layout race, multi-row wrap), this dot
+                  // guarantees every category shows a sphere next to its label.
+                  opacity: isHidden ? 0.3 : 1,
                   background: `radial-gradient(circle at 35% 35%, ${color}ff 0%, ${color}dd 35%, ${color}77 70%, ${color}33 100%)`,
                   boxShadow: `0 0 4px 1px ${color}66`,
                 }}

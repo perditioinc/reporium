@@ -47,7 +47,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
 
     loadGraphDataset({
       apiUrl: API_URL,
-      limit: 800,
+      limit: 10000,
       neighbours: 5,
       minSimilarity: 0.4,
       signal: controller.signal,
