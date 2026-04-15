@@ -38,8 +38,17 @@ jobs:
         env:
           NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
 
-      - name: Generate library data with snapshot fallback
-        run: npm run generate:resilient
+      - name: Generate library data (skip if fresh <24h)
+        run: |
+          LAST_COMMIT_TS=$(git log -1 --format="%ct" -- public/data/library.json 2>/dev/null || echo 0)
+          NOW=$(date +%s)
+          AGE=$(( NOW - LAST_COMMIT_TS ))
+          if [ "$AGE" -lt 86400 ] && [ -f public/data/library.json ]; then
+            echo "library.json last updated ${AGE}s ago (<24h) — skipping generate"
+          else
+            echo "library.json is stale (${AGE}s old) — running generate:resilient"
+            npm run generate:resilient
+          fi
         env:
           NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
