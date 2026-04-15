@@ -122,6 +122,13 @@ function buildNodes(
   const SPREAD = 120; // quadrant offset magnitude
   const JITTER = 80;  // random scatter within quadrant
 
+  // Also include isolated repos (in metadata but not in any edge)
+  for (const id of metadata.keys()) {
+    if (!connCount.has(id)) {
+      connCount.set(id, 0);
+    }
+  }
+
   const nodes: GNode[] = [];
   for (const [id, count] of connCount) {
     const meta = metadata.get(id);
