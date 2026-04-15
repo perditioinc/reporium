@@ -2,10 +2,7 @@ import type { Metadata } from 'next';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { AskPanel } from '@/components/AskPanel';
 
-if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
-  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
-}
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
 
 export const metadata: Metadata = {
   title: 'Ask Reporium - Natural language search',

@@ -13,11 +13,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { SimilarRepo } from '@/types/repo';
-
-if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
-  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
-}
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
+import { API_URL } from '@/lib/apiUrl';
 
 const VIEWED_KEY = 'reporium_viewed_repos';
 const MAX_VIEWED = 10;
