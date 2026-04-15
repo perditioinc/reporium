@@ -9,14 +9,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraphV2';
+import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
 import { loadGraphDataset } from '@/lib/graphData';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
 // Dynamic import — Three.js doesn't work with SSR/static export
 const KnowledgeGraph = dynamic(
-  () => import('@/components/KnowledgeGraphV2').then((m) => ({ default: m.KnowledgeGraphV2 })),
+  () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
   { ssr: false },
 );
 
