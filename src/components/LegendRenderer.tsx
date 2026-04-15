@@ -84,8 +84,8 @@ export function LegendRenderer({
     sceneRef.current = scene;
 
     const camera = new THREE.OrthographicCamera(0, initialWidth, initialHeight, 0, -500, 500);
-    camera.position.set(initialWidth / 2, initialHeight / 2, 160);
-    camera.lookAt(initialWidth / 2, initialHeight / 2, 0);
+    camera.position.set(0, 0, 160);
+    camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
     sphereGeoRef.current = new THREE.SphereGeometry(1, 24, 18);
@@ -195,8 +195,8 @@ export function LegendRenderer({
       camera.right = width;
       camera.top = height;
       camera.bottom = 0;
-      camera.position.set(width / 2, height / 2, 160);
-      camera.lookAt(width / 2, height / 2, 0);
+      camera.position.set(0, 0, 160);
+      camera.lookAt(0, 0, 0);
       camera.updateProjectionMatrix();
       needsLayoutRef.current = true;
     };
