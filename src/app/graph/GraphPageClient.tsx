@@ -41,7 +41,7 @@ export function GraphPageClient() {
       apiUrl: CLIENT_API_URL,
       limit,
       neighbours: 5,
-      minSimilarity: 0.5,
+      minSimilarity: 0.4,
       signal: controller.signal,
     })
       .then((dataset) => {
