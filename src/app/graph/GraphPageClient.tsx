@@ -67,8 +67,8 @@ export function GraphPageClient() {
   }, [limit]);
 
   const nodeCount = useMemo(
-    () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
-    [allEdges],
+    () => nodeMetadata.size || new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
+    [nodeMetadata, allEdges],
   );
 
   const handleNodeClick = useCallback(

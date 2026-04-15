@@ -28,6 +28,7 @@ interface ApiResponse {
   total_repos?: number
   total_edges?: number
   total_knowledge_graph_edges?: number
+  nodes?: ApiRepoNode[]
   edges: ApiEdge[]
 }
 
@@ -159,19 +160,32 @@ function mapApiResponse(data: ApiResponse): GraphDataset {
   }))
 
   const nodeMetadata = new Map<string, NodeMeta>()
+
+  // Seed from the full nodes array first — this captures isolated repos with no edges
+  if (data.nodes) {
+    for (const node of data.nodes) {
+      const id = apiNodeId(node)
+      nodeMetadata.set(id, {
+        category: node.category ?? null,
+        description: node.description ?? null,
+      })
+    }
+  }
+
+  // Supplement / overwrite from edge endpoints (edges carry category/description too)
   for (const edge of data.edges) {
     const sourceId = apiNodeId(edge.source, edge.source_upstream, edge.source_owner, edge.source_name)
     const targetId = apiNodeId(edge.target, edge.target_upstream, edge.target_owner, edge.target_name)
-    if (!nodeMetadata.has(sourceId) && edge.source) {
+    if (edge.source) {
       nodeMetadata.set(sourceId, {
-        category: edge.source.category ?? null,
-        description: edge.source.description ?? null,
+        category: edge.source.category ?? nodeMetadata.get(sourceId)?.category ?? null,
+        description: edge.source.description ?? nodeMetadata.get(sourceId)?.description ?? null,
       })
     }
-    if (!nodeMetadata.has(targetId) && edge.target) {
+    if (edge.target) {
       nodeMetadata.set(targetId, {
-        category: edge.target.category ?? null,
-        description: edge.target.description ?? null,
+        category: edge.target.category ?? nodeMetadata.get(targetId)?.category ?? null,
+        description: edge.target.description ?? nodeMetadata.get(targetId)?.description ?? null,
       })
     }
   }

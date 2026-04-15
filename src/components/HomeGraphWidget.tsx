@@ -74,8 +74,8 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
   }, []);
 
   const nodeCount = useMemo(
-    () => new Set(edges.flatMap((e) => [e.source, e.target])).size,
-    [edges],
+    () => nodeMetadata.size || new Set(edges.flatMap((e) => [e.source, e.target])).size,
+    [nodeMetadata, edges],
   );
 
   const handleNodeClick = useCallback(
