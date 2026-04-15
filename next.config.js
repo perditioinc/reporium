@@ -1,3 +1,6 @@
+// @ts-check
+const { withSentryConfig } = require('@sentry/nextjs');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -19,4 +22,11 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(nextConfig, {
+  // Suppress Sentry build-time logs (sourcemap upload etc.)
+  silent: true,
+  // Static export: no server-side Sentry route instrumentation needed
+  autoInstrumentServerFunctions: false,
+  // Disable source map upload (no auth token configured yet)
+  disableSourceMapUpload: true,
+});
