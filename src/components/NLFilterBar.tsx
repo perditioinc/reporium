@@ -13,13 +13,9 @@
 
 import { useState, useRef } from 'react';
 import type { NLFilterResult } from '@/types/repo';
+import { API_URL } from '@/lib/apiUrl';
 
 const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
-
-if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
-  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
-}
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
 
 interface NLFilterBarProps {
   onApply: (result: NLFilterResult) => void;

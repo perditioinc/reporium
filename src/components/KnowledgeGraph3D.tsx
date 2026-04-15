@@ -32,7 +32,15 @@ import {
 import {
   getCategoryColor,
   getCategoryLabel,
+  resolveCategoryKey,
 } from '@/lib/categoryColors';
+import {
+  derivePlanetColors,
+  getPlanetRotation,
+  PLANET_FRAG,
+  PLANET_VERT,
+} from '@/lib/planetShader';
+import { LegendRenderer } from '@/components/LegendRenderer';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -68,7 +76,7 @@ interface GLink extends SimulationLinkDatum<GNode> {
 // ---------------------------------------------------------------------------
 function nodeRadius(connections: number): number {
   // Log-scale for high-connection nodes to prevent a few giant spheres
-  return 1.3 + Math.min(Math.sqrt(connections) * 0.6, 4.0);
+  return 3.0 + Math.min(Math.sqrt(connections) * 1.4, 8.0);
 }
 
 /**
@@ -144,7 +152,7 @@ function buildNodes(
     nodes.push({
       id,
       label: id.includes('/') ? id.split('/').pop()! : id,
-      category: meta?.category ?? null,
+      category: resolveCategoryKey(meta?.category) ?? null,
       connections: count,
       x: seedX + (Math.random() - 0.5) * JITTER,
       y: yBase + (Math.random() - 0.5) * JITTER,
@@ -355,6 +363,7 @@ export function KnowledgeGraph3D({
   const animFrameRef = useRef<number>(0);
   const nodesRef = useRef<GNode[]>([]);
   const nodeMeshesRef = useRef<THREE.Mesh[]>([]);
+  const timeUniformRef = useRef<{ value: number }>({ value: 0.0 });
   const lineRef = useRef<THREE.LineSegments | null>(null);
   const glowMeshesRef = useRef<THREE.Mesh[]>([]);
   const raycasterRef = useRef(new THREE.Raycaster());
@@ -406,13 +415,14 @@ export function KnowledgeGraph3D({
   const [isAutoRotating, setIsAutoRotating] = useState(true);
   const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
   // Track which node IDs are connected to hovered/selected node for the info panel
-  const [connectedNames, setConnectedNames] = useState<string[]>([]);
+  const [connectedNames, setConnectedNames] = useState<{ id: string; edgeType: string }[]>([]);
 
   // Active categories for legend
   const activeCategories = useMemo(() => {
     const cats = new Set<string>();
     for (const [, meta] of nodeMetadata) {
-      if (meta.category) cats.add(meta.category);
+      const canonical = resolveCategoryKey(meta.category);
+      if (canonical) cats.add(canonical);
     }
     return Array.from(cats).sort();
   }, [nodeMetadata]);
@@ -505,11 +515,14 @@ export function KnowledgeGraph3D({
     controls.enablePan = true;
     controlsRef.current = controls;
 
-    // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.2);
-    dirLight.position.set(100, 100, 100);
-    scene.add(dirLight);
+    // Lights — ambient + two directional for 3D planet shading
+    scene.add(new THREE.AmbientLight(0xffffff, 0.12));
+    const dirLight1 = new THREE.DirectionalLight(0xfff5e0, 0.85);
+    dirLight1.position.set(150, 200, 300);
+    scene.add(dirLight1);
+    const dirLight2 = new THREE.DirectionalLight(0xc0d8ff, 0.30);
+    dirLight2.position.set(-200, -80, 150);
+    scene.add(dirLight2);
 
     // Store refs
     nodesRef.current = nodes;
@@ -517,33 +530,55 @@ export function KnowledgeGraph3D({
     linksRef.current = links;
     // edgeIndexRef will be rebuilt after link-type split to cover simLinks only
 
-    // Create node meshes
+    // Create planet-marble node meshes
     const meshes: THREE.Mesh[] = [];
     const glows: THREE.Mesh[] = [];
-    for (const node of nodes) {
-      const r = nodeRadius(node.connections);
-      const color = hexToRGB(getCategoryColor(node.category));
+    const sharedTime = timeUniformRef.current; // single object shared by all planet materials
 
-      const geo = new THREE.SphereGeometry(r, 16, 12);
-      const mat = new THREE.MeshPhongMaterial({
-        color,
-        emissive: color,
-        emissiveIntensity: 0.8,
-        shininess: 90,
+    for (let ni = 0; ni < nodes.length; ni++) {
+      const node = nodes[ni];
+      const r = nodeRadius(node.connections);
+      const [c1, c2, c3] = derivePlanetColors(getCategoryColor(node.category), ni);
+
+      const geo = new THREE.SphereGeometry(r, 32, 24);
+      const mat = new THREE.ShaderMaterial({
+        uniforms: {
+          uC1:       { value: c1.clone() },
+          uC2:       { value: c2.clone() },
+          uC3:       { value: c3.clone() },
+          uSeed:     { value: ni * 1.618033 },
+          uTime:     sharedTime,            // shared reference — updated once per frame
+          uEmissive: { value: 0.8 },
+          uOpacity:  { value: 0.95 },
+        },
+        vertexShader:   PLANET_VERT,
+        fragmentShader: PLANET_FRAG,
         transparent: true,
-        opacity: 0.95,
+        depthWrite:  false,
       });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(node.x ?? 0, node.y ?? 0, node.z ?? 0);
-      mesh.userData = { nodeId: node.id, baseColor: color.clone(), baseOpacity: 0.95 };
+
+      // Per-node rotation axis (tilted like real planets) and speed
+      const { rotAxis, rotSpeed } = getPlanetRotation(ni);
+
+      mesh.userData = {
+        nodeId:    node.id,
+        baseColor: c1.clone(),
+        baseOpacity: 0.95,
+        rotAxis,
+        rotSpeed,
+      };
       scene.add(mesh);
       meshes.push(mesh);
 
-      const glowGeo = new THREE.SphereGeometry(r * 2.2, 12, 8);
+      // Soft glow halo
+      const glowGeo = new THREE.SphereGeometry(r * 1.85, 12, 8);
       const glowMat = new THREE.MeshBasicMaterial({
-        color,
+        color: c1,
         transparent: true,
-        opacity: 0.12,
+        opacity: 0.10,
+        depthWrite: false,
       });
       const glow = new THREE.Mesh(glowGeo, glowMat);
       glow.position.copy(mesh.position);
@@ -1118,6 +1153,9 @@ export function KnowledgeGraph3D({
 
       // ── Visual motion: pulse nodes proportional to connection count ──────
       const elapsed = animClock.getElapsedTime();
+      // Update shared time uniform once per frame (all planet shaders read this)
+      timeUniformRef.current.value = elapsed;
+
       for (let i = 0; i < nodes.length; i++) {
         const n = nodes[i];
         // More connections → faster & larger pulse
@@ -1135,9 +1173,12 @@ export function KnowledgeGraph3D({
         const glowPulse = 1 + Math.sin(elapsed * speed * 0.7 + phase + Math.PI * 0.5) * amplitude * 1.8;
         glows[i].scale.setScalar(glowPulse);
 
-        // Emissive pulse — highly connected repos glow brighter
-        const mat = meshes[i].material as THREE.MeshPhongMaterial;
-        mat.emissiveIntensity = 0.7 + intensity * 0.5 * (0.5 + 0.5 * Math.sin(elapsed * speed * 0.5 + phase));
+        // Emissive pulse — update shader uniform (planet ShaderMaterial)
+        const mat = meshes[i].material as THREE.ShaderMaterial;
+        mat.uniforms.uEmissive.value = 0.7 + intensity * 0.5 * (0.5 + 0.5 * Math.sin(elapsed * speed * 0.5 + phase));
+
+        // Planet self-rotation (independent of position/scale)
+        meshes[i].rotateOnAxis(meshes[i].userData.rotAxis as THREE.Vector3, meshes[i].userData.rotSpeed as number);
 
         // Ambient micro-drift — ALL nodes get subtle continuous motion so graph feels alive
         // Magnitude: 0.05 base + connection-proportional bonus (up to 0.8 total)
@@ -1152,23 +1193,26 @@ export function KnowledgeGraph3D({
       }
 
       // ── Animated flowing edges — energy pulses along connections ───────────
-      // SIMILAR_TO: wave of brightness flows through edges
+      // SIMILAR_TO: directional energy ripple along each edge
       {
         const simCol = lineSegments.geometry.attributes.color.array as Float32Array;
         const simBase = baseEdgeColorsRef.current;
-        const waveSpeed = 1.2;
         for (let i = 0; i < simLinks.length; i++) {
           const idx = i * 6;
-          // Each edge gets a unique phase from its index
-          const edgePhase = i * 0.13;
-          const wave = 0.5 + 0.5 * Math.sin(elapsed * waveSpeed + edgePhase);
-          const brightness = 0.6 + wave * 0.6; // range 0.6..1.2
-          simCol[idx]     = simBase[idx]     * brightness;
-          simCol[idx + 1] = simBase[idx + 1] * brightness;
-          simCol[idx + 2] = simBase[idx + 2] * brightness;
-          simCol[idx + 3] = simBase[idx + 3] * brightness;
-          simCol[idx + 4] = simBase[idx + 4] * brightness;
-          simCol[idx + 5] = simBase[idx + 5] * brightness;
+          const edgePhase = i * 0.19;
+          // Two-harmonic ripple: slow base wave + faster sparkle
+          const wave1 = Math.sin(elapsed * 1.0 + edgePhase);
+          const wave2 = Math.sin(elapsed * 3.5 + edgePhase * 2.3) * 0.3;
+          const wave  = Math.max(0.0, wave1 + wave2); // 0..1.3
+          // Source vertex brighter (leading edge) vs target vertex dimmer (trailing)
+          const bSrc = 0.15 + wave * 1.1;      // 0.15..1.4
+          const bTgt = 0.05 + wave * 0.45;     // 0.05..0.5 — trailing dim
+          simCol[idx]   = simBase[idx]   * bSrc;
+          simCol[idx+1] = simBase[idx+1] * bSrc;
+          simCol[idx+2] = simBase[idx+2] * bSrc;
+          simCol[idx+3] = simBase[idx+3] * bTgt;
+          simCol[idx+4] = simBase[idx+4] * bTgt;
+          simCol[idx+5] = simBase[idx+5] * bTgt;
         }
         lineSegments.geometry.attributes.color.needsUpdate = true;
       }
@@ -1188,8 +1232,9 @@ export function KnowledgeGraph3D({
           const edgePhase = i * phaseScale;
           for (let v = 0; v < vertsPerEdge; v++) {
             const segPhase = v / vertsPerEdge; // 0..1 along the edge
-            // Traveling wave: brightness moves along the edge over time
-            const wave = 0.4 + 0.6 * Math.max(0, Math.sin(elapsed * speed - segPhase * Math.PI * 3 + edgePhase));
+            // Sharp traveling pulse: squared sine for tighter energy bolts
+            const rawWave = Math.sin(elapsed * speed - segPhase * Math.PI * 4 + edgePhase);
+            const wave = 0.05 + 0.95 * Math.max(0, rawWave * rawWave * Math.sign(rawWave));
             const off = (i * vertsPerEdge + v) * 3;
             col[off]     = baseCol[off]     * wave;
             col[off + 1] = baseCol[off + 1] * wave;
@@ -1248,17 +1293,17 @@ export function KnowledgeGraph3D({
         // Nodes
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
-          const mat = meshes[i].material as THREE.MeshPhongMaterial;
+          const mat = meshes[i].material as THREE.ShaderMaterial;
           const gMat = glows[i].material as THREE.MeshBasicMaterial;
           const isHidden = n.category && hidden.has(n.category);
           if (isHidden) {
-            mat.opacity = 0.03; gMat.opacity = 0.0; nodeLabels[i].visible = false;
+            mat.uniforms.uOpacity.value = 0.03; gMat.opacity = 0.0; nodeLabels[i].visible = false;
           } else if (n.id === activeNode.id) {
-            mat.opacity = 1.0; mat.emissiveIntensity = 1.2; gMat.opacity = 0.45; nodeLabels[i].visible = true;
+            mat.uniforms.uOpacity.value = 1.0; mat.uniforms.uEmissive.value = 1.4; gMat.opacity = 0.50; nodeLabels[i].visible = true;
           } else if (connSet.has(n.id)) {
-            mat.opacity = 0.95; mat.emissiveIntensity = 0.9; gMat.opacity = 0.25; nodeLabels[i].visible = true;
+            mat.uniforms.uOpacity.value = 0.95; mat.uniforms.uEmissive.value = 1.0; gMat.opacity = 0.28; nodeLabels[i].visible = true;
           } else {
-            mat.opacity = 0.08; mat.emissiveIntensity = 0.2; gMat.opacity = 0.0; nodeLabels[i].visible = false;
+            mat.uniforms.uOpacity.value = 0.06; mat.uniforms.uEmissive.value = 0.1; gMat.opacity = 0.0; nodeLabels[i].visible = false;
           }
         }
 
@@ -1301,13 +1346,13 @@ export function KnowledgeGraph3D({
         // Reset all nodes + hide all labels
         for (let i = 0; i < nodes.length; i++) {
           const n = nodes[i];
-          const mat = meshes[i].material as THREE.MeshPhongMaterial;
+          const mat = meshes[i].material as THREE.ShaderMaterial;
           const gMat = glows[i].material as THREE.MeshBasicMaterial;
           const isHidden = n.category && hidden.has(n.category);
           if (isHidden) {
-            mat.opacity = 0.03; gMat.opacity = 0.0;
+            mat.uniforms.uOpacity.value = 0.03; gMat.opacity = 0.0;
           } else {
-            mat.opacity = 0.95; mat.emissiveIntensity = 0.8; gMat.opacity = 0.12;
+            mat.uniforms.uOpacity.value = 0.95; mat.uniforms.uEmissive.value = 0.8; gMat.opacity = 0.12;
           }
           nodeLabels[i].visible = false;
         }
@@ -1453,10 +1498,21 @@ export function KnowledgeGraph3D({
       setConnectedNames([]);
       return;
     }
-    // Sort by name, take top 20
-    const names = Array.from(connSet).sort().slice(0, 20);
-    setConnectedNames(names);
-  }, [selectedNode, adjacency]);
+    // Build id → edge_type map from raw edges
+    const edgeTypeMap = new Map<string, string>();
+    for (const e of edges) {
+      if (e.source === selectedNode.id && connSet.has(e.target)) {
+        if (!edgeTypeMap.has(e.target)) edgeTypeMap.set(e.target, e.edge_type);
+      } else if (e.target === selectedNode.id && connSet.has(e.source)) {
+        if (!edgeTypeMap.has(e.source)) edgeTypeMap.set(e.source, e.edge_type);
+      }
+    }
+    const items = Array.from(connSet)
+      .map((id) => ({ id, edgeType: edgeTypeMap.get(id) ?? 'SIMILAR_TO' }))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .slice(0, 20);
+    setConnectedNames(items);
+  }, [selectedNode, adjacency, edges]);
 
   // Mouse move handler
   const handleMouseMove = useCallback(
@@ -1653,16 +1709,23 @@ export function KnowledgeGraph3D({
                 <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5">
                   Connected repos
                 </p>
-                <div className="max-h-32 overflow-y-auto space-y-0.5 pr-1">
-                  {connectedNames.map((name) => {
-                    const meta = nodeMetadata.get(name);
-                    const label = name.includes('/') ? name.split('/').pop()! : name;
+                <div className="max-h-40 overflow-y-auto space-y-0.5 pr-1">
+                  {connectedNames.map(({ id, edgeType }) => {
+                    const meta = nodeMetadata.get(id);
+                    const label = id.includes('/') ? id.split('/').pop()! : id;
+                    const edgeColor = EDGE_TYPE_HEX[edgeType] ?? '#71717a';
+                    const edgeLabel = edgeType === 'SIMILAR_TO' ? 'similar'
+                      : edgeType === 'DEPENDS_ON' ? 'depends'
+                      : edgeType === 'COMPATIBLE_WITH' ? 'compatible'
+                      : edgeType === 'ALTERNATIVE_TO' ? 'alt'
+                      : edgeType === 'EXTENDS' ? 'extends'
+                      : edgeType.toLowerCase().replace(/_/g, ' ');
                     return (
                       <button
-                        key={name}
+                        key={id}
                         onClick={(e) => {
                           e.stopPropagation();
-                          const node = nodesRef.current.find((n) => n.id === name);
+                          const node = nodesRef.current.find((n) => n.id === id);
                           if (node) setSelectedNode(node);
                         }}
                         className="flex items-center gap-1.5 w-full text-left rounded px-1.5 py-1 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
@@ -1671,7 +1734,13 @@ export function KnowledgeGraph3D({
                           className="inline-block w-1.5 h-1.5 rounded-full shrink-0"
                           style={{ backgroundColor: getCategoryColor(meta?.category ?? null) }}
                         />
-                        <span className="font-mono truncate">{label}</span>
+                        <span className="font-mono truncate flex-1">{label}</span>
+                        <span
+                          className="shrink-0 text-[9px] font-medium rounded px-1 py-0.5 uppercase tracking-wide"
+                          style={{ color: edgeColor, backgroundColor: `${edgeColor}22`, border: `1px solid ${edgeColor}44` }}
+                        >
+                          {edgeLabel}
+                        </span>
                       </button>
                     );
                   })}
@@ -1729,35 +1798,11 @@ export function KnowledgeGraph3D({
         <div className="border-t border-zinc-700/60 mb-1.5" />
 
         {/* ── CATEGORIES section ──────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center justify-center gap-x-2 sm:gap-x-3 gap-y-1 pb-0.5 sm:pb-0">
-          <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500 mr-1">Nodes</span>
-          {activeCategories.map((cat) => {
-            const isHidden = hiddenCategories.has(cat);
-            return (
-              <button
-                key={cat}
-                onClick={(e) => { e.stopPropagation(); toggleCategory(cat); }}
-                className={`inline-flex items-center gap-1 px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] whitespace-nowrap transition-all shrink-0 ${
-                  isHidden
-                    ? 'opacity-30 hover:opacity-60'
-                    : 'opacity-90 hover:opacity-100'
-                }`}
-                title={`${isHidden ? 'Show' : 'Hide'} ${getCategoryLabel(cat)}`}
-              >
-                <span
-                  className="inline-block w-2 h-2 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: getCategoryColor(cat),
-                    opacity: isHidden ? 0.3 : 1,
-                  }}
-                />
-                <span className={`hidden sm:inline ${isHidden ? 'text-zinc-600 line-through' : 'text-zinc-400'}`}>
-                  {getCategoryLabel(cat)}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <LegendRenderer
+          categories={activeCategories}
+          hiddenCategories={hiddenCategories}
+          onToggleCategory={toggleCategory}
+        />
         <div className="hidden sm:block text-center text-[9px] text-zinc-600 mt-1">
           Scroll to zoom · Drag to rotate · Click node to explore
         </div>
