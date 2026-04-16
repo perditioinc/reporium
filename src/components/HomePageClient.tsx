@@ -19,6 +19,7 @@ import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
 import type { NLFilterResult } from '@/types/repo';
+import { getCategoryColor } from '@/lib/categoryColors';
 
 // Lazy-load heavy components — they aren't needed for initial paint
 const FilterBar = dynamic(() => import('@/components/FilterBar').then(m => ({ default: m.FilterBar })), { ssr: false });
@@ -778,6 +779,10 @@ export function HomePageClient() {
   }, [selectedRepo, filteredAndSortedRepos]);
   const relatedNames = useMemo(() => new Set(relatedRepos.map(r => r.name)), [relatedRepos]);
 
+  const selectedCatColor = useMemo(() => getCategoryColor(selectedRepo?.dbCategory ?? null), [selectedRepo]);
+  const selectedCatBorder = `${selectedCatColor}4d`;
+  const selectedCatBg = `${selectedCatColor}22`;
+
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* ── Main content ── */}
@@ -1043,14 +1048,14 @@ export function HomePageClient() {
                           className="sticky top-10 z-10"
                           style={{ gridColumn: '1 / -1' }}
                         >
-                          <div className="rounded-xl border border-purple-500/30 bg-zinc-900/80 p-3 sm:p-4 space-y-2 sm:space-y-3">
+                          <div className="rounded-xl bg-zinc-900/80 p-3 sm:p-4 space-y-2 sm:space-y-3" style={{ border: `1px solid ${selectedCatBorder}`, borderTop: `3px solid ${selectedCatColor}` }}>
                             {/* Header: name + badges + close */}
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                                   <h3 className="text-sm sm:text-base font-bold text-zinc-100 break-words">{selectedRepo.name}</h3>
                                   {selectedRepo.dbCategory && (
-                                    <span className="text-[10px] sm:text-[11px] font-medium text-purple-300 bg-purple-500/15 border border-purple-500/30 rounded-full px-1.5 sm:px-2 py-0.5 uppercase tracking-wide">
+                                    <span className="text-[10px] sm:text-[11px] font-medium rounded-full px-1.5 sm:px-2 py-0.5 uppercase tracking-wide" style={{ color: selectedCatColor, backgroundColor: selectedCatBg, border: `1px solid ${selectedCatBorder}` }}>
                                       {selectedRepo.dbCategory}
                                     </span>
                                   )}
@@ -1147,7 +1152,8 @@ export function HomePageClient() {
                                     <button
                                       key={r.name}
                                       onClick={() => handleExploreSelect(r.name)}
-                                      className="text-[11px] sm:text-xs text-purple-300 bg-purple-500/10 border border-purple-500/25 rounded-md px-2 sm:px-2.5 py-1 hover:bg-purple-500/20 transition-colors"
+                                      className="text-[11px] sm:text-xs rounded-md px-2 sm:px-2.5 py-1 transition-colors"
+                                      style={{ color: selectedCatColor, backgroundColor: selectedCatBg, border: `1px solid ${selectedCatBorder}` }}
                                     >
                                       {r.name}
                                     </button>
@@ -1159,7 +1165,8 @@ export function HomePageClient() {
                             {/* Open full page */}
                             <Link
                               href={`/repo/${selectedRepo.name}`}
-                              className="inline-block mt-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors"
+                              className="inline-block mt-1 px-3 sm:px-4 py-1.5 sm:py-2 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors"
+                              style={{ backgroundColor: selectedCatColor }}
                             >
                               Open full page →
                             </Link>

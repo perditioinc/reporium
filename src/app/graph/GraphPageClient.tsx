@@ -9,117 +9,49 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+import { API_URL as CLIENT_API_URL } from '@/lib/apiUrl';
+import { loadGraphDataset } from '@/lib/graphData';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
-const KnowledgeGraph3D = dynamic(
+const KnowledgeGraph = dynamic(
   () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
   { ssr: false },
 );
 
-interface ApiRepoNode {
-  name: string;
-  description?: string | null;
-  category?: string | null;
-  upstream?: string | null;
-  owner?: string | null;
-}
-
-interface ApiEdge {
-  source?: ApiRepoNode;
-  target?: ApiRepoNode;
-  source_name?: string;
-  source_owner?: string;
-  source_upstream?: string;
-  target_name?: string;
-  target_owner?: string;
-  target_upstream?: string;
-  edgeType?: string;
-  edge_type?: string;
-  weight?: number;
-  evidence?: string | Record<string, unknown>;
-}
-
-interface ApiResponse {
-  total?: number;
-  total_repos?: number;
-  total_edges?: number;
-  edges: ApiEdge[];
-}
-
-interface GraphPageClientProps {
-  apiUrl: string;
-}
-
-export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
+export function GraphPageClient() {
   const router = useRouter();
   const [allEdges, setAllEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [totalRepos, setTotalRepos] = useState(0);
-  const [limit, setLimit] = useState(2000);
+  const [totalGraphEdges, setTotalGraphEdges] = useState(0);
+  const [limit, setLimit] = useState(10000);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setStatusMessage(null);
 
     const controller = new AbortController();
-    const params = new URLSearchParams({
-      limit: String(limit),
-      neighbours: '5',
-      min_similarity: '0.5',
-    });
-
-    fetch(`${apiUrl}/graph/edges?${params}`, {
+    loadGraphDataset({
+      apiUrl: CLIENT_API_URL,
+      limit,
+      neighbours: 5,
+      minSimilarity: 0.4,
       signal: controller.signal,
-      headers: { Accept: 'application/json' },
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        const data: ApiResponse = await res.json();
+      .then((dataset) => {
         if (cancelled) return;
 
-        setTotalRepos(data.total_repos ?? 0);
-
-        const nodeId = (
-          node: ApiRepoNode | undefined,
-          flatUpstream?: string,
-          flatOwner?: string,
-          flatName?: string,
-        ): string => {
-          if (node) {
-            return node.upstream ?? (node.owner ? `${node.owner}/${node.name}` : node.name);
-          }
-          return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
-        };
-
-        const edges: GraphEdge[] = data.edges.map((e) => ({
-          source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
-          target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
-          edge_type: e.edgeType ?? e.edge_type ?? 'SIMILAR_TO',
-          weight: e.weight,
-        }));
-
-        const meta = new Map<string, NodeMeta>();
-        for (const e of data.edges) {
-          const srcId = nodeId(e.source, e.source_upstream, e.source_owner, e.source_name);
-          const tgtId = nodeId(e.target, e.target_upstream, e.target_owner, e.target_name);
-          if (!meta.has(srcId) && e.source) {
-            meta.set(srcId, {
-              category: e.source.category ?? null,
-              description: e.source.description ?? null,
-            });
-          }
-          if (!meta.has(tgtId) && e.target) {
-            meta.set(tgtId, {
-              category: e.target.category ?? null,
-              description: e.target.description ?? null,
-            });
-          }
-        }
-
-        setAllEdges(edges);
-        setNodeMetadata(meta);
+        setTotalRepos(dataset.totalRepos);
+        setTotalGraphEdges(dataset.totalEdges);
+        setAllEdges(dataset.edges);
+        setNodeMetadata(dataset.nodeMetadata);
+        setStatusMessage(dataset.message);
         setLoading(false);
       })
       .catch((err) => {
@@ -132,66 +64,61 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
       cancelled = true;
       controller.abort();
     };
-  }, [apiUrl, limit]);
+  }, [limit]);
 
   const nodeCount = useMemo(
-    () => new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
-    [allEdges],
+    () => nodeMetadata.size || new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
+    [nodeMetadata, allEdges],
   );
 
   const handleNodeClick = useCallback(
     (id: string) => {
-      router.push(`/repo/${id}`);
+      const name = id.includes('/') ? id.split('/').pop()! : id;
+      router.push(`/repo/${name}`);
     },
     [router],
   );
 
-  // Keyboard: [ / ] to cycle edge limit for graph navigation
-  useEffect(() => {
-    const LIMITS = [500, 1000, 2000, 5000];
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === ']') {
-        setLimit((prev) => {
-          const i = LIMITS.indexOf(prev);
-          return LIMITS[Math.min(i + 1, LIMITS.length - 1)];
-        });
-      } else if (e.key === '[') {
-        setLimit((prev) => {
-          const i = LIMITS.indexOf(prev);
-          return LIMITS[Math.max(i - 1, 0)];
-        });
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
-
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-xs text-zinc-500">
-          3D constellation of your AI repo library. Scroll to zoom, drag to rotate, right-drag to pan.
-          Click a node for details. Use <kbd className="font-mono bg-zinc-800 px-1 rounded">[</kbd> / <kbd className="font-mono bg-zinc-800 px-1 rounded">]</kbd> to adjust edge count.
+          Interactive knowledge graph of your AI repo library. Scroll to zoom, drag to reposition,
+          and click a node for details.
         </p>
-        <select
-          value={limit}
-          onChange={(e) => setLimit(Number(e.target.value))}
-          className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 focus:outline-none"
-        >
-          <option value={500}>500 edges</option>
-          <option value={1000}>1000 edges</option>
-          <option value={2000}>2000 edges</option>
-          <option value={5000}>5000 edges</option>
-        </select>
+        {/* Edge count slider — caps at actual total edges in graph (no hard cap) */}
+        {totalGraphEdges > 0 && (
+          <div className="flex items-center gap-3 min-w-[220px]">
+            <label className="text-xs text-zinc-500 shrink-0">Edges</label>
+            <input
+              type="range"
+              min={500}
+              max={totalGraphEdges}
+              step={500}
+              value={Math.min(limit, totalGraphEdges)}
+              onChange={(e) => setLimit(Number(e.target.value))}
+              className="w-32 accent-zinc-400"
+            />
+            <span className="text-xs text-zinc-400 tabular-nums w-16 text-right">
+              {Math.min(limit, totalGraphEdges).toLocaleString()}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Stats */}
       {!loading && !error && (
         <p className="text-xs text-zinc-600">
-          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} similarity edges
+          {nodeCount} repos &middot; {allEdges.length.toLocaleString()} edges
           {totalRepos > nodeCount ? ` \u00b7 ${totalRepos.toLocaleString()} in library` : ''}
         </p>
+      )}
+
+      {!loading && !error && statusMessage && (
+        <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">
+          {statusMessage}
+        </div>
       )}
 
       {/* Graph */}
@@ -199,24 +126,41 @@ export function GraphPageClient({ apiUrl }: GraphPageClientProps) {
         <div className="flex items-center justify-center h-[600px] rounded-xl border border-zinc-800 bg-[#0a0a0f]">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading constellation...
+            Loading graph...
           </span>
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-400">
-          Failed to load knowledge graph: {error}
-        </div>
+        <GraphFallbackPanel
+          title="Knowledge graph unavailable"
+          message="We couldn't load the live dataset for the graph right now."
+          detail={error}
+          height={600}
+          actionHref="/"
+          actionLabel="Back to library"
+        />
       )}
 
       {!loading && !error && (
-        <KnowledgeGraph3D
-          edges={allEdges}
-          nodeMetadata={nodeMetadata}
-          height={600}
-          onNodeClick={handleNodeClick}
-        />
+        <ErrorBoundary
+          fallback={
+            <GraphFallbackPanel
+              title="Knowledge graph renderer unavailable"
+              message="The dataset loaded, but graph rendering failed in this browser session."
+              height={600}
+              actionHref="/"
+              actionLabel="Back to library"
+            />
+          }
+        >
+          <KnowledgeGraph
+            edges={allEdges}
+            nodeMetadata={nodeMetadata}
+            height={600}
+            onNodeClick={handleNodeClick}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );
