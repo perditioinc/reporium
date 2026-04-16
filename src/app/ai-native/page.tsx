@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 import { SlideWrapper, childVariants } from '@/components/ai-native/SlideWrapper';
 import { SlideDots } from '@/components/ai-native/SlideDots';
@@ -618,32 +618,174 @@ function Slide7() {
 
 // ─── Slide 8 — HOW TO START ───────────────────────────────────────────────────
 
+function StepFlipCard({
+  n,
+  title,
+  desc,
+  reporium,
+}: {
+  n: string;
+  title: string;
+  desc: string;
+  reporium: string;
+}) {
+  const [flipped, setFlipped] = useState(false);
+  const prefersReduced = useReducedMotion();
+
+  const toggle = useCallback(() => setFlipped((f) => !f), []);
+
+  const handleKey = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    },
+    [toggle],
+  );
+
+  if (prefersReduced) {
+    // Reduced-motion: simple crossfade, no 3-D rotation
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        aria-pressed={flipped}
+        onClick={toggle}
+        onKeyDown={handleKey}
+        className="relative rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-3 py-2.5 cursor-pointer sm:px-4 sm:py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-fuchsia-400"
+        style={{ minHeight: '3.5rem' }}
+      >
+        <motion.div
+          animate={{ opacity: flipped ? 0 : 1 }}
+          transition={{ duration: 0.2 }}
+          className="flex items-start gap-3"
+          aria-hidden={flipped}
+        >
+          <span
+            className="shrink-0 font-mono text-xl font-black leading-none sm:text-2xl"
+            style={{ color: '#67e8f9', textShadow: neonCyan }}
+          >
+            {n}
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-zinc-100 sm:text-sm">{title}</p>
+            <p className="mt-0.5 text-[11px] text-zinc-400 sm:text-xs">{desc}</p>
+          </div>
+        </motion.div>
+        <motion.div
+          animate={{ opacity: flipped ? 1 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="absolute inset-0 flex flex-col justify-center px-3 py-2.5 sm:px-4 sm:py-3"
+          aria-hidden={!flipped}
+        >
+          <p
+            className="text-[10px] font-semibold uppercase tracking-widest sm:text-xs"
+            style={{ color: '#d946ef' }}
+          >
+            Reporium — step {n}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-300 sm:text-xs">{reporium}</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    // Perspective wrapper — required for 3-D flip to look right
+    <div style={{ perspective: '900px' }}>
+      <motion.div
+        onClick={toggle}
+        onKeyDown={handleKey}
+        role="button"
+        tabIndex={0}
+        aria-pressed={flipped}
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+        whileHover={!flipped ? { scale: 1.025, y: -3 } : {}}
+        whileTap={{ scale: 0.98 }}
+        style={{ transformStyle: 'preserve-3d', position: 'relative', cursor: 'pointer' }}
+        className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-fuchsia-400"
+      >
+        {/* FRONT */}
+        <div
+          style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+          className="flex items-start gap-3 px-3 py-2.5 sm:px-4 sm:py-3"
+          aria-hidden={flipped}
+        >
+          <span
+            className="shrink-0 font-mono text-xl font-black leading-none sm:text-2xl"
+            style={{ color: '#67e8f9', textShadow: neonCyan }}
+          >
+            {n}
+          </span>
+          <div>
+            <p className="text-xs font-semibold text-zinc-100 sm:text-sm">{title}</p>
+            <p className="mt-0.5 text-[11px] text-zinc-400 sm:text-xs">{desc}</p>
+          </div>
+        </div>
+
+        {/* BACK */}
+        <div
+          style={{
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+            position: 'absolute',
+            inset: 0,
+          }}
+          className="flex flex-col justify-center rounded-xl border border-fuchsia-800/40 bg-zinc-900/90 px-3 py-2.5 sm:px-4 sm:py-3"
+          aria-hidden={!flipped}
+        >
+          <p
+            className="text-[10px] font-semibold uppercase tracking-widest sm:text-xs"
+            style={{ color: '#d946ef' }}
+          >
+            Reporium — step {n}
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-300 sm:text-xs">{reporium}</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 function Slide8() {
-  const steps = [
+  const steps: { n: string; title: string; desc: string; reporium: string }[] = [
     {
       n: '1',
       title: 'Define the intelligence outcome',
       desc: "What should the product know that humans can't easily compute?",
+      reporium:
+        'Outcome: surface the right repo for a use-case without keyword search — ranked by relevance, not star count.',
     },
     {
       n: '2',
       title: 'Design your data model for AI',
       desc: 'Tables + embeddings + edges. Schema is destiny.',
+      reporium:
+        'Postgres + pgvector for similarity search; graph edges (DEPENDS_ON, SIMILAR_TO) stored separately for traversal.',
     },
     {
       n: '3',
       title: 'Pick the smallest useful model',
       desc: 'Use a fast, cheap model for classification and a stronger one only when reasoning is actually needed. Don\'t over-engineer early.',
+      reporium:
+        'Haiku handles tagging and category classification at ingest; Sonnet handles the conversational /ask endpoint.',
     },
     {
       n: '4',
       title: 'Build the intelligence endpoint first',
       desc: 'Query before UI. Make the API useful to agents before humans.',
+      reporium:
+        'FastAPI /search and /ask endpoints shipped before the Next.js UI existed; the MCP server exposes the same routes to agents.',
     },
     {
       n: '5',
       title: 'Ship, measure, compound',
       desc: 'Every query tells you what to build next. Let the product teach you.',
+      reporium:
+        '1,700 repos ingested; view tracking and recent-search history feed the recommendations loop each night.',
     },
   ];
 
@@ -659,29 +801,14 @@ function Slide8() {
       </C>
       <C>
         <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
-          The 5-step path from idea to intelligence
+          The 5-step path from idea to intelligence — click any card to see how Reporium did it
         </p>
       </C>
 
       <C>
         <div className="mt-3 sm:mt-5 flex flex-col gap-2 sm:gap-3">
-          {steps.map(({ n, title, desc }) => (
-            <motion.div
-              key={n}
-              {...hoverExpand}
-              className="flex items-start gap-3 rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-3 py-2.5 cursor-pointer sm:px-4 sm:py-3"
-            >
-              <span
-                className="shrink-0 font-mono text-xl font-black leading-none sm:text-2xl"
-                style={{ color: '#67e8f9', textShadow: neonCyan }}
-              >
-                {n}
-              </span>
-              <div>
-                <p className="text-xs font-semibold text-zinc-100 sm:text-sm">{title}</p>
-                <p className="mt-0.5 text-[11px] text-zinc-400 sm:text-xs">{desc}</p>
-              </div>
-            </motion.div>
+          {steps.map((step) => (
+            <StepFlipCard key={step.n} {...step} />
           ))}
         </div>
       </C>

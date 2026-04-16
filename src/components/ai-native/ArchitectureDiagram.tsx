@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 
 // ─── Color tokens (matching reporium.com visual style) ─────────────────────
 const LAYER_COLORS = {
@@ -51,6 +52,77 @@ const BAND_COLORS = {
     itemColor: 'rgba(165,180,252,0.8)',
   },
 } as const;
+
+// ─── Layer detail data for the zoom modal (developer voice) ─────────────────
+type LayerKey = 'agentAccessible' | 'intelligence' | 'semantic' | 'compounding';
+
+interface LayerDetail {
+  key: LayerKey;
+  label: string;
+  caption: string;
+  colors: (typeof LAYER_COLORS)[LayerKey];
+  purpose: string;
+  tradeoff: string;
+  components: Array<{
+    name: string;
+    tech: string;
+    detail?: string;
+  }>;
+}
+
+const LAYER_DETAILS: LayerDetail[] = [
+  {
+    key: 'agentAccessible',
+    label: 'Agent-accessible',
+    caption: 'MCP and typed endpoints — agents call this directly',
+    colors: LAYER_COLORS.agentAccessible,
+    purpose: 'Exposes Reporium data via typed HTTP + MCP so both human UIs and agent runtimes share one surface.',
+    tradeoff: 'Trade-off: single surface simplifies auth but means any MCP client sees the same rate limits as browsers.',
+    components: [
+      { name: 'Reporium Web', tech: 'Next.js 16 · Vercel · static export', detail: 'Human-facing UI; serves pre-rendered pages from Vercel edge.' },
+      { name: 'reporium-mcp', tech: 'MCP protocol · TypeScript SDK', detail: 'Agent-native endpoint; Claude Desktop and LangChain connect here.' },
+      { name: 'External orchestrators', tech: 'Workato · LangChain · custom HTTP clients', detail: 'Any client that speaks HTTP or MCP can call the API directly.' },
+    ],
+  },
+  {
+    key: 'intelligence',
+    label: 'Intelligence',
+    caption: 'AI is in the decision loop',
+    colors: LAYER_COLORS.intelligence,
+    purpose: 'Routes queries through an LLM enrichment pass so every stored repo has structured metadata before it reaches the index.',
+    tradeoff: 'Trade-off: enrichment latency (~1–3 s per repo) is paid at ingest time, not query time; keeps p99 reads fast.',
+    components: [
+      { name: 'reporium-api', tech: 'FastAPI · Cloud Run · Sentry', detail: 'Public reads (keyless) / ingest (keyed) / admin (keyed). Scalar docs at /docs.' },
+      { name: 'LLM enrichment', tech: 'model-agnostic — Claude, GPT-4o, local', detail: 'Generates structured tags, summary, and taxonomy labels for each repo.' },
+      { name: 'Pub/Sub event bus', tech: 'GCP Pub/Sub · topic: repo-ingested', detail: 'Decouples ingestion from downstream subscribers; reporium-events library wraps this.' },
+    ],
+  },
+  {
+    key: 'semantic',
+    label: 'Semantic',
+    caption: 'Retrieval is by meaning, not strings',
+    colors: LAYER_COLORS.semantic,
+    purpose: 'Stores dense vector embeddings alongside relational data so nearest-neighbour queries return conceptually similar repos.',
+    tradeoff: 'Trade-off: HNSW index trades ~2% recall for 10× query speed vs. exact cosine scan on 9k+ repos.',
+    components: [
+      { name: 'Postgres + pgvector', tech: 'Cloud SQL · managed backups · HNSW', detail: 'repo_embeddings: 384-dim, vector_cosine_ops. taxonomy_values: 8 dynamic dimensions, cosine ≥ 0.65 assignment.' },
+      { name: 'GCS snapshot', tech: 'Google Cloud Storage · JSON', detail: 'Read fallback for /graph/edges — avoids heavy DB join on cold cache.' },
+      { name: 'Redis cache (optional)', tech: 'Upstash or self-hosted · 5-min TTL', detail: '/library/full served from cache; HNSW approximate-NN results also cached.' },
+    ],
+  },
+  {
+    key: 'compounding',
+    label: 'Compounding',
+    caption: 'Every ingest makes the next query better',
+    colors: LAYER_COLORS.compounding,
+    purpose: 'Nightly Cloud Run jobs keep the corpus and forks fresh, feeding new embeddings back into the Semantic layer.',
+    tradeoff: 'Trade-off: 24 h staleness window is acceptable for OSS repos; real-time ingest is available via POST /ingest/repos for urgent adds.',
+    components: [
+      { name: 'reporium-ingestion', tech: 'Cloud Run Job · nightly cron · Python', detail: 'pull → LLM enrich → POST /ingest/repos → publish repo.ingested. Processes batches of 50.' },
+      { name: 'forksync', tech: 'Cloud Run Job · nightly cron · Go', detail: 'Keeps fork metadata aligned with upstream; prevents stale star / language counts.' },
+    ],
+  },
+];
 
 // ─── SVG sub-components (all at module level — required by react-hooks/static-components) ──
 
@@ -115,12 +187,36 @@ interface LayerRowProps {
   children: React.ReactNode;
   rowDelay: number;
   shouldReduce: boolean;
+  onClick?: () => void;
+  triggerRef?: React.RefObject<SVGGElement | null>;
 }
 
-function LayerRow({ layerX, layerW, y, h, label, caption, colors, children, rowDelay, shouldReduce }: LayerRowProps) {
+function LayerRow({ layerX, layerW, y, h, label, caption, colors, children, rowDelay, shouldReduce, onClick, triggerRef }: LayerRowProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<SVGGElement>) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const clickableProps = onClick
+    ? {
+        role: 'button' as const,
+        tabIndex: 0,
+        onClick,
+        onKeyDown: handleKeyDown,
+        style: { cursor: 'pointer' } as React.CSSProperties,
+        'aria-label': `${label} layer — click to expand`,
+      }
+    : {};
+
   if (shouldReduce) {
     return (
-      <g aria-label={`${label} layer`}>
+      <g
+        ref={triggerRef as React.RefObject<SVGGElement>}
+        aria-label={`${label} layer`}
+        {...clickableProps}
+      >
         <rect x={layerX} y={y} width={layerW} height={h} rx={10} ry={10} fill={colors.fill} stroke={colors.stroke} strokeWidth={1.5} />
         <rect x={layerX + 10} y={y + 8} width={138} height={20} rx={4} ry={4} fill={colors.badge} />
         <text x={layerX + 18} y={y + 22} fontSize={9.5} fontFamily="monospace" fill={colors.text} fontWeight="700" letterSpacing="0.08em" textAnchor="start">
@@ -144,7 +240,12 @@ function LayerRow({ layerX, layerW, y, h, label, caption, colors, children, rowD
   };
 
   return (
-    <g aria-label={`${label} layer`}>
+    <motion.g
+      ref={triggerRef as React.RefObject<SVGGElement>}
+      aria-label={`${label} layer`}
+      {...clickableProps}
+      whileHover={onClick ? { filter: 'brightness(1.12) drop-shadow(0 0 6px rgba(255,255,255,0.08))' } : undefined}
+    >
       <motion.rect
         x={layerX} y={y} width={layerW} height={h} rx={10} ry={10}
         fill={colors.fill} stroke={colors.stroke} strokeWidth={1.5}
@@ -164,7 +265,7 @@ function LayerRow({ layerX, layerW, y, h, label, caption, colors, children, rowD
         </text>
       </motion.g>
       {children}
-    </g>
+    </motion.g>
   );
 }
 
@@ -245,10 +346,154 @@ function BandGroup({ children, delay, shouldReduce }: BandGroupProps) {
   );
 }
 
+// ─── Layer Detail Modal ──────────────────────────────────────────────────────
+
+interface LayerDetailModalProps {
+  layer: LayerDetail;
+  onClose: () => void;
+  triggerEl: SVGGElement | null;
+}
+
+function LayerDetailModal({ layer, onClose, triggerEl }: LayerDetailModalProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Focus close button on mount; restore focus to trigger on unmount
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+    // capture the element at effect setup time to avoid stale-ref warning
+    const target = triggerEl;
+    return () => {
+      target?.focus();
+    };
+  }, [triggerEl]);
+
+  // Escape key dismissal
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return createPortal(
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+      >
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/80"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+
+        {/* Modal panel */}
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${layer.label} layer detail`}
+          className="relative z-10 w-full max-w-2xl rounded-xl border bg-zinc-950 p-6 shadow-2xl"
+          style={{
+            borderColor: layer.colors.stroke,
+            boxShadow: `0 0 48px ${layer.colors.stroke}`,
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.6, opacity: 0 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+        >
+          {/* Close button */}
+          <button
+            ref={closeButtonRef}
+            onClick={onClose}
+            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+            aria-label="Close layer detail"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+            </svg>
+          </button>
+
+          {/* Header */}
+          <div className="mb-5 flex items-start gap-3 pr-10">
+            <div
+              className="mt-0.5 rounded px-2 py-1 text-xs font-bold tracking-widest"
+              style={{ backgroundColor: layer.colors.badge, color: layer.colors.text, fontFamily: 'monospace' }}
+            >
+              {layer.label.toUpperCase()}
+            </div>
+          </div>
+
+          <p className="mb-1 text-sm italic" style={{ color: 'rgba(210,210,220,0.85)' }}>
+            {layer.caption}
+          </p>
+
+          {/* Purpose */}
+          <p className="mb-1 mt-3 text-xs font-semibold uppercase tracking-widest text-zinc-500">Purpose</p>
+          <p className="mb-4 text-sm text-zinc-300">{layer.purpose}</p>
+
+          {/* Components */}
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-zinc-500">Components</p>
+          <div className="mb-4 flex flex-col gap-3">
+            {layer.components.map((comp) => (
+              <div
+                key={comp.name}
+                className="rounded-lg border p-3"
+                style={{ borderColor: layer.colors.stroke, backgroundColor: layer.colors.fill }}
+              >
+                <p className="mb-0.5 text-sm font-semibold" style={{ color: layer.colors.text, fontFamily: 'monospace' }}>
+                  {comp.name}
+                </p>
+                <p className="mb-1 text-xs text-zinc-400" style={{ fontFamily: 'monospace' }}>
+                  {comp.tech}
+                </p>
+                {comp.detail && (
+                  <p className="text-xs text-zinc-500">{comp.detail}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Trade-off */}
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+            <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-zinc-500">Trade-off</p>
+            <p className="text-xs text-zinc-400">{layer.tradeoff}</p>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body
+  );
+}
+
 // ─── Desktop SVG (≥ 768px) ──────────────────────────────────────────────────
 
 function DesktopDiagram() {
   const shouldReduce = !!useReducedMotion();
+  const [activeLayer, setActiveLayer] = useState<LayerKey | null>(null);
+  // Store the actual DOM element that triggered the modal (for focus restoration)
+  const [triggerEl, setTriggerEl] = useState<SVGGElement | null>(null);
+
+  // Individual refs for each layer row
+  const refAgentAccessible = useRef<SVGGElement>(null);
+  const refIntelligence = useRef<SVGGElement>(null);
+  const refSemantic = useRef<SVGGElement>(null);
+  const refCompounding = useRef<SVGGElement>(null);
+
+  const openLayer = useCallback((key: LayerKey, el: SVGGElement | null) => {
+    setTriggerEl(el);
+    setActiveLayer(key);
+  }, []);
+  const closeLayer = useCallback(() => setActiveLayer(null), []);
+
+  const activeDetail = activeLayer ? LAYER_DETAILS.find((l) => l.key === activeLayer) ?? null : null;
 
   const W = 960;
   const H = 580;
@@ -291,291 +536,310 @@ function DesktopDiagram() {
       };
 
   return (
-    <motion.svg
-      viewBox={`0 0 ${W} ${H}`}
-      role="img"
-      aria-labelledby="arch-title arch-desc"
-      style={{ width: '100%', height: 'auto', display: 'block' }}
-      variants={containerVariants}
-      initial={shouldReduce ? false : 'hidden'}
-      whileInView={shouldReduce ? undefined : 'visible'}
-      viewport={{ once: false, amount: 0.4 }}
-    >
-      <title id="arch-title">Reporium AI-Native Architecture</title>
-      <desc id="arch-desc">
-        Four AI-native layers (Agent-accessible, Intelligence, Semantic, Compounding) with three cross-cutting bands
-        (Observability, Governance, Performance) mapping to real Reporium services.
-      </desc>
-
-      <defs>
-        <marker id={arrowId} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="rgba(34,211,238,0.7)" />
-        </marker>
-        <marker id={arrowUpId} markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto">
-          <path d="M8,0 L8,6 L0,3 z" fill="rgba(52,211,153,0.7)" />
-        </marker>
-      </defs>
-
-      {/* ── Layer 1: Agent-accessible ──────────────────────────────────── */}
-      <LayerRow
-        layerX={layerX} layerW={layerW}
-        y={rowY[0]} h={rowH[0]}
-        label="Agent-accessible"
-        caption="MCP and typed endpoints — agents call this directly"
-        colors={LAYER_COLORS.agentAccessible}
-        rowDelay={layerBaseDelay}
-        shouldReduce={shouldReduce}
+    <>
+      <motion.svg
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-labelledby="arch-title arch-desc"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        variants={containerVariants}
+        initial={shouldReduce ? false : 'hidden'}
+        whileInView={shouldReduce ? undefined : 'visible'}
+        viewport={{ once: false, amount: 0.4 }}
       >
-        <CompBox
-          x={layerX + 10} y={rowY[0] + 36} w={148} h={64}
-          label="Reporium Web" sublabel="Next.js · Vercel · human readers"
-          accent="rgba(147,51,234,0.5)" textColor="#c084fc"
-          animDelay={layerBaseDelay + 0.15}
-          shouldReduce={shouldReduce}
-        />
-        <CompBox
-          x={layerX + 168} y={rowY[0] + 36} w={130} h={64}
-          label="reporium-mcp" sublabel="MCP protocol · agent readers"
-          accent="rgba(147,51,234,0.5)" textColor="#c084fc"
-          animDelay={layerBaseDelay + 0.15 + compBoxStagger}
-          shouldReduce={shouldReduce}
-        />
-        <CompBox
-          x={layerX + 308} y={rowY[0] + 36} w={230} h={64}
-          label="External orchestrators"
-          sublabel="Workato · LangChain · Claude Desktop · custom"
-          accent="rgba(147,51,234,0.4)" textColor="#c084fc"
-          animDelay={layerBaseDelay + 0.15 + compBoxStagger * 2}
-          shouldReduce={shouldReduce}
-        />
-      </LayerRow>
+        <title id="arch-title">Reporium AI-Native Architecture</title>
+        <desc id="arch-desc">
+          Four AI-native layers (Agent-accessible, Intelligence, Semantic, Compounding) with three cross-cutting bands
+          (Observability, Governance, Performance) mapping to real Reporium services. Click any layer to expand it.
+        </desc>
 
-      {/* Query path arrow: Agent-accessible → Intelligence */}
-      <ArrowPath
-        x1={layerX + 80} y1={rowY[0] + rowH[0]}
-        x2={layerX + 80} y2={rowY[1]}
-        stroke="rgba(34,211,238,0.55)"
-        delay={arrowDelay}
-        markerId={arrowId}
-        labelX={layerX + 86} labelY={rowY[0] + rowH[0] + 6}
-        labelText="query path ↓"
-        labelFill="rgba(34,211,238,0.6)"
-        shouldReduce={shouldReduce}
-      />
+        <defs>
+          <marker id={arrowId} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(34,211,238,0.7)" />
+          </marker>
+          <marker id={arrowUpId} markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto">
+            <path d="M8,0 L8,6 L0,3 z" fill="rgba(52,211,153,0.7)" />
+          </marker>
+        </defs>
 
-      {/* ── Layer 2: Intelligence ──────────────────────────────────────── */}
-      <LayerRow
-        layerX={layerX} layerW={layerW}
-        y={rowY[1]} h={rowH[1]}
-        label="Intelligence"
-        caption="AI is in the decision loop"
-        colors={LAYER_COLORS.intelligence}
-        rowDelay={layerBaseDelay + rowStagger}
-        shouldReduce={shouldReduce}
-      >
-        <CompBox
-          x={layerX + 10} y={rowY[1] + 36} w={200} h={78}
-          label="reporium-api" sublabel="FastAPI · Cloud Run"
-          accent="rgba(217,70,239,0.5)" textColor="#f0abfc"
-          animDelay={layerBaseDelay + rowStagger + 0.15}
+        {/* ── Layer 1: Agent-accessible ──────────────────────────────────── */}
+        <LayerRow
+          layerX={layerX} layerW={layerW}
+          y={rowY[0]} h={rowH[0]}
+          label="Agent-accessible"
+          caption="MCP and typed endpoints — agents call this directly"
+          colors={LAYER_COLORS.agentAccessible}
+          rowDelay={layerBaseDelay}
+          shouldReduce={shouldReduce}
+          onClick={() => openLayer('agentAccessible', refAgentAccessible.current)}
+          triggerRef={refAgentAccessible}
+        >
+          <CompBox
+            x={layerX + 10} y={rowY[0] + 36} w={148} h={64}
+            label="Reporium Web" sublabel="Next.js · Vercel · human readers"
+            accent="rgba(147,51,234,0.5)" textColor="#c084fc"
+            animDelay={layerBaseDelay + 0.15}
+            shouldReduce={shouldReduce}
+          />
+          <CompBox
+            x={layerX + 168} y={rowY[0] + 36} w={130} h={64}
+            label="reporium-mcp" sublabel="MCP protocol · agent readers"
+            accent="rgba(147,51,234,0.5)" textColor="#c084fc"
+            animDelay={layerBaseDelay + 0.15 + compBoxStagger}
+            shouldReduce={shouldReduce}
+          />
+          <CompBox
+            x={layerX + 308} y={rowY[0] + 36} w={230} h={64}
+            label="External orchestrators"
+            sublabel="Workato · LangChain · Claude Desktop · custom"
+            accent="rgba(147,51,234,0.4)" textColor="#c084fc"
+            animDelay={layerBaseDelay + 0.15 + compBoxStagger * 2}
+            shouldReduce={shouldReduce}
+          />
+        </LayerRow>
+
+        {/* Query path arrow: Agent-accessible → Intelligence */}
+        <ArrowPath
+          x1={layerX + 80} y1={rowY[0] + rowH[0]}
+          x2={layerX + 80} y2={rowY[1]}
+          stroke="rgba(34,211,238,0.55)"
+          delay={arrowDelay}
+          markerId={arrowId}
+          labelX={layerX + 86} labelY={rowY[0] + rowH[0] + 6}
+          labelText="query path ↓"
+          labelFill="rgba(34,211,238,0.6)"
           shouldReduce={shouldReduce}
         />
-        {/* Additional detail lines inside the API box */}
-        <text x={layerX + 18} y={rowY[1] + 78} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
-          public reads / ingest (keyed)
-        </text>
-        <text x={layerX + 18} y={rowY[1] + 90} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
-          admin (keyed) / Scalar docs
-        </text>
-        <text x={layerX + 18} y={rowY[1] + 103} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
-          rate-limited · Sentry-instrumented
-        </text>
 
-        <CompBox
-          x={layerX + 220} y={rowY[1] + 36} w={185} h={36}
-          label="LLM enrichment"
-          sublabel="model-agnostic — Claude, GPT, local"
-          accent="rgba(217,70,239,0.5)" textColor="#f0abfc"
-          animDelay={layerBaseDelay + rowStagger + 0.15 + compBoxStagger}
+        {/* ── Layer 2: Intelligence ──────────────────────────────────────── */}
+        <LayerRow
+          layerX={layerX} layerW={layerW}
+          y={rowY[1]} h={rowH[1]}
+          label="Intelligence"
+          caption="AI is in the decision loop"
+          colors={LAYER_COLORS.intelligence}
+          rowDelay={layerBaseDelay + rowStagger}
           shouldReduce={shouldReduce}
-        />
-        <CompBox
-          x={layerX + 220} y={rowY[1] + 78} w={185} h={36}
-          label="Pub/Sub event bus"
-          sublabel="topic: repo-ingested"
-          accent="rgba(217,70,239,0.4)" textColor="#f0abfc"
-          animDelay={layerBaseDelay + rowStagger + 0.15 + compBoxStagger * 2}
-          shouldReduce={shouldReduce}
-        />
-      </LayerRow>
-
-      {/* Query path arrow: Intelligence → Semantic */}
-      <ArrowPath
-        x1={layerX + 80} y1={rowY[1] + rowH[1]}
-        x2={layerX + 80} y2={rowY[2]}
-        stroke="rgba(34,211,238,0.55)"
-        delay={arrowDelay + 0.1}
-        markerId={arrowId}
-        shouldReduce={shouldReduce}
-      />
-
-      {/* ── Layer 3: Semantic ──────────────────────────────────────────── */}
-      <LayerRow
-        layerX={layerX} layerW={layerW}
-        y={rowY[2]} h={rowH[2]}
-        label="Semantic"
-        caption="Retrieval is by meaning, not strings"
-        colors={LAYER_COLORS.semantic}
-        rowDelay={layerBaseDelay + rowStagger * 2}
-        shouldReduce={shouldReduce}
-      >
-        <CompBox
-          x={layerX + 10} y={rowY[2] + 36} w={165} h={98}
-          label="Postgres + pgvector"
-          sublabel="Cloud SQL · managed backups"
-          accent="rgba(34,211,238,0.5)" textColor="#67e8f9"
-          animDelay={layerBaseDelay + rowStagger * 2 + 0.15}
-          shouldReduce={shouldReduce}
-        />
-        {/* inner details */}
-        <text x={layerX + 18} y={rowY[2] + 90} fontSize={8.5} fontFamily="monospace" fill="rgba(103,232,249,0.75)">
-          repo_embeddings
-        </text>
-        <text x={layerX + 18} y={rowY[2] + 102} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
-          384-dim · HNSW · vector_cosine_ops
-        </text>
-        <text x={layerX + 18} y={rowY[2] + 114} fontSize={8.5} fontFamily="monospace" fill="rgba(103,232,249,0.75)">
-          taxonomy_values
-        </text>
-        <text x={layerX + 18} y={rowY[2] + 126} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
-          8 dynamic dimensions · embedded
-        </text>
-        <text x={layerX + 18} y={rowY[2] + 138} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
-          cosine ≥ 0.65 taxonomy assignment
-        </text>
-
-        <CompBox
-          x={layerX + 185} y={rowY[2] + 36} w={200} h={40}
-          label="GCS snapshot"
-          sublabel="read fallback for /graph/edges"
-          accent="rgba(34,211,238,0.4)" textColor="#67e8f9"
-          animDelay={layerBaseDelay + rowStagger * 2 + 0.15 + compBoxStagger}
-          shouldReduce={shouldReduce}
-        />
-        <CompBox
-          x={layerX + 185} y={rowY[2] + 84} w={200} h={50}
-          label="Redis cache (optional)"
-          sublabel="/library/full · 5-min TTL · HNSW approx-NN"
-          accent="rgba(34,211,238,0.35)" textColor="#67e8f9"
-          animDelay={layerBaseDelay + rowStagger * 2 + 0.15 + compBoxStagger * 2}
-          shouldReduce={shouldReduce}
-        />
-      </LayerRow>
-
-      {/* Ingest flow arrow: Compounding → Semantic (up) */}
-      <ArrowPath
-        x1={layerX + 200} y1={rowY[3]}
-        x2={layerX + 200} y2={rowY[2] + rowH[2] + layerGap}
-        stroke="rgba(52,211,153,0.55)"
-        delay={arrowDelay + 0.2}
-        markerId={arrowUpId}
-        labelX={layerX + 206} labelY={rowY[3] - 2}
-        labelText="ingest flow ↑"
-        labelFill="rgba(52,211,153,0.6)"
-        shouldReduce={shouldReduce}
-      />
-
-      {/* ── Layer 4: Compounding ──────────────────────────────────────── */}
-      <LayerRow
-        layerX={layerX} layerW={layerW}
-        y={rowY[3]} h={rowH[3]}
-        label="Compounding"
-        caption="Every ingest makes the next query better"
-        colors={LAYER_COLORS.compounding}
-        rowDelay={layerBaseDelay + rowStagger * 3}
-        shouldReduce={shouldReduce}
-      >
-        <CompBox
-          x={layerX + 10} y={rowY[3] + 36} w={300} h={64}
-          label="reporium-ingestion"
-          sublabel="Cloud Run Job · nightly: pull → LLM enrich → POST /ingest/repos → publish repo.ingested"
-          accent="rgba(52,211,153,0.5)" textColor="#6ee7b7"
-          animDelay={layerBaseDelay + rowStagger * 3 + 0.15}
-          shouldReduce={shouldReduce}
-        />
-        <CompBox
-          x={layerX + 320} y={rowY[3] + 36} w={230} h={64}
-          label="forksync"
-          sublabel="Cloud Run Job · nightly: keeps forks aligned with upstreams"
-          accent="rgba(52,211,153,0.45)" textColor="#6ee7b7"
-          animDelay={layerBaseDelay + rowStagger * 3 + 0.15 + compBoxStagger}
-          shouldReduce={shouldReduce}
-        />
-      </LayerRow>
-
-      {/* ── Cross-cutting bands ─────────────────────────────────────────── */}
-
-      {/* Observability */}
-      <BandGroup delay={bandDelay} shouldReduce={shouldReduce}>
-        <g aria-label="Observability band">
-          <rect x={bandX} y={bandY0} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.observability.fill} stroke={BAND_COLORS.observability.stroke} strokeWidth={1.5} />
-          <text x={bandX + bandW / 2} y={bandY0 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.observability.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
-            OBSERVABILITY
+          onClick={() => openLayer('intelligence', refIntelligence.current)}
+          triggerRef={refIntelligence}
+        >
+          <CompBox
+            x={layerX + 10} y={rowY[1] + 36} w={200} h={78}
+            label="reporium-api" sublabel="FastAPI · Cloud Run"
+            accent="rgba(217,70,239,0.5)" textColor="#f0abfc"
+            animDelay={layerBaseDelay + rowStagger + 0.15}
+            shouldReduce={shouldReduce}
+          />
+          {/* Additional detail lines inside the API box */}
+          <text x={layerX + 18} y={rowY[1] + 78} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
+            public reads / ingest (keyed)
           </text>
-          {[
-            '/health (DB, Redis, last ingestion)',
-            '/admin/data-quality',
-            'ingestion_log table',
-            'observability/ directory',
-            'Scalar API docs (/docs)',
-          ].map((item, i) => (
-            <text key={item} x={bandX + 10} y={bandY0 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.observability.itemColor}>
-              {item}
-            </text>
-          ))}
-        </g>
-      </BandGroup>
-
-      {/* Governance */}
-      <BandGroup delay={bandDelay + 0.12} shouldReduce={shouldReduce}>
-        <g aria-label="Governance band">
-          <rect x={bandX} y={bandY0 + bandH + 6} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.governance.fill} stroke={BAND_COLORS.governance.stroke} strokeWidth={1.5} />
-          <text x={bandX + bandW / 2} y={bandY0 + bandH + 6 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.governance.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
-            GOVERNANCE
+          <text x={layerX + 18} y={rowY[1] + 90} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
+            admin (keyed) / Scalar docs
           </text>
-          {[
-            'X-Ingest-Key (ingest writes)',
-            'X-Admin-Key (admin ops)',
-            'GCP Secret Manager',
-            'SECURITY_AUDIT.md',
-          ].map((item, i) => (
-            <text key={item} x={bandX + 10} y={bandY0 + bandH + 6 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.governance.itemColor}>
-              {item}
-            </text>
-          ))}
-        </g>
-      </BandGroup>
-
-      {/* Performance */}
-      <BandGroup delay={bandDelay + 0.24} shouldReduce={shouldReduce}>
-        <g aria-label="Performance band">
-          <rect x={bandX} y={bandY0 + (bandH + 6) * 2} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.performance.fill} stroke={BAND_COLORS.performance.stroke} strokeWidth={1.5} />
-          <text x={bandX + bandW / 2} y={bandY0 + (bandH + 6) * 2 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.performance.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
-            PERFORMANCE
+          <text x={layerX + 18} y={rowY[1] + 103} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
+            rate-limited · Sentry-instrumented
           </text>
-          {[
-            'Redis cache (optional)',
-            '/library/full (5-min cache)',
-            'HNSW approximate-NN',
-            'GCS snapshot read fallback',
-          ].map((item, i) => (
-            <text key={item} x={bandX + 10} y={bandY0 + (bandH + 6) * 2 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.performance.itemColor}>
-              {item}
+
+          <CompBox
+            x={layerX + 220} y={rowY[1] + 36} w={185} h={36}
+            label="LLM enrichment"
+            sublabel="model-agnostic — Claude, GPT, local"
+            accent="rgba(217,70,239,0.5)" textColor="#f0abfc"
+            animDelay={layerBaseDelay + rowStagger + 0.15 + compBoxStagger}
+            shouldReduce={shouldReduce}
+          />
+          <CompBox
+            x={layerX + 220} y={rowY[1] + 78} w={185} h={36}
+            label="Pub/Sub event bus"
+            sublabel="topic: repo-ingested"
+            accent="rgba(217,70,239,0.4)" textColor="#f0abfc"
+            animDelay={layerBaseDelay + rowStagger + 0.15 + compBoxStagger * 2}
+            shouldReduce={shouldReduce}
+          />
+        </LayerRow>
+
+        {/* Query path arrow: Intelligence → Semantic */}
+        <ArrowPath
+          x1={layerX + 80} y1={rowY[1] + rowH[1]}
+          x2={layerX + 80} y2={rowY[2]}
+          stroke="rgba(34,211,238,0.55)"
+          delay={arrowDelay + 0.1}
+          markerId={arrowId}
+          shouldReduce={shouldReduce}
+        />
+
+        {/* ── Layer 3: Semantic ──────────────────────────────────────────── */}
+        <LayerRow
+          layerX={layerX} layerW={layerW}
+          y={rowY[2]} h={rowH[2]}
+          label="Semantic"
+          caption="Retrieval is by meaning, not strings"
+          colors={LAYER_COLORS.semantic}
+          rowDelay={layerBaseDelay + rowStagger * 2}
+          shouldReduce={shouldReduce}
+          onClick={() => openLayer('semantic', refSemantic.current)}
+          triggerRef={refSemantic}
+        >
+          <CompBox
+            x={layerX + 10} y={rowY[2] + 36} w={165} h={98}
+            label="Postgres + pgvector"
+            sublabel="Cloud SQL · managed backups"
+            accent="rgba(34,211,238,0.5)" textColor="#67e8f9"
+            animDelay={layerBaseDelay + rowStagger * 2 + 0.15}
+            shouldReduce={shouldReduce}
+          />
+          {/* inner details */}
+          <text x={layerX + 18} y={rowY[2] + 90} fontSize={8.5} fontFamily="monospace" fill="rgba(103,232,249,0.75)">
+            repo_embeddings
+          </text>
+          <text x={layerX + 18} y={rowY[2] + 102} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
+            384-dim · HNSW · vector_cosine_ops
+          </text>
+          <text x={layerX + 18} y={rowY[2] + 114} fontSize={8.5} fontFamily="monospace" fill="rgba(103,232,249,0.75)">
+            taxonomy_values
+          </text>
+          <text x={layerX + 18} y={rowY[2] + 126} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
+            8 dynamic dimensions · embedded
+          </text>
+          <text x={layerX + 18} y={rowY[2] + 138} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
+            cosine ≥ 0.65 taxonomy assignment
+          </text>
+
+          <CompBox
+            x={layerX + 185} y={rowY[2] + 36} w={200} h={40}
+            label="GCS snapshot"
+            sublabel="read fallback for /graph/edges"
+            accent="rgba(34,211,238,0.4)" textColor="#67e8f9"
+            animDelay={layerBaseDelay + rowStagger * 2 + 0.15 + compBoxStagger}
+            shouldReduce={shouldReduce}
+          />
+          <CompBox
+            x={layerX + 185} y={rowY[2] + 84} w={200} h={50}
+            label="Redis cache (optional)"
+            sublabel="/library/full · 5-min TTL · HNSW approx-NN"
+            accent="rgba(34,211,238,0.35)" textColor="#67e8f9"
+            animDelay={layerBaseDelay + rowStagger * 2 + 0.15 + compBoxStagger * 2}
+            shouldReduce={shouldReduce}
+          />
+        </LayerRow>
+
+        {/* Ingest flow arrow: Compounding → Semantic (up) */}
+        <ArrowPath
+          x1={layerX + 200} y1={rowY[3]}
+          x2={layerX + 200} y2={rowY[2] + rowH[2] + layerGap}
+          stroke="rgba(52,211,153,0.55)"
+          delay={arrowDelay + 0.2}
+          markerId={arrowUpId}
+          labelX={layerX + 206} labelY={rowY[3] - 2}
+          labelText="ingest flow ↑"
+          labelFill="rgba(52,211,153,0.6)"
+          shouldReduce={shouldReduce}
+        />
+
+        {/* ── Layer 4: Compounding ──────────────────────────────────────── */}
+        <LayerRow
+          layerX={layerX} layerW={layerW}
+          y={rowY[3]} h={rowH[3]}
+          label="Compounding"
+          caption="Every ingest makes the next query better"
+          colors={LAYER_COLORS.compounding}
+          rowDelay={layerBaseDelay + rowStagger * 3}
+          shouldReduce={shouldReduce}
+          onClick={() => openLayer('compounding', refCompounding.current)}
+          triggerRef={refCompounding}
+        >
+          <CompBox
+            x={layerX + 10} y={rowY[3] + 36} w={300} h={64}
+            label="reporium-ingestion"
+            sublabel="Cloud Run Job · nightly: pull → LLM enrich → POST /ingest/repos → publish repo.ingested"
+            accent="rgba(52,211,153,0.5)" textColor="#6ee7b7"
+            animDelay={layerBaseDelay + rowStagger * 3 + 0.15}
+            shouldReduce={shouldReduce}
+          />
+          <CompBox
+            x={layerX + 320} y={rowY[3] + 36} w={230} h={64}
+            label="forksync"
+            sublabel="Cloud Run Job · nightly: keeps forks aligned with upstreams"
+            accent="rgba(52,211,153,0.45)" textColor="#6ee7b7"
+            animDelay={layerBaseDelay + rowStagger * 3 + 0.15 + compBoxStagger}
+            shouldReduce={shouldReduce}
+          />
+        </LayerRow>
+
+        {/* ── Cross-cutting bands ─────────────────────────────────────────── */}
+
+        {/* Observability */}
+        <BandGroup delay={bandDelay} shouldReduce={shouldReduce}>
+          <g aria-label="Observability band">
+            <rect x={bandX} y={bandY0} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.observability.fill} stroke={BAND_COLORS.observability.stroke} strokeWidth={1.5} />
+            <text x={bandX + bandW / 2} y={bandY0 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.observability.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
+              OBSERVABILITY
             </text>
-          ))}
-        </g>
-      </BandGroup>
-    </motion.svg>
+            {[
+              '/health (DB, Redis, last ingestion)',
+              '/admin/data-quality',
+              'ingestion_log table',
+              'observability/ directory',
+              'Scalar API docs (/docs)',
+            ].map((item, i) => (
+              <text key={item} x={bandX + 10} y={bandY0 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.observability.itemColor}>
+                {item}
+              </text>
+            ))}
+          </g>
+        </BandGroup>
+
+        {/* Governance */}
+        <BandGroup delay={bandDelay + 0.12} shouldReduce={shouldReduce}>
+          <g aria-label="Governance band">
+            <rect x={bandX} y={bandY0 + bandH + 6} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.governance.fill} stroke={BAND_COLORS.governance.stroke} strokeWidth={1.5} />
+            <text x={bandX + bandW / 2} y={bandY0 + bandH + 6 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.governance.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
+              GOVERNANCE
+            </text>
+            {[
+              'X-Ingest-Key (ingest writes)',
+              'X-Admin-Key (admin ops)',
+              'GCP Secret Manager',
+              'SECURITY_AUDIT.md',
+            ].map((item, i) => (
+              <text key={item} x={bandX + 10} y={bandY0 + bandH + 6 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.governance.itemColor}>
+                {item}
+              </text>
+            ))}
+          </g>
+        </BandGroup>
+
+        {/* Performance */}
+        <BandGroup delay={bandDelay + 0.24} shouldReduce={shouldReduce}>
+          <g aria-label="Performance band">
+            <rect x={bandX} y={bandY0 + (bandH + 6) * 2} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.performance.fill} stroke={BAND_COLORS.performance.stroke} strokeWidth={1.5} />
+            <text x={bandX + bandW / 2} y={bandY0 + (bandH + 6) * 2 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.performance.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
+              PERFORMANCE
+            </text>
+            {[
+              'Redis cache (optional)',
+              '/library/full (5-min cache)',
+              'HNSW approximate-NN',
+              'GCS snapshot read fallback',
+            ].map((item, i) => (
+              <text key={item} x={bandX + 10} y={bandY0 + (bandH + 6) * 2 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.performance.itemColor}>
+                {item}
+              </text>
+            ))}
+          </g>
+        </BandGroup>
+      </motion.svg>
+
+      {/* Layer detail modal — portal-rendered outside SVG */}
+      {activeDetail && (
+        <LayerDetailModal
+          layer={activeDetail}
+          onClose={closeLayer}
+          triggerEl={triggerEl}
+        />
+      )}
+    </>
   );
 }
 
