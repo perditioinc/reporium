@@ -295,8 +295,8 @@ function Slide3() {
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {cards.map(({ num, layer, layerColor, layerBorder, q, body }) => (
             <motion.div
-              {...hoverExpand}
               key={num}
+              {...hoverExpand}
               className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-6 flex flex-col cursor-pointer"
               style={{ boxShadow: '0 0 16px rgba(34,211,238,0.06)' }}
             >
@@ -459,8 +459,8 @@ function Slide5() {
         <div className="mt-8 flex flex-col gap-3">
           {layers.map(({ name, tech, desc, accent, border, glow }) => (
             <motion.div
-              {...hoverExpand}
               key={name}
+              {...hoverExpand}
               className="flex flex-col rounded-xl border p-4 cursor-pointer sm:flex-row sm:items-center sm:gap-6"
               style={{ borderColor: border, boxShadow: `0 0 18px ${glow}`, background: 'rgba(9,9,17,0.7)' }}
             >
@@ -555,8 +555,8 @@ function Slide7() {
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
           {mistakes.map(({ title, body, fix }) => (
             <motion.div
-              {...hoverExpand}
               key={title}
+              {...hoverExpand}
               className="flex flex-col rounded-xl border border-red-500/25 bg-zinc-900/70 p-5 cursor-pointer"
             >
               <IconX className="mb-3 h-6 w-6 text-red-400" />
@@ -625,8 +625,8 @@ function Slide8() {
         <div className="mt-8 flex flex-col gap-3">
           {steps.map(({ n, title, desc }) => (
             <motion.div
-              {...hoverExpand}
               key={n}
+              {...hoverExpand}
               className="flex items-start gap-4 rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-3 cursor-pointer"
             >
               <span
