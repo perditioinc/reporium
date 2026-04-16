@@ -43,7 +43,7 @@ function IconLayers({ className = '', style }: { className?: string; style?: Rea
 
 const SLIDE_LABELS = [
   'Intro',
-  'The Term Problem',
+  'Why This Matters',
   'The AI-Native Test',
   'AI-Native vs AI-Added',
   'The Minimal Stack',
@@ -166,17 +166,25 @@ const hoverExpand = {
 // ─── Slide 2 — THE TERM PROBLEM ───────────────────────────────────────────────
 
 function Slide2() {
-  const left = [
-    '"We added an AI chatbot"',
-    '"We use GPT in the backend"',
-    '"Our product has AI features"',
-    '"We\'re AI-powered"',
-  ];
-  const right = [
-    'AI is in the decision loop',
-    "The product can't exist without AI",
-    'Intelligence IS the product',
-    'Designed around model capabilities',
+  // Three concrete failure snippets of untrusted AI output — the dev-hook.
+  // These are real patterns every developer has hit with the current crop
+  // of AI tools, not hypothetical. Developer voice, no marketing framing.
+  const failures = [
+    {
+      tag: 'hallucination',
+      snippet: 'from langchain.agents import load_agent  # ← does not exist',
+      why: 'Plausible import. Confident tone. Wrong.',
+    },
+    {
+      tag: 'stale citation',
+      snippet: 'cites OpenAI v0.28 API — deprecated 14 months ago',
+      why: 'Training data frozen. No freshness signal on the claim.',
+    },
+    {
+      tag: 'confident but wrong',
+      snippet: 'expect(calc.tax(100)).toBe(7.5)  // PASSES — but formula is wrong',
+      why: 'Green tests. Broken logic. Nobody caught it in review.',
+    },
   ];
 
   return (
@@ -184,57 +192,63 @@ function Slide2() {
       <C>
         <h2
           className="font-black"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.3rem, 3.8vw + 0.8svh, 2.8rem)' }}
         >
-          Everyone Is Building &ldquo;AI-Native&rdquo;
+          Every week, another &ldquo;game-changing&rdquo; AI dev tool
         </h2>
       </C>
       <C>
         <p className="mt-1.5 text-sm text-zinc-400 sm:text-lg">
-          Nobody agrees on what that means.
+          Recommendation fatigue is real. Trust isn&rsquo;t.
         </p>
       </C>
 
+      {/* Three failure snippets */}
       <C>
-        <div className="mt-4 sm:mt-6 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
-          {/* Left */}
-          <motion.div {...hoverExpand} className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-4 cursor-pointer">
-            <h3 className="mb-3 font-mono text-xs uppercase tracking-widest text-zinc-400">
-              What people say
-            </h3>
-            <ul className="space-y-2">
-              {left.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-xs text-zinc-300 sm:text-sm">
-                  <IconX className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
-                  <span className="italic">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-          {/* Right */}
-          <motion.div
-            {...hoverExpand}
-            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-4 cursor-pointer"
-            style={{ boxShadow: '0 0 24px rgba(217,70,239,0.1)' }}
-          >
-            <h3 className="mb-3 font-mono text-xs uppercase tracking-widest text-fuchsia-400">
-              What AI-native actually means
-            </h3>
-            <ul className="space-y-2">
-              {right.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-xs text-zinc-100 sm:text-sm">
-                  <IconCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fuchsia-400" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+        <div className="mt-3 sm:mt-5 grid grid-cols-1 gap-2.5 sm:gap-3 md:grid-cols-3">
+          {failures.map(({ tag, snippet, why }) => (
+            <motion.div
+              key={tag}
+              {...hoverExpand}
+              className="rounded-xl border border-red-500/25 bg-zinc-900/70 p-3 sm:p-4 cursor-pointer flex flex-col"
+            >
+              <span className="font-mono text-[10px] uppercase tracking-widest text-red-400 sm:text-xs">
+                {tag}
+              </span>
+              <pre
+                className="mt-2 whitespace-pre-wrap break-words rounded-md bg-black/50 px-2 py-1.5 font-mono text-[10px] leading-snug text-zinc-200 sm:text-[11px]"
+              >
+                {snippet}
+              </pre>
+              <p className="mt-2 text-[11px] italic text-zinc-400 sm:text-xs">{why}</p>
+            </motion.div>
+          ))}
+        </div>
+      </C>
+
+      {/* The bottleneck pattern — author's lived experience, verbatim-voice */}
+      <C>
+        <div
+          className="mt-3 sm:mt-5 rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-3 sm:p-4"
+          style={{ boxShadow: '0 0 24px rgba(217,70,239,0.1)' }}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-widest text-fuchsia-400 sm:text-xs">
+            The pattern
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-zinc-200 sm:text-sm">
+            No standard way to evaluate what&rsquo;s worth your team&rsquo;s time.
+            One senior dev becomes the gate for &ldquo;should we try X?&rdquo;
+            Velocity bottlenecks on them.
+          </p>
+          <p className="mt-2 text-[11px] italic text-zinc-400 sm:text-xs">
+            Developer adoption requires trust — and trust has to be cheap to check.
+          </p>
         </div>
       </C>
 
       <C>
-        <p className="mt-4 text-xs text-zinc-500 sm:text-sm">
-          This framework gives you the tools to know the difference — and build the real thing.
+        <p className="mt-3 text-xs text-zinc-500 sm:text-sm">
+          That&rsquo;s why Reporium exists. Next: how you tell &ldquo;AI-native&rdquo; from &ldquo;AI-added.&rdquo;
         </p>
       </C>
     </SlideWrapper>
@@ -361,7 +375,7 @@ function Slide4() {
       </C>
       <C>
         <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
-          One mental model. Everything else follows.
+          AI-powered = feature. AI-native = architecture.
         </p>
       </C>
 
