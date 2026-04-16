@@ -262,8 +262,8 @@ function Slide3() {
       layer: 'Agent-accessible layer',
       layerColor: '#c084fc',
       layerBorder: 'rgba(147,51,234,0.35)',
-      q: 'Can agents consume it as a first-class citizen?',
-      body: 'AI-native APIs are designed for both humans and agents. If only a browser can use it, you\'re half-done.',
+      q: 'Can an agent call it directly — or must it scrape your UI?',
+      body: 'AI-native products expose typed, documented endpoints any agent can invoke. If the only client is a browser, agents are shut out.',
     },
     {
       num: '04',
@@ -292,29 +292,31 @@ function Slide3() {
       </C>
 
       <C>
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {cards.map(({ num, layer, layerColor, layerBorder, q, body }) => (
             <motion.div
               {...hoverExpand}
               key={num}
-              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-4 flex flex-col cursor-pointer"
+              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-6 flex flex-col cursor-pointer"
               style={{ boxShadow: '0 0 16px rgba(34,211,238,0.06)' }}
             >
-              {/* Layer mini-badge */}
-              <span
-                className="mb-2 inline-block self-start rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em]"
-                style={{ color: layerColor, borderColor: layerBorder, background: `${layerBorder}` }}
-              >
-                {layer}
-              </span>
-              <span
-                className="block font-mono text-2xl font-black"
-                style={{ color: '#67e8f9', textShadow: neonCyan }}
-              >
-                {num}
-              </span>
-              <p className="mt-2 text-sm font-semibold text-zinc-100">{q}</p>
-              <p className="mt-2 text-xs text-zinc-400 flex-1">{body}</p>
+              {/* Header row: layer badge + number */}
+              <div className="flex items-center justify-between gap-3">
+                <span
+                  className="inline-block rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: layerColor, borderColor: layerBorder, background: `${layerBorder}` }}
+                >
+                  {layer}
+                </span>
+                <span
+                  className="font-mono text-3xl font-black leading-none"
+                  style={{ color: '#67e8f9', textShadow: neonCyan }}
+                >
+                  {num}
+                </span>
+              </div>
+              <p className="mt-4 text-base font-semibold text-zinc-100 md:text-lg">{q}</p>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-400 flex-1">{body}</p>
             </motion.div>
           ))}
         </div>

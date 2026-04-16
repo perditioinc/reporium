@@ -180,7 +180,7 @@ function DesktopDiagram() {
         layerX={layerX} layerW={layerW}
         y={rowY[0]} h={rowH[0]}
         label="Agent-accessible"
-        caption="Agents consume this as a first-class citizen"
+        caption="MCP and typed endpoints — agents call this directly"
         colors={LAYER_COLORS.agentAccessible}
       >
         <CompBox
@@ -446,7 +446,7 @@ const MOBILE_LAYERS = [
   {
     key: 'agent',
     label: 'Agent-accessible',
-    caption: 'Agents consume this as a first-class citizen',
+    caption: 'MCP and typed endpoints — agents call this directly',
     colors: LAYER_COLORS.agentAccessible,
     items: [
       'Reporium Web (Next.js · human readers)',
