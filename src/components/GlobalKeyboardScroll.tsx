@@ -23,27 +23,42 @@ function isEditable(el: EventTarget | null): boolean {
 }
 
 /**
- * Largest visible scrollable container.
+ * Largest visible scrollable container anywhere on the page.
  *
- * Routes like /graph/ have no `.overflow-y-auto` element at all — their scroll
- * container is `document.body` directly. In that case `window.scrollBy` can
- * still no-op because browsers differ on whether the root scroller is `html`
- * or `body` when body is taller than html. So if the `.overflow-y-auto` scan
- * turns up nothing, we fall back to whichever of `scrollingElement` / `body` /
- * `documentElement` actually has scroll range.
+ * The earlier implementation only scanned `.overflow-y-auto`. That missed
+ * `.overflow-y-scroll`, `.overflow-auto`, inline `overflow: auto`, and any
+ * Tailwind variant that didn't match the literal class string — breaking
+ * arrow-key scroll on /ai-native (uses overflow-y-scroll), /graph,
+ * /taxonomy, /stacks, /insights, /trends, /architecture (rely on the
+ * document scroller via min-h-screen + body overflow-y: auto).
+ *
+ * Strategy:
+ *   1. Query every plausible class + inline-overflow element
+ *   2. Verify each candidate with computed style (overflow-y: auto|scroll)
+ *      and actual scroll range (scrollHeight > clientHeight + 2)
+ *   3. Pick the visible one with the largest on-screen area
+ *   4. Fall through to the document-level scroller (scrollingElement /
+ *      body / html) if nothing matched — some routes scroll the document
+ *      itself and have no inner wrapper at all.
  */
 function findScrollEl(): HTMLElement | null {
-  const candidates = Array.from(document.querySelectorAll<HTMLElement>('.overflow-y-auto'));
+  const selector =
+    '.overflow-y-auto, .overflow-y-scroll, .overflow-auto, .overflow-scroll, [style*="overflow"]';
+  const candidates = Array.from(document.querySelectorAll<HTMLElement>(selector));
   let best: HTMLElement | null = null;
   let bestArea = 0;
   for (const c of candidates) {
-    if (c.scrollHeight > c.clientHeight + 2) {
-      const rect = c.getBoundingClientRect();
-      const area = rect.width * rect.height;
-      if (area > bestArea) {
-        bestArea = area;
-        best = c;
-      }
+    if (c.scrollHeight <= c.clientHeight + 2) continue;
+    const cs = getComputedStyle(c);
+    if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') continue;
+    const rect = c.getBoundingClientRect();
+    // Must actually be on screen and non-trivial size
+    if (rect.width < 60 || rect.height < 60) continue;
+    if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+    const area = rect.width * rect.height;
+    if (area > bestArea) {
+      bestArea = area;
+      best = c;
     }
   }
   if (best) return best;

@@ -762,13 +762,16 @@ export default function AiNativePage() {
     };
   }, []);
 
-  // Scroll to slide helper
+  // Scroll to slide helper — scroll the snap container directly. scrollIntoView
+  // on a scroll-snap-mandatory container is inconsistent across browsers (Chrome
+  // 120+ sometimes snaps back, Firefox ignores smooth), so drive the container
+  // with scrollTo(top) using the slide's offsetTop.
   const scrollToSlide = useCallback((index: number) => {
     if (typeof window === 'undefined') return;
+    const container = containerRef.current;
     const el = document.getElementById(`slide-${index}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (!container || !el) return;
+    container.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
   }, []);
 
   // Keyboard navigation
@@ -776,6 +779,12 @@ export default function AiNativePage() {
     if (typeof window === 'undefined') return;
 
     function handleKey(e: KeyboardEvent) {
+      if (e.defaultPrevented) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // Don't hijack arrows when user is typing in the ask bar or similar
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
         setActiveSlide((prev) => {
