@@ -17,9 +17,10 @@ const KnowledgeGraph3D = dynamic(
   { ssr: false },
 );
 
-const API_URL =
-  process.env.NEXT_PUBLIC_REPORIUM_API_URL ??
-  'https://api.reporium.com';
+if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
+  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
+}
+const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
 
 interface ApiRepoNode {
   name: string;
