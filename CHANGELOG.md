@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Site-wide keyboard scrolling** — new `GlobalKeyboardScroll` component makes ArrowUp/ArrowDown/PageUp/PageDown/Home/End/Space scroll the primary `.overflow-y-auto` container on every route. Pages using the `flex h-screen overflow-hidden` chrome (home, wiki, graph, etc.) previously had no keyboard scrolling because `window` has no scroll range — arrow keys fired against it and did nothing. Handler opts out on `/ai-native` so that page's own slide-nav handler remains authoritative. Inputs, textareas, contenteditable, and `role="dialog"`/`role="menu"` descendants are excluded to preserve form/modal behavior.
+- **Home-page flicker on return navigation** — removed `setData(null)` from `HomePageClient` load effect; the `provider` caches library data at module scope, so a repeat mount (user navigates back to `/` from another page) resolves synchronously from cache instead of briefly blanking the UI.
+
+### Added
+- **Loading cursor bubbles** — new `LoadingCursorBubbles` component emits small purple bubble particles at the cursor position while a Next.js route transition is in flight. Complements the existing top-of-page `RouteProgress` bar: people look at their cursor, not the top of the viewport, so loading now registers in peripheral vision. Bubble-emission is tied to the same internal-link click heuristic as `RouteProgress`; each bubble floats up and fades over 900ms via CSS animation. `pointer-events-none` / `aria-hidden` so it can't intercept clicks or pollute the a11y tree.
+
 ### Changed
 - **/ai-native: framework-first rewrite** — stripped presentation logistics and Workato-centric framing; removed hardcoded stats (1,641 repos, $5.28 spend, 10 days to ship); replaced Live Demo slide with "What Makes Reporium AI-Native" architecture slide; expanded AI-Native Test from 3 to 4 questions to map 1:1 to the 4 AI-native layers; LLM references now model-agnostic (Claude/GPT/local); replaced CEO byline with neutral "A framework from building Reporium".
 
