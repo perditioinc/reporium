@@ -139,9 +139,25 @@ function Slide1() {
           A framework from building Reporium
         </p>
       </C>
+
+      <C>
+        <p className="mt-1 font-mono text-xs text-cyan-400/80">
+          A tool for AI practitioners to evaluate AI development tools
+        </p>
+      </C>
     </SlideWrapper>
   );
 }
+
+// ─── Hover-expand primitive ──────────────────────────────────────────────────
+// All cards on this page use the same interaction curve: gentle scale + lift
+// on hover, tiny squish on tap. Framer runs these on the GPU (transform only),
+// so cost stays ~0 even with dozens of cards in flight.
+const hoverExpand = {
+  whileHover: { scale: 1.035, y: -4 },
+  whileTap: { scale: 0.98 },
+  transition: { type: 'spring' as const, stiffness: 320, damping: 22 },
+};
 
 // ─── Slide 2 — THE TERM PROBLEM ───────────────────────────────────────────────
 
@@ -178,7 +194,7 @@ function Slide2() {
       <C>
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Left */}
-          <div className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-5">
+          <motion.div {...hoverExpand} className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-5 cursor-pointer">
             <h3 className="mb-4 font-mono text-sm uppercase tracking-widest text-zinc-400">
               What people say
             </h3>
@@ -190,10 +206,11 @@ function Slide2() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
           {/* Right */}
-          <div
-            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-5"
+          <motion.div
+            {...hoverExpand}
+            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-5 cursor-pointer"
             style={{ boxShadow: '0 0 24px rgba(217,70,239,0.1)' }}
           >
             <h3 className="mb-4 font-mono text-sm uppercase tracking-widest text-fuchsia-400">
@@ -207,7 +224,7 @@ function Slide2() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
       </C>
 
@@ -277,9 +294,10 @@ function Slide3() {
       <C>
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
           {cards.map(({ num, layer, layerColor, layerBorder, q, body }) => (
-            <div
+            <motion.div
+              {...hoverExpand}
               key={num}
-              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-4 flex flex-col"
+              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-4 flex flex-col cursor-pointer"
               style={{ boxShadow: '0 0 16px rgba(34,211,238,0.06)' }}
             >
               {/* Layer mini-badge */}
@@ -297,7 +315,7 @@ function Slide3() {
               </span>
               <p className="mt-2 text-sm font-semibold text-zinc-100">{q}</p>
               <p className="mt-2 text-xs text-zinc-400 flex-1">{body}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </C>
@@ -344,7 +362,7 @@ function Slide4() {
       <C>
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* AI-Added */}
-          <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-5">
+          <motion.div {...hoverExpand} className="rounded-xl border border-red-500/30 bg-red-950/20 p-5 cursor-pointer">
             <h3 className="mb-4 font-mono text-base font-bold uppercase tracking-widest text-red-400 sm:text-lg">
               AI-Added
             </h3>
@@ -356,10 +374,11 @@ function Slide4() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
           {/* AI-Native */}
-          <div
-            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-5"
+          <motion.div
+            {...hoverExpand}
+            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-5 cursor-pointer"
             style={{ boxShadow: '0 0 24px rgba(217,70,239,0.12)' }}
           >
             <h3 className="mb-4 font-mono text-base font-bold uppercase tracking-widest text-fuchsia-400 sm:text-lg">
@@ -373,7 +392,7 @@ function Slide4() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         </div>
       </C>
     </SlideWrapper>
@@ -437,9 +456,10 @@ function Slide5() {
       <C>
         <div className="mt-8 flex flex-col gap-3">
           {layers.map(({ name, tech, desc, accent, border, glow }) => (
-            <div
+            <motion.div
+              {...hoverExpand}
               key={name}
-              className="flex flex-col rounded-xl border p-4 sm:flex-row sm:items-center sm:gap-6"
+              className="flex flex-col rounded-xl border p-4 cursor-pointer sm:flex-row sm:items-center sm:gap-6"
               style={{ borderColor: border, boxShadow: `0 0 18px ${glow}`, background: 'rgba(9,9,17,0.7)' }}
             >
               <div className="flex items-center gap-3 sm:w-44">
@@ -452,7 +472,7 @@ function Slide5() {
                 <span className="text-sm text-zinc-300">{tech}</span>
                 <span className="mt-1 text-xs italic text-zinc-500 sm:mt-0 sm:text-right">{desc}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </C>
@@ -532,9 +552,10 @@ function Slide7() {
       <C>
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
           {mistakes.map(({ title, body, fix }) => (
-            <div
+            <motion.div
+              {...hoverExpand}
               key={title}
-              className="flex flex-col rounded-xl border border-red-500/25 bg-zinc-900/70 p-5"
+              className="flex flex-col rounded-xl border border-red-500/25 bg-zinc-900/70 p-5 cursor-pointer"
             >
               <IconX className="mb-3 h-6 w-6 text-red-400" />
               <p className="text-sm font-bold text-zinc-100 sm:text-base">{title}</p>
@@ -543,7 +564,7 @@ function Slide7() {
                 <span className="font-mono text-[10px] uppercase tracking-widest text-cyan-400">Fix: </span>
                 <span className="text-xs text-zinc-300">{fix}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </C>
@@ -601,7 +622,11 @@ function Slide8() {
       <C>
         <div className="mt-8 flex flex-col gap-3">
           {steps.map(({ n, title, desc }) => (
-            <div key={n} className="flex items-start gap-4 rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-3">
+            <motion.div
+              {...hoverExpand}
+              key={n}
+              className="flex items-start gap-4 rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-3 cursor-pointer"
+            >
               <span
                 className="shrink-0 font-mono text-2xl font-black leading-none"
                 style={{ color: '#67e8f9', textShadow: neonCyan }}
@@ -612,7 +637,7 @@ function Slide8() {
                 <p className="text-sm font-semibold text-zinc-100 sm:text-base">{title}</p>
                 <p className="mt-0.5 text-xs text-zinc-400 sm:text-sm">{desc}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </C>
