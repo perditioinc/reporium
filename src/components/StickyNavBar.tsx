@@ -38,15 +38,22 @@ const NavIcon = {
       <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
     </svg>
   ),
+  architecture: (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  ),
 } as const;
 
 const NAV_LINKS = [
-  { href: '/graph',    label: 'Graph',    icon: NavIcon.graph    },
-  { href: '/wiki',     label: 'Wiki',     icon: NavIcon.wiki     },
-  { href: '/taxonomy', label: 'Taxonomy', icon: NavIcon.taxonomy },
-  { href: '/stacks',   label: 'Stacks',   icon: NavIcon.stacks   },
-  { href: '/insights', label: 'Insights', icon: NavIcon.insights },
-  { href: '/trends',   label: 'Trends',   icon: NavIcon.trends   },
+  { href: '/graph',        label: 'Graph',        icon: NavIcon.graph        },
+  { href: '/wiki',         label: 'Wiki',         icon: NavIcon.wiki         },
+  { href: '/taxonomy',     label: 'Taxonomy',     icon: NavIcon.taxonomy     },
+  { href: '/stacks',       label: 'Stacks',       icon: NavIcon.stacks       },
+  { href: '/insights',     label: 'Insights',     icon: NavIcon.insights     },
+  { href: '/trends',       label: 'Trends',       icon: NavIcon.trends       },
+  { href: '/architecture', label: 'Architecture', icon: NavIcon.architecture },
 ];
 
 interface StickyNavBarProps {
@@ -135,31 +142,41 @@ export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
-          {/* Scroll shortcuts — hide when at boundary */}
-          {!atTop && (
-            <button
-              onClick={scrollToTop}
-              className="p-1 rounded text-zinc-600 hover:text-zinc-300 transition-colors"
-              aria-label="Go to top"
-              title="Go to top"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 19V5M5 12l7-7 7 7" />
-              </svg>
-            </button>
-          )}
-          {!atBottom && (
-            <button
-              onClick={scrollToBottom}
-              className="p-1 rounded text-zinc-600 hover:text-zinc-300 transition-colors"
-              aria-label="Go to bottom"
-              title="Go to bottom"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-            </button>
-          )}
+          {/* Scroll shortcuts — always rendered so the pair of arrows is a
+              persistent anchor across every route (regression fix: home page
+              used to hide both because the scroll container detection was
+              racy). The button at the active boundary just fades to disabled
+              instead of disappearing, so the nav never reflows. */}
+          <button
+            onClick={scrollToTop}
+            disabled={atTop}
+            className={`p-1 rounded transition-colors ${
+              atTop
+                ? 'text-zinc-800 cursor-not-allowed'
+                : 'text-zinc-500 hover:text-zinc-200'
+            }`}
+            aria-label="Go to top"
+            title="Go to top"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+          </button>
+          <button
+            onClick={scrollToBottom}
+            disabled={atBottom}
+            className={`p-1 rounded transition-colors ${
+              atBottom
+                ? 'text-zinc-800 cursor-not-allowed'
+                : 'text-zinc-500 hover:text-zinc-200'
+            }`}
+            aria-label="Go to bottom"
+            title="Go to bottom"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          </button>
 
           {/* Mobile hamburger */}
           <button
