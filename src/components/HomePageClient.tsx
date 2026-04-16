@@ -99,11 +99,11 @@ export function HomePageClient() {
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Widget tabs — 'overview' renders Stats + Insights side-by-side on lg+
-  // screens so the dashboard feels dense instead of spread out. Individual
-  // tabs still exist for a focused single-widget view. null = all collapsed.
+  // Widget tabs — the home page loads with ALL tabs collapsed. Users pick
+  // the dashboard view they want; nothing is pre-expanded so the graph +
+  // billboard are the primary above-the-fold content.
   type WidgetKey = 'overview' | 'stats' | 'insights' | 'analytics' | 'dashboard';
-  const [activeWidget, setActiveWidget] = useState<WidgetKey | null>('overview');
+  const [activeWidget, setActiveWidget] = useState<WidgetKey | null>(null);
   const toggleWidget = useCallback((w: WidgetKey) => {
     setActiveWidget(prev => prev === w ? null : w);
   }, []);
@@ -843,19 +843,43 @@ export function HomePageClient() {
           )}
 
           {/* Widget content panels.
-              'overview' is a dense 2-pane layout (Stats + Insights side-by-side
-              on lg+ screens); the other tabs are single-focus views. */}
+              'overview' is a headline-KPI hero + quick-link grid — distinct
+              from Stats (which is granular tag metrics) and Insights (which
+              is library-health trends). Each other tab is a single focus view. */}
           {data && activeWidget === 'overview' && (
-            <div className="mx-3 sm:mx-4 md:mx-6 grid grid-cols-1 gap-3 lg:grid-cols-2">
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Stats</h3>
-                <StatsBar data={data} tagMetrics={data.tagMetrics} onTagClick={toggleTag} />
+            <div className="mx-3 sm:mx-4 md:mx-6 space-y-3">
+              {/* 4-up KPI hero */}
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+                {[
+                  { label: 'Repos indexed', value: data.repos.length.toLocaleString(), accent: 'text-fuchsia-300', border: 'border-fuchsia-500/30' },
+                  { label: 'Categories', value: new Set(data.repos.map(r => r.dbCategory).filter(Boolean)).size, accent: 'text-cyan-300', border: 'border-cyan-500/30' },
+                  { label: 'AI-dev skills', value: data.aiDevSkillStats?.length ?? 0, accent: 'text-amber-300', border: 'border-amber-500/30' },
+                  { label: 'Graph edge types', value: 4, accent: 'text-emerald-300', border: 'border-emerald-500/30' },
+                ].map(kpi => (
+                  <div key={kpi.label} className={`rounded-xl border ${kpi.border} bg-zinc-900/50 p-3 sm:p-4`}>
+                    <div className={`text-2xl sm:text-3xl font-bold tabular-nums ${kpi.accent}`}>{kpi.value}</div>
+                    <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-500">{kpi.label}</div>
+                  </div>
+                ))}
               </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
-                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Insights</h3>
-                <ErrorBoundary fallback={null}>
-                  <LibraryInsightsWidget repos={data.repos} onTagClick={toggleTag} />
-                </ErrorBoundary>
+              {/* Quick-links row — direct the visitor to the three most
+                  valuable destinations. Not a duplicate of any other tab. */}
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+                <Link href="/graph" className="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 transition-colors hover:border-fuchsia-500/40 hover:bg-zinc-900">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-fuchsia-300">Explore</div>
+                  <div className="mt-1 text-sm text-zinc-200">Knowledge Graph</div>
+                  <div className="mt-1 text-[11px] text-zinc-500 group-hover:text-zinc-400">See every repo and its dependencies, alternatives, and similarities in 3D.</div>
+                </Link>
+                <Link href="/ai-native" className="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 transition-colors hover:border-cyan-500/40 hover:bg-zinc-900">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-cyan-300">Watch</div>
+                  <div className="mt-1 text-sm text-zinc-200">AI-Native Talk</div>
+                  <div className="mt-1 text-[11px] text-zinc-500 group-hover:text-zinc-400">How to build your first AI-native product — 9-slide walkthrough.</div>
+                </Link>
+                <Link href="/wiki" className="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 transition-colors hover:border-amber-500/40 hover:bg-zinc-900">
+                  <div className="text-xs font-semibold uppercase tracking-wider text-amber-300">Learn</div>
+                  <div className="mt-1 text-sm text-zinc-200">Skill Wiki</div>
+                  <div className="mt-1 text-[11px] text-zinc-500 group-hover:text-zinc-400">Curated repos grouped by the AI-dev skill they teach.</div>
+                </Link>
               </div>
             </div>
           )}
