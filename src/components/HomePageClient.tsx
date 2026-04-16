@@ -170,7 +170,10 @@ export function HomePageClient() {
       setIsLoading(true);
       setError(null);
       setApiDegraded(false);
-      setData(null);
+      // Note: we deliberately do NOT setData(null) here. The provider caches
+      // library data at module scope, so a repeat mount (e.g. user navigates
+      // back to "/" from another page) resolves synchronously from cache —
+      // blanking first causes a visible flicker when returning home.
 
       // Stage 1: load owned repos (~5KB) — shows YOUR repos instantly
       const owned = await provider.getOwnedLibrary().catch(() => null);
