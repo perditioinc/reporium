@@ -22,7 +22,16 @@ function isEditable(el: EventTarget | null): boolean {
   return false;
 }
 
-/** Largest visible `.overflow-y-auto` container that actually overflows. */
+/**
+ * Largest visible scrollable container.
+ *
+ * Routes like /graph/ have no `.overflow-y-auto` element at all — their scroll
+ * container is `document.body` directly. In that case `window.scrollBy` can
+ * still no-op because browsers differ on whether the root scroller is `html`
+ * or `body` when body is taller than html. So if the `.overflow-y-auto` scan
+ * turns up nothing, we fall back to whichever of `scrollingElement` / `body` /
+ * `documentElement` actually has scroll range.
+ */
 function findScrollEl(): HTMLElement | null {
   const candidates = Array.from(document.querySelectorAll<HTMLElement>('.overflow-y-auto'));
   let best: HTMLElement | null = null;
@@ -37,7 +46,17 @@ function findScrollEl(): HTMLElement | null {
       }
     }
   }
-  return best;
+  if (best) return best;
+
+  // Fall back to the document-level scroller. Prefer `document.scrollingElement`
+  // (the browser's own canonical root scroller) when it actually overflows.
+  const se = document.scrollingElement as HTMLElement | null;
+  if (se && se.scrollHeight > se.clientHeight + 2) return se;
+  const body = document.body;
+  if (body && body.scrollHeight > body.clientHeight + 2) return body;
+  const html = document.documentElement;
+  if (html && html.scrollHeight > html.clientHeight + 2) return html;
+  return null;
 }
 
 export function GlobalKeyboardScroll() {
