@@ -41,6 +41,7 @@ import {
   PLANET_VERT,
 } from '@/lib/planetShader';
 import { LegendRenderer } from '@/components/LegendRenderer';
+import Link from 'next/link';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1770,18 +1771,33 @@ export function KnowledgeGraph3D({
               </div>
             )}
 
-            {/* Open repo button */}
-            {onNodeClick && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNodeClick(selectedNode.id);
-                }}
-                className="mt-3 w-full rounded-lg bg-zinc-800 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors text-center"
-              >
-                Open repo details &rarr;
-              </button>
-            )}
+            {/* Open repo button — uses Link as primary navigation so it works
+                even when the parent forgets to wire onNodeClick (regression
+                guard). onNodeClick still fires for callers that depend on it
+                (e.g. analytics), but failures there don't block navigation. */}
+            {(() => {
+              const repoSlug = selectedNode.id.includes('/')
+                ? selectedNode.id.split('/').pop()!
+                : selectedNode.id;
+              return (
+                <Link
+                  href={`/repo/${repoSlug}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onNodeClick) {
+                      try {
+                        onNodeClick(selectedNode.id);
+                      } catch (err) {
+                        console.error('onNodeClick handler threw:', err);
+                      }
+                    }
+                  }}
+                  className="mt-3 block w-full rounded-lg bg-zinc-800 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 transition-colors text-center"
+                >
+                  Open repo details &rarr;
+                </Link>
+              );
+            })()}
           </div>
         </div>
       )}
