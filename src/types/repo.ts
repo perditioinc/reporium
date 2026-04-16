@@ -41,6 +41,10 @@ export interface SkillStats {
   repoCount: number
   coverage: 'strong' | 'moderate' | 'weak' | 'none'
   topRepos: string[]
+  /** Optional lifecycle bucket (e.g. "Foundation & Training", "Inference & Deployment").
+   * Populated by the backend buildSkillStats() for AI dev skills so the wiki
+   * can group skills by stage. May be absent on older library.json builds. */
+  lifecycleGroup?: string
 }
 
 /** Latest release info for a repo */

@@ -1,56 +1,26 @@
 'use client';
 
 /**
- * KAN-124: 3D constellation knowledge graph widget for the home page.
- * Fetches edges from the API and renders an interactive 3D graph
- * with zoom, rotation, info bubbles, and fullscreen support.
+ * KAN-124: Stable knowledge graph widget for the home page.
+ * Fetches edges from the API and renders a lightweight canvas graph
+ * that stays visible even when WebGL is flaky on the client.
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
+import { loadGraphDataset } from '@/lib/graphData';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
 
 // Dynamic import — Three.js doesn't work with SSR/static export
-const KnowledgeGraph3D = dynamic(
+const KnowledgeGraph = dynamic(
   () => import('@/components/KnowledgeGraph3D').then((m) => ({ default: m.KnowledgeGraph3D })),
   { ssr: false },
 );
 
-if (!process.env.NEXT_PUBLIC_REPORIUM_API_URL) {
-  throw new Error('NEXT_PUBLIC_REPORIUM_API_URL environment variable is not set');
-}
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
-
-interface ApiRepoNode {
-  name: string;
-  description?: string | null;
-  category?: string | null;
-  upstream?: string | null;
-  owner?: string | null;
-}
-
-interface ApiEdge {
-  source?: ApiRepoNode;
-  target?: ApiRepoNode;
-  source_name?: string;
-  source_owner?: string;
-  source_upstream?: string;
-  target_name?: string;
-  target_owner?: string;
-  target_upstream?: string;
-  edgeType?: string;
-  edge_type?: string;
-  weight?: number;
-  evidence?: string | Record<string, unknown>;
-}
-
-interface ApiResponse {
-  total?: number;
-  total_edges?: number;
-  total_repos?: number;
-  edges: ApiEdge[];
-}
+import { API_URL } from '@/lib/apiUrl';
 
 interface HomeGraphWidgetProps {
   /** When a repo card is selected externally, highlight it on the graph */
@@ -66,61 +36,29 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalEdges, setTotalEdges] = useState(0);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    setStatusMessage(null);
 
-    fetch(`${API_URL}/graph/edges?limit=6000&neighbours=5&min_similarity=0.40`, {
+    loadGraphDataset({
+      apiUrl: API_URL,
+      limit: 10000,
+      neighbours: 5,
+      minSimilarity: 0.4,
       signal: controller.signal,
-      headers: { Accept: 'application/json' },
     })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        const data: ApiResponse = await res.json();
+      .then((dataset) => {
         if (cancelled) return;
 
-        setTotalEdges(data.total ?? data.total_edges ?? 0);
-
-        const nodeId = (
-          node: ApiRepoNode | undefined,
-          flatUpstream?: string,
-          flatOwner?: string,
-          flatName?: string,
-        ): string => {
-          if (node) {
-            return node.upstream ?? (node.owner ? `${node.owner}/${node.name}` : node.name);
-          }
-          return flatUpstream ?? (flatOwner ? `${flatOwner}/${flatName ?? ''}` : flatName ?? 'unknown');
-        };
-
-        const edgesList: GraphEdge[] = data.edges.map((e) => ({
-          source: nodeId(e.source, e.source_upstream, e.source_owner, e.source_name),
-          target: nodeId(e.target, e.target_upstream, e.target_owner, e.target_name),
-          edge_type: e.edgeType ?? e.edge_type ?? 'SIMILAR_TO',
-          weight: e.weight,
-        }));
-
-        const meta = new Map<string, NodeMeta>();
-        for (const e of data.edges) {
-          const srcId = nodeId(e.source, e.source_upstream, e.source_owner, e.source_name);
-          const tgtId = nodeId(e.target, e.target_upstream, e.target_owner, e.target_name);
-          if (!meta.has(srcId) && e.source) {
-            meta.set(srcId, {
-              category: e.source.category ?? null,
-              description: e.source.description ?? null,
-            });
-          }
-          if (!meta.has(tgtId) && e.target) {
-            meta.set(tgtId, {
-              category: e.target.category ?? null,
-              description: e.target.description ?? null,
-            });
-          }
-        }
-
-        setEdges(edgesList);
-        setNodeMetadata(meta);
+        setTotalEdges(dataset.totalEdges);
+        setEdges(dataset.edges);
+        setNodeMetadata(dataset.nodeMetadata);
+        setStatusMessage(dataset.message);
         setLoading(false);
       })
       .catch((err) => {
@@ -136,8 +74,8 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
   }, []);
 
   const nodeCount = useMemo(
-    () => new Set(edges.flatMap((e) => [e.source, e.target])).size,
-    [edges],
+    () => nodeMetadata.size || new Set(edges.flatMap((e) => [e.source, e.target])).size,
+    [nodeMetadata, edges],
   );
 
   const handleNodeClick = useCallback(
@@ -154,9 +92,6 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     [router, onGraphNodeSelect],
   );
 
-  // Don't render anything if graph fails to load
-  if (error) return null;
-
   return (
     <div className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
@@ -164,9 +99,12 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
           <h2 className="text-sm font-semibold text-zinc-200">Knowledge Graph</h2>
           <p className="text-xs text-zinc-500 mt-0.5">
             {loading
-              ? 'Loading constellation...'
-              : `${nodeCount} repos \u00b7 ${edges.length.toLocaleString()} similarity edges`}
+              ? 'Loading graph...'
+              : `${nodeCount} repos \u00b7 ${(totalEdges || edges.length).toLocaleString()} connections`}
           </p>
+          {!loading && statusMessage && (
+            <p className="text-[11px] text-amber-300 mt-1">{statusMessage}</p>
+          )}
         </div>
       </div>
 
@@ -174,18 +112,36 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
         <div className="flex items-center justify-center h-[420px]">
           <span className="flex items-center gap-2 text-sm text-zinc-500">
             <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-            Loading constellation...
+            Loading graph...
           </span>
         </div>
-      ) : (
-        <KnowledgeGraph3D
-          edges={edges}
-          nodeMetadata={nodeMetadata}
-          height={420}
-          onNodeClick={handleNodeClick}
+      ) : error ? (
+        <GraphFallbackPanel
+          title="Knowledge graph temporarily unavailable"
+          message="The homepage preview could not load, but the graph route is still available."
+          detail={error}
           compact
-          selectedNodeId={selectedRepoName}
+          height={420}
         />
+      ) : (
+        <ErrorBoundary
+          fallback={
+            <GraphFallbackPanel
+              title="Knowledge graph preview unavailable"
+              message="Graph rendering failed in this browser session. You can still open the dedicated graph page."
+              compact
+              height={420}
+            />
+          }
+        >
+          <KnowledgeGraph
+            edges={edges}
+            nodeMetadata={nodeMetadata}
+            height={420}
+            onNodeClick={handleNodeClick}
+            selectedNodeId={selectedRepoName}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );
