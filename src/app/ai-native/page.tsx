@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { SlideWrapper, childVariants } from '@/components/ai-native/SlideWrapper';
 import { SlideDots } from '@/components/ai-native/SlideDots';
 import { SlideProgress } from '@/components/ai-native/SlideProgress';
+import { ArchitectureDiagram } from '@/components/ai-native/ArchitectureDiagram';
 
 // ─── Inline icon components (lucide-react not installed) ──────────────────────
 
@@ -38,26 +39,17 @@ function IconLayers({ className = '', style }: { className?: string; style?: Rea
   );
 }
 
-function IconArrowRight({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
-
 // ─── Slide metadata ───────────────────────────────────────────────────────────
 
 const SLIDE_LABELS = [
-  'Title',
+  'Intro',
   'The Term Problem',
   'The AI-Native Test',
   'AI-Native vs AI-Added',
   'The Minimal Stack',
+  'What Makes Reporium AI-Native',
   '3 Mistakes',
   'How to Start',
-  'Live Demo',
   'One Takeaway',
 ];
 
@@ -99,12 +91,12 @@ function Eyebrow({ children, cyan = false }: { children: React.ReactNode; cyan?:
   );
 }
 
-// ─── Slide 1 — TITLE ─────────────────────────────────────────────────────────
+// ─── Slide 1 — HERO (Intro) ───────────────────────────────────────────────────
 
 function Slide1() {
   return (
     <SlideWrapper id="slide-0">
-      {/* Grid background on slide 1 */}
+      {/* Grid background */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.09]"
@@ -130,63 +122,22 @@ function Slide1() {
           className="mt-4 text-3xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
         >
-          How to Build Your First
+          How to Build AI-Native Products
           <br />
-          <span style={{ color: '#a5f3fc', textShadow: neonCyan }}>AI-Native Product</span>
+          <span style={{ color: '#a5f3fc', textShadow: neonCyan }}>That Actually Work</span>
         </h1>
       </C>
 
       <C>
         <p className="mt-4 text-base text-zinc-400 sm:text-lg md:text-xl">
-          What &ldquo;AI-native&rdquo; actually means — and how to ship it
+          What AI-native actually means — and how to ship it
         </p>
       </C>
 
       <C>
         <p className="mt-2 font-mono text-sm text-zinc-500">
-          Kim Loza · CEO, Perditio Inc · Builder of Reporium
+          A framework from building Reporium
         </p>
-      </C>
-
-      {/* Stat pills */}
-      <C>
-        <div className="mt-8 flex flex-wrap gap-3">
-          {[
-            { value: '1,641', label: 'AI repos indexed' },
-            { value: '$5.28', label: 'total AI API spend' },
-            { value: '10 days', label: 'to ship v1' },
-          ].map(({ value, label }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/30 px-5 py-3"
-              style={{ boxShadow: '0 0 20px rgba(217,70,239,0.12)' }}
-            >
-              <span
-                className="text-2xl font-black sm:text-3xl"
-                style={{ color: '#f0abfc', textShadow: neonFuchsia }}
-              >
-                {value}
-              </span>
-              <span className="mt-0.5 font-mono text-[11px] uppercase tracking-widest text-zinc-400">
-                {label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </C>
-
-      {/* Badges */}
-      <C>
-        <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-          {['20 min talk', 'Live demo', 'Q&A 10 min'].map((b) => (
-            <span key={b} className="rounded-full border border-zinc-700 px-2.5 py-1">
-              {b}
-            </span>
-          ))}
-          <span className="rounded-full border border-cyan-500/40 px-2.5 py-1 text-cyan-400">
-            reporium.com
-          </span>
-        </div>
       </C>
     </SlideWrapper>
   );
@@ -262,29 +213,46 @@ function Slide2() {
 
       <C>
         <p className="mt-6 text-sm text-zinc-500 sm:text-base">
-          This talk gives you the framework to know the difference — and build the real thing.
+          This framework gives you the tools to know the difference — and build the real thing.
         </p>
       </C>
     </SlideWrapper>
   );
 }
 
-// ─── Slide 3 — THE AI-NATIVE TEST ────────────────────────────────────────────
+// ─── Slide 3 — THE AI-NATIVE TEST (4 Questions) ───────────────────────────────
 
 function Slide3() {
   const cards = [
     {
       num: '01',
+      layer: 'Intelligence layer',
+      layerColor: '#f0abfc',
+      layerBorder: 'rgba(217,70,239,0.35)',
       q: 'Does AI change the outcome — or just the interface?',
       body: 'If removing the AI leaves the product intact, you added AI. You didn\'t build AI-native.',
     },
     {
       num: '02',
-      q: 'Is intelligence a layer — or the foundation?',
-      body: 'AI-native means the data model, the query model, and the UX are all designed around how models think.',
+      layer: 'Semantic layer',
+      layerColor: '#67e8f9',
+      layerBorder: 'rgba(34,211,238,0.35)',
+      q: 'Is retrieval by meaning — or by strings?',
+      body: 'AI-native products understand queries semantically. Exact-match search is not AI-native retrieval.',
     },
     {
       num: '03',
+      layer: 'Agent-accessible layer',
+      layerColor: '#c084fc',
+      layerBorder: 'rgba(147,51,234,0.35)',
+      q: 'Can agents consume it as a first-class citizen?',
+      body: 'AI-native APIs are designed for both humans and agents. If only a browser can use it, you\'re half-done.',
+    },
+    {
+      num: '04',
+      layer: 'Compounding layer',
+      layerColor: '#6ee7b7',
+      layerBorder: 'rgba(52,211,153,0.35)',
       q: 'Does the product get smarter with use?',
       body: 'AI-native products compound. Every query, every edge, every interaction makes the next one better.',
     },
@@ -297,31 +265,38 @@ function Slide3() {
           className="text-2xl font-black sm:text-4xl md:text-5xl"
           style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
         >
-          The AI-Native Test: 3 Questions
+          The AI-Native Test: 4 Questions
         </h2>
       </C>
       <C>
         <p className="mt-2 text-base text-zinc-400 sm:text-lg">
-          Ask these before you write a single line of code
+          Ask these before you write a single line of code — each maps to one of the 4 AI-native layers
         </p>
       </C>
 
       <C>
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-          {cards.map(({ num, q, body }) => (
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+          {cards.map(({ num, layer, layerColor, layerBorder, q, body }) => (
             <div
               key={num}
-              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-5"
+              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-4 flex flex-col"
               style={{ boxShadow: '0 0 16px rgba(34,211,238,0.06)' }}
             >
+              {/* Layer mini-badge */}
               <span
-                className="block font-mono text-3xl font-black"
+                className="mb-2 inline-block self-start rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em]"
+                style={{ color: layerColor, borderColor: layerBorder, background: `${layerBorder}` }}
+              >
+                {layer}
+              </span>
+              <span
+                className="block font-mono text-2xl font-black"
                 style={{ color: '#67e8f9', textShadow: neonCyan }}
               >
                 {num}
               </span>
-              <p className="mt-2 text-sm font-semibold text-zinc-100 sm:text-base">{q}</p>
-              <p className="mt-2 text-xs text-zinc-400 sm:text-sm">{body}</p>
+              <p className="mt-2 text-sm font-semibold text-zinc-100">{q}</p>
+              <p className="mt-2 text-xs text-zinc-400 flex-1">{body}</p>
             </div>
           ))}
         </div>
@@ -411,7 +386,7 @@ function Slide5() {
   const layers = [
     {
       name: 'Intelligence Layer',
-      tech: 'LLM API (Claude, GPT)',
+      tech: 'LLM API (model-agnostic — Claude, GPT, local)',
       desc: 'Answers, enrichment, classification',
       accent: '#f0abfc',
       border: 'rgba(217,70,239,0.4)',
@@ -484,16 +459,47 @@ function Slide5() {
 
       <C>
         <p className="mt-5 text-sm text-zinc-500">
-          Reporium uses this exact stack. Let me show you.
+          Reporium uses this exact stack.
         </p>
       </C>
     </SlideWrapper>
   );
 }
 
-// ─── Slide 6 — 3 MISTAKES ────────────────────────────────────────────────────
+// ─── Slide 6 — WHAT MAKES REPORIUM AI-NATIVE (Architecture) ──────────────────
 
 function Slide6() {
+  return (
+    <SlideWrapper id="slide-5">
+      <C>
+        <h2
+          className="text-2xl font-black sm:text-4xl md:text-5xl"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+        >
+          What Makes Reporium AI-Native
+        </h2>
+      </C>
+      <C>
+        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+          The framework, mapped to real services
+        </p>
+      </C>
+      <C>
+        <p className="mt-3 text-sm text-zinc-500 sm:text-base max-w-3xl">
+          Four AI-native layers — Agent-accessible, Intelligence, Semantic, Compounding — run vertically through every request. Three cross-cutting bands — Observability, Governance, Performance — span all layers to keep the system trustworthy and fast.
+        </p>
+      </C>
+
+      <C className="mt-4">
+        <ArchitectureDiagram />
+      </C>
+    </SlideWrapper>
+  );
+}
+
+// ─── Slide 7 — 3 MISTAKES ────────────────────────────────────────────────────
+
+function Slide7() {
   const mistakes = [
     {
       title: 'Starting with the model, not the problem',
@@ -507,13 +513,13 @@ function Slide6() {
     },
     {
       title: 'Making AI a feature instead of the foundation',
-      body: "A search bar that uses GPT is still just a search bar. AI-native means the product can't function without intelligence.",
+      body: "A search bar that uses an LLM is still just a search bar. AI-native means the product can't function without intelligence.",
       fix: '"Ask — if I removed the AI, does this product still exist?"',
     },
   ];
 
   return (
-    <SlideWrapper id="slide-5">
+    <SlideWrapper id="slide-6">
       <C>
         <h2
           className="text-2xl font-black sm:text-4xl md:text-5xl"
@@ -545,9 +551,9 @@ function Slide6() {
   );
 }
 
-// ─── Slide 7 — HOW TO START ───────────────────────────────────────────────────
+// ─── Slide 8 — HOW TO START ───────────────────────────────────────────────────
 
-function Slide7() {
+function Slide8() {
   const steps = [
     {
       n: '1',
@@ -562,7 +568,7 @@ function Slide7() {
     {
       n: '3',
       title: 'Pick the smallest useful model',
-      desc: 'Haiku for classification. Sonnet for answers. Don\'t over-engineer early.',
+      desc: 'Use a fast, cheap model for classification and a stronger one only when reasoning is actually needed. Don\'t over-engineer early.',
     },
     {
       n: '4',
@@ -577,7 +583,7 @@ function Slide7() {
   ];
 
   return (
-    <SlideWrapper id="slide-6">
+    <SlideWrapper id="slide-7">
       <C>
         <h2
           className="text-2xl font-black sm:text-4xl md:text-5xl"
@@ -614,88 +620,7 @@ function Slide7() {
   );
 }
 
-// ─── Slide 8 — LIVE DEMO ─────────────────────────────────────────────────────
-
-function Slide8() {
-  const steps = [
-    { n: '01', title: 'Open reporium.com', desc: '1,641 AI repos — indexed, categorized, live' },
-    { n: '02', title: 'Run a semantic query', desc: '"Show me repos that do RAG with pgvector"' },
-    {
-      n: '03',
-      title: 'Ask the intelligence endpoint',
-      desc: 'Natural language → Reporium-powered answer with citations',
-    },
-    {
-      n: '04',
-      title: '[Optional] MCP sandbox',
-      desc: 'Show how Workato tooling could surface the same data to agents',
-    },
-  ];
-
-  return (
-    <SlideWrapper id="slide-7">
-      {/* Radial glow background */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,211,238,0.07) 0%, transparent 70%)',
-        }}
-      />
-
-      <C>
-        <span
-          className="inline-block rounded-full border border-cyan-400/50 bg-cyan-950/30 px-4 py-1.5 font-mono text-sm font-bold uppercase tracking-[0.25em] sm:text-base"
-          style={{ color: '#67e8f9', textShadow: neonCyan, boxShadow: '0 0 20px rgba(34,211,238,0.25)' }}
-        >
-          ▶ LIVE DEMO
-        </span>
-      </C>
-
-      <C>
-        <a
-          href="/"
-          className="mt-4 block text-4xl font-black leading-tight tracking-tight hover:opacity-80 sm:text-6xl md:text-7xl"
-          style={{ color: '#a5f3fc', textShadow: neonCyan }}
-        >
-          reporium.com
-          <IconArrowRight className="ml-2 inline-block h-8 w-8 sm:h-12 sm:w-12" />
-        </a>
-      </C>
-
-      <C>
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {steps.map(({ n, title, desc }) => (
-            <div
-              key={n}
-              className="flex items-start gap-3 rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-4"
-            >
-              <span
-                className="shrink-0 font-mono text-xl font-black"
-                style={{ color: '#67e8f9', textShadow: neonCyan }}
-              >
-                {n}
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-zinc-100 sm:text-base">{title}</p>
-                <p className="mt-0.5 text-xs italic text-zinc-400 sm:text-sm">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </C>
-
-      <C>
-        <p className="mt-5 text-sm italic text-zinc-500">
-          The point isn&rsquo;t Reporium. The point is what AI-native looks like when it&rsquo;s working.
-        </p>
-      </C>
-    </SlideWrapper>
-  );
-}
-
-// ─── Slide 9 — THE ONE TAKEAWAY ───────────────────────────────────────────────
+// ─── Slide 9 — ONE TAKEAWAY ───────────────────────────────────────────────────
 
 function Slide9() {
   const checks = [
@@ -754,9 +679,8 @@ function Slide9() {
 
       <C>
         <div className="mt-8 border-t border-zinc-800 pt-6">
-          <p className="font-mono text-xl font-bold text-zinc-300 sm:text-2xl">Q&amp;A</p>
-          <p className="mt-3 text-xs text-zinc-500 sm:text-sm">
-            Kim Loza · reporium.com · github.com/perditioinc
+          <p className="font-mono text-xs text-zinc-500">
+            reporium.com · github.com/perditioinc
           </p>
         </div>
       </C>

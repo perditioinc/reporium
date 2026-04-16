@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+- **/ai-native: framework-first rewrite** — stripped presentation logistics and Workato-centric framing; removed hardcoded stats (1,641 repos, $5.28 spend, 10 days to ship); replaced Live Demo slide with "What Makes Reporium AI-Native" architecture slide; expanded AI-Native Test from 3 to 4 questions to map 1:1 to the 4 AI-native layers; LLM references now model-agnostic (Claude/GPT/local); replaced CEO byline with neutral "A framework from building Reporium".
+
+### Added
+- **Architecture diagram on /ai-native** — inline SVG mapping 4 AI-native layers (Agent-accessible, Intelligence, Semantic, Compounding) and 3 cross-cutting bands (Observability, Governance, Performance) to real Reporium services from the verified reporium-api README. Responsive (1440/1024/768), accessible (aria-labels, role=img).
+
+### Removed
+- **/ai-native: Q&A close** — replaced with one-takeaway close.
+- **/ai-native: Live Demo slide** — no more Workato-centric demo script embedded in the public page.
+
 ### Added
 - **Knowledge Graph: Typed edge geometry** — Each relationship type now has a visually distinct style:
   - `SIMILAR_TO`: thin straight lines (unchanged baseline, best performance)
