@@ -1809,8 +1809,8 @@ export function KnowledgeGraph3D({
                 </span>
               ))}
             {presentEdgeTypes.has('SIMILAR_TO') && (
-              <span className="inline-flex items-center gap-1.5 text-[9px] text-zinc-500">
-                <span className="inline-block w-5 h-[2px] rounded-full bg-gradient-to-r from-violet-400 via-teal-400 to-amber-400 opacity-70" />
+              <span className="inline-flex items-center gap-1.5 text-[9px] text-zinc-400">
+                <span className="inline-block w-5 h-[2px] rounded-full bg-gradient-to-r from-violet-400 via-teal-400 to-amber-400" />
                 Similarity
               </span>
             )}
