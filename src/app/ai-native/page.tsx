@@ -48,7 +48,7 @@ const SLIDE_LABELS = [
   'AI-Native vs AI-Added',
   'The Minimal Stack',
   'What Makes Reporium AI-Native',
-  '3 Mistakes',
+  '4 Mistakes',
   'How to Start',
   'One Takeaway',
 ];
@@ -346,7 +346,7 @@ function Slide4() {
     'Data model built for embeddings',
     'Intelligence is the core value prop',
     'Decisions made by the system, not UI',
-    'Example: Reporium — a knowledge graph that only exists because of AI',
+    'Example: Reporium — knowledge graph + embeddings are the retrieval engine',
   ];
 
   return (
@@ -443,6 +443,16 @@ function Slide5() {
     },
   ];
 
+  // Cross-cutting concerns — not layers themselves, but the scaffolding every
+  // AI-native stack needs to stay trustworthy in production. Separated
+  // visually so the core-4 message stays clean.
+  const crossCutting = [
+    { name: 'Trust', tech: 'Citations · provenance · freshness', desc: 'Cheap to verify' },
+    { name: 'Orchestration', tech: 'Agents · tool-calling · pipelines', desc: 'Compose intelligence' },
+    { name: 'Observability', tech: 'Traces · token cost · latency', desc: 'See what the model did' },
+    { name: 'Evals & Benchmarks', tech: 'Deterministic quality checks', desc: 'Re-runnable, not vibes' },
+  ];
+
   return (
     <SlideWrapper id="slide-4">
       <C>
@@ -480,6 +490,29 @@ function Slide5() {
               </div>
             </motion.div>
           ))}
+        </div>
+      </C>
+
+      <C>
+        <div className="mt-3 sm:mt-4">
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500 sm:text-xs">
+            + Cross-cutting — what keeps it trustworthy in production
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+            {crossCutting.map(({ name, tech, desc }) => (
+              <motion.div
+                key={name}
+                {...hoverExpand}
+                className="flex flex-col rounded-lg border border-zinc-700/60 bg-zinc-900/50 p-2.5 cursor-pointer sm:p-3"
+              >
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-200 sm:text-xs">
+                  {name}
+                </span>
+                <span className="mt-1 text-[10px] text-zinc-400 sm:text-xs">{tech}</span>
+                <span className="mt-1 text-[9px] italic text-zinc-600 sm:text-[11px]">{desc}</span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </C>
 
@@ -542,6 +575,11 @@ function Slide7() {
       body: "A search bar that uses an LLM is still just a search bar. AI-native means the product can't function without intelligence.",
       fix: '"Ask — if I removed the AI, does this product still exist?"',
     },
+    {
+      title: 'Shipping AI output devs can\'t verify',
+      body: 'Hallucinated imports, stale citations, confident-but-wrong tests. Without provenance and re-runnable checks, developer teams bottleneck on one senior who trusts the tool.',
+      fix: 'Citations + deterministic re-checks + freshness timestamps on every AI claim.',
+    },
   ];
 
   return (
@@ -551,12 +589,12 @@ function Slide7() {
           className="font-black"
           style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.2rem, 3.5vw + 0.8svh, 2.8rem)' }}
         >
-          3 Mistakes That Make Products AI-Added, Not AI-Native
+          4 Mistakes That Make Products AI-Added, Not AI-Native
         </h2>
       </C>
 
       <C>
-        <div className="mt-3 sm:mt-5 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+        <div className="mt-3 sm:mt-5 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
           {mistakes.map(({ title, body, fix }) => (
             <motion.div
               key={title}
