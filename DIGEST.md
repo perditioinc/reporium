@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 9, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 12, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Conversational AI** (+241100% vs last week)
-openclaw, dify, posthog are most active.
+**Log Analytics** (+96000% vs last week)
+ClickHouse, vector, doris are most active.
 
-**Cross-platform Development** (+194800% vs last week)
-openclaw, godot, ppsspp are most active.
+**Real-time AI** (+94600% vs last week)
+opencv, redis, ClickHouse are most active.
 
-**Cross-platform AI** (+193400% vs last week)
-openclaw, onnxruntime are most active.
+**AdTech** (+93500% vs last week)
+ClickHouse, doris are most active.
 
 ---
 
@@ -25,9 +25,8 @@ openclaw, onnxruntime are most active.
 ---
 
 ## 30-Day Summary
-- **📦 Other AI / ML** most active category (62495 commits across 1422 repos)
-- **Conversational AI** fastest growing (+241100% commit velocity)
-- **Technology Research** cooling (-100% change in activity)
+- **📦 Other AI / ML** most active category (70055 commits across 1422 repos)
+- **Log Analytics** fastest growing (+96000% commit velocity)
 
 ---
 

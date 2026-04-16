@@ -76,8 +76,10 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
       onHoverEnd={() => setHovered(false)}
       style={{
         borderRadius: '0.5rem',
-        border: `1px solid ${borderColor}`,
         borderTop: `3px solid ${topBorderColor}`,
+        borderRight: `1px solid ${borderColor}`,
+        borderBottom: `1px solid ${borderColor}`,
+        borderLeft: `1px solid ${borderColor}`,
         boxShadow,
         backgroundColor: bgColor,
         backdropFilter: 'blur(20px) saturate(160%)',

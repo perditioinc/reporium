@@ -18,7 +18,9 @@ import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
+import { CyberpunkBillboard } from '@/components/CyberpunkBillboard';
 import type { NLFilterResult } from '@/types/repo';
+import { getCategoryColor } from '@/lib/categoryColors';
 
 // Lazy-load heavy components — they aren't needed for initial paint
 const FilterBar = dynamic(() => import('@/components/FilterBar').then(m => ({ default: m.FilterBar })), { ssr: false });
@@ -97,9 +99,12 @@ export function HomePageClient() {
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Widget tabs — only one expanded at a time, null = all collapsed
-  const [activeWidget, setActiveWidget] = useState<'stats' | 'insights' | 'analytics' | 'dashboard' | null>(null);
-  const toggleWidget = useCallback((w: 'stats' | 'insights' | 'analytics' | 'dashboard') => {
+  // Widget tabs — 'overview' renders Stats + Insights side-by-side on lg+
+  // screens so the dashboard feels dense instead of spread out. Individual
+  // tabs still exist for a focused single-widget view. null = all collapsed.
+  type WidgetKey = 'overview' | 'stats' | 'insights' | 'analytics' | 'dashboard';
+  const [activeWidget, setActiveWidget] = useState<WidgetKey | null>('overview');
+  const toggleWidget = useCallback((w: WidgetKey) => {
     setActiveWidget(prev => prev === w ? null : w);
   }, []);
 
@@ -778,6 +783,10 @@ export function HomePageClient() {
   }, [selectedRepo, filteredAndSortedRepos]);
   const relatedNames = useMemo(() => new Set(relatedRepos.map(r => r.name)), [relatedRepos]);
 
+  const selectedCatColor = useMemo(() => getCategoryColor(selectedRepo?.dbCategory ?? null), [selectedRepo]);
+  const selectedCatBorder = `${selectedCatColor}4d`;
+  const selectedCatBg = `${selectedCatColor}22`;
+
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* ── Main content ── */}
@@ -785,13 +794,14 @@ export function HomePageClient() {
         {/* Stage 2 loading banner — fades in/out while owned repos stay visible */}
         <LoadingBanner visible={isLoadingFull} progress={loadProgress} />
 
-        <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-5">
+        <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4">
 
           {/* Widget tabs — sticky at top */}
           {data && (
             <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 border-b border-zinc-800">
               <div className="flex">
                 {([
+                  { key: 'overview', label: 'Overview' },
                   { key: 'stats', label: 'Stats' },
                   { key: 'insights', label: 'Insights' },
                   { key: 'analytics', label: 'Analytics' },
@@ -832,7 +842,23 @@ export function HomePageClient() {
             </div>
           )}
 
-          {/* Widget content panels */}
+          {/* Widget content panels.
+              'overview' is a dense 2-pane layout (Stats + Insights side-by-side
+              on lg+ screens); the other tabs are single-focus views. */}
+          {data && activeWidget === 'overview' && (
+            <div className="mx-3 sm:mx-4 md:mx-6 grid grid-cols-1 gap-3 lg:grid-cols-2">
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
+                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Stats</h3>
+                <StatsBar data={data} tagMetrics={data.tagMetrics} onTagClick={toggleTag} />
+              </div>
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
+                <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Insights</h3>
+                <ErrorBoundary fallback={null}>
+                  <LibraryInsightsWidget repos={data.repos} onTagClick={toggleTag} />
+                </ErrorBoundary>
+              </div>
+            </div>
+          )}
           {data && activeWidget === 'stats' && (
             <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
               <StatsBar data={data} tagMetrics={data.tagMetrics} onTagClick={toggleTag} />
@@ -872,6 +898,12 @@ export function HomePageClient() {
               </ErrorBoundary>
             </div>
           )}
+
+          {/* Cyberpunk value-prop billboard — sits above the graph so first-
+              time visitors understand what Reporium is for before diving in. */}
+          <div className="px-3 sm:px-4 md:px-6">
+            <CyberpunkBillboard />
+          </div>
 
           {/* Knowledge Graph */}
           <div className="px-3 sm:px-4 md:px-6">
@@ -1043,14 +1075,14 @@ export function HomePageClient() {
                           className="sticky top-10 z-10"
                           style={{ gridColumn: '1 / -1' }}
                         >
-                          <div className="rounded-xl border border-purple-500/30 bg-zinc-900/80 p-3 sm:p-4 space-y-2 sm:space-y-3">
+                          <div className="rounded-xl bg-zinc-900/80 p-3 sm:p-4 space-y-2 sm:space-y-3" style={{ border: `1px solid ${selectedCatBorder}`, borderTop: `3px solid ${selectedCatColor}` }}>
                             {/* Header: name + badges + close */}
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                                   <h3 className="text-sm sm:text-base font-bold text-zinc-100 break-words">{selectedRepo.name}</h3>
                                   {selectedRepo.dbCategory && (
-                                    <span className="text-[10px] sm:text-[11px] font-medium text-purple-300 bg-purple-500/15 border border-purple-500/30 rounded-full px-1.5 sm:px-2 py-0.5 uppercase tracking-wide">
+                                    <span className="text-[10px] sm:text-[11px] font-medium rounded-full px-1.5 sm:px-2 py-0.5 uppercase tracking-wide" style={{ color: selectedCatColor, backgroundColor: selectedCatBg, border: `1px solid ${selectedCatBorder}` }}>
                                       {selectedRepo.dbCategory}
                                     </span>
                                   )}
@@ -1147,7 +1179,8 @@ export function HomePageClient() {
                                     <button
                                       key={r.name}
                                       onClick={() => handleExploreSelect(r.name)}
-                                      className="text-[11px] sm:text-xs text-purple-300 bg-purple-500/10 border border-purple-500/25 rounded-md px-2 sm:px-2.5 py-1 hover:bg-purple-500/20 transition-colors"
+                                      className="text-[11px] sm:text-xs rounded-md px-2 sm:px-2.5 py-1 transition-colors"
+                                      style={{ color: selectedCatColor, backgroundColor: selectedCatBg, border: `1px solid ${selectedCatBorder}` }}
                                     >
                                       {r.name}
                                     </button>
@@ -1159,7 +1192,8 @@ export function HomePageClient() {
                             {/* Open full page */}
                             <Link
                               href={`/repo/${selectedRepo.name}`}
-                              className="inline-block mt-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors"
+                              className="inline-block mt-1 px-3 sm:px-4 py-1.5 sm:py-2 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors"
+                              style={{ backgroundColor: selectedCatColor }}
                             >
                               Open full page →
                             </Link>
@@ -1207,7 +1241,7 @@ export function HomePageClient() {
                 <h4 className="text-zinc-300 font-medium mb-2">Intelligence</h4>
                 <ul className="space-y-1.5">
                   <li><Link href="/insights" className="hover:text-zinc-300 transition-colors">Insights</Link></li>
-                  <li><Link href="/runs" className="hover:text-zinc-300 transition-colors">Run History</Link></li>
+                  <li><Link href="/architecture" className="hover:text-zinc-300 transition-colors">Architecture</Link></li>
                   <li><Link href="/wiki" className="hover:text-zinc-300 transition-colors">Wiki</Link></li>
                   <li><Link href="/wiki/digest" className="hover:text-zinc-300 transition-colors">Daily Digest</Link></li>
                 </ul>
