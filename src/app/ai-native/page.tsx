@@ -119,8 +119,12 @@ function Slide1() {
 
       <C>
         <h1
-          className="mt-4 text-3xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="mt-3 font-black leading-[1.1] tracking-tight"
+          style={{
+            color: '#f5d0fe',
+            textShadow: neonFuchsia,
+            fontSize: 'clamp(1.6rem, 5vw + 1svh, 4.5rem)',
+          }}
         >
           How to Build AI-Native Products
           <br />
@@ -129,13 +133,13 @@ function Slide1() {
       </C>
 
       <C>
-        <p className="mt-4 text-base text-zinc-400 sm:text-lg md:text-xl">
+        <p className="mt-3 text-sm text-zinc-400 sm:text-lg md:text-xl">
           What AI-native actually means — and how to ship it
         </p>
       </C>
 
       <C>
-        <p className="mt-2 font-mono text-sm text-zinc-500">
+        <p className="mt-1.5 font-mono text-sm text-zinc-500">
           A framework from building Reporium
         </p>
       </C>
@@ -179,29 +183,29 @@ function Slide2() {
     <SlideWrapper id="slide-1">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
         >
           Everyone Is Building &ldquo;AI-Native&rdquo;
         </h2>
       </C>
       <C>
-        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+        <p className="mt-1.5 text-sm text-zinc-400 sm:text-lg">
           Nobody agrees on what that means.
         </p>
       </C>
 
       <C>
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mt-4 sm:mt-6 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
           {/* Left */}
-          <motion.div {...hoverExpand} className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-5 cursor-pointer">
-            <h3 className="mb-4 font-mono text-sm uppercase tracking-widest text-zinc-400">
+          <motion.div {...hoverExpand} className="rounded-xl border border-zinc-700 bg-zinc-900/60 p-4 cursor-pointer">
+            <h3 className="mb-3 font-mono text-xs uppercase tracking-widest text-zinc-400">
               What people say
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {left.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-zinc-300 sm:text-base">
-                  <IconX className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                <li key={item} className="flex items-start gap-2 text-xs text-zinc-300 sm:text-sm">
+                  <IconX className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
                   <span className="italic">{item}</span>
                 </li>
               ))}
@@ -210,16 +214,16 @@ function Slide2() {
           {/* Right */}
           <motion.div
             {...hoverExpand}
-            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-5 cursor-pointer"
+            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-4 cursor-pointer"
             style={{ boxShadow: '0 0 24px rgba(217,70,239,0.1)' }}
           >
-            <h3 className="mb-4 font-mono text-sm uppercase tracking-widest text-fuchsia-400">
+            <h3 className="mb-3 font-mono text-xs uppercase tracking-widest text-fuchsia-400">
               What AI-native actually means
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {right.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-zinc-100 sm:text-base">
-                  <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-fuchsia-400" />
+                <li key={item} className="flex items-start gap-2 text-xs text-zinc-100 sm:text-sm">
+                  <IconCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fuchsia-400" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -229,7 +233,7 @@ function Slide2() {
       </C>
 
       <C>
-        <p className="mt-6 text-sm text-zinc-500 sm:text-base">
+        <p className="mt-4 text-xs text-zinc-500 sm:text-sm">
           This framework gives you the tools to know the difference — and build the real thing.
         </p>
       </C>
@@ -279,44 +283,44 @@ function Slide3() {
     <SlideWrapper id="slide-2">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
         >
           The AI-Native Test: 4 Questions
         </h2>
       </C>
       <C>
-        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+        <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
           Ask these before you write a single line of code — each maps to one of the 4 AI-native layers
         </p>
       </C>
 
       <C>
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="mt-3 sm:mt-5 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
           {cards.map(({ num, layer, layerColor, layerBorder, q, body }) => (
             <motion.div
               key={num}
               {...hoverExpand}
-              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-6 flex flex-col cursor-pointer"
+              className="rounded-xl border border-cyan-500/20 bg-zinc-900/70 p-4 flex flex-col cursor-pointer"
               style={{ boxShadow: '0 0 16px rgba(34,211,238,0.06)' }}
             >
               {/* Header row: layer badge + number */}
               <div className="flex items-center justify-between gap-3">
                 <span
-                  className="inline-block rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em]"
+                  className="inline-block rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.15em]"
                   style={{ color: layerColor, borderColor: layerBorder, background: `${layerBorder}` }}
                 >
                   {layer}
                 </span>
                 <span
-                  className="font-mono text-3xl font-black leading-none"
+                  className="font-mono text-2xl font-black leading-none"
                   style={{ color: '#67e8f9', textShadow: neonCyan }}
                 >
                   {num}
                 </span>
               </div>
-              <p className="mt-4 text-base font-semibold text-zinc-100 md:text-lg">{q}</p>
-              <p className="mt-3 text-sm leading-relaxed text-zinc-400 flex-1">{body}</p>
+              <p className="mt-2 text-sm font-semibold text-zinc-100">{q}</p>
+              <p className="mt-1.5 text-xs leading-relaxed text-zinc-400 flex-1">{body}</p>
             </motion.div>
           ))}
         </div>
@@ -349,29 +353,29 @@ function Slide4() {
     <SlideWrapper id="slide-3">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
         >
           AI-Native vs. AI-Added
         </h2>
       </C>
       <C>
-        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+        <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
           One mental model. Everything else follows.
         </p>
       </C>
 
       <C>
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mt-3 sm:mt-6 grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
           {/* AI-Added */}
-          <motion.div {...hoverExpand} className="rounded-xl border border-red-500/30 bg-red-950/20 p-5 cursor-pointer">
-            <h3 className="mb-4 font-mono text-base font-bold uppercase tracking-widest text-red-400 sm:text-lg">
+          <motion.div {...hoverExpand} className="rounded-xl border border-red-500/30 bg-red-950/20 p-4 cursor-pointer">
+            <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-red-400 sm:text-sm">
               AI-Added
             </h3>
-            <ul className="space-y-2.5">
+            <ul className="space-y-2">
               {added.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-zinc-300">
-                  <IconX className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+                <li key={item} className="flex items-start gap-2 text-xs text-zinc-300 sm:text-sm">
+                  <IconX className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -380,16 +384,16 @@ function Slide4() {
           {/* AI-Native */}
           <motion.div
             {...hoverExpand}
-            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-5 cursor-pointer"
+            className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 p-4 cursor-pointer"
             style={{ boxShadow: '0 0 24px rgba(217,70,239,0.12)' }}
           >
-            <h3 className="mb-4 font-mono text-base font-bold uppercase tracking-widest text-fuchsia-400 sm:text-lg">
+            <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-fuchsia-400 sm:text-sm">
               AI-Native
             </h3>
-            <ul className="space-y-2.5">
+            <ul className="space-y-2">
               {native.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-zinc-100">
-                  <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-fuchsia-400" />
+                <li key={item} className="flex items-start gap-2 text-xs text-zinc-100 sm:text-sm">
+                  <IconCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fuchsia-400" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -443,36 +447,36 @@ function Slide5() {
     <SlideWrapper id="slide-4">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
         >
           The Minimal AI-Native Stack
         </h2>
       </C>
       <C>
-        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+        <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
           You don&rsquo;t need much. You need the right things.
         </p>
       </C>
 
       <C>
-        <div className="mt-8 flex flex-col gap-3">
+        <div className="mt-3 sm:mt-5 flex flex-col gap-2 sm:gap-3">
           {layers.map(({ name, tech, desc, accent, border, glow }) => (
             <motion.div
               key={name}
               {...hoverExpand}
-              className="flex flex-col rounded-xl border p-4 cursor-pointer sm:flex-row sm:items-center sm:gap-6"
+              className="flex flex-col rounded-xl border p-3 cursor-pointer sm:flex-row sm:items-center sm:gap-6 sm:p-4"
               style={{ borderColor: border, boxShadow: `0 0 18px ${glow}`, background: 'rgba(9,9,17,0.7)' }}
             >
               <div className="flex items-center gap-3 sm:w-44">
-                <IconLayers className="h-5 w-5 shrink-0" style={{ color: accent }} />
-                <span className="font-mono text-sm font-bold" style={{ color: accent }}>
+                <IconLayers className="h-4 w-4 shrink-0" style={{ color: accent }} />
+                <span className="font-mono text-xs font-bold sm:text-sm" style={{ color: accent }}>
                   {name}
                 </span>
               </div>
-              <div className="mt-2 flex flex-1 flex-col sm:mt-0 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-sm text-zinc-300">{tech}</span>
-                <span className="mt-1 text-xs italic text-zinc-500 sm:mt-0 sm:text-right">{desc}</span>
+              <div className="mt-1 flex flex-1 flex-col sm:mt-0 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-xs text-zinc-300 sm:text-sm">{tech}</span>
+                <span className="text-[10px] italic text-zinc-500 sm:text-xs sm:text-right">{desc}</span>
               </div>
             </motion.div>
           ))}
@@ -480,7 +484,7 @@ function Slide5() {
       </C>
 
       <C>
-        <p className="mt-5 text-sm text-zinc-500">
+        <p className="mt-3 text-xs text-zinc-500 sm:text-sm">
           Reporium uses this exact stack.
         </p>
       </C>
@@ -495,24 +499,24 @@ function Slide6() {
     <SlideWrapper id="slide-5">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
         >
           What Makes Reporium AI-Native
         </h2>
       </C>
       <C>
-        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+        <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
           The framework, mapped to real services
         </p>
       </C>
       <C>
-        <p className="mt-3 text-sm text-zinc-500 sm:text-base max-w-3xl">
+        <p className="mt-2 text-xs text-zinc-500 sm:text-sm max-w-3xl">
           Four AI-native layers — Agent-accessible, Intelligence, Semantic, Compounding — run vertically through every request. Three cross-cutting bands — Observability, Governance, Performance — span all layers to keep the system trustworthy and fast.
         </p>
       </C>
 
-      <C className="mt-4">
+      <C className="mt-3">
         <ArchitectureDiagram />
       </C>
     </SlideWrapper>
@@ -544,27 +548,27 @@ function Slide7() {
     <SlideWrapper id="slide-6">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.2rem, 3.5vw + 0.8svh, 2.8rem)' }}
         >
           3 Mistakes That Make Products AI-Added, Not AI-Native
         </h2>
       </C>
 
       <C>
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="mt-3 sm:mt-5 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
           {mistakes.map(({ title, body, fix }) => (
             <motion.div
               key={title}
               {...hoverExpand}
-              className="flex flex-col rounded-xl border border-red-500/25 bg-zinc-900/70 p-5 cursor-pointer"
+              className="flex flex-col rounded-xl border border-red-500/25 bg-zinc-900/70 p-4 cursor-pointer"
             >
-              <IconX className="mb-3 h-6 w-6 text-red-400" />
-              <p className="text-sm font-bold text-zinc-100 sm:text-base">{title}</p>
-              <p className="mt-2 flex-1 text-xs text-zinc-400 sm:text-sm">{body}</p>
-              <div className="mt-4 rounded-lg border border-cyan-500/20 bg-cyan-950/20 px-3 py-2">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-cyan-400">Fix: </span>
-                <span className="text-xs text-zinc-300">{fix}</span>
+              <IconX className="mb-2 h-5 w-5 text-red-400" />
+              <p className="text-xs font-bold text-zinc-100 sm:text-sm">{title}</p>
+              <p className="mt-1.5 flex-1 text-[11px] text-zinc-400 sm:text-xs">{body}</p>
+              <div className="mt-3 rounded-lg border border-cyan-500/20 bg-cyan-950/20 px-2.5 py-1.5">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-cyan-400">Fix: </span>
+                <span className="text-[11px] text-zinc-300">{fix}</span>
               </div>
             </motion.div>
           ))}
@@ -609,35 +613,35 @@ function Slide8() {
     <SlideWrapper id="slide-7">
       <C>
         <h2
-          className="text-2xl font-black sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="font-black"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.4rem, 4vw + 0.8svh, 3rem)' }}
         >
           How to Actually Start Building AI-Native
         </h2>
       </C>
       <C>
-        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+        <p className="mt-1.5 text-xs text-zinc-400 sm:text-base">
           The 5-step path from idea to intelligence
         </p>
       </C>
 
       <C>
-        <div className="mt-8 flex flex-col gap-3">
+        <div className="mt-3 sm:mt-5 flex flex-col gap-2 sm:gap-3">
           {steps.map(({ n, title, desc }) => (
             <motion.div
               key={n}
               {...hoverExpand}
-              className="flex items-start gap-4 rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-3 cursor-pointer"
+              className="flex items-start gap-3 rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-3 py-2.5 cursor-pointer sm:px-4 sm:py-3"
             >
               <span
-                className="shrink-0 font-mono text-2xl font-black leading-none"
+                className="shrink-0 font-mono text-xl font-black leading-none sm:text-2xl"
                 style={{ color: '#67e8f9', textShadow: neonCyan }}
               >
                 {n}
               </span>
               <div>
-                <p className="text-sm font-semibold text-zinc-100 sm:text-base">{title}</p>
-                <p className="mt-0.5 text-xs text-zinc-400 sm:text-sm">{desc}</p>
+                <p className="text-xs font-semibold text-zinc-100 sm:text-sm">{title}</p>
+                <p className="mt-0.5 text-[11px] text-zinc-400 sm:text-xs">{desc}</p>
               </div>
             </motion.div>
           ))}
@@ -670,7 +674,8 @@ function Slide9() {
 
       <C>
         <h2
-          className="text-xl font-black uppercase tracking-widest text-zinc-500 sm:text-2xl"
+          className="font-black uppercase tracking-widest text-zinc-500"
+          style={{ fontSize: 'clamp(0.9rem, 2vw + 0.5svh, 1.5rem)' }}
         >
           The One Thing to Remember
         </h2>
@@ -678,8 +683,8 @@ function Slide9() {
 
       <C>
         <blockquote
-          className="mt-6 text-2xl font-black leading-snug sm:text-4xl md:text-5xl"
-          style={{ color: '#f5d0fe', textShadow: neonFuchsia }}
+          className="mt-4 font-black leading-snug"
+          style={{ color: '#f5d0fe', textShadow: neonFuchsia, fontSize: 'clamp(1.3rem, 4vw + 1svh, 3rem)' }}
         >
           &ldquo;AI-native isn&rsquo;t a technology choice.
           <br />
@@ -688,16 +693,16 @@ function Slide9() {
       </C>
 
       <C>
-        <p className="mt-4 text-base text-zinc-400 sm:text-xl">
+        <p className="mt-3 text-sm text-zinc-400 sm:text-lg">
           If the intelligence is the product — you&rsquo;re building AI-native.
         </p>
       </C>
 
       <C>
-        <ul className="mt-6 space-y-2">
+        <ul className="mt-4 space-y-2">
           {checks.map((item) => (
-            <li key={item} className="flex items-center gap-3 text-sm text-zinc-200 sm:text-base">
-              <IconCheck className="h-5 w-5 shrink-0 text-fuchsia-400" />
+            <li key={item} className="flex items-center gap-3 text-xs text-zinc-200 sm:text-sm">
+              <IconCheck className="h-4 w-4 shrink-0 text-fuchsia-400" />
               {item}
             </li>
           ))}
@@ -705,7 +710,7 @@ function Slide9() {
       </C>
 
       <C>
-        <div className="mt-8 border-t border-zinc-800 pt-6">
+        <div className="mt-6 border-t border-zinc-800 pt-4">
           <p className="font-mono text-xs text-zinc-500">
             reporium.com · github.com/perditioinc
           </p>
