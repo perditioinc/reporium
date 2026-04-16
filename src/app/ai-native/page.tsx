@@ -756,7 +756,7 @@ function Slide9() {
         <div className="mt-8 border-t border-zinc-800 pt-6">
           <p className="font-mono text-xl font-bold text-zinc-300 sm:text-2xl">Q&amp;A</p>
           <p className="mt-3 text-xs text-zinc-500 sm:text-sm">
-            Kim Loza · reporium.com · github.com/perditioinc · REDACTED
+            Kim Loza · reporium.com · github.com/perditioinc
           </p>
         </div>
       </C>
