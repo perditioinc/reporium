@@ -44,6 +44,12 @@ const NavIcon = {
       <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
     </svg>
   ),
+  aiNative: (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
 } as const;
 
 const NAV_LINKS = [
@@ -54,6 +60,7 @@ const NAV_LINKS = [
   { href: '/insights',     label: 'Insights',     icon: NavIcon.insights     },
   { href: '/trends',       label: 'Trends',       icon: NavIcon.trends       },
   { href: '/architecture', label: 'Architecture', icon: NavIcon.architecture },
+  { href: '/ai-native',    label: 'AI-Native',    icon: NavIcon.aiNative     },
 ];
 
 interface StickyNavBarProps {
@@ -61,8 +68,19 @@ interface StickyNavBarProps {
   widgetTabs?: React.ReactNode;
 }
 
+// Find the scroll container. The home page wraps content in a flex column
+// with .overflow-y-auto on the inner pane; standalone pages just scroll
+// the window. Re-queried on every interaction so the result stays fresh
+// after route changes (the previous element may have unmounted).
 function getScrollEl(): Element | null {
-  return document.querySelector('.overflow-y-auto');
+  if (typeof document === 'undefined') return null;
+  // Take the first scrollable container with actual overflow — querying for
+  // the bare class can match panes that don't actually scroll on this route.
+  const candidates = Array.from(document.querySelectorAll('.overflow-y-auto'));
+  for (const c of candidates) {
+    if (c.scrollHeight > c.clientHeight + 2) return c;
+  }
+  return null;
 }
 
 export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
@@ -82,13 +100,20 @@ export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
     }
   }, []);
 
+  // Re-attach the scroll listener on every route change — the previous
+  // scroll container may have unmounted, so the listener has to be rebound
+  // against whatever the new page rendered.
   useEffect(() => {
     updateScrollState();
     const el = getScrollEl();
-    const target = el ?? window;
-    target.addEventListener('scroll', updateScrollState, { passive: true });
-    return () => target.removeEventListener('scroll', updateScrollState);
-  }, [updateScrollState]);
+    const target: EventTarget = el ?? window;
+    target.addEventListener('scroll', updateScrollState, { passive: true } as AddEventListenerOptions);
+    window.addEventListener('resize', updateScrollState, { passive: true } as AddEventListenerOptions);
+    return () => {
+      target.removeEventListener('scroll', updateScrollState as EventListener);
+      window.removeEventListener('resize', updateScrollState as EventListener);
+    };
+  }, [updateScrollState, pathname]);
 
   // Close mobile menu on route change
   useEffect(() => { setMenuOpen(false); }, [pathname]);
@@ -142,18 +167,20 @@ export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
-          {/* Scroll shortcuts — always rendered so the pair of arrows is a
-              persistent anchor across every route (regression fix: home page
-              used to hide both because the scroll container detection was
-              racy). The button at the active boundary just fades to disabled
-              instead of disappearing, so the nav never reflows. */}
+          {/* Scroll shortcuts — always rendered AND always clickable. The
+              previous design disabled them at the boundaries, but on routes
+              where the scroll container detection lost the listener after
+              navigation the up arrow effectively disappeared (rendered with
+              text-zinc-800 on a near-black background). Both buttons are now
+              always live — clicking 'top' when already at top is a harmless
+              no-op, and the 'at boundary' state only dims the colour subtly
+              so the icons remain visible. */}
           <button
             onClick={scrollToTop}
-            disabled={atTop}
             className={`p-1 rounded transition-colors ${
               atTop
-                ? 'text-zinc-800 cursor-not-allowed'
-                : 'text-zinc-500 hover:text-zinc-200'
+                ? 'text-zinc-600 hover:text-zinc-300'
+                : 'text-zinc-400 hover:text-zinc-100'
             }`}
             aria-label="Go to top"
             title="Go to top"
@@ -164,11 +191,10 @@ export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
           </button>
           <button
             onClick={scrollToBottom}
-            disabled={atBottom}
             className={`p-1 rounded transition-colors ${
               atBottom
-                ? 'text-zinc-800 cursor-not-allowed'
-                : 'text-zinc-500 hover:text-zinc-200'
+                ? 'text-zinc-600 hover:text-zinc-300'
+                : 'text-zinc-400 hover:text-zinc-100'
             }`}
             aria-label="Go to bottom"
             title="Go to bottom"
