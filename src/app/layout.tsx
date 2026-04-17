@@ -32,6 +32,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="preconnect" href="https://reporium-api-573778300586.us-central1.run.app" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://reporium-api-573778300586.us-central1.run.app" />
+      </head>
       <body className={`${inter.className} bg-zinc-950 text-zinc-100 antialiased`}>
         <LayoutShell>{children}</LayoutShell>
       </body>
