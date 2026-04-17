@@ -1034,12 +1034,22 @@ export function StickyAskBar() {
         )}
       </div>
 
+      {/* Esc-to-cancel hint — visible only during in-flight phases */}
+      {(phase === 'searching' || phase === 'reasoning' || phase === 'warming' || phase === 'sources' || phase === 'streaming') && (
+        <div className="px-4 py-1 border-t border-zinc-800/50">
+          <span className="text-xs text-zinc-500" style={{ opacity: 0.6 }} aria-hidden="true">
+            Press Esc to cancel
+          </span>
+        </div>
+      )}
+
       {/* Answer / content area — shown whenever bar is not collapsed */}
       {barState !== 'collapsed' && (
         <div
           className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 space-y-3"
           ref={answerRef}
           tabIndex={-1}
+          role="status"
           aria-live="polite"
           aria-busy={isLoading}
           aria-label="Answer area"
@@ -1093,7 +1103,11 @@ export function StickyAskBar() {
 
           {/* Error */}
           {error && (
-            <div className="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2 text-sm text-red-400">
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2 text-sm text-red-400"
+            >
               {error}
             </div>
           )}
