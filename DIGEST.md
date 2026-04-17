@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 16, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 17, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Log Analytics** (+96000% vs last week)
-ClickHouse, vector, doris are most active.
+**AI Automation** (+14300% vs last week)
+paperclip, composio are most active.
 
-**Real-time AI** (+94600% vs last week)
-opencv, redis, ClickHouse are most active.
+**Autonomous Systems** (+12300% vs last week)
+paperclip are most active.
 
-**AdTech** (+93500% vs last week)
-ClickHouse, doris are most active.
+**Business Automation** (+12300% vs last week)
+paperclip are most active.
 
 ---
 
@@ -26,7 +26,7 @@ ClickHouse, doris are most active.
 
 ## 30-Day Summary
 - **📦 Other AI / ML** most active category (70055 commits across 1425 repos)
-- **Log Analytics** fastest growing (+96000% commit velocity)
+- **AI Automation** fastest growing (+14300% commit velocity)
 
 ---
 

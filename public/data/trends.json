@@ -1,126 +1,123 @@
 {
-  "generatedAt": "2026-04-16T07:19:20.581Z",
+  "generatedAt": "2026-04-17T07:19:23.126Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-12 07:04:18 +0000",
-    "snapshots": 25
+    "to": "2026-04-16 07:19:23 +0000",
+    "snapshots": 26
   },
   "trending": [
     {
-      "name": "Log Analytics",
+      "name": "AI Automation",
       "type": "tag",
-      "currentActivity": 961,
-      "previousActivity": 1,
-      "changePercent": 96000,
-      "repoCount": 3,
-      "representativeRepos": [
-        "ClickHouse",
-        "vector",
-        "doris"
-      ]
-    },
-    {
-      "name": "Real-time AI",
-      "type": "tag",
-      "currentActivity": 947,
-      "previousActivity": 1,
-      "changePercent": 94600,
-      "repoCount": 34,
-      "representativeRepos": [
-        "opencv",
-        "redis",
-        "ClickHouse"
-      ]
-    },
-    {
-      "name": "AdTech",
-      "type": "tag",
-      "currentActivity": 936,
-      "previousActivity": 1,
-      "changePercent": 93500,
-      "repoCount": 3,
-      "representativeRepos": [
-        "ClickHouse",
-        "doris"
-      ]
-    },
-    {
-      "name": "Marketing Analytics",
-      "type": "tag",
-      "currentActivity": 857,
+      "currentActivity": 143,
       "previousActivity": 0,
-      "changePercent": 85700,
+      "changePercent": 14300,
+      "repoCount": 10,
+      "representativeRepos": [
+        "paperclip",
+        "composio"
+      ]
+    },
+    {
+      "name": "Autonomous Systems",
+      "type": "tag",
+      "currentActivity": 123,
+      "previousActivity": 0,
+      "changePercent": 12300,
+      "repoCount": 30,
+      "representativeRepos": [
+        "paperclip"
+      ]
+    },
+    {
+      "name": "Business Automation",
+      "type": "tag",
+      "currentActivity": 123,
+      "previousActivity": 0,
+      "changePercent": 12300,
       "repoCount": 7,
       "representativeRepos": [
-        "ClickHouse",
-        "mindsdb",
-        "dbt-core"
+        "paperclip"
       ]
     },
     {
-      "name": "Statistical Computing",
+      "name": "AI Agent Coordination",
       "type": "tag",
-      "currentActivity": 851,
+      "currentActivity": 123,
       "previousActivity": 0,
-      "changePercent": 85100,
-      "repoCount": 3,
+      "changePercent": 12300,
+      "repoCount": 8,
       "representativeRepos": [
-        "ClickHouse"
+        "paperclip"
       ]
     },
     {
-      "name": "OLAP Systems",
+      "name": "Workflow Management",
       "type": "tag",
-      "currentActivity": 851,
+      "currentActivity": 123,
       "previousActivity": 0,
-      "changePercent": 85100,
+      "changePercent": 12300,
+      "repoCount": 7,
+      "representativeRepos": [
+        "paperclip"
+      ]
+    },
+    {
+      "name": "Autonomous Business Operations",
+      "type": "tag",
+      "currentActivity": 123,
+      "previousActivity": 0,
+      "changePercent": 12300,
       "repoCount": 1,
       "representativeRepos": [
-        "ClickHouse"
+        "paperclip"
       ]
     },
     {
-      "name": "Columnar Database Design",
+      "name": "Zero-Human Workflow Execution",
       "type": "tag",
-      "currentActivity": 851,
+      "currentActivity": 123,
       "previousActivity": 0,
-      "changePercent": 85100,
+      "changePercent": 12300,
       "repoCount": 1,
       "representativeRepos": [
-        "ClickHouse"
+        "paperclip"
       ]
     },
     {
-      "name": "Query Optimization",
+      "name": "AI Decision Making",
       "type": "tag",
-      "currentActivity": 851,
+      "currentActivity": 123,
       "previousActivity": 0,
-      "changePercent": 85100,
-      "repoCount": 4,
+      "changePercent": 12300,
+      "repoCount": 1,
       "representativeRepos": [
-        "ClickHouse"
+        "paperclip"
       ]
     },
     {
-      "name": "Data Warehousing",
+      "name": "infrastructure",
       "type": "tag",
-      "currentActivity": 851,
+      "currentActivity": 96,
       "previousActivity": 0,
-      "changePercent": 85100,
-      "repoCount": 3,
+      "changePercent": 9600,
+      "repoCount": 7,
       "representativeRepos": [
-        "ClickHouse"
+        "tmux",
+        "vitess",
+        "systemd"
       ]
     },
     {
-      "name": "Distributed",
+      "name": "Local Development Environment",
       "type": "tag",
-      "currentActivity": 851,
+      "currentActivity": 82,
       "previousActivity": 0,
-      "changePercent": 85100,
-      "repoCount": 3,
+      "changePercent": 8200,
+      "repoCount": 13,
       "representativeRepos": [
-        "ClickHouse"
+        "aider",
+        "repomix"
       ]
     }
   ],
@@ -240,6 +237,6 @@
   ],
   "newReleases": [],
   "insights": [
-    "Log Analytics is the fastest-growing area this week with +96000% commit velocity."
+    "AI Automation is the fastest-growing area this week with +14300% commit velocity."
   ]
 }
