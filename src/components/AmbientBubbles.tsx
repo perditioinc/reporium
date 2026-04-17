@@ -54,7 +54,7 @@ export function AmbientBubbles() {
     const onChange = () => setReduced(mq.matches);
     mq.addEventListener('change', onChange);
 
-    const count = window.innerWidth < 768 ? 6 : 14;
+    const count = window.innerWidth < 768 ? 3 : 6;
     setBubbles(makeBubbles(count));
 
     function onVis() {
@@ -103,7 +103,6 @@ export function AmbientBubbles() {
           );
           border: 1px solid rgba(165, 243, 252, 0.25);
           animation: amb-rise linear infinite;
-          will-change: transform;
         }
 
         @keyframes amb-rise {

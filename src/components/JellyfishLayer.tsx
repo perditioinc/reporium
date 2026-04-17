@@ -51,11 +51,12 @@ function Jellyfish({ size = 60 }: { size?: number }) {
   const bellH = size * 0.55;
 
   // Tentacle end-points — 8 tentacles hanging from bell rim
+  // Deterministic (no Math.random) to keep SSR hydration stable
   const tentacles = Array.from({ length: 8 }, (_, i) => {
     const angle = (i / 8) * Math.PI; // 0..π (bottom half of bell)
     const startX = r + Math.cos(angle) * r * 0.85;
     const startY = bellH;
-    const endX = startX + (Math.random() > 0.5 ? 1 : -1) * (4 + (i % 5) * 3);
+    const endX = startX + (i % 2 === 0 ? 1 : -1) * (4 + (i % 5) * 3);
     const endY = startY + size * 0.55 + (i % 3) * 8;
     const cp1X = startX + ((i % 3) - 1) * 8;
     const cp1Y = startY + size * 0.18;
@@ -151,15 +152,14 @@ export function JellyfishLayer() {
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mq.matches) {
-      setReduced(true);
-      // Still render static jellyfish — just no animation
-    }
-    const onChange = () => setReduced(mq.matches);
-    mq.addEventListener('change', onChange);
-
+    // Read initial value without calling setState synchronously in the body —
+    // batch with the jellies update to avoid double-render.
     const count = window.innerWidth < 768 ? 3 : 5;
     setJellies(makeJellies(count));
+    setReduced(mq.matches);
+
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener('change', onChange);
 
     return () => mq.removeEventListener('change', onChange);
   }, []);

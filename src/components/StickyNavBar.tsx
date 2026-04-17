@@ -157,6 +157,49 @@ export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
               <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.73-1.53-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.47.11-3.07 0 0 .96-.31 3.15 1.18.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.19-1.49 3.15-1.18 3.15-1.18.62 1.6.23 2.78.11 3.07.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.41-5.27 5.69.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.67.8.56C20.71 21.38 24 17.08 24 12 24 5.73 18.77.5 12 .5z"/>
             </svg>
           </a>
+          {/* Guided-tour trigger — navigates to home with ?utm_mode=guide so
+              GuidedTour picks it up. If already on home, we dispatch a custom
+              event the tour listens for, avoiding a full reload. */}
+          <button
+            type="button"
+            aria-label="Start guided walkthrough"
+            title="Start guided walkthrough"
+            onClick={() => {
+              if (window.location.pathname === '/') {
+                const url = new URL(window.location.href);
+                url.searchParams.set('utm_mode', 'guide');
+                window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+                window.dispatchEvent(new CustomEvent('reporium:open-guide'));
+              } else {
+                window.location.href = '/?utm_mode=guide';
+              }
+            }}
+            className="nav-help inline-flex h-6 w-6 items-center justify-center rounded-full border text-[11px] font-bold transition-all"
+          >
+            ?
+            <style jsx>{`
+              .nav-help {
+                border-color: rgba(240,171,252,0.5);
+                color: #f0abfc;
+                background: linear-gradient(135deg, rgba(217,70,239,0.12), rgba(34,211,238,0.12));
+                box-shadow: 0 0 8px rgba(217,70,239,0.25);
+                animation: nav-help-pulse 2.4s ease-in-out infinite;
+              }
+              .nav-help:hover {
+                border-color: rgba(240,171,252,0.9);
+                background: linear-gradient(135deg, rgba(217,70,239,0.25), rgba(34,211,238,0.25));
+                box-shadow: 0 0 14px rgba(217,70,239,0.55), 0 0 24px rgba(34,211,238,0.35);
+                color: #fdf4ff;
+              }
+              @keyframes nav-help-pulse {
+                0%, 100% { box-shadow: 0 0 6px rgba(217,70,239,0.2); }
+                50%      { box-shadow: 0 0 12px rgba(217,70,239,0.5), 0 0 20px rgba(34,211,238,0.25); }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .nav-help { animation: none; }
+              }
+            `}</style>
+          </button>
         </div>
 
         {/* Desktop page links */}

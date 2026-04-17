@@ -34,33 +34,42 @@ const LAYER_COLORS = {
 
 const BAND_COLORS = {
   observability: {
-    fill: 'rgba(251,191,36,0.06)',
-    stroke: 'rgba(251,191,36,0.35)',
+    fill: 'rgba(251,191,36,0.07)',
+    stroke: 'rgba(251,191,36,0.4)',
     text: '#fcd34d',
-    itemColor: 'rgba(253,211,77,0.8)',
+    itemColor: 'rgba(253,211,77,0.92)',
   },
   governance: {
-    fill: 'rgba(239,68,68,0.06)',
-    stroke: 'rgba(239,68,68,0.35)',
+    fill: 'rgba(239,68,68,0.07)',
+    stroke: 'rgba(239,68,68,0.4)',
     text: '#fca5a5',
-    itemColor: 'rgba(252,165,165,0.8)',
+    itemColor: 'rgba(252,165,165,0.92)',
   },
   performance: {
-    fill: 'rgba(99,102,241,0.06)',
-    stroke: 'rgba(99,102,241,0.35)',
+    fill: 'rgba(99,102,241,0.07)',
+    stroke: 'rgba(99,102,241,0.4)',
     text: '#a5b4fc',
-    itemColor: 'rgba(165,180,252,0.8)',
+    itemColor: 'rgba(165,180,252,0.92)',
   },
 } as const;
 
 // ─── Layer detail data for the zoom modal (developer voice) ─────────────────
 type LayerKey = 'agentAccessible' | 'intelligence' | 'semantic' | 'compounding';
+type BandKey = 'observability' | 'governance' | 'performance';
+type DetailKey = LayerKey | BandKey;
+
+interface DetailColors {
+  fill: string;
+  stroke: string;
+  text: string;
+  badge: string;
+}
 
 interface LayerDetail {
-  key: LayerKey;
+  key: DetailKey;
   label: string;
   caption: string;
-  colors: (typeof LAYER_COLORS)[LayerKey];
+  colors: DetailColors;
   purpose: string;
   tradeoff: string;
   components: Array<{
@@ -70,10 +79,17 @@ interface LayerDetail {
   }>;
 }
 
+// Band colors need a `badge` field to match DetailColors; derive from stroke.
+const BAND_BADGES: Record<BandKey, string> = {
+  observability: 'rgba(251,191,36,0.18)',
+  governance: 'rgba(239,68,68,0.18)',
+  performance: 'rgba(99,102,241,0.18)',
+};
+
 const LAYER_DETAILS: LayerDetail[] = [
   {
     key: 'agentAccessible',
-    label: 'Agent-accessible',
+    label: 'Interface Layer',
     caption: 'MCP and typed endpoints — agents call this directly',
     colors: LAYER_COLORS.agentAccessible,
     purpose: 'Exposes Reporium data via typed HTTP + MCP so both human UIs and agent runtimes share one surface.',
@@ -86,7 +102,7 @@ const LAYER_DETAILS: LayerDetail[] = [
   },
   {
     key: 'intelligence',
-    label: 'Intelligence',
+    label: 'Intelligence Layer',
     caption: 'AI is in the decision loop',
     colors: LAYER_COLORS.intelligence,
     purpose: 'Routes queries through an LLM enrichment pass so every stored repo has structured metadata before it reaches the index.',
@@ -99,7 +115,7 @@ const LAYER_DETAILS: LayerDetail[] = [
   },
   {
     key: 'semantic',
-    label: 'Semantic',
+    label: 'Semantic Layer',
     caption: 'Retrieval is by meaning, not strings',
     colors: LAYER_COLORS.semantic,
     purpose: 'Stores dense vector embeddings alongside relational data so nearest-neighbour queries return conceptually similar repos.',
@@ -112,7 +128,7 @@ const LAYER_DETAILS: LayerDetail[] = [
   },
   {
     key: 'compounding',
-    label: 'Compounding',
+    label: 'Data Layer',
     caption: 'Every ingest makes the next query better',
     colors: LAYER_COLORS.compounding,
     purpose: 'Nightly Cloud Run jobs keep the corpus and forks fresh, feeding new embeddings back into the Semantic layer.',
@@ -124,6 +140,57 @@ const LAYER_DETAILS: LayerDetail[] = [
   },
 ];
 
+const BAND_DETAILS: LayerDetail[] = [
+  {
+    key: 'observability',
+    label: 'Observability',
+    caption: "You can't trust what you can't see — every AI decision leaves a trail.",
+    colors: { ...BAND_COLORS.observability, badge: BAND_BADGES.observability },
+    purpose: 'Every AI decision leaves a trail: errors, traces, structured logs, latency percentiles, and alerts keep the system auditable in production.',
+    tradeoff: 'Trade-off: instrumentation adds ~5-10ms per request and a steady log/trace bill, but without it debugging an LLM failure in prod is guesswork.',
+    components: [
+      { name: 'Sentry', tech: 'error tracking · release tagging', detail: 'Captures exceptions from reporium-api and ingestion jobs; ties errors to commit SHA.' },
+      { name: 'OpenTelemetry traces', tech: 'OTel SDK · distributed spans', detail: 'Spans across /ask → LLM → pgvector; isolates latency per stage.' },
+      { name: 'Cloud Logging', tech: 'GCP · structured JSON logs', detail: 'Every request logged with correlation id; queryable by user, endpoint, status.' },
+      { name: 'Latency dashboards', tech: 'p95 / p99 per endpoint', detail: 'Read path SLO: p95 < 400ms; /ask SLO: p95 < 3s (LLM-bound).' },
+      { name: 'Alert policies', tech: '6 Cloud Monitoring policies', detail: 'Cost, error rate, latency, queue depth, ingest failure, token burn.' },
+    ],
+  },
+  {
+    key: 'governance',
+    label: 'Governance',
+    caption: 'AI without guardrails becomes a liability — governance is how trust survives scale.',
+    colors: { ...BAND_COLORS.governance, badge: BAND_BADGES.governance },
+    purpose: 'Keep AI auditable and safe: scrub inputs, block injection, rate-limit abuse, log every query, and pin versions so answers stay reproducible.',
+    tradeoff: 'Trade-off: every guardrail costs latency and a bit of recall, but governance is the only thing keeping an AI feature from becoming a liability.',
+    components: [
+      { name: 'PII scrubbing', tech: 'regex + entity filters · pre-LLM', detail: 'Strips emails, tokens, and keys from prompts before they leave the API boundary.' },
+      { name: 'Prompt injection filters', tech: 'regex heuristics · allow-list', detail: 'Blocks common jailbreak patterns on /ask; failures audited, not silently passed.' },
+      { name: 'Rate limiting', tech: 'per user · per IP', detail: 'Prevents ingest-key abuse and anonymous /ask flooding; tuned for Cloud Run f1-micro.' },
+      { name: 'Audit log', tech: '/ask query log · append-only', detail: 'Every question, model version, prompt hash, and citation list persisted for review.' },
+      { name: 'Citations required', tech: 'generator constraint', detail: 'No answer ships without pointer to the repos it came from — breaks the "vibes-based" answer.' },
+      { name: 'Version pinning', tech: 'model + prompt SHA', detail: 'Answers tagged with model id and prompt hash; rollback is a single config flip.' },
+    ],
+  },
+  {
+    key: 'performance',
+    label: 'Performance',
+    caption: 'AI-native only works if it\'s cheap and fast enough to run on every request.',
+    colors: { ...BAND_COLORS.performance, badge: BAND_BADGES.performance },
+    purpose: 'Keep the $0 infra budget honest: cache aggressively, pre-compute embeddings, and push slow work off the request path.',
+    tradeoff: 'Trade-off: caching and async enrichment mean users see slightly stale data for seconds-to-minutes, in exchange for staying on f1-micro.',
+    components: [
+      { name: 'Response cache', tech: 'Cloud Memorystore · TTL-bounded', detail: '/library/full and hot /ask queries cached; memory footprint bounded by key count.' },
+      { name: 'Embedding pre-compute', tech: 'at ingest time', detail: 'Vectors generated once when a repo lands; query path never waits on an encoder.' },
+      { name: 'Async enrichment', tech: 'GCP Pub/Sub · repo.ingested', detail: 'LLM enrichment happens off the request path via subscriber workers.' },
+      { name: 'Cloud SQL f1-micro', tech: 'pgvector · pool_size=5+2', detail: 'Max connections 25; asyncpg pool sized for burst tolerance without OOM.' },
+      { name: 'Materialized views', tech: 'nightly refresh', detail: 'Graph edge aggregates precomputed nightly; /graph/edges reads the view, not the join.' },
+    ],
+  },
+];
+
+const ALL_DETAILS: LayerDetail[] = [...LAYER_DETAILS, ...BAND_DETAILS];
+
 // ─── SVG sub-components (all at module level — required by react-hooks/static-components) ──
 
 interface CompBoxProps {
@@ -132,7 +199,7 @@ interface CompBoxProps {
   w: number;
   h: number;
   label: string;
-  sublabel?: string;
+  sublabel?: string | string[];
   accent: string;
   textColor: string;
   animDelay?: number;
@@ -140,38 +207,53 @@ interface CompBoxProps {
 }
 
 function CompBox({ x, y, w, h, label, sublabel, accent, textColor, animDelay = 0, shouldReduce }: CompBoxProps) {
-  if (shouldReduce) {
-    return (
-      <g>
-        <rect x={x} y={y} width={w} height={h} rx={6} ry={6} fill="rgba(9,9,17,0.75)" stroke={accent} strokeWidth={1} />
-        <text x={x + 8} y={y + 15} fontSize={10.5} fontFamily="monospace" fill={textColor} fontWeight="600">
-          {label}
-        </text>
-        {sublabel && (
-          <text x={x + 8} y={y + 29} fontSize={9} fontFamily="monospace" fill="rgba(200,200,210,0.9)">
-            {sublabel}
+  const lines = sublabel === undefined ? [] : Array.isArray(sublabel) ? sublabel : [sublabel];
+  const pad = 10;
+  const inner = (
+    <>
+      <rect
+        x={x} y={y} width={w} height={h} rx={6} ry={6}
+        fill="rgba(9,9,17,0.82)"
+        stroke={accent}
+        strokeWidth={1.25}
+      />
+      {/* subtle inner-glow for cyberpunk-underwater feel */}
+      <rect
+        x={x + 0.75} y={y + 0.75} width={w - 1.5} height={h - 1.5} rx={5.5} ry={5.5}
+        fill="none" stroke={accent} strokeWidth={0.5} opacity={0.35}
+      />
+      <text x={x + pad} y={y + 18} fontSize={13} fontFamily="monospace" fill={textColor} fontWeight="700">
+        {label}
+      </text>
+      {lines.map((line, i) =>
+        line === '' ? null : (
+          <text
+            key={i}
+            x={x + pad}
+            y={y + 34 + i * 14}
+            fontSize={11}
+            fontFamily="monospace"
+            fill="rgba(220,220,230,0.9)"
+          >
+            {line}
           </text>
-        )}
-      </g>
-    );
+        )
+      )}
+    </>
+  );
+
+  if (shouldReduce) {
+    return <g>{inner}</g>;
   }
 
   const variants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.3, delay: animDelay } },
+    hidden: { opacity: 0, y: 4 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.35, delay: animDelay, ease: 'easeOut' as const } },
   };
 
   return (
-    <motion.g variants={variants} initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0 }}>
-      <rect x={x} y={y} width={w} height={h} rx={6} ry={6} fill="rgba(9,9,17,0.75)" stroke={accent} strokeWidth={1} />
-      <text x={x + 8} y={y + 15} fontSize={10.5} fontFamily="monospace" fill={textColor} fontWeight="600">
-        {label}
-      </text>
-      {sublabel && (
-        <text x={x + 8} y={y + 29} fontSize={9} fontFamily="monospace" fill="rgba(200,200,210,0.9)">
-          {sublabel}
-        </text>
-      )}
+    <motion.g variants={variants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0 }}>
+      {inner}
     </motion.g>
   );
 }
@@ -218,13 +300,21 @@ function LayerRow({ layerX, layerW, y, h, label, caption, colors, children, rowD
         {...clickableProps}
       >
         <rect x={layerX} y={y} width={layerW} height={h} rx={10} ry={10} fill={colors.fill} stroke={colors.stroke} strokeWidth={1.5} />
-        <rect x={layerX + 10} y={y + 8} width={138} height={20} rx={4} ry={4} fill={colors.badge} />
-        <text x={layerX + 18} y={y + 22} fontSize={9.5} fontFamily="monospace" fill={colors.text} fontWeight="700" letterSpacing="0.08em" textAnchor="start">
+        <rect x={layerX + 10} y={y + 7} width={190} height={22} rx={4} ry={4} fill={colors.badge} />
+        <text x={layerX + 19} y={y + 22} fontSize={11} fontFamily="monospace" fill={colors.text} fontWeight="700" letterSpacing="0.1em" textAnchor="start">
           {label.toUpperCase()}
         </text>
-        <text x={layerX + 156} y={y + 22} fontSize={10} fontFamily="sans-serif" fill="rgba(210,210,220,0.9)" fontStyle="italic">
+        <text x={layerX + 210} y={y + 22} fontSize={11.5} fontFamily="sans-serif" fill="rgba(220,220,230,0.92)" fontStyle="italic">
           {caption}
         </text>
+        {onClick && (
+          <TapCue
+            x={layerX + layerW - 12}
+            y={y + 18}
+            color={colors.text}
+            shouldReduce={shouldReduce}
+          />
+        )}
         {children}
       </g>
     );
@@ -253,16 +343,24 @@ function LayerRow({ layerX, layerW, y, h, label, caption, colors, children, rowD
         variants={bandVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: false, amount: 0 }}
+        viewport={{ once: true, amount: 0 }}
       />
-      <motion.g variants={labelVariants} initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0 }}>
-        <rect x={layerX + 10} y={y + 8} width={138} height={20} rx={4} ry={4} fill={colors.badge} />
-        <text x={layerX + 18} y={y + 22} fontSize={9.5} fontFamily="monospace" fill={colors.text} fontWeight="700" letterSpacing="0.08em" textAnchor="start">
+      <motion.g variants={labelVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0 }}>
+        <rect x={layerX + 10} y={y + 7} width={190} height={22} rx={4} ry={4} fill={colors.badge} />
+        <text x={layerX + 19} y={y + 22} fontSize={11} fontFamily="monospace" fill={colors.text} fontWeight="700" letterSpacing="0.1em" textAnchor="start">
           {label.toUpperCase()}
         </text>
-        <text x={layerX + 156} y={y + 22} fontSize={10} fontFamily="sans-serif" fill="rgba(210,210,220,0.9)" fontStyle="italic">
+        <text x={layerX + 210} y={y + 22} fontSize={11.5} fontFamily="sans-serif" fill="rgba(220,220,230,0.92)" fontStyle="italic">
           {caption}
         </text>
+        {onClick && (
+          <TapCue
+            x={layerX + layerW - 12}
+            y={y + 18}
+            color={colors.text}
+            shouldReduce={shouldReduce}
+          />
+        )}
       </motion.g>
       {children}
     </motion.g>
@@ -285,41 +383,227 @@ interface ArrowPathProps {
 }
 
 function ArrowPath({ x1, y1, x2, y2, stroke: strokeColor, delay, markerId, labelX, labelY, labelText, labelFill, shouldReduce }: ArrowPathProps) {
+  const pathId = `arch-path-${markerId}-${x1}-${y1}-${x2}-${y2}`;
+  const pathD = `M ${x1} ${y1} L ${x2} ${y2}`;
+  const isIngest = strokeColor.includes('52,211,153');
+  const bubbleFill = isIngest ? 'rgba(134,239,172,0.95)' : 'rgba(165,243,252,0.95)';
+
   if (shouldReduce) {
     return (
       <g>
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={strokeColor} strokeWidth={1.5} strokeDasharray="4 3" markerEnd={`url(#${markerId})`} />
-        {labelText && <text x={labelX} y={labelY} fontSize={8} fontFamily="monospace" fill={labelFill}>{labelText}</text>}
+        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={strokeColor} strokeWidth={2.5} markerEnd={`url(#${markerId})`} />
+        {labelText && <text x={labelX} y={labelY} fontSize={10} fontFamily="monospace" fontWeight="600" fill={labelFill}>{labelText}</text>}
       </g>
     );
   }
-  const pathD = `M ${x1} ${y1} L ${x2} ${y2}`;
   return (
     <g>
+      <defs>
+        <path id={pathId} d={pathD} />
+      </defs>
+      {/* Glow trail — chunky soft halo so the path reads at a glance */}
+      <line
+        x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke={strokeColor}
+        strokeWidth={7}
+        strokeLinecap="round"
+        opacity={0.22}
+      />
       <motion.path
         d={pathD}
         stroke={strokeColor}
-        strokeWidth={1.5}
-        strokeDasharray="4 3"
+        strokeWidth={2.75}
+        strokeLinecap="round"
         fill="none"
         markerEnd={`url(#${markerId})`}
         initial={{ pathLength: 0, opacity: 0 }}
         whileInView={{ pathLength: 1, opacity: 1 }}
-        viewport={{ once: false, amount: 0 }}
+        viewport={{ once: true, amount: 0 }}
         transition={{ duration: 0.5, delay, ease: 'easeOut' }}
       />
+      {/* Flowing bubbles along the arrow — echoes loop-slide motion.
+          Four bubbles at different offsets so the stream is always visible. */}
+      {[0, 0.25, 0.5, 0.75].map((offset) => (
+        <circle key={offset} r={2.75} fill={bubbleFill}>
+          <animateMotion
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin={`${delay + 0.35 + offset * 2.4}s`}
+          >
+            <mpath href={`#${pathId}`} />
+          </animateMotion>
+          <animate
+            attributeName="opacity"
+            values="0;1;1;0"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin={`${delay + 0.35 + offset * 2.4}s`}
+          />
+        </circle>
+      ))}
       {labelText && (
         <motion.text
           x={labelX} y={labelY}
-          fontSize={8} fontFamily="monospace" fill={labelFill}
+          fontSize={10} fontFamily="monospace" fontWeight="600"
+          fill={labelFill}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: false, amount: 0 }}
+          viewport={{ once: true, amount: 0 }}
           transition={{ duration: 0.25, delay: delay + 0.35 }}
         >
           {labelText}
         </motion.text>
       )}
+    </g>
+  );
+}
+
+// Tap cue — rising-bubble micro-interaction matching the ClickBubble
+// component used on every FlipCard in the presentation deck.
+// Three bubbles rise upward and fade; cycle staggered with negative begin.
+interface TapCueProps {
+  x: number;       // anchor point (bubbles rise toward this y)
+  y: number;
+  color: string;
+  shouldReduce: boolean;
+}
+function TapCue({ x, y, color, shouldReduce }: TapCueProps) {
+  // bubble params match ClickBubble: {6, 4, 3} px sizes, staggered offsets
+  const bubbles = [
+    { r: 3,   dx: 1,  begin: '-0.5s',  dur: '2.4s' },
+    { r: 2,   dx: 5,  begin: '-1.8s',  dur: '2.1s' },
+    { r: 1.5, dx: 3,  begin: '-3.1s',  dur: '2.7s' },
+  ];
+  // bubbles travel from y+9 (bottom of cue) up to y-9 (above cue)
+  const bottomY = y + 9;
+  const topY = y - 9;
+
+  const label = (
+    <text
+      x={x - 9} y={y + 3}
+      fontSize={9} fontFamily="monospace"
+      fill={color} opacity={0.85} textAnchor="end"
+      letterSpacing="0.08em"
+    >
+      tap
+    </text>
+  );
+
+  if (shouldReduce) {
+    return (
+      <g aria-hidden>
+        <circle cx={x} cy={y} r={3} fill={color} opacity={0.85} />
+        {label}
+      </g>
+    );
+  }
+
+  return (
+    <g aria-hidden>
+      {bubbles.map((b, i) => (
+        <circle key={i} cx={x + b.dx} r={b.r} fill={color} opacity={0}>
+          <animate
+            attributeName="cy"
+            values={`${bottomY};${topY}`}
+            dur={b.dur}
+            begin={b.begin}
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="opacity"
+            values="0;0.95;0.95;0"
+            dur={b.dur}
+            begin={b.begin}
+            repeatCount="indefinite"
+          />
+        </circle>
+      ))}
+      {label}
+    </g>
+  );
+}
+
+// Cross-cutting band panel — mirrors LayerRow / CompBox styling for a
+// consistent cyberpunk-underwater look: accent bar on the left, badge
+// header, structured item tags, and the same rising-bubble tap cue.
+interface BandPanelProps {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  items: string[];
+  colors: (typeof BAND_COLORS)[keyof typeof BAND_COLORS];
+  clickableProps: React.SVGAttributes<SVGGElement> & { 'aria-label'?: string; role?: 'button'; tabIndex?: number };
+  triggerRef: React.RefObject<SVGGElement | null>;
+  shouldReduce: boolean;
+}
+
+function BandPanel({
+  x, y, w, h, label, items, colors, clickableProps, triggerRef, shouldReduce,
+}: BandPanelProps) {
+  const badgeW = 150;
+  const headerH = 34;        // space above the first item
+  const padBottom = 10;      // trailing pad below the last item
+  const itemRectH = 20;      // height of each item's pill
+  // distribute items across the panel: step so last pill bottom sits at h-padBottom
+  const n = items.length;
+  const availableForItems = h - headerH - padBottom - itemRectH;
+  const itemStep = n > 1 ? availableForItems / (n - 1) : 0;
+  const itemsStartY = y + headerH;
+  const itemX = x + 18;
+  const itemW = w - 28;
+
+  return (
+    <g ref={triggerRef} {...clickableProps}>
+      {/* outer frame */}
+      <rect x={x} y={y} width={w} height={h} rx={8} ry={8}
+        fill={colors.fill} stroke={colors.stroke} strokeWidth={1.5} />
+      {/* inner accent rim */}
+      <rect x={x + 0.75} y={y + 0.75} width={w - 1.5} height={h - 1.5} rx={7} ry={7}
+        fill="none" stroke={colors.stroke} strokeWidth={0.5} opacity={0.5} />
+      {/* left accent bar */}
+      <rect x={x + 4} y={y + 10} width={3} height={h - 20} rx={1.5} ry={1.5}
+        fill={colors.text} opacity={0.8} />
+
+      {/* badge header */}
+      <rect x={x + 14} y={y + 8} width={badgeW} height={22} rx={4} ry={4}
+        fill={colors.stroke} opacity={0.22} />
+      <text x={x + 22} y={y + 23}
+        fontSize={11} fontFamily="monospace"
+        fill={colors.text} fontWeight="700" letterSpacing="0.18em">
+        {label}
+      </text>
+      <TapCue x={x + w - 12} y={y + 19} color={colors.text} shouldReduce={shouldReduce} />
+
+      {/* item tags — evenly distributed so the panel has no trailing air */}
+      {items.map((item, i) => {
+        const rectY = itemsStartY + i * itemStep;
+        return (
+          <g key={item}>
+            <rect
+              x={itemX} y={rectY}
+              width={itemW} height={itemRectH}
+              rx={3} ry={3}
+              fill="rgba(9,9,17,0.6)"
+              stroke={colors.stroke}
+              strokeWidth={0.75}
+              opacity={0.85}
+            />
+            <circle
+              cx={itemX + 8} cy={rectY + itemRectH / 2}
+              r={1.8} fill={colors.text} opacity={0.85}
+            />
+            <text
+              x={itemX + 16} y={rectY + itemRectH / 2 + 4}
+              fontSize={11} fontFamily="monospace"
+              fill={colors.itemColor}
+            >
+              {item}
+            </text>
+          </g>
+        );
+      })}
     </g>
   );
 }
@@ -338,7 +622,7 @@ function BandGroup({ children, delay, shouldReduce }: BandGroupProps) {
     <motion.g
       initial={{ opacity: 0, x: 28 }}
       whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: false, amount: 0 }}
+      viewport={{ once: true, amount: 0 }}
       transition={{ duration: 0.45, delay, ease: 'easeOut' }}
     >
       {children}
@@ -475,9 +759,20 @@ function LayerDetailModal({ layer, onClose, triggerEl }: LayerDetailModalProps) 
 
 // ─── Desktop SVG (≥ 768px) ──────────────────────────────────────────────────
 
+// SSR-safe reduced-motion: useReducedMotion returns null on the server but
+// synchronously reads matchMedia on the client's first render, producing a
+// hydration mismatch when the user has reduced motion enabled. Defer until
+// mount so the first client render matches SSR.
+function useSSRSafeReducedMotion(): boolean {
+  const pref = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []); // eslint-disable-line react-hooks/set-state-in-effect
+  return mounted && !!pref;
+}
+
 function DesktopDiagram() {
-  const shouldReduce = !!useReducedMotion();
-  const [activeLayer, setActiveLayer] = useState<LayerKey | null>(null);
+  const shouldReduce = useSSRSafeReducedMotion();
+  const [activeLayer, setActiveLayer] = useState<DetailKey | null>(null);
   // Store the actual DOM element that triggered the modal (for focus restoration)
   const [triggerEl, setTriggerEl] = useState<SVGGElement | null>(null);
 
@@ -486,25 +781,46 @@ function DesktopDiagram() {
   const refIntelligence = useRef<SVGGElement>(null);
   const refSemantic = useRef<SVGGElement>(null);
   const refCompounding = useRef<SVGGElement>(null);
+  const refObservability = useRef<SVGGElement>(null);
+  const refGovernance = useRef<SVGGElement>(null);
+  const refPerformance = useRef<SVGGElement>(null);
 
-  const openLayer = useCallback((key: LayerKey, el: SVGGElement | null) => {
+  const openLayer = useCallback((key: DetailKey, el: SVGGElement | null) => {
     setTriggerEl(el);
     setActiveLayer(key);
   }, []);
   const closeLayer = useCallback(() => setActiveLayer(null), []);
 
-  const activeDetail = activeLayer ? LAYER_DETAILS.find((l) => l.key === activeLayer) ?? null : null;
+  const activeDetail = activeLayer ? ALL_DETAILS.find((l) => l.key === activeLayer) ?? null : null;
 
-  const W = 960;
-  const H = 580;
+  const bandKeyHandler = (key: BandKey, ref: React.RefObject<SVGGElement | null>) => (e: React.KeyboardEvent<SVGGElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openLayer(key, ref.current);
+    }
+  };
+  const clickableBandProps = (key: BandKey, ref: React.RefObject<SVGGElement | null>, label: string) => ({
+    role: 'button' as const,
+    tabIndex: 0,
+    onClick: () => openLayer(key, ref.current),
+    onKeyDown: bandKeyHandler(key, ref),
+    style: { cursor: 'pointer' } as React.CSSProperties,
+    'aria-label': `${label} band — click to expand`,
+  });
+
+  const W = 1000;
+  const H = 600;
 
   const layerX = 16;
   const layerW = 700;
-  const layerGap = 8;
+  const layerGap = 22;
 
-  const rowH = [110, 124, 144, 110];
+  const rowH = [100, 118, 148, 100];
   const totalLayerH = rowH.reduce((a, b) => a + b, 0) + layerGap * 3;
-  const layerY = (H - totalLayerH) / 2;
+  // Reserve a top strip for the arrow legend so it never collides with
+  // the Interface panel's badge. Bottom strip kept equal for visual balance.
+  const topStrip = 34;
+  const layerY = topStrip + Math.max(0, (H - topStrip - totalLayerH) / 2);
 
   const rowY: number[] = [];
   let curY = layerY;
@@ -515,8 +831,47 @@ function DesktopDiagram() {
 
   const bandX = layerX + layerW + 16;
   const bandW = W - bandX - 16;
-  const bandH = (totalLayerH - 8) / 3;
   const bandY0 = layerY;
+
+  // Tight-fit bands — each band sized to its own items, no trailing air.
+  // Formula: header(34) + items*itemH + padBottom(12). Remaining layer-area
+  // vertical slack distributed as extra gap between bands so the trio
+  // still spans the layer stack without stretching any individual panel.
+  const bandItemCounts = [5, 4, 4];
+  const bandItemH = 26;
+  const bandHeaderPx = 34;
+  const bandPadBottomPx = 12;
+  const bandHeights = bandItemCounts.map(
+    (n) => bandHeaderPx + n * bandItemH + bandPadBottomPx
+  );
+  const bandsContentH = bandHeights.reduce((a, b) => a + b, 0);
+  const bandGapPx = Math.max(8, (totalLayerH - bandsContentH) / 2);
+  const bandYs = [
+    bandY0,
+    bandY0 + bandHeights[0] + bandGapPx,
+    bandY0 + bandHeights[0] + bandHeights[1] + bandGapPx * 2,
+  ];
+
+  // Continuous motion circuit — rounded rect that wraps the whole layer
+  // stack so the query path (left, CCW, cyan) and ingest flow (right, CW,
+  // green) read as one always-on circulatory loop, echoing the loop slide.
+  const circuitPad = 10;
+  const cx1 = layerX - circuitPad;
+  const cy1 = layerY - circuitPad;
+  const cx2 = layerX + layerW + circuitPad;
+  const cy2 = layerY + totalLayerH + circuitPad;
+  const cr = 12;
+  // CCW path starting top-left corner — used for query bubbles (down-left side)
+  const circuitPath =
+    `M ${cx1 + cr} ${cy1} ` +
+    `L ${cx2 - cr} ${cy1} ` +
+    `A ${cr} ${cr} 0 0 1 ${cx2} ${cy1 + cr} ` +
+    `L ${cx2} ${cy2 - cr} ` +
+    `A ${cr} ${cr} 0 0 1 ${cx2 - cr} ${cy2} ` +
+    `L ${cx1 + cr} ${cy2} ` +
+    `A ${cr} ${cr} 0 0 1 ${cx1} ${cy2 - cr} ` +
+    `L ${cx1} ${cy1 + cr} ` +
+    `A ${cr} ${cr} 0 0 1 ${cx1 + cr} ${cy1} Z`;
 
   const arrowId = 'arch-arrow';
   const arrowUpId = 'arch-arrow-up';
@@ -545,11 +900,11 @@ function DesktopDiagram() {
         variants={containerVariants}
         initial={shouldReduce ? false : 'hidden'}
         whileInView={shouldReduce ? undefined : 'visible'}
-        viewport={{ once: false, amount: 0.4 }}
+        viewport={{ once: true, amount: 0.4 }}
       >
         <title id="arch-title">Reporium AI-Native Architecture</title>
         <desc id="arch-desc">
-          Four AI-native layers (Agent-accessible, Intelligence, Semantic, Compounding) with three cross-cutting bands
+          Four AI-native layers (Interface, Intelligence, Semantic, Data) with three cross-cutting bands
           (Observability, Governance, Performance) mapping to real Reporium services. Click any layer to expand it.
         </desc>
 
@@ -562,11 +917,66 @@ function DesktopDiagram() {
           </marker>
         </defs>
 
-        {/* ── Layer 1: Agent-accessible ──────────────────────────────────── */}
+        {/* Arrow legend — seated in the reserved top strip above all panels */}
+        <g aria-label="Arrow legend">
+          <rect x={W - 300} y={10} width={14} height={14} fill="rgba(34,211,238,0.6)" />
+          <text x={W - 282} y={22} fontSize={11} fontFamily="monospace" fill="rgba(34,211,238,0.9)">query path ↓</text>
+          <rect x={W - 180} y={10} width={14} height={14} fill="rgba(52,211,153,0.6)" />
+          <text x={W - 162} y={22} fontSize={11} fontFamily="monospace" fill="rgba(52,211,153,0.9)">ingest flow ↑</text>
+        </g>
+
+        {/* Continuous motion circuit — wraps the 4 layers; cyan bubbles
+            flow CCW (query path down the left), green bubbles flow CW
+            (ingest up the right). Low-opacity ambient motion, matches
+            the loop slide's underwater-cyberpunk motion vocabulary. */}
+        <defs>
+          <path id="arch-circuit" d={circuitPath} />
+          <path id="arch-circuit-rev" d={
+            // Reversed path for CW traversal (ingest flow — right-side up)
+            `M ${cx2 - cr} ${cy1} ` +
+            `L ${cx1 + cr} ${cy1} ` +
+            `A ${cr} ${cr} 0 0 0 ${cx1} ${cy1 + cr} ` +
+            `L ${cx1} ${cy2 - cr} ` +
+            `A ${cr} ${cr} 0 0 0 ${cx1 + cr} ${cy2} ` +
+            `L ${cx2 - cr} ${cy2} ` +
+            `A ${cr} ${cr} 0 0 0 ${cx2} ${cy2 - cr} ` +
+            `L ${cx2} ${cy1 + cr} ` +
+            `A ${cr} ${cr} 0 0 0 ${cx2 - cr} ${cy1} Z`
+          } />
+        </defs>
+        <g aria-hidden="true" opacity={0.9}>
+          <use href="#arch-circuit" fill="none" stroke="rgba(165,243,252,0.18)" strokeWidth={1} strokeDasharray="3 4" />
+          {!shouldReduce && (
+            <>
+              {/* Query path — cyan bubbles flowing CCW (down the left side) */}
+              {[0, 0.2, 0.4, 0.6, 0.8].map((offset) => (
+                <circle key={`q-${offset}`} r={2.5} fill="rgba(165,243,252,0.85)">
+                  <animateMotion dur="9s" repeatCount="indefinite" begin={`${offset * 9}s`}>
+                    <mpath href="#arch-circuit" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0;0.9;0.9;0"
+                    dur="9s" repeatCount="indefinite" begin={`${offset * 9}s`} />
+                </circle>
+              ))}
+              {/* Ingest flow — green bubbles flowing CW (up the right side) */}
+              {[0, 0.25, 0.5, 0.75].map((offset) => (
+                <circle key={`i-${offset}`} r={2.5} fill="rgba(134,239,172,0.85)">
+                  <animateMotion dur="10s" repeatCount="indefinite" begin={`${offset * 10}s`}>
+                    <mpath href="#arch-circuit-rev" />
+                  </animateMotion>
+                  <animate attributeName="opacity" values="0;0.9;0.9;0"
+                    dur="10s" repeatCount="indefinite" begin={`${offset * 10}s`} />
+                </circle>
+              ))}
+            </>
+          )}
+        </g>
+
+        {/* ── Layer 1: Interface ─────────────────────────────────────────── */}
         <LayerRow
           layerX={layerX} layerW={layerW}
           y={rowY[0]} h={rowH[0]}
-          label="Agent-accessible"
+          label="Interface Layer"
           caption="MCP and typed endpoints — agents call this directly"
           colors={LAYER_COLORS.agentAccessible}
           rowDelay={layerBaseDelay}
@@ -575,39 +985,40 @@ function DesktopDiagram() {
           triggerRef={refAgentAccessible}
         >
           <CompBox
-            x={layerX + 10} y={rowY[0] + 36} w={148} h={64}
-            label="Reporium Web" sublabel="Next.js · Vercel · human readers"
+            x={layerX + 12} y={rowY[0] + 38} w={220} h={56}
+            label="Reporium Web"
+            sublabel={["Next.js · Vercel", "human readers"]}
             accent="rgba(147,51,234,0.5)" textColor="#c084fc"
             animDelay={layerBaseDelay + 0.15}
             shouldReduce={shouldReduce}
           />
           <CompBox
-            x={layerX + 168} y={rowY[0] + 36} w={130} h={64}
-            label="reporium-mcp" sublabel="MCP protocol · agent readers"
+            x={layerX + 240} y={rowY[0] + 38} w={220} h={56}
+            label="reporium-mcp"
+            sublabel={["MCP protocol", "agent readers"]}
             accent="rgba(147,51,234,0.5)" textColor="#c084fc"
             animDelay={layerBaseDelay + 0.15 + compBoxStagger}
             shouldReduce={shouldReduce}
           />
           <CompBox
-            x={layerX + 308} y={rowY[0] + 36} w={230} h={64}
+            x={layerX + 468} y={rowY[0] + 38} w={220} h={56}
             label="External orchestrators"
-            sublabel="Workato · LangChain · Claude Desktop · custom"
+            sublabel={["Workato · LangChain", "Claude Desktop · custom"]}
             accent="rgba(147,51,234,0.4)" textColor="#c084fc"
             animDelay={layerBaseDelay + 0.15 + compBoxStagger * 2}
             shouldReduce={shouldReduce}
           />
         </LayerRow>
 
-        {/* Query path arrow: Agent-accessible → Intelligence */}
+        {/* Query path arrow: Interface → Intelligence */}
         <ArrowPath
           x1={layerX + 80} y1={rowY[0] + rowH[0]}
           x2={layerX + 80} y2={rowY[1]}
-          stroke="rgba(34,211,238,0.55)"
+          stroke="rgba(34,211,238,0.85)"
           delay={arrowDelay}
           markerId={arrowId}
-          labelX={layerX + 86} labelY={rowY[0] + rowH[0] + 6}
-          labelText="query path ↓"
-          labelFill="rgba(34,211,238,0.6)"
+          labelX={layerX + 94} labelY={rowY[0] + rowH[0] + 14}
+          labelText="query ↓" labelFill="rgba(165,243,252,0.95)"
           shouldReduce={shouldReduce}
         />
 
@@ -615,7 +1026,7 @@ function DesktopDiagram() {
         <LayerRow
           layerX={layerX} layerW={layerW}
           y={rowY[1]} h={rowH[1]}
-          label="Intelligence"
+          label="Intelligence Layer"
           caption="AI is in the decision loop"
           colors={LAYER_COLORS.intelligence}
           rowDelay={layerBaseDelay + rowStagger}
@@ -624,35 +1035,28 @@ function DesktopDiagram() {
           triggerRef={refIntelligence}
         >
           <CompBox
-            x={layerX + 10} y={rowY[1] + 36} w={200} h={78}
-            label="reporium-api" sublabel="FastAPI · Cloud Run"
+            x={layerX + 12} y={rowY[1] + 38} w={328} h={76}
+            label="reporium-api"
+            sublabel={[
+              "FastAPI · Cloud Run · Sentry",
+              "public reads / ingest (keyed)",
+              "admin (keyed) · Scalar docs",
+            ]}
             accent="rgba(217,70,239,0.5)" textColor="#f0abfc"
             animDelay={layerBaseDelay + rowStagger + 0.15}
             shouldReduce={shouldReduce}
           />
-          {/* Additional detail lines inside the API box */}
-          <text x={layerX + 18} y={rowY[1] + 78} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
-            public reads / ingest (keyed)
-          </text>
-          <text x={layerX + 18} y={rowY[1] + 90} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
-            admin (keyed) / Scalar docs
-          </text>
-          <text x={layerX + 18} y={rowY[1] + 103} fontSize={8.5} fontFamily="monospace" fill="rgba(161,161,170,0.7)">
-            rate-limited · Sentry-instrumented
-          </text>
-
           <CompBox
-            x={layerX + 220} y={rowY[1] + 36} w={185} h={36}
+            x={layerX + 348} y={rowY[1] + 38} w={340} h={50}
             label="LLM enrichment"
-            sublabel="model-agnostic — Claude, GPT, local"
+            sublabel="model-agnostic — Claude · GPT · local"
             accent="rgba(217,70,239,0.5)" textColor="#f0abfc"
             animDelay={layerBaseDelay + rowStagger + 0.15 + compBoxStagger}
             shouldReduce={shouldReduce}
           />
           <CompBox
-            x={layerX + 220} y={rowY[1] + 78} w={185} h={36}
-            label="Pub/Sub event bus"
-            sublabel="topic: repo-ingested"
+            x={layerX + 348} y={rowY[1] + 92} w={340} h={22}
+            label="Pub/Sub · topic: repo-ingested"
             accent="rgba(217,70,239,0.4)" textColor="#f0abfc"
             animDelay={layerBaseDelay + rowStagger + 0.15 + compBoxStagger * 2}
             shouldReduce={shouldReduce}
@@ -663,9 +1067,11 @@ function DesktopDiagram() {
         <ArrowPath
           x1={layerX + 80} y1={rowY[1] + rowH[1]}
           x2={layerX + 80} y2={rowY[2]}
-          stroke="rgba(34,211,238,0.55)"
+          stroke="rgba(34,211,238,0.85)"
           delay={arrowDelay + 0.1}
           markerId={arrowId}
+          labelX={layerX + 94} labelY={rowY[1] + rowH[1] + 14}
+          labelText="query ↓" labelFill="rgba(165,243,252,0.95)"
           shouldReduce={shouldReduce}
         />
 
@@ -673,7 +1079,7 @@ function DesktopDiagram() {
         <LayerRow
           layerX={layerX} layerW={layerW}
           y={rowY[2]} h={rowH[2]}
-          label="Semantic"
+          label="Semantic Layer"
           caption="Retrieval is by meaning, not strings"
           colors={LAYER_COLORS.semantic}
           rowDelay={layerBaseDelay + rowStagger * 2}
@@ -682,32 +1088,23 @@ function DesktopDiagram() {
           triggerRef={refSemantic}
         >
           <CompBox
-            x={layerX + 10} y={rowY[2] + 36} w={165} h={98}
+            x={layerX + 12} y={rowY[2] + 38} w={328} h={104}
             label="Postgres + pgvector"
-            sublabel="Cloud SQL · managed backups"
+            sublabel={[
+              "Cloud SQL · managed backups",
+              "",
+              "repo_embeddings",
+              "384-dim · HNSW · cosine_ops",
+              "taxonomy_values",
+              "cosine ≥ 0.65 · 8 dims",
+            ]}
             accent="rgba(34,211,238,0.5)" textColor="#67e8f9"
             animDelay={layerBaseDelay + rowStagger * 2 + 0.15}
             shouldReduce={shouldReduce}
           />
-          {/* inner details */}
-          <text x={layerX + 18} y={rowY[2] + 90} fontSize={8.5} fontFamily="monospace" fill="rgba(103,232,249,0.75)">
-            repo_embeddings
-          </text>
-          <text x={layerX + 18} y={rowY[2] + 102} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
-            384-dim · HNSW · vector_cosine_ops
-          </text>
-          <text x={layerX + 18} y={rowY[2] + 114} fontSize={8.5} fontFamily="monospace" fill="rgba(103,232,249,0.75)">
-            taxonomy_values
-          </text>
-          <text x={layerX + 18} y={rowY[2] + 126} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
-            8 dynamic dimensions · embedded
-          </text>
-          <text x={layerX + 18} y={rowY[2] + 138} fontSize={8} fontFamily="monospace" fill="rgba(161,161,170,0.65)">
-            cosine ≥ 0.65 taxonomy assignment
-          </text>
 
           <CompBox
-            x={layerX + 185} y={rowY[2] + 36} w={200} h={40}
+            x={layerX + 348} y={rowY[2] + 38} w={340} h={46}
             label="GCS snapshot"
             sublabel="read fallback for /graph/edges"
             accent="rgba(34,211,238,0.4)" textColor="#67e8f9"
@@ -715,25 +1112,27 @@ function DesktopDiagram() {
             shouldReduce={shouldReduce}
           />
           <CompBox
-            x={layerX + 185} y={rowY[2] + 84} w={200} h={50}
+            x={layerX + 348} y={rowY[2] + 90} w={340} h={52}
             label="Redis cache (optional)"
-            sublabel="/library/full · 5-min TTL · HNSW approx-NN"
+            sublabel={[
+              "/library/full · 5-min TTL",
+              "HNSW approx-NN",
+            ]}
             accent="rgba(34,211,238,0.35)" textColor="#67e8f9"
             animDelay={layerBaseDelay + rowStagger * 2 + 0.15 + compBoxStagger * 2}
             shouldReduce={shouldReduce}
           />
         </LayerRow>
 
-        {/* Ingest flow arrow: Compounding → Semantic (up) */}
+        {/* Ingest flow arrow: Data → Semantic (up) */}
         <ArrowPath
-          x1={layerX + 200} y1={rowY[3]}
-          x2={layerX + 200} y2={rowY[2] + rowH[2] + layerGap}
-          stroke="rgba(52,211,153,0.55)"
+          x1={layerX + 520} y1={rowY[3]}
+          x2={layerX + 520} y2={rowY[2] + rowH[2]}
+          stroke="rgba(52,211,153,0.85)"
           delay={arrowDelay + 0.2}
           markerId={arrowUpId}
-          labelX={layerX + 206} labelY={rowY[3] - 2}
-          labelText="ingest flow ↑"
-          labelFill="rgba(52,211,153,0.6)"
+          labelX={layerX + 534} labelY={rowY[3] - 4}
+          labelText="ingest ↑" labelFill="rgba(134,239,172,0.95)"
           shouldReduce={shouldReduce}
         />
 
@@ -741,7 +1140,7 @@ function DesktopDiagram() {
         <LayerRow
           layerX={layerX} layerW={layerW}
           y={rowY[3]} h={rowH[3]}
-          label="Compounding"
+          label="Data Layer"
           caption="Every ingest makes the next query better"
           colors={LAYER_COLORS.compounding}
           rowDelay={layerBaseDelay + rowStagger * 3}
@@ -750,17 +1149,23 @@ function DesktopDiagram() {
           triggerRef={refCompounding}
         >
           <CompBox
-            x={layerX + 10} y={rowY[3] + 36} w={300} h={64}
+            x={layerX + 12} y={rowY[3] + 38} w={372} h={56}
             label="reporium-ingestion"
-            sublabel="Cloud Run Job · nightly: pull → LLM enrich → POST /ingest/repos → publish repo.ingested"
+            sublabel={[
+              "Cloud Run Job · nightly cron",
+              "pull → enrich → POST /ingest → publish",
+            ]}
             accent="rgba(52,211,153,0.5)" textColor="#6ee7b7"
             animDelay={layerBaseDelay + rowStagger * 3 + 0.15}
             shouldReduce={shouldReduce}
           />
           <CompBox
-            x={layerX + 320} y={rowY[3] + 36} w={230} h={64}
+            x={layerX + 392} y={rowY[3] + 38} w={296} h={56}
             label="forksync"
-            sublabel="Cloud Run Job · nightly: keeps forks aligned with upstreams"
+            sublabel={[
+              "Cloud Run Job · nightly cron",
+              "fork alignment w/ upstream",
+            ]}
             accent="rgba(52,211,153,0.45)" textColor="#6ee7b7"
             animDelay={layerBaseDelay + rowStagger * 3 + 0.15 + compBoxStagger}
             shouldReduce={shouldReduce}
@@ -771,63 +1176,57 @@ function DesktopDiagram() {
 
         {/* Observability */}
         <BandGroup delay={bandDelay} shouldReduce={shouldReduce}>
-          <g aria-label="Observability band">
-            <rect x={bandX} y={bandY0} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.observability.fill} stroke={BAND_COLORS.observability.stroke} strokeWidth={1.5} />
-            <text x={bandX + bandW / 2} y={bandY0 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.observability.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
-              OBSERVABILITY
-            </text>
-            {[
-              '/health (DB, Redis, last ingestion)',
+          <BandPanel
+            triggerRef={refObservability}
+            clickableProps={clickableBandProps('observability', refObservability, 'Observability')} /* eslint-disable-line react-hooks/refs */
+            x={bandX} y={bandYs[0]} w={bandW} h={bandHeights[0]}
+            label="OBSERVABILITY"
+            colors={BAND_COLORS.observability}
+            items={[
+              '/health (DB, Redis, ingest)',
               '/admin/data-quality',
               'ingestion_log table',
               'observability/ directory',
               'Scalar API docs (/docs)',
-            ].map((item, i) => (
-              <text key={item} x={bandX + 10} y={bandY0 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.observability.itemColor}>
-                {item}
-              </text>
-            ))}
-          </g>
+            ]}
+            shouldReduce={shouldReduce}
+          />
         </BandGroup>
 
         {/* Governance */}
         <BandGroup delay={bandDelay + 0.12} shouldReduce={shouldReduce}>
-          <g aria-label="Governance band">
-            <rect x={bandX} y={bandY0 + bandH + 6} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.governance.fill} stroke={BAND_COLORS.governance.stroke} strokeWidth={1.5} />
-            <text x={bandX + bandW / 2} y={bandY0 + bandH + 6 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.governance.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
-              GOVERNANCE
-            </text>
-            {[
-              'X-Ingest-Key (ingest writes)',
+          <BandPanel
+            triggerRef={refGovernance}
+            clickableProps={clickableBandProps('governance', refGovernance, 'Governance')} /* eslint-disable-line react-hooks/refs */
+            x={bandX} y={bandYs[1]} w={bandW} h={bandHeights[1]}
+            label="GOVERNANCE"
+            colors={BAND_COLORS.governance}
+            items={[
+              'X-Ingest-Key (writes)',
               'X-Admin-Key (admin ops)',
               'GCP Secret Manager',
               'SECURITY_AUDIT.md',
-            ].map((item, i) => (
-              <text key={item} x={bandX + 10} y={bandY0 + bandH + 6 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.governance.itemColor}>
-                {item}
-              </text>
-            ))}
-          </g>
+            ]}
+            shouldReduce={shouldReduce}
+          />
         </BandGroup>
 
         {/* Performance */}
         <BandGroup delay={bandDelay + 0.24} shouldReduce={shouldReduce}>
-          <g aria-label="Performance band">
-            <rect x={bandX} y={bandY0 + (bandH + 6) * 2} width={bandW} height={bandH} rx={8} ry={8} fill={BAND_COLORS.performance.fill} stroke={BAND_COLORS.performance.stroke} strokeWidth={1.5} />
-            <text x={bandX + bandW / 2} y={bandY0 + (bandH + 6) * 2 + 17} fontSize={9.5} fontFamily="monospace" fill={BAND_COLORS.performance.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
-              PERFORMANCE
-            </text>
-            {[
+          <BandPanel
+            triggerRef={refPerformance}
+            clickableProps={clickableBandProps('performance', refPerformance, 'Performance')} /* eslint-disable-line react-hooks/refs */
+            x={bandX} y={bandYs[2]} w={bandW} h={bandHeights[2]}
+            label="PERFORMANCE"
+            colors={BAND_COLORS.performance}
+            items={[
               'Redis cache (optional)',
-              '/library/full (5-min cache)',
+              '/library/full (5-min)',
               'HNSW approximate-NN',
-              'GCS snapshot read fallback',
-            ].map((item, i) => (
-              <text key={item} x={bandX + 10} y={bandY0 + (bandH + 6) * 2 + 34 + i * 15} fontSize={9} fontFamily="monospace" fill={BAND_COLORS.performance.itemColor}>
-                {item}
-              </text>
-            ))}
-          </g>
+              'GCS snapshot fallback',
+            ]}
+            shouldReduce={shouldReduce}
+          />
         </BandGroup>
       </motion.svg>
 
@@ -848,7 +1247,7 @@ function DesktopDiagram() {
 const MOBILE_LAYERS = [
   {
     key: 'agent',
-    label: 'Agent-accessible',
+    label: 'Interface Layer',
     caption: 'MCP and typed endpoints — agents call this directly',
     colors: LAYER_COLORS.agentAccessible,
     items: [
@@ -860,7 +1259,7 @@ const MOBILE_LAYERS = [
   },
   {
     key: 'intelligence',
-    label: 'Intelligence',
+    label: 'Intelligence Layer',
     caption: 'AI is in the decision loop',
     colors: LAYER_COLORS.intelligence,
     items: [
@@ -872,7 +1271,7 @@ const MOBILE_LAYERS = [
   },
   {
     key: 'semantic',
-    label: 'Semantic',
+    label: 'Semantic Layer',
     caption: 'Retrieval is by meaning, not strings',
     colors: LAYER_COLORS.semantic,
     items: [
@@ -885,7 +1284,7 @@ const MOBILE_LAYERS = [
   },
   {
     key: 'compounding',
-    label: 'Compounding',
+    label: 'Data Layer',
     caption: 'Every ingest makes the next query better',
     colors: LAYER_COLORS.compounding,
     items: [
@@ -935,12 +1334,12 @@ const MOBILE_BANDS = [
 ];
 
 function MobileDiagram() {
-  const shouldReduce = !!useReducedMotion();
+  const shouldReduce = useSSRSafeReducedMotion();
 
   const W = 480;
-  const rowH = 100;
-  const rowGap = 8;
-  const arrowH = 20;
+  const rowH = 108;
+  const rowGap = 6;
+  const arrowH = 16;
   const layersTotalH = MOBILE_LAYERS.length * rowH + (MOBILE_LAYERS.length - 1) * (rowGap + arrowH);
 
   const bandH = 100;
@@ -957,7 +1356,7 @@ function MobileDiagram() {
     >
       <title id="arch-title-m">Reporium AI-Native Architecture</title>
       <desc id="arch-desc-m">
-        Four AI-native layers (Agent-accessible, Intelligence, Semantic, Compounding) with three
+        Four AI-native layers (Interface, Intelligence, Semantic, Data) with three
         cross-cutting bands (Observability, Governance, Performance) mapping to real Reporium services.
       </desc>
 
@@ -975,22 +1374,23 @@ function MobileDiagram() {
           <g>
             <rect x={8} y={y} width={W - 16} height={rowH} rx={8} ry={8} fill={layer.colors.fill} stroke={layer.colors.stroke} strokeWidth={1.5} />
             {/* Badge */}
-            <rect x={16} y={y + 8} width={140} height={18} rx={4} ry={4} fill={layer.colors.badge} />
-            <text x={24} y={y + 20} fontSize={9} fontFamily="monospace" fill={layer.colors.text} fontWeight="700" letterSpacing="0.08em">
+            <rect x={16} y={y + 7} width={175} height={22} rx={4} ry={4} fill={layer.colors.badge} />
+            <text x={24} y={y + 22} fontSize={10.5} fontFamily="monospace" fill={layer.colors.text} fontWeight="700" letterSpacing="0.1em">
               {layer.label.toUpperCase()}
             </text>
             {/* Caption — legibility improved */}
-            <text x={164} y={y + 20} fontSize={9} fontFamily="sans-serif" fill="rgba(210,210,220,0.9)" fontStyle="italic">
+            <text x={200} y={y + 22} fontSize={10} fontFamily="sans-serif" fill="rgba(220,220,230,0.92)" fontStyle="italic">
               {layer.caption}
             </text>
             {/* Items — primary vs sub-detail differentiated */}
             {layer.items.map((item, ii) => (
               <text
                 key={`${layer.key}-item-${ii}`}
-                x={item.sub ? 22 : 16} y={y + 36 + ii * 14}
-                fontSize={item.sub ? 8 : 9}
+                x={item.sub ? 24 : 16} y={y + 42 + ii * 16}
+                fontSize={item.sub ? 10 : 11}
                 fontFamily="monospace"
-                fill={item.sub ? 'rgba(180,180,190,0.75)' : 'rgba(228,228,231,0.9)'}
+                fontWeight={item.sub ? 400 : 600}
+                fill={item.sub ? 'rgba(190,190,200,0.85)' : 'rgba(235,235,240,0.95)'}
               >
                 {item.text}
               </text>
@@ -1017,7 +1417,7 @@ function MobileDiagram() {
             aria-label={`${layer.label} layer`}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.4, delay: animDelay, ease: 'easeOut' }}
           >
             {inner}
@@ -1037,11 +1437,11 @@ function MobileDiagram() {
         const inner = (
           <g>
             <rect x={8} y={y} width={W - 16} height={bandH} rx={8} ry={8} fill={band.colors.fill} stroke={band.colors.stroke} strokeWidth={1.5} />
-            <text x={W / 2} y={y + 17} fontSize={9.5} fontFamily="monospace" fill={band.colors.text} fontWeight="700" textAnchor="middle" letterSpacing="0.1em">
+            <text x={W / 2} y={y + 20} fontSize={11.5} fontFamily="monospace" fill={band.colors.text} fontWeight="700" textAnchor="middle" letterSpacing="0.18em">
               {band.label}
             </text>
             {band.items.map((item, ii) => (
-              <text key={`${band.key}-item-${ii}`} x={16} y={y + 33 + ii * 15} fontSize={9} fontFamily="monospace" fill="rgba(228,228,231,0.85)">
+              <text key={`${band.key}-item-${ii}`} x={16} y={y + 40 + ii * 16} fontSize={11} fontFamily="monospace" fill="rgba(230,230,235,0.92)">
                 {item}
               </text>
             ))}
@@ -1058,7 +1458,7 @@ function MobileDiagram() {
             aria-label={`${band.label} band`}
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.4, delay: animDelay, ease: 'easeOut' }}
           >
             {inner}
@@ -1086,7 +1486,7 @@ export function ArchitectureDiagram() {
 
   return (
     <div
-      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-3 sm:p-4"
+      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/80 p-2 sm:p-2.5"
       style={{ boxShadow: '0 0 32px rgba(34,211,238,0.06), 0 0 64px rgba(217,70,239,0.05)' }}
     >
       {isMobile ? <MobileDiagram /> : <DesktopDiagram />}

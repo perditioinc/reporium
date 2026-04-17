@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SlideWrapperProps {
   children: React.ReactNode;
@@ -26,7 +26,13 @@ const childVariants = {
 };
 
 export function SlideWrapper({ children, id, className = '', bg = '' }: SlideWrapperProps) {
-  const shouldReduce = useReducedMotion();
+  // SSR-safe: useReducedMotion returns null on the server but reads matchMedia
+  // synchronously on first client render. Defer until mount so the first client
+  // render matches SSR and avoids a hydration mismatch.
+  const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []); // eslint-disable-line react-hooks/set-state-in-effect
+  const shouldReduce = mounted && !!prefersReduced;
 
   return (
     <section
