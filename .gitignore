@@ -51,3 +51,7 @@ next-env.d.ts
 public/data/cache.json
 public/data/repo-cache.json
 public/data/meta.json
+
+# local audit/baseline artifacts (ephemeral, never commit)
+.audit-status-*.md
+.baseline-*.md
