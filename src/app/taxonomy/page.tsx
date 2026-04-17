@@ -130,7 +130,7 @@ export default async function TaxonomyPage() {
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-zinc-100">Taxonomy Dimension Explorer</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 sm:text-3xl">Taxonomy Dimension Explorer</h1>
           <p className="mt-2 text-sm text-zinc-500">
             Browse all 8 taxonomy dimensions and filter the library by any value.
           </p>

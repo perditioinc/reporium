@@ -28,7 +28,7 @@ export default function AskPage() {
 
       <main className="mx-auto max-w-4xl px-6 py-10 space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-100">Ask Reporium</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 sm:text-3xl">Ask Reporium</h1>
           <p className="mt-2 text-sm text-zinc-500">
             Query the AI dev tool library with natural language. Answers are grounded in your indexed repos.
           </p>

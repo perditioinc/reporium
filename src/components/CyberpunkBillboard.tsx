@@ -1,5 +1,7 @@
 'use client';
 
+import { JellyfishLayer } from './JellyfishLayer';
+
 /**
  * Home page hero billboard — cyberpunk neon, horizontal scrolling marquee.
  *
@@ -38,6 +40,9 @@ export function CyberpunkBillboard() {
       role="banner"
       aria-label="What Reporium is for"
     >
+      {/* Jellyfish ambient layer — behind all billboard text */}
+      <JellyfishLayer />
+
       {/* Scanline / grid underlay — very cheap, all CSS */}
       <div
         aria-hidden
