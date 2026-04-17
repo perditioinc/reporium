@@ -19,6 +19,7 @@ import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
 import { CyberpunkBillboard } from '@/components/CyberpunkBillboard';
+import { GuidedTour } from '@/components/GuidedTour';
 import type { NLFilterResult } from '@/types/repo';
 import { getCategoryColor } from '@/lib/categoryColors';
 
@@ -933,7 +934,7 @@ export function HomePageClient() {
           </div>
 
           {/* Knowledge Graph */}
-          <div className="px-3 sm:px-4 md:px-6">
+          <div className="px-3 sm:px-4 md:px-6" data-tour="graph">
             <ErrorBoundary fallback={null}>
               <HomeGraphWidget
                 selectedRepoName={selectedRepoName}
@@ -944,7 +945,7 @@ export function HomePageClient() {
 
           {/* Filter bar — sticky below widget tabs */}
           {data && (
-            <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6">
+            <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6" data-tour="search">
               <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50 overflow-x-auto sm:overflow-x-visible">
                   <button
                     onClick={() => setFiltersOpen(v => !v)}
@@ -1078,7 +1079,7 @@ export function HomePageClient() {
           )}
 
           {/* Grid — explore mode with inline expansion */}
-          <div className="px-3 sm:px-4 md:px-6">
+          <div className="px-3 sm:px-4 md:px-6" data-tour="grid">
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
             {isLoading ? (
               <LoadingState />
@@ -1298,6 +1299,7 @@ export function HomePageClient() {
           </footer>
         </div>
       </div>
+      <GuidedTour />
     </div>
   );
 }

@@ -26,7 +26,7 @@ export default function GraphPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-100">Knowledge Graph</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 sm:text-3xl">Knowledge Graph</h1>
           <p className="mt-2 text-sm text-zinc-500 max-w-2xl">
             Force-directed visualization of relationships between AI repos. Nodes are repos;
             edges show how they relate. Click a node to see its connections.
