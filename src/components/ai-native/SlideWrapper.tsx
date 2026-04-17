@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SlideWrapperProps {
   children: React.ReactNode;
@@ -26,12 +26,18 @@ const childVariants = {
 };
 
 export function SlideWrapper({ children, id, className = '', bg = '' }: SlideWrapperProps) {
-  const shouldReduce = useReducedMotion();
+  // SSR-safe: useReducedMotion returns null on the server but reads matchMedia
+  // synchronously on first client render. Defer until mount so the first client
+  // render matches SSR and avoids a hydration mismatch.
+  const prefersReduced = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []); // eslint-disable-line react-hooks/set-state-in-effect
+  const shouldReduce = mounted && !!prefersReduced;
 
   return (
     <section
       id={id}
-      className={`relative flex h-[100svh] w-screen flex-col items-center justify-center overflow-hidden px-6 sm:px-10 md:px-16 ${bg} ${className}`}
+      className={`relative flex h-[100svh] w-screen flex-col items-center justify-center overflow-y-auto px-6 sm:px-10 md:px-16 ${bg} ${className}`}
       style={{ scrollSnapAlign: 'start' }}
     >
       {/* Scanline overlay */}
@@ -45,7 +51,7 @@ export function SlideWrapper({ children, id, className = '', bg = '' }: SlideWra
       />
 
       <motion.div
-        className="relative z-10 w-full max-w-5xl"
+        className="relative z-10 w-full max-w-5xl py-12 sm:py-16"
         variants={shouldReduce ? undefined : containerVariants}
         initial={shouldReduce ? false : 'hidden'}
         whileInView={shouldReduce ? undefined : 'visible'}

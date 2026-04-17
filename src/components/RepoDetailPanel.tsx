@@ -1,13 +1,25 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnrichedRepo } from '@/types/repo';
+import { API_URL } from '@/lib/apiUrl';
 
 interface RepoDetailPanelProps {
   repo: EnrichedRepo | null;
   relatedRepos: EnrichedRepo[];
   onClose: () => void;
   onOpenRepo: (name: string) => void;
+}
+
+/**
+ * Condensed preview of the community evaluation. Full version lives on the
+ * repo detail page; the panel shows top 2 pros / top 2 cons so users can
+ * decide whether to open the full page.
+ */
+interface CondensedEvaluation {
+  pros: string[];
+  cons: string[];
+  community_verdict?: string;
 }
 
 const SPRING = { type: 'spring' as const, stiffness: 300, damping: 30 };
@@ -44,6 +56,41 @@ function getLifeLabel(repo: EnrichedRepo): { emoji: string; label: string; color
 }
 
 export function RepoDetailPanel({ repo, relatedRepos, onClose, onOpenRepo }: RepoDetailPanelProps) {
+  // Lazy-fetch evaluation when panel opens / switches repo. /repos/{name}/evaluation
+  // returns the full community evaluation; we surface top 2 pros + top 2 cons
+  // + verdict here — full version is on /repo/[name]. The cancelled flag
+  // filters out stale results when the user rapidly switches between repos.
+  const repoName = repo?.name;
+  const [evaluation, setEvaluation] = useState<CondensedEvaluation | null>(null);
+  const [evalLoading, setEvalLoading] = useState(false);
+
+  useEffect(() => {
+    if (!repoName) return;
+    let cancelled = false;
+    // setState-in-effect is the right pattern for kicking off an async fetch
+    // synchronized with a prop change; the eslint rule is overly strict here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEvalLoading(true);
+    setEvaluation(null);
+    fetch(`${API_URL}/repos/${encodeURIComponent(repoName)}/evaluation`, {
+      headers: { Accept: 'application/json' },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { evaluation?: CondensedEvaluation } | null) => {
+        if (cancelled) return;
+        setEvaluation(data?.evaluation ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setEvaluation(null);
+      })
+      .finally(() => {
+        if (!cancelled) setEvalLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [repoName]);
+
   return (
     <AnimatePresence>
       {repo && (
@@ -230,6 +277,142 @@ export function RepoDetailPanel({ repo, relatedRepos, onClose, onOpenRepo }: Rep
                       </span>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Condensed community evaluation — top 2 pros / top 2 cons.
+                  Hidden when API returns null (repo not yet evaluated). */}
+              {evalLoading && (
+                <div style={{ marginBottom: 20 }}>
+                  <p
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 600,
+                      color: '#52525b',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      marginBottom: 8,
+                    }}
+                  >
+                    Community Verdict
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: '#52525b' }}>Loading…</p>
+                </div>
+              )}
+              {!evalLoading && evaluation && (evaluation.pros?.length > 0 || evaluation.cons?.length > 0) && (
+                <div style={{ marginBottom: 20 }}>
+                  <p
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 600,
+                      color: '#52525b',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      marginBottom: 8,
+                    }}
+                  >
+                    Community Verdict
+                  </p>
+                  {evaluation.community_verdict && (
+                    <p
+                      style={{
+                        fontSize: '0.8125rem',
+                        color: '#d4d4d8',
+                        fontStyle: 'italic',
+                        lineHeight: 1.6,
+                        marginBottom: 12,
+                        borderLeft: '2px solid #3f3f46',
+                        paddingLeft: 10,
+                      }}
+                    >
+                      &ldquo;{evaluation.community_verdict}&rdquo;
+                    </p>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+                    {evaluation.pros?.length > 0 && (
+                      <div>
+                        <p
+                          style={{
+                            fontSize: '0.625rem',
+                            fontWeight: 600,
+                            color: '#34d399',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            marginBottom: 4,
+                          }}
+                        >
+                          Pros
+                        </p>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {evaluation.pros.slice(0, 2).map((pro, i) => (
+                            <li
+                              key={i}
+                              style={{
+                                fontSize: '0.75rem',
+                                color: '#d4d4d8',
+                                lineHeight: 1.5,
+                                display: 'flex',
+                                gap: 6,
+                              }}
+                            >
+                              <span style={{ color: '#34d399', flexShrink: 0 }}>✓</span>
+                              <span>{pro}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {evaluation.cons?.length > 0 && (
+                      <div>
+                        <p
+                          style={{
+                            fontSize: '0.625rem',
+                            fontWeight: 600,
+                            color: '#f87171',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.08em',
+                            marginBottom: 4,
+                          }}
+                        >
+                          Cons
+                        </p>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {evaluation.cons.slice(0, 2).map((con, i) => (
+                            <li
+                              key={i}
+                              style={{
+                                fontSize: '0.75rem',
+                                color: '#d4d4d8',
+                                lineHeight: 1.5,
+                                display: 'flex',
+                                gap: 6,
+                              }}
+                            >
+                              <span style={{ color: '#f87171', flexShrink: 0 }}>✕</span>
+                              <span>{con}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  {((evaluation.pros?.length ?? 0) > 2 || (evaluation.cons?.length ?? 0) > 2) && (
+                    <button
+                      onClick={() => repo && onOpenRepo(repo.name)}
+                      style={{
+                        marginTop: 10,
+                        fontSize: '0.6875rem',
+                        color: '#c4b5fd',
+                        background: 'transparent',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      See full evaluation →
+                    </button>
+                  )}
                 </div>
               )}
 
