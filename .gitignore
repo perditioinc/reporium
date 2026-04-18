@@ -37,6 +37,10 @@ yarn-error.log*
 !.env.local.example
 .env.local
 
+# sentry
+.sentryclirc
+.env.sentry-build-plugin
+
 # vercel
 .vercel
 
