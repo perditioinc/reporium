@@ -37,6 +37,10 @@ const nextConfig = {
 module.exports = withSentryConfig(nextConfig, {
   // Suppress Sentry build-time logs (sourcemap upload etc.)
   silent: true,
+  // org/project intentionally undefined here — set via SENTRY_ORG / SENTRY_PROJECT
+  // env vars in Vercel / Cloud Run once the DSN is provisioned.
+  org: undefined,
+  project: undefined,
   // Static export: no server-side Sentry route instrumentation needed
   autoInstrumentServerFunctions: false,
   // Disable source map upload (no auth token configured yet)
