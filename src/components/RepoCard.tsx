@@ -450,6 +450,8 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
               src={`https://avatars.githubusercontent.com/${builder.login}`}
               alt={builder.name ?? builder.login}
               className="w-4 h-4 rounded-full"
+              width={16}
+              height={16}
               loading="lazy"
               decoding="async"
             />

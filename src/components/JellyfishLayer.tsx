@@ -149,6 +149,7 @@ function Jellyfish({ size = 60 }: { size?: number }) {
 export function JellyfishLayer() {
   const [jellies, setJellies] = useState<JellyDef[]>([]);
   const [reduced, setReduced] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -161,7 +162,15 @@ export function JellyfishLayer() {
     const onChange = () => setReduced(mq.matches);
     mq.addEventListener('change', onChange);
 
-    return () => mq.removeEventListener('change', onChange);
+    function onVis() {
+      setPaused(document.visibilityState === 'hidden');
+    }
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      mq.removeEventListener('change', onChange);
+      document.removeEventListener('visibilitychange', onVis);
+    };
   }, []);
 
   if (jellies.length === 0) return null;
@@ -184,7 +193,7 @@ export function JellyfishLayer() {
             filter: `hue-rotate(${j.hue}deg)`,
             animationDelay: `${j.delay}s`,
             animationDuration: `${j.bobDuration}s`,
-            animationPlayState: reduced ? 'paused' : 'running',
+            animationPlayState: reduced || paused ? 'paused' : 'running',
             // @ts-expect-error CSS custom property
             '--jelly-drift': `${j.driftX}px`,
           }}
