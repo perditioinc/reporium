@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, memo } from 'react';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
@@ -225,11 +225,49 @@ const JellyfishIcon = memo(function JellyfishIcon({
   size = 28,
   thinking = false,
   className = '',
+  reducedMotion = false,
 }: {
   size?: number;
   thinking?: boolean;
   className?: string;
+  reducedMotion?: boolean;
 }) {
+  // When reduced-motion is requested, render a static version with no <animate>
+  // SMIL children. Memoized so the static tree isn't rebuilt on every render.
+  const staticSvg = useMemo(() => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="jelly-think-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(139,92,246,1)" />
+          <stop offset="100%" stopColor="rgba(34,211,238,0.85)" />
+        </linearGradient>
+      </defs>
+      <ellipse
+        cx="16" cy="11" rx="9" ry="8"
+        fill={thinking ? 'url(#jelly-think-grad)' : 'rgba(124,58,237,0.8)'}
+      />
+      <ellipse cx="16" cy="10" rx="5" ry="4.5" fill={thinking ? 'rgba(165,243,252,0.2)' : 'rgba(167,139,250,0.25)'} />
+      <circle cx="13" cy="10" r="1.2" fill="rgba(255,255,255,0.9)" />
+      <circle cx="19" cy="10" r="1.2" fill="rgba(255,255,255,0.9)" />
+      <circle cx="13.3" cy="10.2" r="0.5" fill="rgb(24,24,27)" />
+      <circle cx="19.3" cy="10.2" r="0.5" fill="rgb(24,24,27)" />
+      <path d="M9 17 Q8 22 10 26" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7" />
+      <path d="M12 18 Q11 23 12 27" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.6" />
+      <path d="M16 18 Q16 24 16 28" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7" />
+      <path d="M20 18 Q21 23 20 27" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.6" />
+      <path d="M23 17 Q24 22 22 26" stroke="rgb(167,139,250)" strokeWidth="1.3" strokeLinecap="round" fill="none" opacity="0.7" />
+    </svg>
+  ), [size, thinking, className]);
+
+  if (reducedMotion) return staticSvg;
+
   return (
     <svg
       width={size}
@@ -484,6 +522,9 @@ const SOURCE_CARD_INITIAL = { opacity: 0, y: 6 };
 const SOURCE_CARD_ANIMATE = { opacity: 1, y: 0 };
 
 export function StickyAskBar() {
+  // a11y: honor prefers-reduced-motion across framer-motion + SMIL + CSS keyframes.
+  // framer-motion's useReducedMotion tracks the media query and re-renders on change.
+  const prefersReducedMotion = useReducedMotion() ?? false;
   const [barState, setBarState] = useState<BarState>('collapsed');
   const [phase, setPhase] = useState<Phase>('idle');
   const [question, setQuestion] = useState('');
@@ -555,6 +596,41 @@ export function StickyAskBar() {
     window.addEventListener('keyup', onKeyUp);
     return () => window.removeEventListener('keyup', onKeyUp);
   }, [barState]);
+
+  // Global shortcut: cmd/ctrl-K or '/' focuses the ask input.
+  // Escape while the ask input is focused blurs it. Won't hijack when the
+  // user is already typing in another input/textarea/contenteditable element.
+  useEffect(() => {
+    function isEditableTarget(el: EventTarget | null): boolean {
+      if (!(el instanceof HTMLElement)) return false;
+      const tag = el.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+      if (el.isContentEditable) return true;
+      return false;
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      // cmd/ctrl-K — always acts even from inputs (standard palette shortcut)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && !e.altKey && !e.shiftKey) {
+        e.preventDefault();
+        inputRef.current?.focus();
+        return;
+      }
+      // '/' — only when not already typing somewhere
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (isEditableTarget(e.target)) return;
+        e.preventDefault();
+        inputRef.current?.focus();
+        return;
+      }
+      // Escape while ask input has focus — blur it (but don't clobber the
+      // existing fullscreen-exit handler above, which uses keyup)
+      if (e.key === 'Escape' && document.activeElement === inputRef.current) {
+        inputRef.current?.blur();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   // Auto-scroll answer area as tokens arrive — rAF-throttled to avoid per-token layout thrash
   useEffect(() => {
@@ -1011,9 +1087,10 @@ export function StickyAskBar() {
       className="fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-zinc-950/95 md:bg-zinc-950/80 md:backdrop-blur-md border-t border-zinc-800 overflow-hidden"
       initial={{ height: 56 }}
       animate={{ height: heightValue }}
-      transition={heightTransition}
+      transition={prefersReducedMotion ? { duration: 0 } : heightTransition}
       role="region"
       aria-label="Ask the library"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
@@ -1026,11 +1103,11 @@ export function StickyAskBar() {
               inputRef.current?.focus();
             }
           }}
-          className={`shrink-0 group ${isThinking ? 'jelly-think-pulse' : 'transition-transform group-hover:scale-110'}`}
+          className={`shrink-0 group ${isThinking && !prefersReducedMotion ? 'jelly-think-pulse' : 'transition-transform group-hover:scale-110'}`}
           aria-label={isThinking ? 'Thinking…' : 'Ask a suggestion'}
           aria-busy={isThinking}
         >
-          <JellyfishIcon size={28} thinking={isThinking} />
+          <JellyfishIcon size={28} thinking={isThinking} reducedMotion={prefersReducedMotion} />
         </button>
 
         <div className="flex-1 min-w-0 relative">
@@ -1071,7 +1148,7 @@ export function StickyAskBar() {
               style={{
                 background: 'linear-gradient(90deg, rgba(24,24,27,0.95) 0%, rgba(45,18,70,0.8) 50%, rgba(24,24,27,0.95) 100%)',
                 backgroundSize: '200% 100%',
-                animation: 'shimmer-move 2.2s ease-in-out infinite',
+                animation: prefersReducedMotion ? 'none' : 'shimmer-move 2.2s ease-in-out infinite',
               }}
             >
               <span className="inline-flex gap-1 items-center" aria-hidden="true">
@@ -1262,9 +1339,9 @@ export function StickyAskBar() {
                       href={ghUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      initial={SOURCE_CARD_INITIAL}
+                      initial={prefersReducedMotion ? SOURCE_CARD_ANIMATE : SOURCE_CARD_INITIAL}
                       animate={SOURCE_CARD_ANIMATE}
-                      transition={{ duration: 0.2, delay: idx * 0.05 }}
+                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, delay: idx * 0.05 }}
                       className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2">
