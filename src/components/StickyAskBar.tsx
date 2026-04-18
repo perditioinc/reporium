@@ -3,7 +3,53 @@
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, memo } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import { API_URL } from '@/lib/apiUrl';
+
+// ---------------------------------------------------------------------------
+// Memoized markdown renderer — only re-parses when answer content changes.
+// Streaming appends trigger re-parse, which is acceptable (parse is fast and
+// keeps output additive with the stream). Sanitized via rehype-sanitize.
+// ---------------------------------------------------------------------------
+const MARKDOWN_COMPONENTS = {
+  a: (props: React.ComponentProps<'a'>) => (
+    <a
+      {...props}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-zinc-200 underline underline-offset-2 hover:text-white"
+    />
+  ),
+  code: (props: React.ComponentProps<'code'>) => (
+    <code {...props} className="rounded bg-zinc-800 px-1 py-0.5 text-xs" />
+  ),
+  pre: (props: React.ComponentProps<'pre'>) => (
+    <pre {...props} className="rounded-lg bg-zinc-900 p-3 overflow-x-auto my-2 text-xs" />
+  ),
+  ul: (props: React.ComponentProps<'ul'>) => (
+    <ul {...props} className="list-disc pl-5 space-y-1 my-2" />
+  ),
+  ol: (props: React.ComponentProps<'ol'>) => (
+    <ol {...props} className="list-decimal pl-5 space-y-1 my-2" />
+  ),
+  p: (props: React.ComponentProps<'p'>) => (
+    <p {...props} className="my-2 first:mt-0 last:mb-0" />
+  ),
+};
+
+const MarkdownAnswer = memo(function MarkdownAnswer({ text }: { text: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeSanitize]}
+      components={MARKDOWN_COMPONENTS}
+    >
+      {text}
+    </ReactMarkdown>
+  );
+});
 
 // ---------------------------------------------------------------------------
 // Session ID management (KAN-158/KAN-159)
@@ -457,6 +503,14 @@ export function StickyAskBar() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [turnCount, setTurnCount] = useState(0);
 
+  // Copy-answer flash state
+  const [justCopied, setJustCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 429 rate-limit countdown state
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState<number | null>(null);
+  const retryIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const answerRef = useRef<HTMLDivElement>(null);
@@ -531,6 +585,8 @@ export function StickyAskBar() {
       abortRef.current?.abort();
       if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
       if (sourceRevealTimerRef.current) clearTimeout(sourceRevealTimerRef.current);
+      if (retryIntervalRef.current) clearInterval(retryIntervalRef.current);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     };
   }, []);
 
@@ -608,6 +664,7 @@ export function StickyAskBar() {
     if (INJECTION_RE.test(q)) { setError('That question contains disallowed content. Please rephrase.'); return; }
     if (atMinuteLimit) { setError('Rate limit: 10 questions per minute. Please wait a moment.'); return; }
     if (atDayLimit) { setError('Daily limit of 100 questions reached. Try again tomorrow.'); return; }
+    if (retryAfterSeconds !== null && retryAfterSeconds > 0) return;
 
     // ── INSTANT first paint ──────────────────────────────────────────────────
     // Set ALL visual state synchronously before any await so React batches it
@@ -649,7 +706,29 @@ export function StickyAskBar() {
         signal: controller.signal,
       });
 
-      if (res.status === 429) { setError('Rate limit exceeded. Please wait before asking again.'); setPhase('error'); return; }
+      if (res.status === 429) {
+        const raw = res.headers.get('Retry-After');
+        const parsed = raw ? parseInt(raw, 10) : NaN;
+        const seconds = Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
+        if (retryIntervalRef.current) clearInterval(retryIntervalRef.current);
+        setRetryAfterSeconds(seconds);
+        retryIntervalRef.current = setInterval(() => {
+          setRetryAfterSeconds((prev) => {
+            if (prev === null) return null;
+            if (prev <= 1) {
+              if (retryIntervalRef.current) {
+                clearInterval(retryIntervalRef.current);
+                retryIntervalRef.current = null;
+              }
+              return null;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        setError(null);
+        setPhase('error');
+        return;
+      }
       if (res.status === 401 || res.status === 403) {
         setError(
           APP_TOKEN
@@ -1014,7 +1093,7 @@ export function StickyAskBar() {
         <button
           type="button"
           onClick={isLoading ? () => abortRef.current?.abort() : () => { void handleAsk(); }}
-          disabled={(!isLoading && (atMinuteLimit || atDayLimit))}
+          disabled={(!isLoading && (atMinuteLimit || atDayLimit || (retryAfterSeconds !== null && retryAfterSeconds > 0)))}
           className="shrink-0 rounded-lg bg-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
         >
           {isLoading ? (
@@ -1137,7 +1216,17 @@ export function StickyAskBar() {
           )}
 
           {/* Error */}
-          {error && (
+          {retryAfterSeconds !== null && retryAfterSeconds > 0 && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-lg border border-amber-900/50 bg-amber-950/30 px-3 py-2 text-sm text-amber-300"
+            >
+              Rate limited — retry in {retryAfterSeconds}s
+            </div>
+          )}
+
+          {error && !(retryAfterSeconds !== null && retryAfterSeconds > 0) && (
             <div
               role="alert"
               aria-live="assertive"
@@ -1209,13 +1298,36 @@ export function StickyAskBar() {
               {showSkeleton && !hasAnswer ? (
                 <AnswerSkeleton />
               ) : (
-                <div
-                  className="rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap"
-                >
-                  {streamingAnswer}
-                  {isLoading && (
-                    <span className="inline-block w-0.5 h-4 ml-0.5 bg-zinc-400 align-middle animate-pulse" />
+                <div className="relative">
+                  {phase === 'done' && hasAnswer && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          void navigator.clipboard.writeText(streamingAnswer);
+                          setJustCopied(true);
+                          if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+                          copyTimerRef.current = setTimeout(() => setJustCopied(false), 1500);
+                        } catch { /* clipboard denied — fail silent */ }
+                      }}
+                      aria-label="Copy answer"
+                      className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/80 transition-colors"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      {justCopied ? 'Copied' : 'Copy'}
+                    </button>
                   )}
+                  <div
+                    className="rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-200 leading-relaxed"
+                  >
+                    <MarkdownAnswer text={streamingAnswer} />
+                    {isLoading && (
+                      <span className="inline-block w-0.5 h-4 ml-0.5 bg-zinc-400 align-middle animate-pulse" />
+                    )}
+                  </div>
                 </div>
               )}
               {done && tokensUsed && (
