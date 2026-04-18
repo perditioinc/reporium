@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
@@ -19,8 +20,37 @@ const KnowledgeGraph = dynamic(
   { ssr: false },
 );
 
+const MOBILE_QUERY = '(max-width: 767px)';
+
+function MobileGraphFallback() {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-[#0a0a0f] p-6 space-y-4">
+      <h2 className="text-lg font-semibold text-zinc-100">3D Knowledge Graph</h2>
+      <p className="text-sm text-zinc-400">
+        The interactive 3D visualization is desktop-optimized — open this page on a larger screen
+        to explore the full graph.
+      </p>
+      <div className="flex flex-wrap gap-2 pt-2">
+        <Link
+          href="/"
+          className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 hover:bg-zinc-800 transition-colors"
+        >
+          Browse library
+        </Link>
+        <Link
+          href="/wiki"
+          className="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 hover:bg-zinc-800 transition-colors"
+        >
+          Open wiki
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function GraphPageClient() {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
   const [allEdges, setAllEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -31,6 +61,18 @@ export function GraphPageClient() {
   const [limit, setLimit] = useState(10000);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia(MOBILE_QUERY);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing initial viewport match after SSR hydration
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -64,7 +106,7 @@ export function GraphPageClient() {
       cancelled = true;
       controller.abort();
     };
-  }, [limit]);
+  }, [limit, isMobile]);
 
   const nodeCount = useMemo(
     () => nodeMetadata.size || new Set(allEdges.flatMap((e) => [e.source, e.target])).size,
@@ -78,6 +120,10 @@ export function GraphPageClient() {
     },
     [router],
   );
+
+  if (isMobile) {
+    return <MobileGraphFallback />;
+  }
 
   return (
     <div className="space-y-4">
