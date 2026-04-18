@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { LayoutShell } from '@/components/LayoutShell';
@@ -27,6 +27,14 @@ export const metadata: Metadata = {
     description:
       'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
   },
+};
+
+// viewport-fit=cover lets env(safe-area-inset-*) resolve to real pixel values
+// on iOS notch / home-indicator devices. Without it, insets stay 0.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
