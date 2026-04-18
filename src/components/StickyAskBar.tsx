@@ -929,7 +929,7 @@ export function StickyAskBar() {
   return (
     <motion.div
       data-tour="ask"
-      className="fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-zinc-950/95 backdrop-blur-md border-t border-zinc-800 overflow-hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-zinc-950/95 md:bg-zinc-950/80 md:backdrop-blur-md border-t border-zinc-800 overflow-hidden"
       initial={{ height: 56 }}
       animate={{ height: heightValue }}
       transition={heightTransition}
