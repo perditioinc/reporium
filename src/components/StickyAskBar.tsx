@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, memo } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { API_URL } from '@/lib/apiUrl';
@@ -130,7 +130,7 @@ const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
 // ---------------------------------------------------------------------------
 // Shimmer / skeleton primitives (no external deps)
 // ---------------------------------------------------------------------------
-function ShimmerLine({ w = 'w-full', h = 'h-3' }: { w?: string; h?: string }) {
+const ShimmerLine = memo(function ShimmerLine({ w = 'w-full', h = 'h-3' }: { w?: string; h?: string }) {
   return (
     <div
       className={`${w} ${h} rounded bg-zinc-800 overflow-hidden relative`}
@@ -139,9 +139,9 @@ function ShimmerLine({ w = 'w-full', h = 'h-3' }: { w?: string; h?: string }) {
       <div className="shimmer-sweep absolute inset-0" />
     </div>
   );
-}
+});
 
-function SourceCardSkeleton() {
+const SourceCardSkeleton = memo(function SourceCardSkeleton() {
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 space-y-2" aria-hidden="true">
       <div className="flex justify-between gap-2">
@@ -152,9 +152,9 @@ function SourceCardSkeleton() {
       <ShimmerLine w="w-4/5" h="h-2.5" />
     </div>
   );
-}
+});
 
-function AnswerSkeleton() {
+const AnswerSkeleton = memo(function AnswerSkeleton() {
   return (
     <div className="rounded-lg bg-zinc-800/60 px-4 py-3 space-y-2.5" aria-hidden="true">
       <ShimmerLine w="w-full" h="h-3" />
@@ -163,7 +163,7 @@ function AnswerSkeleton() {
       <ShimmerLine w="w-2/3" h="h-3" />
     </div>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // JellyfishIcon — bar mascot + thinking state
@@ -175,7 +175,7 @@ function AnswerSkeleton() {
 //             floating open book (violet rgba(216,180,254,0.85), cyan page lines)
 //             book hover animation + page-flip on a central tentacle
 // ---------------------------------------------------------------------------
-function JellyfishIcon({
+const JellyfishIcon = memo(function JellyfishIcon({
   size = 28,
   thinking = false,
   className = '',
@@ -367,7 +367,7 @@ function JellyfishIcon({
       )}
     </svg>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Global shimmer CSS — injected into <head> as early as possible via a
@@ -433,6 +433,10 @@ const SHIMMER_CSS = `
 const HEIGHT_EXPAND_TRANSITION = { type: 'spring' as const, stiffness: 480, damping: 36 };
 const HEIGHT_SPRING = { type: 'spring' as const, stiffness: 300, damping: 30 };
 
+// Stable animation props for source cards — hoisted to avoid re-creation per render
+const SOURCE_CARD_INITIAL = { opacity: 0, y: 6 };
+const SOURCE_CARD_ANIMATE = { opacity: 1, y: 0 };
+
 export function StickyAskBar() {
   const [barState, setBarState] = useState<BarState>('collapsed');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -460,6 +464,8 @@ export function StickyAskBar() {
   const sourceRevealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Track when the last loading phase started (for slow-path timers)
   const loadStartRef = useRef<number>(0);
+  // rAF handle for throttled autoscroll — prevents per-token layout thrash
+  const scrollRafRef = useRef<number | null>(null);
 
   // Nav-safety: abort in-flight stream on soft navigation (App Router never fires pagehide)
   const pathname = usePathname();
@@ -496,11 +502,22 @@ export function StickyAskBar() {
     return () => window.removeEventListener('keyup', onKeyUp);
   }, [barState]);
 
-  // Auto-scroll answer area as tokens arrive
+  // Auto-scroll answer area as tokens arrive — rAF-throttled to avoid per-token layout thrash
   useEffect(() => {
-    if (answerRef.current) {
-      answerRef.current.scrollTop = answerRef.current.scrollHeight;
-    }
+    if (!answerRef.current) return;
+    if (scrollRafRef.current) return; // frame already queued
+    scrollRafRef.current = requestAnimationFrame(() => {
+      if (answerRef.current) {
+        answerRef.current.scrollTop = answerRef.current.scrollHeight;
+      }
+      scrollRafRef.current = null;
+    });
+    return () => {
+      if (scrollRafRef.current) {
+        cancelAnimationFrame(scrollRafRef.current);
+        scrollRafRef.current = null;
+      }
+    };
   }, [streamingAnswer]);
 
   // Accessibility: mark aria-busy on the live region.
@@ -1078,9 +1095,6 @@ export function StickyAskBar() {
           {/* ── Prominent thinking header — jellyfish + phase copy ─────────── */}
           {isThinking && (
             <div className="flex items-center gap-3 pt-2 pb-1">
-              <div className="jelly-think-pulse shrink-0">
-                <JellyfishIcon size={36} thinking />
-              </div>
               <div className="flex flex-col gap-0.5">
                 <span
                   className="text-sm font-mono font-medium"
@@ -1159,8 +1173,8 @@ export function StickyAskBar() {
                       href={ghUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={SOURCE_CARD_INITIAL}
+                      animate={SOURCE_CARD_ANIMATE}
                       transition={{ duration: 0.2, delay: idx * 0.05 }}
                       className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
                     >
