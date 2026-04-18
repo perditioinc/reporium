@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { API_URL } from '@/lib/apiUrl';
 
@@ -460,6 +461,19 @@ export function StickyAskBar() {
   // Track when the last loading phase started (for slow-path timers)
   const loadStartRef = useRef<number>(0);
 
+  // Nav-safety: abort in-flight stream on soft navigation (App Router never fires pagehide)
+  const pathname = usePathname();
+  const initialPathnameRef = useRef<string>(pathname);
+  useEffect(() => {
+    // Skip the initial mount — only react to actual route changes
+    if (pathname === initialPathnameRef.current) return;
+    abortRef.current?.abort();
+    setPhase('idle');
+    setLoading(false);
+    setStreamingAnswer('');
+    setSources([]);
+  }, [pathname]);
+
   // Inject shimmer CSS synchronously before paint via useLayoutEffect.
   // This ensures the .ask-dot and .jelly-think-pulse animations are available
   // on the very first frame the loading state renders — not a frame late.
@@ -494,9 +508,10 @@ export function StickyAskBar() {
   // first paint causes a layout reflow that adds perceived latency.
   // Screen readers will pick up the aria-live="polite" region automatically.
 
-  // Clear phase timers on unmount
+  // Clear phase timers on unmount + abort any in-flight stream
   useEffect(() => {
     return () => {
+      abortRef.current?.abort();
       if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
       if (sourceRevealTimerRef.current) clearTimeout(sourceRevealTimerRef.current);
     };
@@ -524,6 +539,7 @@ export function StickyAskBar() {
   }, [sources.length]);
 
   const handleNewConversation = useCallback(() => {
+    abortRef.current?.abort();
     clearSessionId();
     setSessionId(null);
     setTurnCount(0);
@@ -638,10 +654,13 @@ export function StickyAskBar() {
 
       const decoder = new TextDecoder();
       let buffer = '';
+      let streamEnded = false;
 
       while (true) {
         const { done: streamDone, value } = await reader.read();
         if (streamDone) break;
+        // Stop processing if aborted between chunk reads
+        if (controller.signal.aborted) break;
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() ?? '';
@@ -669,9 +688,11 @@ export function StickyAskBar() {
           } else if (event.type === 'error') {
             setError(event.message);
             setPhase('error');
+            streamEnded = true;
             break;
           }
         }
+        if (streamEnded) break;
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
