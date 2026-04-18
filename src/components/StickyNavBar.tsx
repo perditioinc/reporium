@@ -133,7 +133,10 @@ export function StickyNavBar({ widgetTabs }: StickyNavBarProps) {
   const isHome = pathname === '/';
 
   return (
-    <nav className="sticky top-0 z-40 bg-zinc-950/95 md:bg-zinc-950/80 md:backdrop-blur-sm border-b border-zinc-800">
+    <nav
+      className="sticky top-0 z-40 bg-zinc-950/95 md:bg-zinc-950/80 md:backdrop-blur-sm border-b border-zinc-800"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+    >
       <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 h-10">
         {/* Logo + GitHub — doubles as home link */}
         <div className="flex items-center gap-2 shrink-0">
