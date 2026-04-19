@@ -286,7 +286,7 @@ class ApiDataProvider implements DataProvider {
 
       const PAGE_SIZE = 500
       // Fetch page 1 to get totalPages + corpus aggregates
-      const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&pageSize=${PAGE_SIZE}`)
+      const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&page_size=${PAGE_SIZE}`)
       const totalPages = page1.totalPages ?? 1
       const totalRepos = page1.totalRepos ?? page1.repos.length
 
@@ -302,7 +302,7 @@ class ApiDataProvider implements DataProvider {
 
       const pages: LibraryData[] = []
       const remaining = Array.from({ length: totalPages - 1 }, (_, i) =>
-        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&pageSize=${PAGE_SIZE}`).then(page => {
+        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&page_size=${PAGE_SIZE}`).then(page => {
           loaded += page.repos.length
           report({ stage: 'repos', percent: Math.min(Math.round((loaded / totalRepos) * 100), 100), detail: `Loading repos (${loaded}/${totalRepos})…` })
           pages.push(page)
