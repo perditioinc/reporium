@@ -1,19 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 18, 2026
-
----
-
-## Trending This Week
-These areas in your library are seeing accelerating activity:
-
-**AI Automation** (+14300% vs last week)
-paperclip, composio are most active.
-
-**Autonomous Systems** (+12300% vs last week)
-paperclip are most active.
-
-**Business Automation** (+12300% vs last week)
-paperclip are most active.
+**perditioinc's GitHub Knowledge Library** · Generated April 19, 2026
 
 ---
 
@@ -25,7 +11,7 @@ paperclip are most active.
 ---
 
 ## 30-Day Summary
-- **AI Automation** fastest growing (+14300% commit velocity)
+- **Web Browser** cooling (-100% change in activity)
 
 ---
 
