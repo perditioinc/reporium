@@ -1,5 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 17, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 18, 2026
 
 ---
 
@@ -18,14 +18,13 @@ paperclip are most active.
 ---
 
 ## Library Health
-- **1641 repos** · **28 categories** · **13075 unique tags**
-- **677 forks** up to date · **947 forks** behind upstream
+- **1825 repos** · **28 categories** · **13075 unique tags**
+- **861 forks** up to date · **947 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📦 Other AI / ML** most active category (70055 commits across 1425 repos)
 - **AI Automation** fastest growing (+14300% commit velocity)
 
 ---

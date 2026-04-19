@@ -1,3 +1,5 @@
+import { REPOS_INDEXED_LABEL } from '@/lib/corpusConstants.generated';
+
 export default function GraphLoading() {
   return (
     <div className="relative h-[calc(100vh-80px)] w-full bg-zinc-950">
@@ -14,7 +16,7 @@ export default function GraphLoading() {
         <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">
           Loading knowledge graph…
         </p>
-        <p className="text-[11px] text-zinc-600">Building 3D scene · ~1,641 nodes</p>
+        <p className="text-[11px] text-zinc-600">Building 3D scene · ~{REPOS_INDEXED_LABEL} nodes</p>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { WikiNavBar } from '@/components/WikiNavBar';
+import { CORPUS_STATS, REPOS_INDEXED_LABEL } from '@/lib/corpusConstants.generated';
 
 export const metadata: Metadata = {
   title: 'Architecture',
@@ -80,7 +81,7 @@ const DATA_LAYER: ComponentCard[] = [
     name: 'reporium-ingestion',
     repo: 'reporium-ingestion',
     runtime: 'Python · Cloud Run Job · nightly (VPC direct-egress)',
-    role: 'Pulls 1,641 repos from GitHub, enriches tags + pros/cons, rebuilds knowledge graph atomically.',
+    role: `Pulls ${REPOS_INDEXED_LABEL} repos from GitHub, enriches tags + pros/cons, rebuilds knowledge graph atomically.`,
     tech: ['httpx', 'Anthropic', 'psycopg2', 'atomic_swap'],
     accent: 'amber',
   },
@@ -195,7 +196,7 @@ const ASK_FLOW = [
 
 const INGEST_FLOW = [
   { step: 'Cloud Run Job', detail: 'Nightly cron triggers ingestion (VPC direct-egress).' },
-  { step: 'GitHub REST', detail: 'Lists all 1,641 repos; pulls pushed_at, topics, README, dependencies.' },
+  { step: 'GitHub REST', detail: `Lists all ${REPOS_INDEXED_LABEL} repos; pulls pushed_at, topics, README, dependencies.` },
   { step: 'Enrichment', detail: 'Tagger assigns 16 fixed categories; Claude summarizes READMEs.' },
   { step: 'Atomic graph rebuild', detail: 'New edges land in a staging table; >50% drop aborts the swap.' },
   { step: 'POST /ingest', detail: 'API upserts repos; emits repo.ingested events.' },
@@ -226,8 +227,8 @@ export default function ArchitecturePage() {
         {/* Stack facts */}
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
-            { k: 'Repos indexed', v: '1,641' },
-            { k: 'Graph edges', v: '4 types' },
+            { k: 'Repos indexed', v: REPOS_INDEXED_LABEL },
+            { k: 'Graph edges', v: `${CORPUS_STATS.graphEdgeTypes} types` },
             { k: 'Ask P50 latency', v: '~600 ms' },
             { k: 'Monthly infra', v: '$0' },
           ].map((s) => (
