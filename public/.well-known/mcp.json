@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "reporium": {
+      "transport": "http",
+      "url": "https://reporium-mcp.a.run.app/mcp",
+      "description": "Model Context Protocol bridge for Reporium repository discovery and analysis"
+    }
+  },
+  "note": "The reporium-mcp server provides MCP tools for querying repository data, analyzing portfolios, and discovering tools across the Reporium corpus. For details, see: https://github.com/perditioinc/reporium-mcp"
+}
