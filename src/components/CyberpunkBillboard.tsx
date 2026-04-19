@@ -1,6 +1,7 @@
 'use client';
 
 import { JellyfishLayer } from './JellyfishLayer';
+import { CORPUS_STATS, REPOS_INDEXED_LABEL } from '@/lib/corpusConstants.generated';
 
 /**
  * Home page hero billboard — cyberpunk neon, horizontal scrolling marquee.
@@ -16,7 +17,7 @@ import { JellyfishLayer } from './JellyfishLayer';
 // neon glow on each side renders cleanly at small sizes.
 const MESSAGES = [
   'REPORIUM // THE AI DEV-TOOL LIBRARY',
-  '1,641 REPOS INDEXED · 16 CATEGORIES · 4 GRAPH EDGE TYPES',
+  `${REPOS_INDEXED_LABEL} REPOS INDEXED · ${CORPUS_STATS.categories} CATEGORIES · ${CORPUS_STATS.graphEdgeTypes} GRAPH EDGE TYPES`,
   'ASK IN PLAIN ENGLISH — REPORIUM ANSWERS WITH CITATIONS',
   'EXPLORE DEPENDENCIES · ALTERNATIVES · COMPATIBILITY IN 3D',
   'FILTER BY SKILL AREA, INDUSTRY, MODALITY, AI TREND',
