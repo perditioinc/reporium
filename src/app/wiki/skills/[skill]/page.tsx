@@ -225,7 +225,7 @@ export default async function SkillPage({ params }: { params: Promise<{ skill: s
                   className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 px-3 py-2.5 hover:border-zinc-700 transition-colors"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`https://github.com/${e.owner}.png?size=16`} alt={e.owner} className="w-4 h-4 rounded-full" />
+                  <img src={`https://github.com/${e.owner}.png?size=16`} alt={e.owner} className="w-4 h-4 rounded-full" width={16} height={16} />
                   <span className="text-sm font-medium text-zinc-300">{e.owner}/{e.repo}</span>
                   <span className="text-xs text-zinc-500 flex-1">{e.reason}</span>
                   <span className="text-xs text-zinc-600">↗</span>

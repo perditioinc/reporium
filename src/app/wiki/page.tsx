@@ -124,7 +124,7 @@ export default function WikiPage() {
                 className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 hover:text-zinc-100 hover:border-zinc-600 transition-colors"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.avatarUrl} alt={b.displayName} className="w-4 h-4 rounded-full" />
+                <img src={b.avatarUrl} alt={b.displayName} className="w-4 h-4 rounded-full" width={16} height={16} />
                 {b.displayName}
                 <span className="text-zinc-500">({b.repoCount})</span>
               </a>
