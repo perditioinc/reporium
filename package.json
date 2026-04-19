@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run generate && node scripts/write-corpus-constants.cjs && node scripts/sync-data-dir.cjs",
+    "prebuild": "node scripts/write-corpus-constants.cjs && node scripts/sync-data-dir.cjs",
     "refresh-stats": "node scripts/write-corpus-constants.cjs",
     "build": "npx tsx scripts/generate-sitemap.ts && next build",
     "postbuild": "node scripts/strip-large-static-json.cjs",
