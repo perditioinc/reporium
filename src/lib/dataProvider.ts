@@ -253,7 +253,15 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getOwnedLibrary(): Promise<LibraryData | null> {
-    return this.fallback.getOwnedLibrary()
+    // Fetch a small first page from the API instead of the 8.5MB owned.json.
+    // This gives fast initial paint (~50 repos) without a massive static download.
+    try {
+      const page1 = await this.apiFetch<LibraryData>(`/library/full?page=1&page_size=50`)
+      return page1
+    } catch {
+      // API unavailable — skip the preview stage; getLibrary() fallback handles it
+      return null
+    }
   }
 
   getDegradedState(): boolean {
@@ -261,9 +269,13 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
-    // Use pre-generated static JSON for instant load (built fresh every deploy).
-    // The API is still used for real-time features (/ask, /nl-filter, /similar).
-    return this.fallback.getLibrary(onProgress)
+    // Deduplicate concurrent calls — only one in-flight request at a time.
+    if (this.libraryCache) return this.libraryCache
+    if (this.libraryPromise) return this.libraryPromise
+    this.libraryPromise = this._fetchLibrary(onProgress).finally(() => {
+      this.libraryPromise = null
+    })
+    return this.libraryPromise
   }
 
   private async _fetchLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
@@ -280,6 +292,7 @@ class ApiDataProvider implements DataProvider {
 
       if (totalPages <= 1) {
         report({ stage: 'repos', percent: 100, detail: `Loaded ${totalRepos} repos` })
+        this.libraryCache = page1
         return page1
       }
 
@@ -299,7 +312,9 @@ class ApiDataProvider implements DataProvider {
       await Promise.all(remaining)
       const allRepos = pages.reduce((acc, p) => acc.concat(p.repos), page1.repos)
       report({ stage: 'repos', percent: 100, detail: `Loaded ${allRepos.length} repos` })
-      return { ...page1, repos: allRepos }
+      const result = { ...page1, repos: allRepos }
+      this.libraryCache = result
+      return result
     } catch {
       this.degraded = true
       report({ stage: 'error', percent: 0, detail: 'API unavailable — using cached data' })

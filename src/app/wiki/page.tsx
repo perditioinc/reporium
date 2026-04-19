@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 function getLibraryData(): LibraryData | null {
   try {
-    const p = join(process.cwd(), 'public', 'data', 'library.json');
+    const p = join(process.cwd(), 'data', 'library.json');
     return JSON.parse(readFileSync(p, 'utf-8'));
   } catch { return null; }
 }

@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/sync-data-dir.cjs",
     "build": "npx tsx scripts/generate-sitemap.ts && next build",
+    "postbuild": "node scripts/strip-large-static-json.cjs",
     "sitemap": "npx tsx scripts/generate-sitemap.ts",
     "generate": "npx tsx scripts/fetch-library.ts",
     "generate:resilient": "npx tsx scripts/generate-with-fallback.ts",

@@ -199,7 +199,7 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
   } catch {
     try {
       const data = JSON.parse(
-        readFileSync(join(process.cwd(), 'public', 'data', 'library.json'), 'utf-8')
+        readFileSync(join(process.cwd(), 'data', 'library.json'), 'utf-8')
       ) as { repos: EnrichedRepo[] };
       const repo = data.repos.find((item) => item.name === name);
       if (!repo) return null;
@@ -299,7 +299,7 @@ export async function generateMetadata({ params }: RepoPageProps): Promise<Metad
 export async function generateStaticParams() {
   try {
     const data = JSON.parse(
-      readFileSync(join(process.cwd(), 'public', 'data', 'library.json'), 'utf-8')
+      readFileSync(join(process.cwd(), 'data', 'library.json'), 'utf-8')
     ) as { repos: Array<{ name: string }> };
     return data.repos.map((repo) => ({ name: repo.name }));
   } catch {
