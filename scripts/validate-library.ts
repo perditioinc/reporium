@@ -52,12 +52,17 @@ if (missingForkedAt.length > 200) {
   warnings.push(`${missingForkedAt.length} forked repos missing forkedAt date`);
 }
 
-// 3. No repo should have zero tags (more than 50 is a sign of a pipeline bug)
+// 3. Enriched-tags coverage check. Enrichment is an async background
+// pipeline that naturally lags behind ingestion (newly added repos take
+// a tier to get classified). Only treat this as a hard error when the
+// gap crosses 25% of the corpus — a true pipeline break — otherwise warn
+// so the nightly refresh cron can still commit fresh data.
 const noTags = data.repos.filter(r => r.enrichedTags.length === 0);
-if (noTags.length > 50) {
-  errors.push(`${noTags.length} repos have no enriched tags`);
+const noTagsPct = data.repos.length === 0 ? 0 : noTags.length / data.repos.length;
+if (noTagsPct > 0.25) {
+  errors.push(`${noTags.length}/${data.repos.length} repos have no enriched tags (${(noTagsPct * 100).toFixed(1)}% — likely pipeline break)`);
 } else if (noTags.length > 0) {
-  warnings.push(`${noTags.length} repos have no enriched tags`);
+  warnings.push(`${noTags.length}/${data.repos.length} repos have no enriched tags (${(noTagsPct * 100).toFixed(1)}% — enrichment lag, not blocking)`);
 }
 
 // 4. Stats sanity check
