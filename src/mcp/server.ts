@@ -3,7 +3,7 @@
  * Reporium MCP Server
  *
  * Exposes your GitHub library as tools Claude can query.
- * Reads from public/data/library.json — no GitHub API calls at query time.
+ * Reads from data/library.json — no GitHub API calls at query time.
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -16,7 +16,7 @@ import { LibraryData, EnrichedRepo } from '../types/repo.js';
 /** Load library.json from disk */
 function loadLibrary(): LibraryData {
   const libraryPath = process.env.LIBRARY_PATH
-    || path.join(process.cwd(), 'public', 'data', 'library.json');
+    || path.join(process.cwd(), 'data', 'library.json');
   if (!fs.existsSync(libraryPath)) {
     throw new Error(`library.json not found at ${libraryPath}. Run: npm run generate`);
   }
@@ -253,7 +253,7 @@ export async function startMCPServer(): Promise<void> {
       if (name === 'get_library_intelligence') {
         const trendsPath = process.env.LIBRARY_PATH
           ? process.env.LIBRARY_PATH.replace('library.json', 'trends.json')
-          : path.join(process.cwd(), 'public', 'data', 'trends.json');
+          : path.join(process.cwd(), 'data', 'trends.json');
         const trends = fs.existsSync(trendsPath)
           ? JSON.parse(fs.readFileSync(trendsPath, 'utf-8'))
           : null;

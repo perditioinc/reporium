@@ -287,13 +287,17 @@ function buildSnapshotGraph(library: LibraryData, requestedLimit: number): Graph
   }
 }
 
-async function loadSnapshotGraph(limit: number, signal?: AbortSignal): Promise<GraphDataset> {
-  const response = await fetch(`${getBasePath()}/data/library.json`, {
-    signal,
-    headers: { Accept: 'application/json' },
-  })
+async function loadSnapshotGraph(apiUrl: string, limit: number, signal?: AbortSignal): Promise<GraphDataset> {
+  // Fetch the library via the API pagination endpoint instead of the 27 MB
+  // static library.json. Use a large page_size to maximise graph density while
+  // keeping the payload manageable (the API caps at 500 per page).
+  const PAGE_SIZE = 500
+  const response = await fetch(
+    `${apiUrl}/library/full?page=1&page_size=${PAGE_SIZE}`,
+    { signal, headers: { Accept: 'application/json' } },
+  )
   if (!response.ok) {
-    throw new Error(`Snapshot error ${response.status}`)
+    throw new Error(`Snapshot fallback error ${response.status}`)
   }
   const library: LibraryData = await response.json()
   return buildSnapshotGraph(library, limit)
@@ -322,7 +326,7 @@ export async function loadGraphDataset({
     if (data.edges.length === 0) throw new Error('API returned no graph edges')
     return mapApiResponse(data)
   } catch (apiError) {
-    const snapshot = await loadSnapshotGraph(limit, signal)
+    const snapshot = await loadSnapshotGraph(apiUrl, limit, signal)
     if (!snapshot.message && apiError instanceof Error) {
       snapshot.message = apiError.message
     }

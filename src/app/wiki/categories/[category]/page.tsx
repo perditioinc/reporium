@@ -7,7 +7,7 @@ import { WikiNavBar } from '@/components/WikiNavBar';
 import { WikiRepoCard } from '@/components/WikiRepoCard';
 
 function getLibraryData(): LibraryData | null {
-  try { return JSON.parse(readFileSync(join(process.cwd(), 'public', 'data', 'library.json'), 'utf-8')); }
+  try { return JSON.parse(readFileSync(join(process.cwd(), 'data', 'library.json'), 'utf-8')); }
   catch { return null; }
 }
 

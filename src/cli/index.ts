@@ -15,7 +15,7 @@ import * as path from 'path';
 import { LibraryData } from '../types/repo.js';
 
 function loadLibrary(): LibraryData {
-  const p = path.join(process.cwd(), 'public', 'data', 'library.json');
+  const p = path.join(process.cwd(), 'data', 'library.json');
   if (!fs.existsSync(p)) {
     console.error('library.json not found. Run: npm run generate');
     process.exit(1);
