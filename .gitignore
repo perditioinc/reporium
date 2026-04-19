@@ -56,6 +56,9 @@ public/data/cache.json
 public/data/repo-cache.json
 public/data/meta.json
 
+# data/ is synced from public/data/ at prebuild — not tracked in git
+/data/*.json
+
 # local audit/baseline artifacts (ephemeral, never commit)
 .audit-status-*.md
 .baseline-*.md

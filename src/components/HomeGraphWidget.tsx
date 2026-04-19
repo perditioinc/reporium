@@ -6,7 +6,7 @@
  * that stays visible even when WebGL is flaky on the client.
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
@@ -31,6 +31,8 @@ interface HomeGraphWidgetProps {
 
 export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGraphWidgetProps = {}) {
   const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [nodeMetadata, setNodeMetadata] = useState<Map<string, NodeMeta>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,28 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
   const [totalEdges, setTotalEdges] = useState(0);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  // Defer graph fetch until the widget scrolls into view — prevents loading
+  // the graph (and its fallback library data) on pages where the user never
+  // scrolls below the fold (saves up to ~27 MB on mobile).
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el) { setIsVisible(true); return; }
+    if (!('IntersectionObserver' in window)) { setIsVisible(true); return; }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
     let cancelled = false;
     const controller = new AbortController();
     setLoading(true);
@@ -71,7 +94,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
       cancelled = true;
       controller.abort();
     };
-  }, []);
+  }, [isVisible]);
 
   const nodeCount = useMemo(
     () => nodeMetadata.size || new Set(edges.flatMap((e) => [e.source, e.target])).size,
@@ -93,7 +116,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
   );
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
+    <div ref={containerRef} className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
         <div>
           <h2 className="text-sm font-semibold text-zinc-200">Knowledge Graph</h2>

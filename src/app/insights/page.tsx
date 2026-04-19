@@ -131,14 +131,8 @@ export default function InsightsPage() {
         setData(await res.json());
       } catch (e) {
         clearTimeout(timeoutId);
-        // Fallback to cached library.json (served from Vercel CDN)
-        try {
-          const res = await fetch('/data/library.json');
-          if (!res.ok) throw new Error('Cache miss');
-          setData(await res.json());
-        } catch {
-          setError((e as Error).message);
-        }
+        // API unavailable — show error rather than loading the 27 MB static file.
+        setError((e as Error).message);
       } finally {
         setLoading(false);
       }
