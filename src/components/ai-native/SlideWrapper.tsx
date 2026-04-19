@@ -37,7 +37,7 @@ export function SlideWrapper({ children, id, className = '', bg = '' }: SlideWra
   return (
     <section
       id={id}
-      className={`relative flex h-[100svh] w-screen flex-col items-center justify-center overflow-y-auto px-6 sm:px-10 md:px-16 ${bg} ${className}`}
+      className={`relative flex h-[100svh] w-screen flex-col items-center justify-center overflow-y-auto px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 ${bg} ${className}`}
       style={{ scrollSnapAlign: 'start' }}
     >
       {/* Scanline overlay */}
@@ -51,7 +51,7 @@ export function SlideWrapper({ children, id, className = '', bg = '' }: SlideWra
       />
 
       <motion.div
-        className="relative z-10 w-full max-w-5xl py-12 sm:py-16"
+        className="relative z-10 w-full max-w-5xl py-6 sm:py-8 md:py-10 lg:max-w-6xl lg:py-12 xl:max-w-7xl 2xl:max-w-[88rem]"
         variants={shouldReduce ? undefined : containerVariants}
         initial={shouldReduce ? false : 'hidden'}
         whileInView={shouldReduce ? undefined : 'visible'}
