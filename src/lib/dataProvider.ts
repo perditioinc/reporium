@@ -267,7 +267,10 @@ class ApiDataProvider implements DataProvider {
     if (!this.page1Promise) {
       this.page1Promise = this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(
         `/library/full?page=1&page_size=${this.PAGE_SIZE}`
-      )
+      ).catch(err => {
+        this.page1Promise = null;  // reset on failure so retries are not sticky
+        throw err;
+      });
     }
     return this.page1Promise
   }
