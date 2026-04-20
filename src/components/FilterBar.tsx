@@ -260,92 +260,92 @@ export function FilterBar({
           {selectedAiTrends.map(trend => (
             <span key={trend} className="flex items-center gap-1 rounded-full bg-sky-900/30 border border-sky-700/50 px-2.5 py-1 text-xs font-medium text-sky-300">
               {trend}
-              <button onClick={() => onAiTrendToggle?.(trend)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onAiTrendToggle?.(trend)} className="ml-1 hover:opacity-70" aria-label={`Remove ${trend} filter`}>×</button>
             </span>
           ))}
           {/* AI Dev Skill pills */}
           {selectedAiDevSkills.map(skill => (
             <span key={skill} className="flex items-center gap-1 rounded-full bg-emerald-900/30 border border-emerald-700/50 px-2.5 py-1 text-xs font-medium text-emerald-300">
               {skill}
-              <button onClick={() => onAiDevSkillToggle?.(skill)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onAiDevSkillToggle?.(skill)} className="ml-1 hover:opacity-70" aria-label={`Remove AI Dev Skill filter: ${skill}`}>×</button>
             </span>
           ))}
           {/* PM Skill pills */}
           {selectedPmSkills.map(skill => (
             <span key={skill} className="flex items-center gap-1 rounded-full bg-purple-900/30 border border-purple-700/50 px-2.5 py-1 text-xs font-medium text-purple-300">
               {skill}
-              <button onClick={() => onPmSkillToggle?.(skill)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onPmSkillToggle?.(skill)} className="ml-1 hover:opacity-70" aria-label={`Remove PM Skill filter: ${skill}`}>×</button>
             </span>
           ))}
           {/* Industry pills */}
           {selectedIndustries.map(ind => (
             <span key={ind} className="flex items-center gap-1 rounded-full bg-amber-900/30 border border-amber-700/50 px-2.5 py-1 text-xs font-medium text-amber-300">
               {ind}
-              <button onClick={() => onIndustryToggle?.(ind)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onIndustryToggle?.(ind)} className="ml-1 hover:opacity-70" aria-label={`Remove Industry filter: ${ind}`}>×</button>
             </span>
           ))}
           {selectedUseCases.map(value => (
             <span key={value} className="flex items-center gap-1 rounded-full bg-fuchsia-900/30 border border-fuchsia-700/50 px-2.5 py-1 text-xs font-medium text-fuchsia-300">
               {value}
-              <button onClick={() => onUseCaseToggle?.(value)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onUseCaseToggle?.(value)} className="ml-1 hover:opacity-70" aria-label={`Remove Use Case filter: ${value}`}>×</button>
             </span>
           ))}
           {selectedModalities.map(value => (
             <span key={value} className="flex items-center gap-1 rounded-full bg-teal-900/30 border border-teal-700/50 px-2.5 py-1 text-xs font-medium text-teal-300">
               {value}
-              <button onClick={() => onModalityToggle?.(value)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onModalityToggle?.(value)} className="ml-1 hover:opacity-70" aria-label={`Remove Modality filter: ${value}`}>×</button>
             </span>
           ))}
           {selectedDeploymentContexts.map(value => (
             <span key={value} className="flex items-center gap-1 rounded-full bg-orange-900/30 border border-orange-700/50 px-2.5 py-1 text-xs font-medium text-orange-300">
               {value}
-              <button onClick={() => onDeploymentContextToggle?.(value)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onDeploymentContextToggle?.(value)} className="ml-1 hover:opacity-70" aria-label={`Remove Deployment Context filter: ${value}`}>×</button>
             </span>
           ))}
           {/* Builder pills */}
           {selectedBuilders.map(builder => (
             <span key={builder} className="flex items-center gap-1 rounded-full bg-cyan-900/30 border border-cyan-700/50 px-2.5 py-1 text-xs font-medium text-cyan-300">
               {builder}
-              <button onClick={() => onBuilderToggle?.(builder)} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onBuilderToggle?.(builder)} className="ml-1 hover:opacity-70" aria-label={`Remove Builder filter: ${builder}`}>×</button>
             </span>
           ))}
           {/* Claude Plugins pill */}
           {showClaudePluginsOnly && (
             <span className="flex items-center gap-1 rounded-full bg-orange-900/40 border border-orange-600/60 px-2.5 py-1 text-xs font-medium text-orange-300">
               🔌 MCP / Plugins
-              <button onClick={() => onPluginToggle?.()} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onPluginToggle?.()} className="ml-1 hover:opacity-70" aria-label="Remove Claude Plugins filter">×</button>
             </span>
           )}
           {/* Security risk pill */}
           {selectedSecurityRisk !== 'all' && (
             <span className="flex items-center gap-1 rounded-full bg-red-900/40 border border-red-700/60 px-2.5 py-1 text-xs font-medium text-red-300">
               🛡️ {selectedSecurityRisk === 'incident' ? 'Has Incident' : selectedSecurityRisk.toUpperCase()}
-              <button onClick={() => onSecurityRiskChange?.('all')} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onSecurityRiskChange?.('all')} className="ml-1 hover:opacity-70" aria-label={`Remove Security Risk filter: ${selectedSecurityRisk === 'incident' ? 'Has Incident' : selectedSecurityRisk.toUpperCase()}`}>×</button>
             </span>
           )}
           {/* Other active filters */}
           {selectedType !== 'all' && (
             <span className="flex items-center gap-1 rounded-full bg-zinc-700/50 border border-zinc-600 px-2.5 py-1 text-xs text-zinc-300">
               {selectedType}
-              <button onClick={() => onTypeChange('all')} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onTypeChange('all')} className="ml-1 hover:opacity-70" aria-label={`Remove Repo Type filter: ${selectedType}`}>×</button>
             </span>
           )}
           {selectedLanguage && (
             <span className="flex items-center gap-1 rounded-full bg-zinc-700/50 border border-zinc-600 px-2.5 py-1 text-xs text-zinc-300">
               {selectedLanguage}
-              <button onClick={() => onLanguageChange('')} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onLanguageChange('')} className="ml-1 hover:opacity-70" aria-label={`Remove Language filter: ${selectedLanguage}`}>×</button>
             </span>
           )}
           {selectedActivity !== 'all' && (
             <span className="flex items-center gap-1 rounded-full bg-zinc-700/50 border border-zinc-600 px-2.5 py-1 text-xs text-zinc-300">
               {selectedActivity}
-              <button onClick={() => onActivityChange('all')} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onActivityChange('all')} className="ml-1 hover:opacity-70" aria-label={`Remove Activity filter: ${selectedActivity}`}>×</button>
             </span>
           )}
           {selectedSyncStatus !== 'all' && (
             <span className="flex items-center gap-1 rounded-full bg-zinc-700/50 border border-zinc-600 px-2.5 py-1 text-xs text-zinc-300">
               {selectedSyncStatus}
-              <button onClick={() => onSyncStatusChange('all')} className="ml-1 hover:opacity-70">×</button>
+              <button onClick={() => onSyncStatusChange('all')} className="ml-1 hover:opacity-70" aria-label={`Remove Sync Status filter: ${selectedSyncStatus}`}>×</button>
             </span>
           )}
           <span className="ml-auto text-xs text-zinc-500">{filteredCount} repos matching</span>
