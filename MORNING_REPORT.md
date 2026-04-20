@@ -1,6 +1,8 @@
-# MORNING REPORT — 2026-04-19
+# MORNING REPORT — 2026-04-19 (updated 08:30 PDT after wave 3-4)
 
-Autonomous overnight run, ~06:00 → 07:00 PDT. No regressions observed. No PRs merged (per gitflow rule: user merges). All work targets `dev`.
+Autonomous run extended across four waves (06:00 → 08:30 PDT) after user went away again. No regressions observed. No PRs merged (per gitflow rule: user merges). All work targets `dev` except explicit hotfixes.
+
+**Vercel security incident landed mid-run** — see separate PR #244 with env-var rotation checklist. You must rotate `NEXT_PUBLIC_APP_API_TOKEN` (bearer token in client bundle — critical) and verify all other non-sensitive-flagged env vars.
 
 ## TL;DR — what's in the queue for your review
 
@@ -72,3 +74,69 @@ No Claude API spend for enrichment (P7 analysis chose the deterministic path). H
 | `/llms.txt` agent-readiness | minimal | enriched queued (#236) |
 
 All improvements are queued in PRs; merge ordering above lands them sequentially with no regressions.
+
+---
+
+## Addendum — Wave 3 + Wave 4 (07:00 → 08:30 PDT)
+
+Additional PRs opened while you were away. All target `dev`, green CI unless noted.
+
+| PR | Title | Notes |
+|---|---|---|
+| [#244](https://github.com/perditioinc/reporium/pull/244) | docs(security): Vercel Apr 19 incident — rotation checklist | **READ FIRST** — contains env var inventory. 2 HIGH / 2 MED / 10 LOW rotation priorities. |
+| [#245](https://github.com/perditioinc/reporium/pull/245) | feat(seo): BreadcrumbList + Dataset JSON-LD on subpages | Tier 2 SEO. Builds on #237. |
+| [#246](https://github.com/perditioinc/reporium/pull/246) | chore(deps): npm audit fix — non-breaking security patches | Fixes hono + @hono/node-server vulns (3 → 1 remaining; last one needs Next major). |
+| [#247](https://github.com/perditioinc/reporium/pull/247) | chore: remove unused d3-force + jest-dom deps | ~55KB trim. Kept `@types/d3-force` — audit false positive. |
+| [#249](https://github.com/perditioinc/reporium/pull/249) | fix(a11y): quick wins — aria-labels, heading structure, contrast | 14 close-button labels + 3 h4→h3 + 6 contrast bumps. |
+
+## New audits written
+- `.audit/dead-code.md` — 3 unused deps, 7 unused components (med-risk, deferred), 10 unused exports (audit stale — needs rerun with current knip).
+- `.audit/lighthouse-baseline.md` — **Perf 11/100, TBT 9.5s, TTI 22.3s**. Biggest win: JS code-splitting of KnowledgeGraph3D + three.js. Issue #248 filed with A/B/C decision menu.
+- `.audit/a11y-baseline.md` — 29 unique issues. HIGH tier shipped in #249; MED tier (contrast, heading structure broader) deferred.
+
+## New issues filed
+- **#248 — Lighthouse perf 11/100 (CRITICAL)** — needs your decision: (A) one big code-splitting PR, (B) incremental, (C) defer
+- **#240 — P7 no-tag backfill strategy** — analysis complete, ingestion-side fix (no Claude API spend)
+- **#233 — MCP unification (TS → Python)** — blocked on `GCP_SA_KEY` secret
+
+## Updated suggested merge order (19 PRs total)
+
+**Security first**: #244 (rotation checklist — informational, fold into your rotation flow)
+**Frontend batch** (safe, green, independent): #231 → #234 → #232 → #235 → #236 → #239 → #241 → #242 → #247 → #249
+**SEO batch**: #237 → #245 (child of #237)
+**CI batch**: #238 (after #234)
+**Morning report**: #243 → `main`
+**External**: reporium-api #382 → main (hotfix), reporium-ingestion #58 → main
+
+Still blocked: **#211** (arrow-keys hotfix, conflicts).
+
+## Updated trust-score metrics
+
+| Dimension | Baseline | Queued end-of-wave-4 |
+|---|---|---|
+| Frontend Perf score | unmeasured | **11/100 measured** → issue #248 |
+| Frontend LCP | unmeasured | POOR (from lighthouse-baseline) |
+| Frontend CLS | unmeasured | fix queued (#239) |
+| Frontend Accessibility | unmeasured | 5 HIGH fixes shipped (#249); MED tier deferred |
+| First-load JS | unmeasured | -80KB (#242 Sentry) -55KB (#247 d3-force) = **-135KB queued** |
+| Test coverage in CI | 0 | 223 tests queued (#234 + #238) |
+| Page-load /library/full req/IP | 5 | 4 queued (#235) |
+| Tag coverage | 90% | 90% — ingestion #58 + issue #240 will move to ~98% |
+| `/llms.txt` agent-readiness | minimal | enriched queued (#236) |
+| Security posture | pre-Vercel-incident | rotation checklist ready (#244); 2 vulns patched (#246) |
+
+## Agent roster used this session
+- Haiku: 9 execution runs (ship PRs, file-level changes)
+- Sonnet: 4 audit runs (baseline, MCP, no-tag, Vercel rotation) + 1 suite audit
+- No Opus needed.
+- Budget burn: well under $10 cap.
+
+## What still blocks progress (needs you)
+1. Rotate Vercel env vars per #244 checklist
+2. Rotate reporium-db `GH_TOKEN` (expired 4+ days)
+3. Add `GCP_SA_KEY` to reporium-mcp secrets
+4. Google Search Console verification token (paste it; I'll wire in layout.tsx)
+5. Merge PRs in suggested order (can't autonomously)
+6. Decide issue #248 option (A/B/C) for perf fix strategy
+7. Rebase/redo #211 arrow-keys hotfix
+
