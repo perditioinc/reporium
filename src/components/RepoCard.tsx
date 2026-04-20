@@ -5,6 +5,7 @@ import { EnrichedRepo, CommitSummary } from '@/types/repo';
 import { CATEGORIES } from '@/lib/buildCategories';
 import { QualityBadge } from '@/components/QualityBadge';
 import { assignTagColors } from '@/lib/tagColors';
+import { createDataProvider } from '@/lib/dataProvider';
 
 /** Status tags that are not content tags — never show as clickable chips */
 const SYSTEM_TAGS = new Set(['Active', 'Forked', 'Built by Me', 'Inactive', 'Archived', 'Popular']);
@@ -285,11 +286,10 @@ export const RepoCard = memo(function RepoCard({ repo, similarCount, onTagClick,
     const hasActivity = (repo.commitStats?.last30Days ?? 0) > 0 || (repo.commitStats?.last7Days ?? 0) > 0;
     if (!commitsOpen || hasLocalCommits || !hasActivity || fetchedRef.current) return;
     fetchedRef.current = true;
-    const apiUrl = process.env.NEXT_PUBLIC_REPORIUM_API_URL;
-    if (!apiUrl) return;
+    const provider = createDataProvider();
+    if (provider.mode !== 'production') return;
     setLazyFetching(true);
-    fetch(`${apiUrl}/repos/${encodeURIComponent(repo.name)}`, { headers: { Accept: 'application/json' } })
-      .then((r) => (r.ok ? r.json() : null))
+    provider.getRepo(repo.name)
       .then((data: EnrichedRepo | null) => {
         const commits =
           (data?.recentCommits?.length ?? 0) > 0

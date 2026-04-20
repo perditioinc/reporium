@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { WikiNavBar } from '@/components/WikiNavBar';
-
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
+import { createDataProvider } from '@/lib/dataProvider';
 
 export const metadata: Metadata = {
   title: 'Taxonomy Explorer - 8 AI skill dimensions',
@@ -39,10 +38,6 @@ interface GapEntry {
   gap_score?: number;
 }
 
-interface GapResponse {
-  gaps?: GapEntry[];
-}
-
 // ---------------------------------------------------------------------------
 // The 8 canonical taxonomy dimensions
 // ---------------------------------------------------------------------------
@@ -59,39 +54,33 @@ const DIMENSIONS = [
 ] as const;
 
 // ---------------------------------------------------------------------------
-// Data fetching
+// Data fetching — routed through ApiDataProvider for timeout + fallback
 // ---------------------------------------------------------------------------
 
 async function getTaxonomyValues(): Promise<TaxonomyEntry[]> {
-  try {
-    const res = await fetch(`${API_URL}/taxonomy/values?limit=500`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (Array.isArray(data)) return data as TaxonomyEntry[];
-    if (data && Array.isArray((data as { values?: unknown }).values)) {
-      return (data as { values: TaxonomyEntry[] }).values;
+  const provider = createDataProvider();
+  if (provider.mode === 'production') {
+    const p = provider as import('@/lib/dataProvider').DataProvider & {
+      getTaxonomyAllValues?: (limit?: number) => Promise<TaxonomyEntry[]>
     }
-    return [];
-  } catch {
-    return [];
+    if (typeof p.getTaxonomyAllValues === 'function') {
+      return p.getTaxonomyAllValues(500)
+    }
   }
+  return []
 }
 
 async function getGapSummary(): Promise<GapEntry[]> {
-  try {
-    const res = await fetch(`${API_URL}/gaps/taxonomy?min_repos=1`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (!res.ok) return [];
-    const data: GapResponse = await res.json();
-    return data.gaps ?? [];
-  } catch {
-    return [];
+  const provider = createDataProvider();
+  if (provider.mode === 'production') {
+    const p = provider as import('@/lib/dataProvider').DataProvider & {
+      getGapTaxonomy?: (minRepos?: number) => Promise<GapEntry[]>
+    }
+    if (typeof p.getGapTaxonomy === 'function') {
+      return p.getGapTaxonomy(1)
+    }
   }
+  return []
 }
 
 // ---------------------------------------------------------------------------

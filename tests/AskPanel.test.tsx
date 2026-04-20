@@ -15,9 +15,17 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('AskPanel', () => {
+  const originalEnv = process.env;
+
   beforeEach(() => {
     jest.restoreAllMocks();
     getSearchParams.mockReturnValue(new URLSearchParams());
+    // AskPanel now routes through createDataProvider() which needs an API URL
+    process.env = { ...originalEnv, NEXT_PUBLIC_REPORIUM_API_URL: 'https://api.example.com' };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   test('renders input and submits to the API', async () => {
