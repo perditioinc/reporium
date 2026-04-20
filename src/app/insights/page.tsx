@@ -10,13 +10,18 @@
  * - Newly Discovered: repos added to library in the last 14 days
  * - Category Leaders: top repo per primary_category by combined signal
  * - Health Alerts: repos with archived parents or declining activity
+ *
+ * Data loading: uses createDataProvider() — inherits cache dedup, JSON
+ * fallback, and degraded-flag tracking. Never calls fetch() directly.
  */
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { EnrichedRepo, LibraryData } from '@/types/repo';
+import { createDataProvider } from '@/lib/dataProvider';
+import { WikiNavBar } from '@/components/WikiNavBar';
 
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
+const provider = createDataProvider();
 
 /** Reverse-lookup from human-readable primaryCategory (library.json fallback) → DB category ID */
 const LABEL_TO_CATEGORY_ID: Record<string, string> = {
@@ -115,29 +120,25 @@ export default function InsightsPage() {
   const [data, setData] = useState<LibraryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [apiDegraded, setApiDegraded] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await provider.getLibrary();
+      setData(result);
+      setApiDegraded(provider.getDegradedState());
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      // page_size max is 500 per API constraint; use timeout to avoid cold-start hangs
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10_000);
-      try {
-        const res = await fetch(
-          `${API_URL}/library/full?page=1&page_size=500`,
-          { signal: controller.signal },
-        );
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        setData(await res.json());
-      } catch (e) {
-        clearTimeout(timeoutId);
-        // API unavailable — show error rather than loading the 27 MB static file.
-        setError((e as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    }
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const risingFast = useMemo(() => {
@@ -210,32 +211,59 @@ export default function InsightsPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      {/* Nav */}
-      <div className="border-b border-zinc-800 px-4 sm:px-6 py-3 flex items-center gap-4">
-        <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
-          ← Reporium
-        </Link>
-        <h1 className="text-lg font-bold text-zinc-100">Insights</h1>
-        <Link href="/trends" className="ml-2 text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
-          Trends →
-        </Link>
-        {data && (
-          <span className="ml-auto text-xs text-zinc-600">
-            {data.repos.length.toLocaleString()} repos
-          </span>
-        )}
-      </div>
+      {/* Consistent nav breadcrumb matching wiki/taxonomy pages */}
+      <WikiNavBar title="Insights" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-8">
+        {/* Page header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-100">Insights</h1>
+            <p className="text-sm text-zinc-500 mt-1">Intelligent analysis of your library</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/trends" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+              Trends →
+            </Link>
+            {data && (
+              <span className="text-xs text-zinc-600">
+                {data.repos.length.toLocaleString()} repos
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Degraded state banner — matches HomePageClient pattern */}
+        {apiDegraded && (
+          <div className="flex items-start justify-between gap-4 rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
+            <p>Showing cached snapshot — live API unreachable.</p>
+            <button
+              type="button"
+              onClick={() => { setApiDegraded(false); load(); }}
+              className="shrink-0 rounded border border-amber-800/60 px-2 py-1 text-xs text-amber-100 transition-colors hover:bg-amber-900/30"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {loading && (
           <div className="flex items-center justify-center py-20">
             <div className="text-zinc-500">Loading insights...</div>
           </div>
         )}
 
-        {error && (
-          <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
-            Failed to load: {error}
+        {/* Error state — amber banner with retry, not bare red text */}
+        {error && !loading && (
+          <div className="flex items-start justify-between gap-4 rounded-xl border border-amber-900/40 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
+            <p>Showing cached snapshot — live API unreachable.</p>
+            <button
+              type="button"
+              onClick={() => load()}
+              className="shrink-0 rounded border border-amber-800/60 px-2 py-1 text-xs text-amber-100 transition-colors hover:bg-amber-900/30"
+            >
+              Retry
+            </button>
           </div>
         )}
 
