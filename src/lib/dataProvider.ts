@@ -235,6 +235,14 @@ class ApiDataProvider implements DataProvider {
   private apiUrl: string
   private fallback: JsonDataProvider
   private degraded = false
+  /**
+   * Tracks whether the current libraryCache was populated from the JSON
+   * fallback (true) or from a live API fetch (false). Unlike `degraded`,
+   * this flag is only mutated inside _fetchLibrary so it accurately
+   * reflects the provenance of the cached data even after the module-level
+   * singleton has been alive for multiple render cycles.
+   */
+  private libraryFromFallback = false
   /** In-memory cache so subsequent getLibrary() calls don't re-fetch */
   private libraryCache: LibraryData | null = null
   private libraryPromise: Promise<LibraryData> | null = null
@@ -265,7 +273,11 @@ class ApiDataProvider implements DataProvider {
   }
 
   getDegradedState(): boolean {
-    return this.degraded
+    // Return libraryFromFallback when a cache exists — it accurately reflects
+    // whether the cached library data came from the live API or the JSON
+    // fallback. Falling back to `degraded` covers the in-flight case where
+    // _fetchLibrary has started but not yet populated libraryCache.
+    return this.libraryCache ? this.libraryFromFallback : this.degraded
   }
 
   async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
@@ -292,6 +304,7 @@ class ApiDataProvider implements DataProvider {
 
       if (totalPages <= 1) {
         report({ stage: 'repos', percent: 100, detail: `Loaded ${totalRepos} repos` })
+        this.libraryFromFallback = false
         this.libraryCache = page1
         return page1
       }
@@ -313,12 +326,18 @@ class ApiDataProvider implements DataProvider {
       const allRepos = pages.reduce((acc, p) => acc.concat(p.repos), page1.repos)
       report({ stage: 'repos', percent: 100, detail: `Loaded ${allRepos.length} repos` })
       const result = { ...page1, repos: allRepos }
+      this.libraryFromFallback = false
       this.libraryCache = result
       return result
     } catch {
       this.degraded = true
+      this.libraryFromFallback = true
       report({ stage: 'error', percent: 0, detail: 'API unavailable — using cached data' })
       console.warn('API unreachable, falling back to JSON')
+      // Note: libraryCache is intentionally NOT set here so that the next
+      // getLibrary() call will retry the API rather than serving stale fallback
+      // data forever. libraryFromFallback tracks the provenance for
+      // getDegradedState() while the fallback is active.
       return this.fallback.getLibrary()
     }
   }

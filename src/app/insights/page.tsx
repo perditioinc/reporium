@@ -128,7 +128,10 @@ export default function InsightsPage() {
         );
         clearTimeout(timeoutId);
         if (!res.ok) throw new Error(`API error ${res.status}`);
-        setData(await res.json());
+        const json = await res.json();
+        // Normalise: ensure repos is always an array even if the API returns a
+        // shape mismatch (e.g. missing key, null, or an error envelope).
+        setData({ ...json, repos: Array.isArray(json.repos) ? json.repos : [] });
       } catch (e) {
         clearTimeout(timeoutId);
         // API unavailable — show error rather than loading the 27 MB static file.
@@ -239,7 +242,16 @@ export default function InsightsPage() {
           </div>
         )}
 
-        {data && (
+        {data && data.repos.length === 0 && (
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+            <p className="text-zinc-400 font-medium mb-1">No insight data yet — snapshots accumulating</p>
+            <p className="text-xs text-zinc-600">
+              Insight signals appear once the library has been indexed. Check back soon.
+            </p>
+          </div>
+        )}
+
+        {data && data.repos.length > 0 && (
           <>
             {/* Rising Fast */}
             <section>
@@ -247,16 +259,20 @@ export default function InsightsPage() {
               <p className="text-xs text-zinc-500 mb-4">
                 Repos ranked by star velocity relative to age (stars/month + recent commit activity)
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {risingFast.map(r => (
-                  <RepoCardMini
-                    key={r.id}
-                    repo={r}
-                    badge={`${Math.round(risingScore(r)).toLocaleString()} pts`}
-                    badgeColor="text-amber-400"
-                  />
-                ))}
-              </div>
+              {risingFast.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {risingFast.map(r => (
+                    <RepoCardMini
+                      key={r.id}
+                      repo={r}
+                      badge={`${Math.round(risingScore(r)).toLocaleString()} pts`}
+                      badgeColor="text-amber-400"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-zinc-500">No repos with sufficient star history yet.</p>
+              )}
             </section>
 
             {/* Most Active This Week */}
@@ -269,7 +285,7 @@ export default function InsightsPage() {
                     <RepoCardMini
                       key={r.id}
                       repo={r}
-                      badge={`${r.commitStats.last7Days} commits`}
+                      badge={`${r.commitStats?.last7Days ?? 0} commits`}
                       badgeColor="text-emerald-400"
                     />
                   ))}

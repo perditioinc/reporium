@@ -171,7 +171,10 @@ export default function TrendsPage() {
         );
         clearTimeout(timeoutId);
         if (!res.ok) throw new Error(`API error ${res.status}`);
-        setData(await res.json());
+        const json = await res.json();
+        // Normalise: ensure repos is always an array even if the API returns a
+        // shape mismatch (e.g. missing key, null, or an error envelope).
+        setData({ ...json, repos: Array.isArray(json.repos) ? json.repos : [] });
       } catch (e) {
         clearTimeout(timeoutId);
         // API unavailable — show error rather than loading the 27 MB static file.
@@ -251,7 +254,16 @@ export default function TrendsPage() {
           </div>
         )}
 
-        {data && (
+        {data && data.repos.length === 0 && (
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+            <p className="text-zinc-400 font-medium mb-1">No trend data yet — snapshots accumulating</p>
+            <p className="text-xs text-zinc-600">
+              Trend signals appear once the library has processed at least one snapshot. Check back soon.
+            </p>
+          </div>
+        )}
+
+        {data && data.repos.length > 0 && (
           <>
             {/* Category Momentum */}
             <section>
