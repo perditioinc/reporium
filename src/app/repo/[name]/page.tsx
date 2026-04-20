@@ -280,14 +280,18 @@ export async function generateMetadata({ params }: RepoPageProps): Promise<Metad
   const repo = await getRepoDetail(name);
   const title = repo ? `${repo.owner}/${repo.name}` : name;
   const description = repo?.readme_summary ?? repo?.description ?? `Explore ${title} on Reporium.`;
+  const canonical = `https://www.reporium.com/repo/${encodeURIComponent(name)}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       title,
       description,
-      url: `https://www.reporium.com/repo/${encodeURIComponent(name)}`,
+      url: canonical,
     },
     twitter: {
       title,
@@ -334,6 +338,7 @@ export default async function RepoDetailPage({
   const stars = repo.is_fork ? repo.parent_stars : repo.stargazers_count;
   const forks = repo.is_fork ? repo.parent_forks : 0;
   const builder = repo.builders?.[0] ?? null;
+  const canonicalUrl = `https://www.reporium.com/repo/${encodeURIComponent(repo.name)}`;
 
   // JSON-LD structured data for Google / schema.org
   const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
@@ -342,7 +347,7 @@ export default async function RepoDetailPage({
     '@type': 'SoftwareSourceCode',
     name: upstream,
     description: repo.readme_summary ?? repo.description ?? undefined,
-    url: `https://www.reporium.com/repo/${encodeURIComponent(repo.name)}`,
+    url: canonicalUrl,
     codeRepository: repo.is_fork && repo.forked_from
       ? `https://github.com/${repo.forked_from}`
       : repo.github_url,
@@ -363,11 +368,46 @@ export default async function RepoDetailPage({
     }}),
   };
 
+  // BreadcrumbList JSON-LD for SEO tier 2
+  const primaryCategory = repo.categories?.find(c => c.is_primary)?.category_name;
+  const breadcrumbItems = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Reporium',
+      item: 'https://www.reporium.com',
+    },
+  ];
+  if (primaryCategory) {
+    breadcrumbItems.push({
+      '@type': 'ListItem',
+      position: 2,
+      name: primaryCategory,
+      item: `https://www.reporium.com/wiki/categories/${encodeURIComponent(primaryCategory.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}`,
+    });
+  }
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: primaryCategory ? 3 : 2,
+    name: repo.name,
+    item: canonicalUrl,
+  });
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems,
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       {/* KAN-159: track view for homepage recommendations */}
       <ViewTracker repoName={repo.name} />
