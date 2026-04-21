@@ -352,10 +352,49 @@ class ApiDataProvider implements DataProvider {
   async getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]> {
     try {
       const response = await this.apiFetch<{ values: TaxonomyValueOption[] }>(`/taxonomy/${encodeURIComponent(dimension)}`)
-      return response.values ?? []
+      const values = response.values ?? []
+      // The taxonomy_values table has never been populated for tags or categories —
+      // the 6 AI dimensions (modality, use_case, etc.) exist but tags/categories rows
+      // are missing. Derive them from the in-memory library when the endpoint returns empty.
+      if (values.length === 0 && (dimension === 'tags' || dimension === 'categories')) {
+        return this._deriveTagsOrCategories(dimension)
+      }
+      return values
     } catch {
       return this.fallback.getTaxonomyValues(dimension)
     }
+  }
+
+  /** Derive tag or category counts from the in-memory library cache. */
+  private async _deriveTagsOrCategories(dimension: string): Promise<TaxonomyValueOption[]> {
+    const library = await this.getLibrary()
+    const counts = new Map<string, number>()
+    for (const repo of library.repos) {
+      if (dimension === 'tags') {
+        for (const tag of repo.enrichedTags ?? []) {
+          counts.set(tag, (counts.get(tag) ?? 0) + 1)
+        }
+      } else {
+        // categories: use allCategories array (string names), falling back to dbCategory
+        const cats: string[] = repo.allCategories?.length
+          ? repo.allCategories
+          : repo.dbCategory
+            ? [repo.dbCategory]
+            : []
+        for (const cat of cats) {
+          counts.set(cat, (counts.get(cat) ?? 0) + 1)
+        }
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 500)
+      .map(([name, repo_count], index) => ({
+        id: index + 1,
+        dimension,
+        name,
+        repo_count,
+      }))
   }
 
   async getPortfolioInsights(): Promise<PortfolioInsights | null> {
