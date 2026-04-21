@@ -22,6 +22,7 @@ const LANGUAGE_TAGS: Record<string, string[]> = {
   Elixir: ['Elixir', 'Backend'],
   Haskell: ['Haskell', 'Systems'],
   R: ['R', 'Data Science'],
+  MDX: ['Docs'],
 };
 
 /** Topic keyword to category tag mappings */
