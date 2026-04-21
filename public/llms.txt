@@ -1,14 +1,54 @@
 # Reporium
 
-Reporium is a GitHub knowledge library that enriches and visualizes public repos for any GitHub username.
+Reporium is a knowledge library that indexes, enriches, and visualizes open-source GitHub repositories for development teams and AI researchers. The platform helps developers discover tools, understand ecosystem landscapes, and analyze repository portfolios.
 
-## API
-GET /api/repos/{username}
-Returns enriched JSON with all public repos, tags, stats, and metadata for any GitHub username.
-No authentication required. Rate limited by GitHub API (60/hour unauthenticated).
+## Overview
 
-## Live Example
-https://reporium.com/api/repos/perditioinc
+**Live Corpus**: 1,825 AI development tools across 28 categories
 
-## Data Shape
-See TypeScript types at: https://github.com/perditioinc/reporium/blob/main/src/types/repo.ts
+Reporium crawls public GitHub repositories, applies AI-native enrichment (categorization, tagging, relationship mapping), and exposes queryable endpoints for discovery and analysis.
+
+**What it indexes**:
+- AI dev tools (LLM frameworks, vector DBs, agents, observability)
+- Open-source libraries and frameworks
+- Developer tooling and utilities
+- Research and educational repositories
+
+**Data Freshness**: Daily reindex at 06:00 UTC via Cloud Scheduler
+
+## Public Endpoints
+
+### Get User Repository Portfolio
+```
+GET https://www.reporium.com/api/repos/{username}
+```
+Returns all public repositories for a GitHub username with enriched metadata, categories, tags, and statistics. No authentication required.
+
+**Rate Limiting**: 60 requests/hour (GitHub API limit for unauthenticated access)
+
+### OpenAPI Specification
+Full API documentation: https://reporium-api-573778300586.us-central1.run.app/openapi.json
+
+## Discovery
+
+- **Sitemap**: https://www.reporium.com/sitemap.xml
+- **AI Plugin Manifest**: https://www.reporium.com/.well-known/ai-plugin.json
+- **MCP Integration**: Planned — reporium-mcp server is not yet deployed (tracked in #233)
+
+## Data Structure
+
+Repository data includes:
+- Basic metadata: name, description, URL, owner stats
+- GitHub metrics: stars, forks, open issues, last updated
+- Enriched categories: AI taxonomy (28 categories)
+- Tags: technology stack and domain tags
+- Relationships: dependency graphs and similar repo recommendations
+- Temporal data: commit trends, weekly activity, language breakdown
+
+See TypeScript type definitions: https://github.com/perditioinc/reporium/blob/main/src/types/repo.ts
+
+## Attribution & Licensing
+
+Reporium aggregates public data from GitHub. All indexed repositories retain their original licenses and attributions. Repository content is licensed under respective project terms.
+
+Reporium itself: https://github.com/perditioinc/reporium
