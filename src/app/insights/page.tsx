@@ -113,6 +113,7 @@ function RepoCardMini({ repo, badge, badgeColor = 'text-zinc-400' }: RepoCardMin
 
 export default function InsightsPage() {
   const [data, setData] = useState<LibraryData | null>(null);
+  const [trendSnapshotsAvailable, setTrendSnapshotsAvailable] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -122,13 +123,21 @@ export default function InsightsPage() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10_000);
       try {
-        const res = await fetch(
-          `${API_URL}/library/full?page=1&page_size=500`,
-          { signal: controller.signal },
-        );
+        const [libraryRes, trendRes] = await Promise.all([
+          fetch(`${API_URL}/library/full?page=1&page_size=500`, { signal: controller.signal }),
+          API_URL
+            ? fetch(`${API_URL}/trends/report`, { signal: controller.signal }).catch(() => null)
+            : Promise.resolve(null),
+        ]);
         clearTimeout(timeoutId);
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        setData(await res.json());
+        if (!libraryRes.ok) throw new Error(`API error ${libraryRes.status}`);
+        setData(await libraryRes.json());
+        if (trendRes?.ok) {
+          const td = await trendRes.json() as { period?: { snapshots?: number } };
+          setTrendSnapshotsAvailable((td.period?.snapshots ?? 0) > 0);
+        } else {
+          setTrendSnapshotsAvailable(false);
+        }
       } catch (e) {
         clearTimeout(timeoutId);
         // API unavailable — show error rather than loading the 27 MB static file.
@@ -236,6 +245,21 @@ export default function InsightsPage() {
         {error && (
           <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
             Failed to load: {error}
+          </div>
+        )}
+
+        {/* Provenance notice when trend snapshot pipeline is offline */}
+        {trendSnapshotsAvailable === false && data && (
+          <div className="rounded-lg border border-zinc-700/50 bg-zinc-900/50 px-4 py-2.5 text-xs text-zinc-500">
+            Trend snapshots unavailable; showing current-corpus aggregates. Full time-series will resume when the ingestion pipeline is restored.{' '}
+            <a
+              href="https://github.com/perditioinc/reporium-api/issues/240"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-zinc-400"
+            >
+              Issue #240
+            </a>
           </div>
         )}
 

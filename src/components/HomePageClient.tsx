@@ -1257,7 +1257,7 @@ export function HomePageClient() {
           <footer className="mx-3 sm:mx-4 md:mx-6 mt-8 border-t border-zinc-800 pt-6 pb-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-xs text-zinc-500">
               <div>
-                <h4 className="text-zinc-300 font-medium mb-2">Explore</h4>
+                <h3 className="text-zinc-300 font-medium mb-2">Explore</h3>
                 <ul className="space-y-1.5">
                   <li><Link href="/graph" className="hover:text-zinc-300 transition-colors">Knowledge Graph</Link></li>
                   <li><Link href="/trends" className="hover:text-zinc-300 transition-colors">Trends</Link></li>
@@ -1266,7 +1266,7 @@ export function HomePageClient() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-zinc-300 font-medium mb-2">Intelligence</h4>
+                <h3 className="text-zinc-300 font-medium mb-2">Intelligence</h3>
                 <ul className="space-y-1.5">
                   <li><Link href="/insights" className="hover:text-zinc-300 transition-colors">Insights</Link></li>
                   <li><Link href="/architecture" className="hover:text-zinc-300 transition-colors">Architecture</Link></li>
@@ -1275,7 +1275,7 @@ export function HomePageClient() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-zinc-300 font-medium mb-2">Wiki</h4>
+                <h3 className="text-zinc-300 font-medium mb-2">Wiki</h3>
                 <ul className="space-y-1.5">
                   <li><Link href="/wiki/roadmap" className="hover:text-zinc-300 transition-colors">Roadmap</Link></li>
                   <li><Link href="/wiki/categories/transformer-architecture" className="hover:text-zinc-300 transition-colors">Categories</Link></li>

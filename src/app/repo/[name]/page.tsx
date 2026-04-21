@@ -9,8 +9,7 @@ import { CATEGORIES } from '@/lib/buildCategories';
 import type { EnrichedRepo, QualitySignals } from '@/types/repo';
 import { ViewTracker } from '@/components/ViewTracker'
 import { SimilarReposPanel } from '@/components/SimilarReposPanel';
-
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
+import { createDataProvider } from '@/lib/dataProvider';
 
 const SKILL_LIFECYCLE_GROUPS: Record<string, string> = {
   'Model Training & Fine-tuning': 'Foundation & Training',
@@ -174,30 +173,89 @@ interface RepoEvaluation {
 }
 
 async function getRepoEvaluation(name: string): Promise<RepoEvaluation | null> {
-  try {
-    const response = await fetch(`${API_URL}/repos/${encodeURIComponent(name)}/evaluation`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    return (data?.evaluation as RepoEvaluation) ?? null;
-  } catch {
-    return null;
+  const provider = createDataProvider();
+  const providerWithEval = provider as typeof provider & {
+    getRepoEvaluation?: (name: string) => Promise<RepoEvaluation | null>
+  };
+  if (typeof providerWithEval.getRepoEvaluation === 'function') {
+    return providerWithEval.getRepoEvaluation(name);
   }
+  return null;
 }
 
 async function getRepoDetail(name: string): Promise<RepoDetail | null> {
   try {
-    const response = await fetch(`${API_URL}/repos/${encodeURIComponent(name)}`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (response.status === 404) return null;
-    if (!response.ok) throw new Error(`API error ${response.status}`);
-    return (await response.json()) as RepoDetail;
+    const provider = createDataProvider();
+    const apiRepo = await provider.getRepo(name);
+    if (apiRepo !== null && provider.mode === 'production') {
+      // Provider returned data from API (or fell back internally)
+      const repo = apiRepo;
+      return {
+        id: String(repo.id),
+        name: repo.name,
+        owner: repo.fullName.split('/')[0] ?? 'unknown',
+        description: repo.description,
+        is_fork: repo.isFork,
+        forked_from: repo.forkedFrom,
+        primary_language: repo.language,
+        github_url: repo.url,
+        fork_sync_state: repo.forkSync?.state ?? null,
+        behind_by: repo.forkSync?.behindBy ?? 0,
+        ahead_by: repo.forkSync?.aheadBy ?? 0,
+        upstream_created_at: repo.upstreamCreatedAt,
+        github_created_at: (repo as EnrichedRepo & { githubCreatedAt?: string }).githubCreatedAt ?? null,
+        forked_at: repo.forkedAt,
+        your_last_push_at: repo.yourLastPushAt,
+        upstream_last_push_at: repo.upstreamLastPushAt,
+        parent_stars: repo.parentStats?.stars ?? repo.stars,
+        parent_forks: repo.parentStats?.forks ?? repo.forks,
+        parent_is_archived: repo.parentStats?.isArchived ?? repo.isArchived,
+        stargazers_count: repo.stars,
+        open_issues_count: (repo as EnrichedRepo & { openIssuesCount?: number }).openIssuesCount ?? repo.parentStats?.openIssues ?? 0,
+        commits_last_7_days: repo.commitStats?.last7Days ?? 0,
+        commits_last_30_days: repo.commitStats?.last30Days ?? 0,
+        commits_last_90_days: repo.commitStats?.last90Days ?? 0,
+        readme_summary: repo.readmeSummary,
+        activity_score: 0,
+        quality_signals: repo.qualitySignals ?? repo.quality_signals ?? null,
+        ingested_at: repo.lastUpdated,
+        updated_at: repo.lastUpdated,
+        github_updated_at: repo.lastUpdated,
+        tags: repo.enrichedTags ?? [],
+        categories: (repo.allCategories ?? []).map((categoryName) => ({
+          category_id: categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          category_name: categoryName,
+          is_primary: categoryName === repo.primaryCategory,
+        })),
+        allCategories: repo.allCategories ?? [],
+        builders: (repo.builders ?? []).map((builder) => ({
+          login: builder.login,
+          display_name: builder.name,
+          org_category: builder.orgCategory,
+          is_known_org: builder.isKnownOrg,
+        })),
+        ai_dev_skills: (repo.aiDevSkills ?? []).map((skill) => skill.skill),
+        pm_skills: repo.pmSkills ?? [],
+        languages: Object.entries(repo.languagePercentages ?? {}).map(([language, percentage]) => ({
+          language,
+          bytes: repo.languageBreakdown?.[language] ?? 0,
+          percentage,
+        })),
+        commits: (repo.recentCommits ?? []).map((commit) => ({
+          sha: commit.sha,
+          message: commit.message,
+          author: commit.author,
+          committed_at: commit.date,
+          url: commit.url,
+        })),
+        taxonomy: repo.taxonomy ?? [],
+      };
+    }
+    if (apiRepo === null && provider.mode === 'production') return null;
   } catch {
-    try {
+    // fall through to local JSON
+  }
+  try {
       const data = JSON.parse(
         readFileSync(join(process.cwd(), 'data', 'library.json'), 'utf-8')
       ) as { repos: EnrichedRepo[] };
@@ -267,7 +325,6 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
     } catch {
       return null;
     }
-  }
 }
 
 
@@ -438,6 +495,8 @@ export default async function RepoDetailPage({
                     src={`https://github.com/${builder.login}.png?size=48`}
                     alt={builder.display_name ?? builder.login}
                     className="h-12 w-12 rounded-full border border-zinc-700"
+                    width={48}
+                    height={48}
                   />
                   <div>
                     <p className="text-sm font-medium text-zinc-100">

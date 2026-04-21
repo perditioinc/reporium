@@ -214,7 +214,7 @@ export function StatsBar({ data, tagMetrics, onTagClick }: StatsBarProps) {
                 className="flex items-center gap-1.5 rounded-full bg-zinc-800 border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300 hover:text-zinc-100 hover:border-zinc-600 transition-colors"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.avatarUrl} alt={b.displayName} className="w-4 h-4 rounded-full" loading="lazy" decoding="async" />
+                <img src={b.avatarUrl} alt={b.displayName} className="w-4 h-4 rounded-full" loading="lazy" decoding="async" width={16} height={16} />
                 <span>{b.displayName}</span>
                 <span className="text-zinc-500">{b.repoCount}</span>
               </button>

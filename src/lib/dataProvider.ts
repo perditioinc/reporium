@@ -244,20 +244,71 @@ class ApiDataProvider implements DataProvider {
     this.fallback = new JsonDataProvider()
   }
 
-  private async apiFetch<T>(path: string): Promise<T> {
-    const res = await fetch(`${this.apiUrl}${path}`, {
-      headers: { 'Accept': 'application/json' },
-    })
-    if (!res.ok) throw new Error(`API error: ${res.status}`)
-    return res.json()
+  private async apiFetch<T>(path: string, timeoutMs = 30_000): Promise<T> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(`${this.apiUrl}${path}`, {
+        headers: { 'Accept': 'application/json' },
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      return res.json()
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  private async apiPost<T, B>(path: string, body: B, timeoutMs = 30_000): Promise<T> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(`${this.apiUrl}${path}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      return res.json()
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  /**
+   * Shared page-1 (page_size=500) promise.
+   *
+   * getOwnedLibrary() starts this request for the Stage-1 preview.
+   * _fetchLibrary() awaits the same promise — so page 1 is never fetched twice.
+   * Net result: 5 /library/full requests → 4 (one page-1 + three pages 2-4).
+   */
+  private readonly PAGE_SIZE = 500
+  private page1Promise: Promise<LibraryData & { totalPages?: number; totalRepos?: number }> | null = null
+
+  /** Returns (and memoises) the page-1 request at page_size=500. */
+  private getPage1(): Promise<LibraryData & { totalPages?: number; totalRepos?: number }> {
+    if (!this.page1Promise) {
+      this.page1Promise = this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(
+        `/library/full?page=1&page_size=${this.PAGE_SIZE}`
+      ).catch(err => {
+        this.page1Promise = null;  // reset on failure so retries are not sticky
+        throw err;
+      });
+    }
+    return this.page1Promise
   }
 
   async getOwnedLibrary(): Promise<LibraryData | null> {
-    // Fetch a small first page from the API instead of the 8.5MB owned.json.
-    // This gives fast initial paint (~50 repos) without a massive static download.
+    // Kick off (and cache) the page-1 paginated request so _fetchLibrary() can
+    // reuse it — eliminates the duplicate /library/full hit without slowing Stage 1.
+    // page_size=500 is measured at ~2.4–3.6 s on the live API, same range as the
+    // former page_size=50 call (both are Cloud-Run-bound, not payload-bound).
     try {
-      const page1 = await this.apiFetch<LibraryData>(`/library/full?page=1&page_size=50`)
-      return page1
+      return await this.getPage1()
     } catch {
       // API unavailable — skip the preview stage; getLibrary() fallback handles it
       return null
@@ -284,9 +335,9 @@ class ApiDataProvider implements DataProvider {
       this.degraded = false
       report({ stage: 'connecting', percent: 0, detail: 'Connecting to API…' })
 
-      const PAGE_SIZE = 500
-      // Fetch page 1 to get totalPages + corpus aggregates
-      const page1 = await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(`/library/full?page=1&page_size=${PAGE_SIZE}`)
+      // Reuse the page-1 promise started by getOwnedLibrary() (or start it here
+      // if getOwnedLibrary() was never called) — no duplicate network request.
+      const page1 = await this.getPage1()
       const totalPages = page1.totalPages ?? 1
       const totalRepos = page1.totalRepos ?? page1.repos.length
 
@@ -302,7 +353,7 @@ class ApiDataProvider implements DataProvider {
 
       const pages: LibraryData[] = []
       const remaining = Array.from({ length: totalPages - 1 }, (_, i) =>
-        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&page_size=${PAGE_SIZE}`).then(page => {
+        this.apiFetch<LibraryData>(`/library/full?page=${i + 2}&page_size=${this.PAGE_SIZE}`).then(page => {
           loaded += page.repos.length
           report({ stage: 'repos', percent: Math.min(Math.round((loaded / totalRepos) * 100), 100), detail: `Loading repos (${loaded}/${totalRepos})…` })
           pages.push(page)
@@ -352,10 +403,49 @@ class ApiDataProvider implements DataProvider {
   async getTaxonomyValues(dimension: string): Promise<TaxonomyValueOption[]> {
     try {
       const response = await this.apiFetch<{ values: TaxonomyValueOption[] }>(`/taxonomy/${encodeURIComponent(dimension)}`)
-      return response.values ?? []
+      const values = response.values ?? []
+      // The taxonomy_values table has never been populated for tags or categories —
+      // the 6 AI dimensions (modality, use_case, etc.) exist but tags/categories rows
+      // are missing. Derive them from the in-memory library when the endpoint returns empty.
+      if (values.length === 0 && (dimension === 'tags' || dimension === 'categories')) {
+        return this._deriveTagsOrCategories(dimension)
+      }
+      return values
     } catch {
       return this.fallback.getTaxonomyValues(dimension)
     }
+  }
+
+  /** Derive tag or category counts from the in-memory library cache. */
+  private async _deriveTagsOrCategories(dimension: string): Promise<TaxonomyValueOption[]> {
+    const library = await this.getLibrary()
+    const counts = new Map<string, number>()
+    for (const repo of library.repos) {
+      if (dimension === 'tags') {
+        for (const tag of repo.enrichedTags ?? []) {
+          counts.set(tag, (counts.get(tag) ?? 0) + 1)
+        }
+      } else {
+        // categories: use allCategories array (string names), falling back to dbCategory
+        const cats: string[] = repo.allCategories?.length
+          ? repo.allCategories
+          : repo.dbCategory
+            ? [repo.dbCategory]
+            : []
+        for (const cat of cats) {
+          counts.set(cat, (counts.get(cat) ?? 0) + 1)
+        }
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 500)
+      .map(([name, repo_count], index) => ({
+        id: index + 1,
+        dimension,
+        name,
+        repo_count,
+      }))
   }
 
   async getPortfolioInsights(): Promise<PortfolioInsights | null> {
@@ -381,6 +471,89 @@ class ApiDataProvider implements DataProvider {
       return await this.apiFetch<SimilarRepo[]>(`/repos/${encodeURIComponent(name)}/similar?limit=${limit}`)
     } catch {
       return this.fallback.getSimilarRepos(name, limit)
+    }
+  }
+
+  async getIntelligenceSimilar(name: string, limit = 8): Promise<SimilarRepo[]> {
+    try {
+      const data = await this.apiFetch<{ similar?: SimilarRepo[] } | SimilarRepo[]>(
+        `/intelligence/similar/${encodeURIComponent(name)}?limit=${limit}`
+      )
+      if (Array.isArray(data)) return data
+      return (data as { similar?: SimilarRepo[] }).similar ?? []
+    } catch {
+      return []
+    }
+  }
+
+  async getTaxonomyAllValues(limit = 500): Promise<{ dimension: string; value: string; repo_count?: number; count?: number }[]> {
+    try {
+      const data = await this.apiFetch<{ values?: unknown[] } | unknown[]>(`/taxonomy/values?limit=${limit}`)
+      if (Array.isArray(data)) return data as { dimension: string; value: string; repo_count?: number; count?: number }[]
+      const typed = data as { values?: unknown[] }
+      if (Array.isArray(typed.values)) return typed.values as { dimension: string; value: string; repo_count?: number; count?: number }[]
+      return []
+    } catch {
+      return []
+    }
+  }
+
+  async getGapTaxonomy(minRepos = 1): Promise<{ dimension: string; value: string; repo_count: number; gap_score?: number }[]> {
+    try {
+      const data = await this.apiFetch<{ gaps?: unknown[] }>(`/gaps/taxonomy?min_repos=${minRepos}`)
+      return (data.gaps ?? []) as { dimension: string; value: string; repo_count: number; gap_score?: number }[]
+    } catch {
+      return []
+    }
+  }
+
+  async getRepoEvaluation(name: string): Promise<{
+    pros: string[]; cons: string[]; best_for: string; avoid_if: string;
+    comparable_to: string[]; community_verdict: string;
+  } | null> {
+    try {
+      const data = await this.apiFetch<{ evaluation?: unknown }>(`/repos/${encodeURIComponent(name)}/evaluation`)
+      return (data?.evaluation ?? null) as {
+        pros: string[]; cons: string[]; best_for: string; avoid_if: string;
+        comparable_to: string[]; community_verdict: string;
+      } | null
+    } catch {
+      return null
+    }
+  }
+
+  async askQuestion(question: string, options?: { top_k?: number; session_id?: string; app_token?: string }): Promise<{
+    answer: string; sources: unknown[]; question: string; model: string;
+    answered_at: string; embedding_candidates: number;
+    tokens_used: { input: number; output: number; total: number };
+  }> {
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    }
+    if (options?.app_token) headers['X-App-Token'] = options.app_token
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 30_000)
+    try {
+      const res = await fetch(`${this.apiUrl}/intelligence/ask`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          question,
+          top_k: options?.top_k ?? 8,
+          ...(options?.session_id ? { session_id: options.session_id } : {}),
+        }),
+        signal: controller.signal,
+      })
+      if (res.status === 429) throw new Error('rate limit exceeded')
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        const detail = (body as { detail?: string })?.detail
+        throw new Error(detail ? `server:${detail}` : `API error: ${res.status}`)
+      }
+      return res.json()
+    } finally {
+      clearTimeout(timer)
     }
   }
 }
