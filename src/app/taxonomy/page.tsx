@@ -61,10 +61,15 @@ async function getTaxonomyValues(): Promise<TaxonomyEntry[]> {
   const provider = createDataProvider();
   if (provider.mode === 'production') {
     const p = provider as import('@/lib/dataProvider').DataProvider & {
-      getTaxonomyAllValues?: (limit?: number) => Promise<TaxonomyEntry[]>
+      getTaxonomyValuesByDimensions?: (
+        dims: readonly string[],
+        limit?: number,
+      ) => Promise<TaxonomyEntry[]>
     }
-    if (typeof p.getTaxonomyAllValues === 'function') {
-      return p.getTaxonomyAllValues(500)
+    // Fetch each dimension individually (parallel) so high-cardinality dimensions
+    // like tags don't starve the others under a global top-N cap.
+    if (typeof p.getTaxonomyValuesByDimensions === 'function') {
+      return p.getTaxonomyValuesByDimensions(DIMENSIONS.map(d => d.key), 100)
     }
   }
   return []
@@ -77,31 +82,12 @@ async function getTaxonomyValues(): Promise<TaxonomyEntry[]> {
  */
 async function getDerivedDimensionValues(dimension: 'tags' | 'categories'): Promise<TaxonomyEntry[]> {
   try {
-    // Fetch all pages of the library to build counts
-    const firstRes = await fetch(`${API_URL}/library/full?page=1&page_size=500`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (!firstRes.ok) return [];
-    const firstPage = await firstRes.json() as { repos: Array<{ enrichedTags?: string[]; allCategories?: string[]; dbCategory?: string | null }>; totalPages?: number };
-    const totalPages: number = firstPage.totalPages ?? 1;
-
-    // Fetch remaining pages in parallel
-    const extraPages = totalPages > 1
-      ? await Promise.all(
-          Array.from({ length: totalPages - 1 }, (_, i) =>
-            fetch(`${API_URL}/library/full?page=${i + 2}&page_size=500`, {
-              next: { revalidate: 300 },
-              headers: { Accept: 'application/json' },
-            }).then(r => r.ok ? r.json() as Promise<{ repos: typeof firstPage.repos }> : { repos: [] })
-          )
-        )
-      : [];
-
-    const allRepos = [firstPage, ...extraPages].flatMap(p => (p as typeof firstPage).repos ?? []);
+    const provider = createDataProvider();
+    const library = await provider.getLibrary();
+    const repos = library.repos ?? [];
 
     const counts = new Map<string, number>();
-    for (const repo of allRepos) {
+    for (const repo of repos) {
       if (dimension === 'tags') {
         for (const tag of repo.enrichedTags ?? []) {
           counts.set(tag, (counts.get(tag) ?? 0) + 1);

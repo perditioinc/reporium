@@ -244,12 +244,28 @@ class ApiDataProvider implements DataProvider {
     this.fallback = new JsonDataProvider()
   }
 
+  /**
+   * Build request headers, attaching `X-App-Token` when the NEXT_PUBLIC_APP_API_TOKEN
+   * env var is inlined at build time (see next.config.js). Without this header,
+   * protected endpoints (e.g. /intelligence/portfolio-insights) silently 403 and
+   * callers fall through to the JSON fallback path.
+   */
+  private buildHeaders(extra?: Record<string, string>): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      ...(extra ?? {}),
+    }
+    const token = process.env.NEXT_PUBLIC_APP_API_TOKEN
+    if (token) headers['X-App-Token'] = token
+    return headers
+  }
+
   private async apiFetch<T>(path: string, timeoutMs = 30_000): Promise<T> {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
     try {
       const res = await fetch(`${this.apiUrl}${path}`, {
-        headers: { 'Accept': 'application/json' },
+        headers: this.buildHeaders(),
         signal: controller.signal,
       })
       if (!res.ok) throw new Error(`API error: ${res.status}`)
@@ -265,10 +281,7 @@ class ApiDataProvider implements DataProvider {
     try {
       const res = await fetch(`${this.apiUrl}${path}`, {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers: this.buildHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
         signal: controller.signal,
       })
@@ -468,7 +481,14 @@ class ApiDataProvider implements DataProvider {
 
   async getSimilarRepos(name: string, limit = 5): Promise<SimilarRepo[]> {
     try {
-      return await this.apiFetch<SimilarRepo[]>(`/repos/${encodeURIComponent(name)}/similar?limit=${limit}`)
+      // API exposes `/intelligence/similar/{name}` returning { source_repo, similar, total }.
+      // The legacy `/repos/{name}/similar` path no longer exists. Unwrap `.similar`
+      // to preserve the raw-array contract existing call sites rely on.
+      const data = await this.apiFetch<{ similar?: SimilarRepo[] } | SimilarRepo[]>(
+        `/intelligence/similar/${encodeURIComponent(name)}?limit=${limit}`
+      )
+      if (Array.isArray(data)) return data
+      return (data as { similar?: SimilarRepo[] }).similar ?? []
     } catch {
       return this.fallback.getSimilarRepos(name, limit)
     }
@@ -496,6 +516,32 @@ class ApiDataProvider implements DataProvider {
     } catch {
       return []
     }
+  }
+
+  /**
+   * Fetch values per-dimension in parallel, then flatten to the `{dimension, value, repo_count}`
+   * shape expected by the taxonomy explorer. Avoids the global-top-N cap of `/taxonomy/values`
+   * which lets a single high-cardinality dimension starve all others.
+   */
+  async getTaxonomyValuesByDimensions(
+    dimensions: readonly string[],
+    perDimensionLimit = 100,
+  ): Promise<{ dimension: string; value: string; repo_count?: number; count?: number }[]> {
+    const results = await Promise.all(
+      dimensions.map(async (dim) => {
+        try {
+          const values = await this.getTaxonomyValues(dim)
+          return values.slice(0, perDimensionLimit).map((v) => ({
+            dimension: dim,
+            value: v.name,
+            repo_count: v.repo_count,
+          }))
+        } catch {
+          return []
+        }
+      })
+    )
+    return results.flat()
   }
 
   async getGapTaxonomy(minRepos = 1): Promise<{ dimension: string; value: string; repo_count: number; gap_score?: number }[]> {
