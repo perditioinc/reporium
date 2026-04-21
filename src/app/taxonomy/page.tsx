@@ -50,6 +50,7 @@ const DIMENSIONS = [
   { key: 'ai_trend',            label: 'AI Trends',           color: 'border-cyan-700/40 bg-cyan-900/20 text-cyan-300',        badge: 'border-cyan-700/30 bg-cyan-900/30 text-cyan-300' },
   { key: 'deployment_context',  label: 'Deployment Context',  color: 'border-orange-700/40 bg-orange-900/20 text-orange-300',  badge: 'border-orange-700/30 bg-orange-900/30 text-orange-300' },
   { key: 'tags',                label: 'Tags',                color: 'border-zinc-700 bg-zinc-800/40 text-zinc-300',           badge: 'border-zinc-700 bg-zinc-800/70 text-zinc-200' },
+  { key: 'categories',          label: 'Categories',          color: 'border-rose-700/40 bg-rose-900/20 text-rose-300',        badge: 'border-rose-700/30 bg-rose-900/30 text-rose-300' },
   { key: 'maturity_level',      label: 'Maturity Level',      color: 'border-emerald-700/40 bg-emerald-900/20 text-emerald-300', badge: 'border-emerald-700/30 bg-emerald-900/30 text-emerald-300' },
 ] as const;
 
@@ -61,10 +62,15 @@ async function getTaxonomyValues(): Promise<TaxonomyEntry[]> {
   const provider = createDataProvider();
   if (provider.mode === 'production') {
     const p = provider as import('@/lib/dataProvider').DataProvider & {
-      getTaxonomyAllValues?: (limit?: number) => Promise<TaxonomyEntry[]>
+      getTaxonomyValuesByDimensions?: (
+        dims: readonly string[],
+        limit?: number,
+      ) => Promise<TaxonomyEntry[]>
     }
-    if (typeof p.getTaxonomyAllValues === 'function') {
-      return p.getTaxonomyAllValues(500)
+    // Fetch each dimension individually (parallel) so high-cardinality dimensions
+    // like tags don't starve the others under a global top-N cap.
+    if (typeof p.getTaxonomyValuesByDimensions === 'function') {
+      return p.getTaxonomyValuesByDimensions(DIMENSIONS.map(d => d.key), 100)
     }
   }
   return []
@@ -77,31 +83,12 @@ async function getTaxonomyValues(): Promise<TaxonomyEntry[]> {
  */
 async function getDerivedDimensionValues(dimension: 'tags' | 'categories'): Promise<TaxonomyEntry[]> {
   try {
-    // Fetch all pages of the library to build counts
-    const firstRes = await fetch(`${API_URL}/library/full?page=1&page_size=500`, {
-      next: { revalidate: 300 },
-      headers: { Accept: 'application/json' },
-    });
-    if (!firstRes.ok) return [];
-    const firstPage = await firstRes.json() as { repos: Array<{ enrichedTags?: string[]; allCategories?: string[]; dbCategory?: string | null }>; totalPages?: number };
-    const totalPages: number = firstPage.totalPages ?? 1;
-
-    // Fetch remaining pages in parallel
-    const extraPages = totalPages > 1
-      ? await Promise.all(
-          Array.from({ length: totalPages - 1 }, (_, i) =>
-            fetch(`${API_URL}/library/full?page=${i + 2}&page_size=500`, {
-              next: { revalidate: 300 },
-              headers: { Accept: 'application/json' },
-            }).then(r => r.ok ? r.json() as Promise<{ repos: typeof firstPage.repos }> : { repos: [] })
-          )
-        )
-      : [];
-
-    const allRepos = [firstPage, ...extraPages].flatMap(p => (p as typeof firstPage).repos ?? []);
+    const provider = createDataProvider();
+    const library = await provider.getLibrary();
+    const repos = library.repos ?? [];
 
     const counts = new Map<string, number>();
-    for (const repo of allRepos) {
+    for (const repo of repos) {
       if (dimension === 'tags') {
         for (const tag of repo.enrichedTags ?? []) {
           counts.set(tag, (counts.get(tag) ?? 0) + 1);
