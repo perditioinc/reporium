@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { WikiNavBar } from '@/components/WikiNavBar';
 import { AskPanel } from '@/components/AskPanel';
 
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
-
 export const metadata: Metadata = {
   title: 'Ask Reporium - Natural language search',
   description:
@@ -34,7 +32,7 @@ export default function AskPage() {
           </p>
         </div>
 
-        <AskPanel apiUrl={API_URL} />
+        <AskPanel />
       </main>
     </div>
   );
