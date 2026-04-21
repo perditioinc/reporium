@@ -21,6 +21,7 @@ export function EcosystemStackCard({ stack, defaultExpanded = false }: Ecosystem
         className="w-full text-left px-5 py-4 flex items-start gap-4"
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
+        aria-label={`${expanded ? 'Collapse' : 'Expand'} ${stack.title} tech stack`}
       >
         {/* Icon */}
         <span className="text-2xl shrink-0 mt-0.5">{stack.icon}</span>
