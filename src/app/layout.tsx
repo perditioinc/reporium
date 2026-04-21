@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Reporium - AI Dev Tool Library',
     description:
       'Browse the Reporium portfolio of AI development tools, taxonomy coverage, search results, and repo intelligence.',
