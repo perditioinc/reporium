@@ -23,6 +23,8 @@ export function WikiRepoCard({ repo }: WikiRepoCardProps) {
           src={`https://github.com/${builder.login}.png?size=16`}
           alt={builder.name ?? builder.login}
           className="w-4 h-4 rounded-full flex-shrink-0"
+          width={16}
+          height={16}
         />
       )}
       <span className="text-sm font-medium text-zinc-200 flex-1 truncate">{repo.name}</span>

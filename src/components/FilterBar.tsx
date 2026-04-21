@@ -657,7 +657,7 @@ export function FilterBar({
                           }`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={b.avatarUrl} alt={b.displayName} className="w-3.5 h-3.5 rounded-full" loading="lazy" decoding="async" />
+                          <img src={b.avatarUrl} alt={b.displayName} className="w-3.5 h-3.5 rounded-full" loading="lazy" decoding="async" width={14} height={14} />
                           <span>{b.displayName}</span>
                           <span className={isSelected ? 'text-cyan-200' : 'text-zinc-600'}>{b.repoCount}</span>
                         </button>

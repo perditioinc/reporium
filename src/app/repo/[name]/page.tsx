@@ -438,6 +438,8 @@ export default async function RepoDetailPage({
                     src={`https://github.com/${builder.login}.png?size=48`}
                     alt={builder.display_name ?? builder.login}
                     className="h-12 w-12 rounded-full border border-zinc-700"
+                    width={48}
+                    height={48}
                   />
                   <div>
                     <p className="text-sm font-medium text-zinc-100">
