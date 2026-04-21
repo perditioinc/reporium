@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og';
 import { REPOS_INDEXED_LABEL } from '@/lib/corpusConstants.generated';
 
+export const dynamic = 'force-static';
+
 // Parse the repos indexed count and round down to nearest 100
 function roundDownTo100(countStr: string): string {
   const count = parseInt(countStr.replace(/,/g, ''), 10);
@@ -30,6 +32,7 @@ export default function Image() {
       >
         <div
           style={{
+            display: 'flex',
             fontSize: '80px',
             fontWeight: 'bold',
             marginBottom: '20px',
@@ -40,6 +43,7 @@ export default function Image() {
         </div>
         <div
           style={{
+            display: 'flex',
             fontSize: '44px',
             fontWeight: '500',
             color: '#a1a1a6', // zinc-400
