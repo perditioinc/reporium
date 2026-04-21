@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { EnrichedRepo, LibraryData } from '@/types/repo';
+import { EnrichedRepo, LibraryData, TrendData } from '@/types/repo';
 
 const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
 
@@ -154,8 +154,27 @@ function RepoRow({ repo }: { repo: EnrichedRepo }) {
   );
 }
 
+interface DerivedTagTrend {
+  tag: string;
+  repoCount: number;
+}
+
+function computeTopTags(repos: EnrichedRepo[], limit = 20): DerivedTagTrend[] {
+  const counts = new Map<string, number>();
+  for (const repo of repos) {
+    for (const tag of repo.enrichedTags ?? []) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([tag, repoCount]) => ({ tag, repoCount }));
+}
+
 export default function TrendsPage() {
   const [data, setData] = useState<LibraryData | null>(null);
+  const [trendData, setTrendData] = useState<TrendData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -165,13 +184,18 @@ export default function TrendsPage() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10_000);
       try {
-        const res = await fetch(
-          `${API_URL}/library/full?page=1&page_size=500`,
-          { signal: controller.signal },
-        );
+        const [libraryRes, trendRes] = await Promise.all([
+          fetch(`${API_URL}/library/full?page=1&page_size=500`, { signal: controller.signal }),
+          API_URL
+            ? fetch(`${API_URL}/trends/report`, { signal: controller.signal }).catch(() => null)
+            : Promise.resolve(null),
+        ]);
         clearTimeout(timeoutId);
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        setData(await res.json());
+        if (!libraryRes.ok) throw new Error(`API error ${libraryRes.status}`);
+        setData(await libraryRes.json());
+        if (trendRes?.ok) {
+          setTrendData(await trendRes.json());
+        }
       } catch (e) {
         clearTimeout(timeoutId);
         // API unavailable — show error rather than loading the 27 MB static file.
@@ -222,6 +246,13 @@ export default function TrendsPage() {
       })
       .slice(0, 20);
   }, [data]);
+
+  // Derive top tags from library when trend snapshots are unavailable.
+  const snapshotsAvailable = (trendData?.period?.snapshots ?? 0) > 0;
+  const derivedTopTags = useMemo(() => {
+    if (!data || snapshotsAvailable) return [];
+    return computeTopTags(data.repos, 20);
+  }, [data, snapshotsAvailable]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -300,6 +331,44 @@ export default function TrendsPage() {
                 {topByStars.map(r => <RepoRow key={r.id} repo={r} />)}
               </div>
             </section>
+
+            {/* Derived Top Tags — shown when trend snapshot pipeline is offline */}
+            {derivedTopTags.length > 0 && (
+              <section>
+                <h2 className="text-base font-semibold text-zinc-200 mb-1">Top Tags by Corpus Coverage</h2>
+                <p className="text-xs text-zinc-500 mb-1">Top tags derived from current corpus &mdash; snapshot pipeline offline</p>
+                <p className="text-xs text-zinc-600 mb-4">
+                  Trend snapshots unavailable; showing current-corpus aggregates. Full time-series will resume when the ingestion pipeline is restored.{' '}
+                  <a
+                    href="https://github.com/perditioinc/reporium-api/issues/240"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-zinc-400"
+                  >
+                    Issue #240
+                  </a>
+                </p>
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+                  <div className="space-y-2">
+                    {(() => {
+                      const maxCount = derivedTopTags[0]?.repoCount ?? 1;
+                      return derivedTopTags.map(({ tag, repoCount }) => (
+                        <div key={tag} className="flex items-center gap-3">
+                          <span className="w-40 text-xs text-zinc-400 truncate">{tag}</span>
+                          <div className="flex-1 h-4 bg-zinc-800 rounded overflow-hidden">
+                            <div
+                              className="h-full rounded bg-sky-600/70 transition-all duration-500"
+                              style={{ width: `${(repoCount / maxCount) * 100}%` }}
+                            />
+                          </div>
+                          <span className="w-10 text-right text-xs text-zinc-500">{repoCount}</span>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </section>
+            )}
           </>
         )}
       </div>

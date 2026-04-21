@@ -80,6 +80,63 @@ async function getTaxonomyValues(): Promise<TaxonomyEntry[]> {
   }
 }
 
+/**
+ * Derive tag or category counts directly from the library corpus.
+ * Used when /taxonomy/tags or /taxonomy/categories return empty — those rows
+ * have never been backfilled into the taxonomy_values table (see GitHub issue #240).
+ */
+async function getDerivedDimensionValues(dimension: 'tags' | 'categories'): Promise<TaxonomyEntry[]> {
+  try {
+    // Fetch all pages of the library to build counts
+    const firstRes = await fetch(`${API_URL}/library/full?page=1&page_size=500`, {
+      next: { revalidate: 300 },
+      headers: { Accept: 'application/json' },
+    });
+    if (!firstRes.ok) return [];
+    const firstPage = await firstRes.json() as { repos: Array<{ enrichedTags?: string[]; allCategories?: string[]; dbCategory?: string | null }>; totalPages?: number };
+    const totalPages: number = firstPage.totalPages ?? 1;
+
+    // Fetch remaining pages in parallel
+    const extraPages = totalPages > 1
+      ? await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, i) =>
+            fetch(`${API_URL}/library/full?page=${i + 2}&page_size=500`, {
+              next: { revalidate: 300 },
+              headers: { Accept: 'application/json' },
+            }).then(r => r.ok ? r.json() as Promise<{ repos: typeof firstPage.repos }> : { repos: [] })
+          )
+        )
+      : [];
+
+    const allRepos = [firstPage, ...extraPages].flatMap(p => (p as typeof firstPage).repos ?? []);
+
+    const counts = new Map<string, number>();
+    for (const repo of allRepos) {
+      if (dimension === 'tags') {
+        for (const tag of repo.enrichedTags ?? []) {
+          counts.set(tag, (counts.get(tag) ?? 0) + 1);
+        }
+      } else {
+        const cats: string[] = repo.allCategories?.length
+          ? repo.allCategories
+          : repo.dbCategory
+            ? [repo.dbCategory]
+            : [];
+        for (const cat of cats) {
+          counts.set(cat, (counts.get(cat) ?? 0) + 1);
+        }
+      }
+    }
+
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 500)
+      .map(([value, repo_count]) => ({ dimension, value, repo_count }));
+  } catch {
+    return [];
+  }
+}
+
 async function getGapSummary(): Promise<GapEntry[]> {
   try {
     const res = await fetch(`${API_URL}/gaps/taxonomy?min_repos=1`, {
@@ -101,9 +158,23 @@ async function getGapSummary(): Promise<GapEntry[]> {
 export default async function TaxonomyPage() {
   const [allValues, gaps] = await Promise.all([getTaxonomyValues(), getGapSummary()]);
 
+  // Detect whether tags/categories are missing from the taxonomy_values table.
+  // If so, derive them from the library corpus — see GitHub issue #240.
+  const hasTags = allValues.some(v => v.dimension === 'tags');
+  const hasCategories = allValues.some(v => v.dimension === 'categories');
+  const [derivedTags, derivedCategories] = await Promise.all([
+    hasTags ? Promise.resolve([] as TaxonomyEntry[]) : getDerivedDimensionValues('tags'),
+    hasCategories ? Promise.resolve([] as TaxonomyEntry[]) : getDerivedDimensionValues('categories'),
+  ]);
+  const derivedFallbackDimensions = new Set<string>([
+    ...(!hasTags && derivedTags.length > 0 ? ['tags'] : []),
+    ...(!hasCategories && derivedCategories.length > 0 ? ['categories'] : []),
+  ]);
+  const combinedValues = [...allValues, ...derivedTags, ...derivedCategories];
+
   // Group values by dimension
   const byDimension = new Map<string, TaxonomyEntry[]>();
-  for (const entry of allValues) {
+  for (const entry of combinedValues) {
     if (!byDimension.has(entry.dimension)) byDimension.set(entry.dimension, []);
     byDimension.get(entry.dimension)!.push(entry);
   }
@@ -120,7 +191,7 @@ export default async function TaxonomyPage() {
     gapByDimension.get(gap.dimension)!.push(gap);
   }
 
-  const totalValues = allValues.length;
+  const totalValues = combinedValues.length;
   const totalGaps = gaps.length;
 
   return (
@@ -178,6 +249,20 @@ export default async function TaxonomyPage() {
                   <h2 className="font-semibold">{dim.label}</h2>
                   <span className="text-xs opacity-70">{total} value{total !== 1 ? 's' : ''}</span>
                 </div>
+                {/* Provenance note for corpus-derived dimensions */}
+                {derivedFallbackDimensions.has(dim.key) && (
+                  <p className="text-[11px] text-zinc-500 -mt-2">
+                    Derived from current corpus &mdash; snapshot pipeline offline.{' '}
+                    <a
+                      href="https://github.com/perditioinc/reporium-api/issues/240"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-zinc-400"
+                    >
+                      Issue #240
+                    </a>
+                  </p>
+                )}
 
                 {/* Top 5 values */}
                 {top5.length > 0 ? (
