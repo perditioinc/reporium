@@ -50,6 +50,7 @@ const DIMENSIONS = [
   { key: 'ai_trend',            label: 'AI Trends',           color: 'border-cyan-700/40 bg-cyan-900/20 text-cyan-300',        badge: 'border-cyan-700/30 bg-cyan-900/30 text-cyan-300' },
   { key: 'deployment_context',  label: 'Deployment Context',  color: 'border-orange-700/40 bg-orange-900/20 text-orange-300',  badge: 'border-orange-700/30 bg-orange-900/30 text-orange-300' },
   { key: 'tags',                label: 'Tags',                color: 'border-zinc-700 bg-zinc-800/40 text-zinc-300',           badge: 'border-zinc-700 bg-zinc-800/70 text-zinc-200' },
+  { key: 'categories',          label: 'Categories',          color: 'border-rose-700/40 bg-rose-900/20 text-rose-300',        badge: 'border-rose-700/30 bg-rose-900/30 text-rose-300' },
   { key: 'maturity_level',      label: 'Maturity Level',      color: 'border-emerald-700/40 bg-emerald-900/20 text-emerald-300', badge: 'border-emerald-700/30 bg-emerald-900/30 text-emerald-300' },
 ] as const;
 
