@@ -244,12 +244,39 @@ class ApiDataProvider implements DataProvider {
     this.fallback = new JsonDataProvider()
   }
 
-  private async apiFetch<T>(path: string): Promise<T> {
-    const res = await fetch(`${this.apiUrl}${path}`, {
-      headers: { 'Accept': 'application/json' },
-    })
-    if (!res.ok) throw new Error(`API error: ${res.status}`)
-    return res.json()
+  private async apiFetch<T>(path: string, timeoutMs = 30_000): Promise<T> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(`${this.apiUrl}${path}`, {
+        headers: { 'Accept': 'application/json' },
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      return res.json()
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  private async apiPost<T, B>(path: string, body: B, timeoutMs = 30_000): Promise<T> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    try {
+      const res = await fetch(`${this.apiUrl}${path}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      return res.json()
+    } finally {
+      clearTimeout(timer)
+    }
   }
 
   async getOwnedLibrary(): Promise<LibraryData | null> {
@@ -420,6 +447,89 @@ class ApiDataProvider implements DataProvider {
       return await this.apiFetch<SimilarRepo[]>(`/repos/${encodeURIComponent(name)}/similar?limit=${limit}`)
     } catch {
       return this.fallback.getSimilarRepos(name, limit)
+    }
+  }
+
+  async getIntelligenceSimilar(name: string, limit = 8): Promise<SimilarRepo[]> {
+    try {
+      const data = await this.apiFetch<{ similar?: SimilarRepo[] } | SimilarRepo[]>(
+        `/intelligence/similar/${encodeURIComponent(name)}?limit=${limit}`
+      )
+      if (Array.isArray(data)) return data
+      return (data as { similar?: SimilarRepo[] }).similar ?? []
+    } catch {
+      return []
+    }
+  }
+
+  async getTaxonomyAllValues(limit = 500): Promise<{ dimension: string; value: string; repo_count?: number; count?: number }[]> {
+    try {
+      const data = await this.apiFetch<{ values?: unknown[] } | unknown[]>(`/taxonomy/values?limit=${limit}`)
+      if (Array.isArray(data)) return data as { dimension: string; value: string; repo_count?: number; count?: number }[]
+      const typed = data as { values?: unknown[] }
+      if (Array.isArray(typed.values)) return typed.values as { dimension: string; value: string; repo_count?: number; count?: number }[]
+      return []
+    } catch {
+      return []
+    }
+  }
+
+  async getGapTaxonomy(minRepos = 1): Promise<{ dimension: string; value: string; repo_count: number; gap_score?: number }[]> {
+    try {
+      const data = await this.apiFetch<{ gaps?: unknown[] }>(`/gaps/taxonomy?min_repos=${minRepos}`)
+      return (data.gaps ?? []) as { dimension: string; value: string; repo_count: number; gap_score?: number }[]
+    } catch {
+      return []
+    }
+  }
+
+  async getRepoEvaluation(name: string): Promise<{
+    pros: string[]; cons: string[]; best_for: string; avoid_if: string;
+    comparable_to: string[]; community_verdict: string;
+  } | null> {
+    try {
+      const data = await this.apiFetch<{ evaluation?: unknown }>(`/repos/${encodeURIComponent(name)}/evaluation`)
+      return (data?.evaluation ?? null) as {
+        pros: string[]; cons: string[]; best_for: string; avoid_if: string;
+        comparable_to: string[]; community_verdict: string;
+      } | null
+    } catch {
+      return null
+    }
+  }
+
+  async askQuestion(question: string, options?: { top_k?: number; session_id?: string; app_token?: string }): Promise<{
+    answer: string; sources: unknown[]; question: string; model: string;
+    answered_at: string; embedding_candidates: number;
+    tokens_used: { input: number; output: number; total: number };
+  }> {
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    }
+    if (options?.app_token) headers['X-App-Token'] = options.app_token
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 30_000)
+    try {
+      const res = await fetch(`${this.apiUrl}/intelligence/ask`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          question,
+          top_k: options?.top_k ?? 8,
+          ...(options?.session_id ? { session_id: options.session_id } : {}),
+        }),
+        signal: controller.signal,
+      })
+      if (res.status === 429) throw new Error('rate limit exceeded')
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        const detail = (body as { detail?: string })?.detail
+        throw new Error(detail ? `server:${detail}` : `API error: ${res.status}`)
+      }
+      return res.json()
+    } finally {
+      clearTimeout(timer)
     }
   }
 }

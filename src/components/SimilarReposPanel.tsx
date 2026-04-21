@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { SimilarRepo } from '@/types/repo';
-
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
+import { createDataProvider } from '@/lib/dataProvider';
 
 interface Props {
   repoName: string;
@@ -15,14 +14,16 @@ export function SimilarReposPanel({ repoName }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/intelligence/similar/${encodeURIComponent(repoName)}?limit=8`, {
-      headers: { Accept: 'application/json' },
-    })
-      .then((r) => (r.ok ? r.json() : { similar: [] }))
-      .then((data: { similar?: SimilarRepo[] } | SimilarRepo[]) => {
-        const list: SimilarRepo[] = Array.isArray(data) ? data : (data.similar ?? []);
-        setRepos(list);
-      })
+    const provider = createDataProvider();
+    const providerWithIntelligence = provider as typeof provider & {
+      getIntelligenceSimilar?: (name: string, limit?: number) => Promise<SimilarRepo[]>
+    };
+    const fetcher = typeof providerWithIntelligence.getIntelligenceSimilar === 'function'
+      ? providerWithIntelligence.getIntelligenceSimilar(repoName, 8)
+      : provider.getSimilarRepos(repoName, 8);
+
+    fetcher
+      .then((list) => setRepos(list))
       .catch(() => setRepos([]))
       .finally(() => setLoading(false));
   }, [repoName]);
