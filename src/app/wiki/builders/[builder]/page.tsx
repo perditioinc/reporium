@@ -42,6 +42,8 @@ export default async function BuilderPage({ params }: { params: Promise<{ builde
             src={`https://avatars.githubusercontent.com/${builder}`}
             alt={displayName}
             className="w-16 h-16 rounded-full border border-zinc-700"
+            width={64}
+            height={64}
           />
           <div>
             <p className="text-xs text-zinc-500 mb-0.5">Builder</p>

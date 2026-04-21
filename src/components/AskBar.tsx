@@ -323,7 +323,7 @@ export function AskBar({ apiUrl }: AskBarProps) {
             placeholder="Ask anything about the repo library..."
             maxLength={500}
             disabled={atMinuteLimit || atDayLimit}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-900 py-2.5 pl-8 pr-4 text-base sm:text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-900 py-2.5 pl-8 pr-4 text-base sm:text-sm text-zinc-200 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
           />
         </div>
         <button
@@ -344,10 +344,10 @@ export function AskBar({ apiUrl }: AskBarProps) {
 
       {/* Loading status */}
       {loading && sources.length === 0 && (
-        <p className="text-xs text-zinc-500">Searching repos and finding the best matches…</p>
+        <p className="text-xs text-zinc-400">Searching repos and finding the best matches…</p>
       )}
       {loading && sources.length > 0 && !hasAnswer && (
-        <p className="text-xs text-zinc-500">Generating answer from {sources.length} repos…</p>
+        <p className="text-xs text-zinc-400">Generating answer from {sources.length} repos…</p>
       )}
 
       {/* Rate limit warning */}
@@ -369,7 +369,7 @@ export function AskBar({ apiUrl }: AskBarProps) {
       {/* Source repos — shown as soon as we have them (before generation completes) */}
       {sources.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+          <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">
             Sources · {sources.length} repos
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -389,17 +389,17 @@ export function AskBar({ apiUrl }: AskBarProps) {
                     <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
                       {upstream}
                     </span>
-                    <span className="shrink-0 text-xs text-zinc-600">
+                    <span className="shrink-0 text-xs text-zinc-400">
                       {score}% match
                     </span>
                   </div>
                   {repo.description && (
-                    <p className="mt-1 text-xs text-zinc-500 line-clamp-2">
+                    <p className="mt-1 text-xs text-zinc-400 line-clamp-2">
                       {repo.description}
                     </p>
                   )}
                   {repo.stars != null && (
-                    <p className="mt-1 text-xs text-zinc-600">
+                    <p className="mt-1 text-xs text-zinc-400">
                       ★ {repo.stars.toLocaleString()}
                     </p>
                   )}

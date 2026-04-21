@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { createDataProvider } from '@/lib/dataProvider';
 
 // ---------------------------------------------------------------------------
 // Types matching /intelligence/ask response schema
@@ -59,10 +60,12 @@ function getOrCreateSessionId(): string {
 }
 
 interface AskPanelProps {
-  apiUrl: string;
+  /** @deprecated apiUrl is no longer required; the provider resolves it internally */
+  apiUrl?: string;
 }
 
-function AskPanelInner({ apiUrl }: AskPanelProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function AskPanelInner(_props: AskPanelProps) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
 
@@ -102,35 +105,36 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
     setResult(null);
 
     try {
-      const res = await fetch(`${apiUrl}/intelligence/ask`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
-        },
-        body: JSON.stringify({
-          question: queryText,
+      const provider = createDataProvider();
+      const providerWithAsk = provider as typeof provider & {
+        askQuestion?: (
+          question: string,
+          options?: { top_k?: number; session_id?: string; app_token?: string }
+        ) => Promise<QueryResponse>
+      };
+      if (typeof providerWithAsk.askQuestion === 'function') {
+        const data = await providerWithAsk.askQuestion(queryText, {
           top_k: 8,
-          // KAN-158: thread session id so the backend can link this turn
-          // to prior turns for conversational memory.
           ...(sessionId ? { session_id: sessionId } : {}),
-        }),
-      });
-
-      if (res.status === 429) {
+          ...(APP_TOKEN ? { app_token: APP_TOKEN } : {}),
+        });
+        setResult(data);
+      } else {
+        // Lite mode — no API available
+        setError('Ask feature requires API connection. No API URL is configured.');
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : '';
+      if (message.includes('rate limit')) {
         setError('Rate limit exceeded. Please wait before querying again.');
-        return;
+      } else if (message.startsWith('server:')) {
+        // Server returned a detail message (e.g. validation errors)
+        setError(message.slice('server:'.length));
+      } else if (message.startsWith('API error:')) {
+        setError('Server error. Please try again.');
+      } else {
+        setError('Network error. Please check your connection and try again.');
       }
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError((body as { detail?: string })?.detail ?? `Server error (${res.status}). Please try again.`);
-        return;
-      }
-
-      const data: QueryResponse = await res.json();
-      setResult(data);
-    } catch {
-      setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -250,10 +254,10 @@ function AskPanelInner({ apiUrl }: AskPanelProps) {
 // Public export — wraps inner panel in Suspense so useSearchParams() works
 // in static export builds without breaking SSG
 // ---------------------------------------------------------------------------
-export function AskPanel({ apiUrl }: AskPanelProps) {
+export function AskPanel(props: AskPanelProps) {
   return (
     <Suspense fallback={null}>
-      <AskPanelInner apiUrl={apiUrl} />
+      <AskPanelInner {...props} />
     </Suspense>
   );
 }

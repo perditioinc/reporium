@@ -9,8 +9,16 @@ jest.mock('next/link', () => {
 });
 
 describe('TaxonomyPage', () => {
+  const originalEnv = process.env;
+
   beforeEach(() => {
     jest.restoreAllMocks();
+    // TaxonomyPage now routes through createDataProvider() which needs an API URL
+    process.env = { ...originalEnv, NEXT_PUBLIC_REPORIUM_API_URL: 'https://api.example.com' };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   test('renders 8 dimension cards', async () => {

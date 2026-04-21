@@ -102,7 +102,7 @@ export function WikiSidebar() {
       >
         <div className="p-4 border-b border-zinc-800 flex items-center gap-2">
           <span className="text-zinc-100 font-bold text-sm">📚 Reporium Wiki</span>
-          <button onClick={toggle} className="ml-auto text-zinc-500 hover:text-zinc-300">✕</button>
+          <button onClick={toggle} className="ml-auto text-zinc-500 hover:text-zinc-300" aria-label="Close Wiki sidebar">✕</button>
         </div>
 
         <nav className="p-2">
