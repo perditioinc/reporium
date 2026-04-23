@@ -60,8 +60,10 @@ describe('AskPanel', () => {
     fireEvent.click(screen.getByText('Submit'));
 
     expect(await screen.findByText('Use the RAG stack.')).toBeTruthy();
-    // Component renders "owner/name" as the upstream label
-    expect(screen.getByText('perditioinc/repo-a')).toBeTruthy();
+    // perditioinc-owned forks render as just the repo name (no mirror prefix),
+    // tagged with a "fork" badge — see formatRepoDisplay()
+    expect(screen.getByText('repo-a')).toBeTruthy();
+    expect(screen.getByText('fork')).toBeTruthy();
     expect(screen.getByText('91%')).toBeTruthy();
     expect(global.fetch).toHaveBeenCalledWith(
       'https://api.example.com/intelligence/ask',

@@ -96,6 +96,45 @@ interface ErrorEvent { type: 'error'; message: string }
 type StreamEvent = SourcesEvent | TokenEvent | DoneEvent | ErrorEvent;
 
 // ---------------------------------------------------------------------------
+// Repo card display — never surface "perditioinc/<name>" for forks. The
+// perditioinc account is a mirror, not the project home; the parent owner
+// (forked_from) is what users want to see and click through to.
+// ---------------------------------------------------------------------------
+const MIRROR_OWNER = 'perditioinc';
+
+function formatRepoDisplay(repo: { name: string; owner: string; forked_from: string | null }): {
+  label: string;
+  href: string;
+  isFork: boolean;
+} {
+  const isMirror = repo.owner.toLowerCase() === MIRROR_OWNER;
+  // Parent known: link to and label as upstream.
+  if (repo.forked_from) {
+    return {
+      label: repo.forked_from,
+      href: `https://github.com/${repo.forked_from}`,
+      isFork: true,
+    };
+  }
+  // Orphan mirror (forked_from missing) — drop the misleading owner prefix
+  // and tag visually as a fork. Backend hydration will fill forked_from
+  // for new ingests; this prevents stale rows from showing the mirror name.
+  if (isMirror) {
+    return {
+      label: repo.name,
+      href: `https://github.com/${repo.owner}/${repo.name}`,
+      isFork: true,
+    };
+  }
+  // Genuine third-party owner (already correct).
+  return {
+    label: `${repo.owner}/${repo.name}`,
+    href: `https://github.com/${repo.owner}/${repo.name}`,
+    isFork: false,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Client-side rate limit guard
 // ---------------------------------------------------------------------------
 const RATE_KEY = 'reporium_ask_timestamps';
@@ -539,6 +578,9 @@ export function StickyAskBar() {
   const [error, setError] = useState<string | null>(null);
   const [cacheHit, setCacheHit] = useState(false);
   const [routeLabel, setRouteLabel] = useState<string | null>(null);
+  // Question that produced the currently-shown answer; rendered above the
+  // answer so the user can see what they asked once the input clears.
+  const [askedQuestion, setAskedQuestion] = useState<string | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -701,10 +743,19 @@ export function StickyAskBar() {
     setCacheHit(false);
     setRouteLabel(null);
     setQuestion('');
+    setAskedQuestion(null);
     setPhase('idle');
     setBarState('collapsed');
     setLoading(false);
     if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+    inputRef.current?.focus();
+  }, []);
+
+  // Clear the input text only — does NOT end the conversation. Used by the
+  // small × inside the input field; preserves session_id and prior answer.
+  const handleClearInput = useCallback(() => {
+    setQuestion('');
+    setError(null);
     inputRef.current?.focus();
   }, []);
 
@@ -733,8 +784,11 @@ export function StickyAskBar() {
   }
 
   async function handleAsk(override?: string) {
-    const q = (override ?? question).trim();
-    if (override !== undefined) setQuestion(override);
+    // First-time use: if user clicks Ask without typing, fall back to the
+    // currently-cycling suggestion so the click does something instead of
+    // showing a "3 characters" error.
+    const rawCandidate = override ?? question;
+    const q = (rawCandidate.trim() || currentPlaceholder.trim()).trim();
     if (!q || q.length < 3) { setError('Please enter at least 3 characters.'); return; }
     if (q.length > 500) { setError('Question must be 500 characters or fewer.'); return; }
     if (INJECTION_RE.test(q)) { setError('That question contains disallowed content. Please rephrase.'); return; }
@@ -754,6 +808,10 @@ export function StickyAskBar() {
     setDone(false);
     setCacheHit(false);
     setRouteLabel(null);
+    // Move the question text out of the input and into the conversation
+    // header so the input is ready for a follow-up question immediately.
+    setAskedQuestion(q);
+    setQuestion('');
     setPhase('expanding');
     setBarState('expanded');
     recordRequest();
@@ -1123,19 +1181,39 @@ export function StickyAskBar() {
             maxLength={500}
             disabled={atMinuteLimit || atDayLimit}
             aria-label="Ask a question about the repo library"
-            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-base sm:text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
+            className={`w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 pl-3 ${question ? 'pr-8' : 'pr-3'} text-base sm:text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors`}
           />
 
-          {/* Cycling suggestion overlay — paused during loading */}
+          {/* In-input clear-text button — clears input only, preserves the
+              active conversation/session. Distinct from the conversation
+              reset × in the bar header (which is destructive). */}
+          {question && !isLoading && (
+            <button
+              type="button"
+              onClick={handleClearInput}
+              aria-label="Clear text"
+              title="Clear text"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-700/60 transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="4" y1="4" x2="12" y2="12" /><line x1="12" y1="4" x2="4" y2="12" />
+              </svg>
+            </button>
+          )}
+
+          {/* Cycling suggestion overlay — paused during loading.
+              Click sends the suggestion immediately (was: only prefilled
+              the input, leaving the user with a "3 characters" error if
+              they then hit Ask without typing). */}
           {showSuggestionOverlay && !question && !isFocused && !isLoading && !hasAnswer && (
             <button
               type="button"
               onClick={() => {
-                setQuestion(currentPlaceholder);
                 setShowSuggestionOverlay(false);
-                inputRef.current?.focus();
+                void handleAsk(currentPlaceholder);
               }}
               className="absolute inset-0 flex items-center px-3 text-sm text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer truncate text-left"
+              aria-label={`Ask: ${currentPlaceholder}`}
             >
               {currentPlaceholder}
             </button>
@@ -1213,8 +1291,10 @@ export function StickyAskBar() {
           </button>
         )}
 
-        {/* Clear / close button — when there is content */}
-        {(hasAnswer || error || question) && (
+        {/* Reset-conversation button — only when there's an answer or error
+            in flight. Typing-only clears go through the in-input × button
+            (handleClearInput) which preserves the session. */}
+        {(hasAnswer || error || askedQuestion) && (
           <button
             type="button"
             onClick={handleNewConversation}
@@ -1283,6 +1363,16 @@ export function StickyAskBar() {
             </div>
           )}
 
+          {/* The question that produced the current answer — shown above the
+              answer so the user can see what they asked once the input has
+              self-cleared for a follow-up. */}
+          {askedQuestion && (
+            <div className="pt-1">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-1">You asked</p>
+              <p className="text-sm text-zinc-300 italic">&ldquo;{askedQuestion}&rdquo;</p>
+            </div>
+          )}
+
           {/* Rate limit warning */}
           {(nearMinuteLimit || nearDayLimit) && !atMinuteLimit && !atDayLimit && (
             <p className="text-xs text-amber-500/80">
@@ -1313,63 +1403,8 @@ export function StickyAskBar() {
             </div>
           )}
 
-          {/* ── Source section — skeletons while loading, real cards when ready ── */}
-          {(showSkeleton || sources.length > 0) && (
-            <div className="space-y-1.5">
-              <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                {sources.length > 0
-                  ? `Sources · ${sources.length} repos`
-                  : 'Sources · searching…'}
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {/* Skeleton cards — shown while no sources yet */}
-                {showSkeleton && sources.length === 0 && (
-                  Array.from({ length: SKELETON_SOURCE_COUNT }).map((_, i) => (
-                    <SourceCardSkeleton key={`skeleton-${i}`} />
-                  ))
-                )}
-                {/* Real source cards — staggered reveal as they arrive */}
-                {sources.slice(0, revealedSourceCount).map((repo, idx) => {
-                  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
-                  const ghUrl = `https://github.com/${upstream}`;
-                  const score = Math.round(repo.relevance_score * 100);
-                  return (
-                    <motion.a
-                      key={`${repo.owner}/${repo.name}`}
-                      href={ghUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      initial={prefersReducedMotion ? SOURCE_CARD_ANIMATE : SOURCE_CARD_INITIAL}
-                      animate={SOURCE_CARD_ANIMATE}
-                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, delay: idx * 0.05 }}
-                      className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
-                          {upstream}
-                        </span>
-                        <span className="shrink-0 text-xs text-zinc-600">{score}%</span>
-                      </div>
-                      {repo.description && (
-                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2">{repo.description}</p>
-                      )}
-                      {repo.stars != null && (
-                        <p className="mt-1 text-xs text-zinc-600">★ {repo.stars.toLocaleString()}</p>
-                      )}
-                    </motion.a>
-                  );
-                })}
-                {/* While real sources arriving, keep remaining skeleton slots */}
-                {sources.length > 0 && revealedSourceCount < sources.length && (
-                  Array.from({ length: sources.length - revealedSourceCount }).map((_, i) => (
-                    <SourceCardSkeleton key={`filling-${i}`} />
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ── Answer section — skeleton until first token, then streaming ── */}
+          {/* ── Answer section — shown FIRST so the synthesized response leads,
+                 with source repos as supporting evidence below. ── */}
           {(showSkeleton || hasAnswer) && (
             <div className="space-y-2">
               {showSkeleton && !hasAnswer ? (
@@ -1417,6 +1452,67 @@ export function StickyAskBar() {
                   {tokensUsed.total > 0 ? `${tokensUsed.total} tokens` : ''}
                 </p>
               )}
+            </div>
+          )}
+
+          {/* ── Source section — supporting evidence, rendered BELOW the
+                 synthesized answer so the response leads. ── */}
+          {(showSkeleton || sources.length > 0) && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                {sources.length > 0
+                  ? `Sources · ${sources.length} repos`
+                  : 'Sources · searching…'}
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {/* Skeleton cards — shown while no sources yet */}
+                {showSkeleton && sources.length === 0 && (
+                  Array.from({ length: SKELETON_SOURCE_COUNT }).map((_, i) => (
+                    <SourceCardSkeleton key={`skeleton-${i}`} />
+                  ))
+                )}
+                {/* Real source cards — staggered reveal as they arrive */}
+                {sources.slice(0, revealedSourceCount).map((repo, idx) => {
+                  const display = formatRepoDisplay(repo);
+                  const score = Math.round(repo.relevance_score * 100);
+                  return (
+                    <motion.a
+                      key={`${repo.owner}/${repo.name}`}
+                      href={display.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={prefersReducedMotion ? SOURCE_CARD_ANIMATE : SOURCE_CARD_INITIAL}
+                      animate={SOURCE_CARD_ANIMATE}
+                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, delay: idx * 0.05 }}
+                      className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
+                          {display.label}
+                          {display.isFork && (
+                            <span className="ml-1.5 rounded bg-zinc-800 px-1 py-0.5 text-[9px] uppercase tracking-wider text-zinc-500">
+                              fork
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 text-xs text-zinc-600">{score}%</span>
+                      </div>
+                      {repo.description && (
+                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2">{repo.description}</p>
+                      )}
+                      {repo.stars != null && (
+                        <p className="mt-1 text-xs text-zinc-600">★ {repo.stars.toLocaleString()}</p>
+                      )}
+                    </motion.a>
+                  );
+                })}
+                {/* While real sources arriving, keep remaining skeleton slots */}
+                {sources.length > 0 && revealedSourceCount < sources.length && (
+                  Array.from({ length: sources.length - revealedSourceCount }).map((_, i) => (
+                    <SourceCardSkeleton key={`filling-${i}`} />
+                  ))
+                )}
+              </div>
             </div>
           )}
         </div>
