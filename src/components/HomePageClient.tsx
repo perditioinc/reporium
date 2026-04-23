@@ -838,7 +838,10 @@ export function HomePageClient() {
               <p>Live data is unavailable right now — showing your last cached snapshot.</p>
               <button
                 type="button"
-                onClick={() => setApiDegraded(false)}
+                onClick={() => {
+                  provider.clearDegradedState()
+                  setApiDegraded(false)
+                }}
                 className="shrink-0 rounded border border-amber-800/60 px-2 py-1 text-xs text-amber-100 transition-colors hover:bg-amber-900/30"
               >
                 Dismiss
