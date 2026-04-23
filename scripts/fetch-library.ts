@@ -159,6 +159,82 @@ async function main() {
     'totalCommitsFetched',
   ])
 
+  // DEFENSIVE PRIVATE-REPO FILTER — 2026-04-23 incident.
+  //
+  // The reporium-api `/library/full` endpoint strips the `isPrivate` field
+  // from responses but does NOT filter `is_private = true` rows out of the
+  // underlying query. That caused all 44 perditioinc private repos to leak
+  // into library.json (and, by transitivity, onto reporium.com) during the
+  // post-merge Vercel build on 2026-04-23T05:03:48 UTC.
+  //
+  // This client-side blocklist is defense-in-depth. The primary fix is in
+  // the API (WHERE is_private = false) — this list only catches anything
+  // that slips through upstream. Sync it with `gh repo list perditioinc
+  // --visibility=private --json nameWithOwner -L 500 -q '.[].nameWithOwner'`
+  // whenever private repos are added; the validate-library.ts step will
+  // hard-fail CI if a known-private repo shows up in the output, which is
+  // the real guardrail.
+  const PRIVATE_REPO_BLOCKLIST = new Set<string>([
+    'perditioinc/18degrees-ecom',
+    'perditioinc/aa-backend-interview-template-main',
+    'perditioinc/anomra',
+    'perditioinc/anomra-api',
+    'perditioinc/anomra-website',
+    'perditioinc/didymo-ai-agent',
+    'perditioinc/didymo-ai-api',
+    'perditioinc/didymo-ai-auth',
+    'perditioinc/didymo-ai-gcp-tts',
+    'perditioinc/didymo-ai-ingest',
+    'perditioinc/didymo-ai-mini',
+    'perditioinc/didymo-ai-openai-stt',
+    'perditioinc/didymo-ai-openai-tts',
+    'perditioinc/didymo-ai-ptr',
+    'perditioinc/didymo-ai-services-lab',
+    'perditioinc/didymo-ai-studio',
+    'perditioinc/didymo-ai-submissions-website',
+    'perditioinc/didymo-ai-usage',
+    'perditioinc/didymo-ai-vector',
+    'perditioinc/didymo-ai-webgl',
+    'perditioinc/didymo-ai-webgl-v2',
+    'perditioinc/didymo-ai-website',
+    'perditioinc/digital-panda-planner',
+    'perditioinc/event-schedule-generator',
+    'perditioinc/figma-make-perditio-website-claude',
+    'perditioinc/giveaway-generator',
+    'perditioinc/ideas-2026',
+    'perditioinc/mind-guard-app',
+    'perditioinc/perditio-figma-website',
+    'perditioinc/perditio-infra',
+    'perditioinc/perditio-platform-api',
+    'perditioinc/perditio-services',
+    'perditioinc/perditio-style-guide',
+    'perditioinc/perditio-web',
+    'perditioinc/perditio-web-app',
+    'perditioinc/perditio-website',
+    'perditioinc/perditioinc.github.io',
+    'perditioinc/reporium-evals',
+    'perditioinc/simon-brain',
+    'perditioinc/ticket-generator',
+    'perditioinc/ticket-issuer',
+    'perditioinc/v0-edm-demo-submission-website',
+    'perditioinc/whatsapp-template-generator',
+    'perditioinc/whatsapp-webhook',
+  ])
+
+  const beforeFilter = allRepos.length
+  allRepos = allRepos.filter((r: { fullName?: string; isPrivate?: boolean }) => {
+    if (r.isPrivate === true) return false
+    if (r.fullName && PRIVATE_REPO_BLOCKLIST.has(r.fullName)) {
+      console.warn(`[fetch-library] BLOCKED private repo leaking from API: ${r.fullName}`)
+      return false
+    }
+    return true
+  })
+  const removed = beforeFilter - allRepos.length
+  if (removed > 0) {
+    console.warn(`[fetch-library] removed ${removed} private repo(s) that leaked from API /library/full (server-side filter regressed — file reporium-api ticket)`)
+  }
+
   const slimRepos = allRepos.map((repo: Record<string, unknown>) => {
     const slim: Record<string, unknown> = {}
     for (const [key, val] of Object.entries(repo)) {
