@@ -89,9 +89,17 @@ interface TokensUsed {
   total: number;
 }
 
-interface SourcesEvent { type: 'sources'; sources: SourceRepo[]; cache_hit: boolean }
+interface SourcesEvent { type: 'sources'; sources: SourceRepo[]; cache_hit: boolean; route?: string }
 interface TokenEvent { type: 'token'; text: string }
-interface DoneEvent { type: 'done'; tokens: TokensUsed; cache_hit?: boolean }
+interface DoneEvent {
+  type: 'done';
+  tokens: TokensUsed;
+  model?: string;
+  latency_ms?: number;
+  route?: string;
+  cache_hit?: boolean;
+  cache_source?: string;
+}
 interface ErrorEvent { type: 'error'; message: string }
 type StreamEvent = SourcesEvent | TokenEvent | DoneEvent | ErrorEvent;
 
@@ -246,6 +254,77 @@ const AnswerSkeleton = memo(function AnswerSkeleton() {
       <ShimmerLine w="w-5/6" h="h-3" />
       <ShimmerLine w="w-4/5" h="h-3" />
       <ShimmerLine w="w-2/3" h="h-3" />
+    </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
+// ResponseFooter — renders the trio (model · latency · tokens) under the
+// answer, with cache/route badges when applicable. Helps the user judge
+// cost, speed, and the path the system took to answer.
+// ---------------------------------------------------------------------------
+function shortModelName(model: string | null | undefined): string | null {
+  if (!model) return null;
+  // Trim provider date suffixes like "claude-haiku-4-5-20251001" → "haiku-4.5"
+  const m = model.toLowerCase();
+  if (m.includes('haiku')) return 'Haiku 4.5';
+  if (m.includes('sonnet')) return 'Sonnet 4';
+  if (m.includes('opus')) return 'Opus 4';
+  // Smart-router pseudo-models: "off-topic", "early-exit", route labels.
+  // Surface them so the user knows the LLM was bypassed.
+  return model;
+}
+
+function formatLatency(ms: number | null | undefined): string | null {
+  if (ms == null) return null;
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
+const ResponseFooter = memo(function ResponseFooter({
+  model,
+  latencyMs,
+  tokens,
+  sourcesCount,
+  cacheHit,
+  routeLabel,
+}: {
+  model: string | null;
+  latencyMs: number | null;
+  tokens: { input: number; output: number; total: number };
+  sourcesCount: number;
+  cacheHit: boolean;
+  routeLabel: string | null;
+}) {
+  const modelLabel = shortModelName(model);
+  const latencyLabel = formatLatency(latencyMs);
+  const parts: string[] = [];
+  if (modelLabel) parts.push(modelLabel);
+  if (latencyLabel) parts.push(latencyLabel);
+  if (tokens.total > 0) parts.push(`${tokens.total.toLocaleString()} tokens`);
+  if (sourcesCount > 0) parts.push(`${sourcesCount} repos`);
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 font-mono">
+      {(cacheHit || routeLabel) && (
+        <span
+          className="rounded bg-emerald-950/40 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300/90"
+          title={routeLabel ? `Smart router: ${routeLabel}` : 'Cached response'}
+        >
+          ⚡ {routeLabel ?? 'cached'}
+        </span>
+      )}
+      {parts.map((p, i) => (
+        <span key={p}>
+          {p}
+          {i < parts.length - 1 && <span className="ml-2 text-zinc-700">·</span>}
+        </span>
+      ))}
+      {tokens.total > 0 && (tokens.input > 0 || tokens.output > 0) && (
+        <span className="text-zinc-600" title={`Input ${tokens.input} · Output ${tokens.output}`}>
+          ({tokens.input}↑ {tokens.output}↓)
+        </span>
+      )}
     </div>
   );
 });
@@ -574,6 +653,8 @@ export function StickyAskBar() {
   const [sources, setSources] = useState<SourceRepo[]>([]);
   const [revealedSourceCount, setRevealedSourceCount] = useState(0);
   const [tokensUsed, setTokensUsed] = useState<TokensUsed | null>(null);
+  const [model, setModel] = useState<string | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cacheHit, setCacheHit] = useState(false);
@@ -738,6 +819,8 @@ export function StickyAskBar() {
     setSources([]);
     setRevealedSourceCount(0);
     setTokensUsed(null);
+    setModel(null);
+    setLatencyMs(null);
     setDone(false);
     setError(null);
     setCacheHit(false);
@@ -805,6 +888,8 @@ export function StickyAskBar() {
     setSources([]);
     setRevealedSourceCount(0);
     setTokensUsed(null);
+    setModel(null);
+    setLatencyMs(null);
     setDone(false);
     setCacheHit(false);
     setRouteLabel(null);
@@ -904,13 +989,17 @@ export function StickyAskBar() {
           if (event.type === 'sources') {
             setSources(event.sources);
             setPhase('sources');
-            if ('cache_hit' in event && event.cache_hit) setCacheHit(true);
-            if ('route' in event) setRouteLabel((event as Record<string, unknown>).route as string);
+            if (event.cache_hit) setCacheHit(true);
+            if (event.route) setRouteLabel(event.route);
           } else if (event.type === 'token') {
             setStreamingAnswer((prev) => prev + event.text);
             setPhase((p) => (p !== 'streaming' && p !== 'done') ? 'streaming' : p);
           } else if (event.type === 'done') {
             setTokensUsed(event.tokens);
+            if (event.model) setModel(event.model);
+            if (typeof event.latency_ms === 'number') setLatencyMs(event.latency_ms);
+            if (event.cache_hit) setCacheHit(true);
+            if (event.route) setRouteLabel(event.route);
             setDone(true);
             setPhase('done');
             setTurnCount((n) => n + 1);
@@ -1443,14 +1532,14 @@ export function StickyAskBar() {
                 </div>
               )}
               {done && tokensUsed && (
-                <p className="text-xs text-zinc-600 flex items-center gap-1.5">
-                  {(cacheHit || routeLabel) && (
-                    <span className="text-emerald-500/80">⚡ Instant</span>
-                  )}
-                  {sources.length > 0 ? `${sources.length} repos searched` : ''}
-                  {sources.length > 0 && tokensUsed.total > 0 ? ' · ' : ''}
-                  {tokensUsed.total > 0 ? `${tokensUsed.total} tokens` : ''}
-                </p>
+                <ResponseFooter
+                  model={model}
+                  latencyMs={latencyMs}
+                  tokens={tokensUsed}
+                  sourcesCount={sources.length}
+                  cacheHit={cacheHit}
+                  routeLabel={routeLabel}
+                />
               )}
             </div>
           )}
