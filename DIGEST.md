@@ -25,7 +25,7 @@ tensorflow, vscode, transformers are most active.
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (66837 commits across 1404 repos)
+- **🤖 AI Agents** most active category (46 commits across 668 repos)
 - **Self-hosted** fastest growing (+1069100% commit velocity)
 
 ---
