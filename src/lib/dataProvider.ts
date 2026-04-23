@@ -23,6 +23,7 @@ export interface DataProvider {
   getOwnedLibrary(): Promise<LibraryData | null>
   getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData>
   getDegradedState(): boolean
+  clearDegradedState(): void
   getTrends(): Promise<TrendData | null>
   getGaps(): Promise<GapAnalysis | null>
   getRepo(name: string): Promise<EnrichedRepo | null>
@@ -45,6 +46,10 @@ class JsonDataProvider implements DataProvider {
 
   getDegradedState(): boolean {
     return false
+  }
+
+  clearDegradedState(): void {
+    // no-op: JsonDataProvider is never degraded relative to itself
   }
 
   private estimateActivityScore(repo: EnrichedRepo): number {
@@ -330,6 +335,14 @@ class ApiDataProvider implements DataProvider {
 
   getDegradedState(): boolean {
     return this.degraded
+  }
+
+  clearDegradedState(): void {
+    // Reset the degraded flag so the "Live data is unavailable" banner does not
+    // re-appear after the user dismisses it and then navigates within the SPA.
+    // Without this, `this.degraded` latches true until _fetchLibrary() runs
+    // again — which is skipped whenever libraryCache is populated.
+    this.degraded = false
   }
 
   async getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
