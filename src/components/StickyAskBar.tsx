@@ -99,6 +99,8 @@ interface DoneEvent {
   route?: string;
   cache_hit?: boolean;
   cache_source?: string;
+  // PR3: handle for posting thumbs feedback to /intelligence/feedback.
+  query_id?: string;
 }
 interface ErrorEvent { type: 'error'; message: string }
 type StreamEvent = SourcesEvent | TokenEvent | DoneEvent | ErrorEvent;
@@ -325,6 +327,54 @@ const ResponseFooter = memo(function ResponseFooter({
           ({tokens.input}↑ {tokens.output}↓)
         </span>
       )}
+    </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
+// FeedbackThumbs — 👍 / 👎 toggle. Renders only when the API returned a
+// query_id (so old backend deployments simply don't show the row). Clicking
+// the active thumb deselects it.
+// ---------------------------------------------------------------------------
+const FeedbackThumbs = memo(function FeedbackThumbs({
+  value,
+  onChange,
+}: {
+  value: 'positive' | 'negative' | null;
+  onChange: (next: 'positive' | 'negative') => void;
+}) {
+  return (
+    <div className="flex items-center gap-1" role="group" aria-label="Was this answer helpful?">
+      <button
+        type="button"
+        onClick={() => onChange('positive')}
+        aria-pressed={value === 'positive'}
+        aria-label={value === 'positive' ? 'Remove helpful rating' : 'Mark as helpful'}
+        title={value === 'positive' ? 'Click again to remove' : 'Helpful'}
+        className={
+          'rounded px-1.5 py-0.5 text-xs transition-colors ' +
+          (value === 'positive'
+            ? 'bg-emerald-900/40 text-emerald-300'
+            : 'text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300')
+        }
+      >
+        👍
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('negative')}
+        aria-pressed={value === 'negative'}
+        aria-label={value === 'negative' ? 'Remove unhelpful rating' : 'Mark as unhelpful'}
+        title={value === 'negative' ? 'Click again to remove' : 'Not helpful'}
+        className={
+          'rounded px-1.5 py-0.5 text-xs transition-colors ' +
+          (value === 'negative'
+            ? 'bg-rose-900/40 text-rose-300'
+            : 'text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300')
+        }
+      >
+        👎
+      </button>
     </div>
   );
 });
@@ -662,6 +712,12 @@ export function StickyAskBar() {
   // Question that produced the currently-shown answer; rendered above the
   // answer so the user can see what they asked once the input clears.
   const [askedQuestion, setAskedQuestion] = useState<string | null>(null);
+  // PR3: handle for posting thumbs feedback. Null until the streamed `done`
+  // event arrives. Old API deployments may not emit it — UI degrades by
+  // hiding the thumbs row entirely.
+  const [queryId, setQueryId] = useState<string | null>(null);
+  // Current selection: null = no choice, or "positive" / "negative".
+  const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -827,6 +883,8 @@ export function StickyAskBar() {
     setRouteLabel(null);
     setQuestion('');
     setAskedQuestion(null);
+    setQueryId(null);
+    setFeedback(null);
     setPhase('idle');
     setBarState('collapsed');
     setLoading(false);
@@ -841,6 +899,25 @@ export function StickyAskBar() {
     setError(null);
     inputRef.current?.focus();
   }, []);
+
+  // PR3: thumbs up/down toggle. Optimistic local update + best-effort POST.
+  // Clicking the active thumb deselects (sentiment: null). The endpoint is
+  // intentionally fire-and-forget — a dropped feedback click is annoying
+  // but not blocking, and we don't want a network failure to undo the
+  // user's visible selection.
+  const handleFeedback = useCallback((next: 'positive' | 'negative') => {
+    if (!queryId) return;
+    const newValue = feedback === next ? null : next;
+    setFeedback(newValue);
+    fetch(`${API_URL}/intelligence/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query_id: queryId, sentiment: newValue }),
+      // Use keepalive so the request survives page navigation if the user
+      // immediately clicks away after voting.
+      keepalive: true,
+    }).catch(() => { /* swallowed on purpose — see comment above */ });
+  }, [queryId, feedback]);
 
   const { minuteCount, dayCount } = getRateLimitState();
   const atMinuteLimit = minuteCount >= RATE_PER_MIN;
@@ -893,6 +970,8 @@ export function StickyAskBar() {
     setDone(false);
     setCacheHit(false);
     setRouteLabel(null);
+    setQueryId(null);
+    setFeedback(null);
     // Move the question text out of the input and into the conversation
     // header so the input is ready for a follow-up question immediately.
     setAskedQuestion(q);
@@ -1000,6 +1079,7 @@ export function StickyAskBar() {
             if (typeof event.latency_ms === 'number') setLatencyMs(event.latency_ms);
             if (event.cache_hit) setCacheHit(true);
             if (event.route) setRouteLabel(event.route);
+            if (event.query_id) setQueryId(event.query_id);
             setDone(true);
             setPhase('done');
             setTurnCount((n) => n + 1);
@@ -1532,14 +1612,17 @@ export function StickyAskBar() {
                 </div>
               )}
               {done && tokensUsed && (
-                <ResponseFooter
-                  model={model}
-                  latencyMs={latencyMs}
-                  tokens={tokensUsed}
-                  sourcesCount={sources.length}
-                  cacheHit={cacheHit}
-                  routeLabel={routeLabel}
-                />
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                  <ResponseFooter
+                    model={model}
+                    latencyMs={latencyMs}
+                    tokens={tokensUsed}
+                    sourcesCount={sources.length}
+                    cacheHit={cacheHit}
+                    routeLabel={routeLabel}
+                  />
+                  {queryId && <FeedbackThumbs value={feedback} onChange={handleFeedback} />}
+                </div>
               )}
             </div>
           )}
