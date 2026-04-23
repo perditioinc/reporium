@@ -6,28 +6,27 @@
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Multi-step Reasoning** (+27700% vs last week)
-gh-aw are most active.
+**Self-hosted** (+1069100% vs last week)
+openclaw, tensorflow, vscode are most active.
 
-**Tool Use and Function Calling** (+27700% vs last week)
-gh-aw are most active.
+**Text** (+966500% vs last week)
+free-programming-books, openclaw, tensorflow are most active.
 
-**Agentic Workflow Design** (+27700% vs last week)
-gh-aw are most active.
+**On-premise** (+659700% vs last week)
+tensorflow, vscode, transformers are most active.
 
 ---
 
 ## Library Health
-- **1855 repos** · **28 categories** · **13075 unique tags**
-- **890 forks** up to date · **947 forks** behind upstream
+- **1855 repos** · **30 categories** · **13117 unique tags**
+- **888 forks** up to date · **949 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (66798 commits across 1405 repos)
-- **Multi-step Reasoning** fastest growing (+27700% commit velocity)
-- **Machine Learning Library Selection** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (66837 commits across 1404 repos)
+- **Self-hosted** fastest growing (+1069100% commit velocity)
 
 ---
 
