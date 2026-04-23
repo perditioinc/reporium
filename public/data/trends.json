@@ -1,62 +1,298 @@
 {
-  "generatedAt": "2026-04-21T07:22:09.064Z",
+  "generatedAt": "2026-04-23T07:22:10.688Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-20 07:50:08 +0000",
-    "snapshots": 33
+    "to": "2026-04-22 22:49:48 -0700",
+    "snapshots": 35
   },
-  "trending": [],
+  "trending": [
+    {
+      "name": "Multi-step Reasoning",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 10,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Tool Use and Function Calling",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 11,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Agentic Workflow Design",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 3,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Command Line Interface Development",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 4,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Developer Tool Automation",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 1,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "GitHub API Integration",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 4,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "GitHub Workflow Automation",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 1,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Repository Management Automation",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 0,
+      "changePercent": 24700,
+      "repoCount": 1,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Natural Language Processing for Code",
+      "type": "tag",
+      "currentActivity": 247,
+      "previousActivity": 2,
+      "changePercent": 12250,
+      "repoCount": 6,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Productivity Software",
+      "type": "tag",
+      "currentActivity": 103,
+      "previousActivity": 0,
+      "changePercent": 10300,
+      "repoCount": 10,
+      "representativeRepos": [
+        "lobehub"
+      ]
+    }
+  ],
   "emerging": [],
   "cooling": [
     {
-      "name": "Web Browser",
+      "name": "Machine Learning Library Selection",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 62,
+      "previousActivity": 14,
       "changePercent": -100,
-      "repoCount": 3,
+      "repoCount": 1,
       "representativeRepos": []
     },
     {
-      "name": "Text",
+      "name": "Deep Learning Framework Evaluation",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 10581,
+      "previousActivity": 14,
       "changePercent": -100,
-      "repoCount": 973,
+      "repoCount": 1,
       "representativeRepos": []
     },
     {
-      "name": "datasets",
+      "name": "Natural Language Processing Tools",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 43,
+      "previousActivity": 14,
       "changePercent": -100,
       "repoCount": 2,
       "representativeRepos": []
     },
     {
-      "name": "education",
+      "name": "Computer Vision Libraries",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 46,
+      "previousActivity": 14,
       "changePercent": -100,
-      "repoCount": 3,
+      "repoCount": 2,
       "representativeRepos": []
     },
     {
-      "name": "learning-platform",
+      "name": "Data Science Stack Curation",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 43,
+      "previousActivity": 14,
       "changePercent": -100,
       "repoCount": 1,
       "representativeRepos": []
     }
   ],
-  "stable": [],
+  "stable": [
+    {
+      "name": "Python",
+      "type": "tag",
+      "currentActivity": 3317,
+      "previousActivity": 3377,
+      "changePercent": -2,
+      "repoCount": 641,
+      "representativeRepos": [
+        "free-programming-books",
+        "transformers",
+        "langflow"
+      ]
+    },
+    {
+      "name": "Education",
+      "type": "tag",
+      "currentActivity": 974,
+      "previousActivity": 1097,
+      "changePercent": -11,
+      "repoCount": 289,
+      "representativeRepos": [
+        "free-programming-books",
+        "langflow",
+        "dify"
+      ]
+    },
+    {
+      "name": "Developer Productivity Tools",
+      "type": "tag",
+      "currentActivity": 327,
+      "previousActivity": 362,
+      "changePercent": -10,
+      "repoCount": 17,
+      "representativeRepos": [
+        "opencode",
+        "zed"
+      ]
+    },
+    {
+      "name": "Data Science",
+      "type": "tag",
+      "currentActivity": 68,
+      "previousActivity": 77,
+      "changePercent": -12,
+      "repoCount": 9,
+      "representativeRepos": [
+        "prefect",
+        "notebook"
+      ]
+    },
+    {
+      "name": "Tabular",
+      "type": "tag",
+      "currentActivity": 3174,
+      "previousActivity": 3859,
+      "changePercent": -18,
+      "repoCount": 225,
+      "representativeRepos": [
+        "tensorflow",
+        "supabase",
+        "pytorch"
+      ]
+    },
+    {
+      "name": "Code",
+      "type": "tag",
+      "currentActivity": 2852,
+      "previousActivity": 3501,
+      "changePercent": -19,
+      "repoCount": 229,
+      "representativeRepos": [
+        "vscode",
+        "langflow",
+        "opencode"
+      ]
+    },
+    {
+      "name": "Cloud API",
+      "type": "tag",
+      "currentActivity": 4804,
+      "previousActivity": 5298,
+      "changePercent": -9,
+      "repoCount": 624,
+      "representativeRepos": [
+        "tensorflow",
+        "transformers",
+        "langflow"
+      ]
+    },
+    {
+      "name": "Deep Neural Networks",
+      "type": "tag",
+      "currentActivity": 177,
+      "previousActivity": 196,
+      "changePercent": -10,
+      "repoCount": 6,
+      "representativeRepos": [
+        "tensorflow",
+        "opencv"
+      ]
+    },
+    {
+      "name": "Convolutional Neural Networks",
+      "type": "tag",
+      "currentActivity": 166,
+      "previousActivity": 192,
+      "changePercent": -14,
+      "repoCount": 69,
+      "representativeRepos": [
+        "tensorflow"
+      ]
+    },
+    {
+      "name": "Recurrent Neural Networks",
+      "type": "tag",
+      "currentActivity": 166,
+      "previousActivity": 192,
+      "changePercent": -14,
+      "repoCount": 20,
+      "representativeRepos": [
+        "tensorflow"
+      ]
+    }
+  ],
   "newReleases": [],
   "insights": [
-    "Activity in Web Browser has slowed by 100% this week."
+    "Multi-step Reasoning is the fastest-growing area this week with +24700% commit velocity.",
+    "Activity in Machine Learning Library Selection has slowed by 100% this week."
   ]
 }
