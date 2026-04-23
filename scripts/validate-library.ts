@@ -43,13 +43,27 @@ if (nullForkedFrom.length > 100) {
   warnings.push(`${nullForkedFrom.length} forked repos have null forkedFrom (run backfill_forked_from.py to fix DB gaps)`);
 }
 
-// 2. Forked repos should have forkedAt date
-// Threshold raised: DB-driven fetch doesn't backfill forkedAt for bulk-imported forks.
+// 2. Forked repos should have forkedAt date.
+// Percentage-based threshold (not absolute) — bulk-imported forks may legitimately
+// lack forkedAt if the GraphQL parentage hydration didn't run. The absolute
+// "raise the number" approach fails as the corpus grows: 200 out of 1000 is 20%
+// (degraded) but 200 out of 1500 is 13% (fine). Use fork-relative percentages:
+//   · 0 %        → silent pass
+//   · 0 < x ≤ 15% → warning (expected DB backfill lag)
+//   · 15 < x ≤ 20% → warning (flag; backfill getting behind)
+//   · x > 20%    → error (pipeline regression — fetch-library.ts skipping forkedAt)
+// Backfill with scripts/backfill_forked_from.py (reporium-ingestion). Raising an
+// absolute cap is a tempting shortcut but hides the real signal: "what % of forks
+// in this dataset are missing forkedAt right now?"
+const totalForks = data.repos.filter(r => r.isFork).length;
 const missingForkedAt = data.repos.filter(r => r.isFork && !r.forkedAt);
-if (missingForkedAt.length > 200) {
-  errors.push(`${missingForkedAt.length} forked repos missing forkedAt date`);
+const missingForkedAtPct = totalForks === 0 ? 0 : missingForkedAt.length / totalForks;
+if (missingForkedAtPct > 0.20) {
+  errors.push(`${missingForkedAt.length}/${totalForks} forked repos missing forkedAt date (${(missingForkedAtPct * 100).toFixed(1)}% — above 20% error threshold; likely pipeline regression)`);
+} else if (missingForkedAtPct > 0.15) {
+  warnings.push(`${missingForkedAt.length}/${totalForks} forked repos missing forkedAt date (${(missingForkedAtPct * 100).toFixed(1)}% — above 15% warn threshold; schedule backfill)`);
 } else if (missingForkedAt.length > 0) {
-  warnings.push(`${missingForkedAt.length} forked repos missing forkedAt date`);
+  warnings.push(`${missingForkedAt.length}/${totalForks} forked repos missing forkedAt date (${(missingForkedAtPct * 100).toFixed(1)}% — within tolerance, run backfill_forked_from.py when convenient)`);
 }
 
 // 3. Enriched-tags coverage check. Enrichment is an async background
