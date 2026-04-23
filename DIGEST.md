@@ -1,17 +1,33 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 21, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 23, 2026
+
+---
+
+## Trending This Week
+These areas in your library are seeing accelerating activity:
+
+**Multi-step Reasoning** (+24700% vs last week)
+gh-aw are most active.
+
+**Tool Use and Function Calling** (+24700% vs last week)
+gh-aw are most active.
+
+**Agentic Workflow Design** (+24700% vs last week)
+gh-aw are most active.
 
 ---
 
 ## Library Health
-- **1825 repos** · **28 categories** · **13075 unique tags**
-- **861 forks** up to date · **947 forks** behind upstream
+- **1855 repos** · **28 categories** · **13075 unique tags**
+- **890 forks** up to date · **947 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **Web Browser** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (66798 commits across 1405 repos)
+- **Multi-step Reasoning** fastest growing (+24700% commit velocity)
+- **Machine Learning Library Selection** cooling (-100% change in activity)
 
 ---
 
