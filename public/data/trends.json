@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-04-23T07:22:10.688Z",
+  "generatedAt": "2026-04-23T07:28:45.646Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-22 22:49:48 -0700",
-    "snapshots": 35
+    "to": "2026-04-23 07:22:13 +0000",
+    "snapshots": 36
   },
   "trending": [
     {
       "name": "Multi-step Reasoning",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 10,
       "representativeRepos": [
         "gh-aw"
@@ -20,9 +20,9 @@
     {
       "name": "Tool Use and Function Calling",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 11,
       "representativeRepos": [
         "gh-aw"
@@ -31,9 +31,9 @@
     {
       "name": "Agentic Workflow Design",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 3,
       "representativeRepos": [
         "gh-aw"
@@ -42,10 +42,21 @@
     {
       "name": "Command Line Interface Development",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 4,
+      "representativeRepos": [
+        "gh-aw"
+      ]
+    },
+    {
+      "name": "Repository Management Automation",
+      "type": "tag",
+      "currentActivity": 277,
+      "previousActivity": 0,
+      "changePercent": 27700,
+      "repoCount": 1,
       "representativeRepos": [
         "gh-aw"
       ]
@@ -53,9 +64,9 @@
     {
       "name": "Developer Tool Automation",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 1,
       "representativeRepos": [
         "gh-aw"
@@ -64,9 +75,9 @@
     {
       "name": "GitHub API Integration",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 4,
       "representativeRepos": [
         "gh-aw"
@@ -75,20 +86,9 @@
     {
       "name": "GitHub Workflow Automation",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 0,
-      "changePercent": 24700,
-      "repoCount": 1,
-      "representativeRepos": [
-        "gh-aw"
-      ]
-    },
-    {
-      "name": "Repository Management Automation",
-      "type": "tag",
-      "currentActivity": 247,
-      "previousActivity": 0,
-      "changePercent": 24700,
+      "changePercent": 27700,
       "repoCount": 1,
       "representativeRepos": [
         "gh-aw"
@@ -97,9 +97,9 @@
     {
       "name": "Natural Language Processing for Code",
       "type": "tag",
-      "currentActivity": 247,
+      "currentActivity": 277,
       "previousActivity": 2,
-      "changePercent": 12250,
+      "changePercent": 13750,
       "repoCount": 6,
       "representativeRepos": [
         "gh-aw"
@@ -108,9 +108,9 @@
     {
       "name": "Productivity Software",
       "type": "tag",
-      "currentActivity": 103,
+      "currentActivity": 106,
       "previousActivity": 0,
-      "changePercent": 10300,
+      "changePercent": 10600,
       "repoCount": 10,
       "representativeRepos": [
         "lobehub"
@@ -167,11 +167,24 @@
   ],
   "stable": [
     {
+      "name": "Text",
+      "type": "tag",
+      "currentActivity": 9665,
+      "previousActivity": 10581,
+      "changePercent": -9,
+      "repoCount": 973,
+      "representativeRepos": [
+        "free-programming-books",
+        "openclaw",
+        "tensorflow"
+      ]
+    },
+    {
       "name": "Python",
       "type": "tag",
-      "currentActivity": 3317,
+      "currentActivity": 3664,
       "previousActivity": 3377,
-      "changePercent": -2,
+      "changePercent": 8,
       "repoCount": 641,
       "representativeRepos": [
         "free-programming-books",
@@ -182,10 +195,10 @@
     {
       "name": "Education",
       "type": "tag",
-      "currentActivity": 974,
+      "currentActivity": 1197,
       "previousActivity": 1097,
-      "changePercent": -11,
-      "repoCount": 289,
+      "changePercent": 9,
+      "repoCount": 290,
       "representativeRepos": [
         "free-programming-books",
         "langflow",
@@ -193,11 +206,37 @@
       ]
     },
     {
+      "name": "Conversational AI",
+      "type": "tag",
+      "currentActivity": 3517,
+      "previousActivity": 4216,
+      "changePercent": -17,
+      "repoCount": 138,
+      "representativeRepos": [
+        "openclaw",
+        "dify",
+        "lobehub"
+      ]
+    },
+    {
+      "name": "Natural Language Processing",
+      "type": "tag",
+      "currentActivity": 4163,
+      "previousActivity": 4664,
+      "changePercent": -11,
+      "repoCount": 221,
+      "representativeRepos": [
+        "openclaw",
+        "tensorflow",
+        "transformers"
+      ]
+    },
+    {
       "name": "Developer Productivity Tools",
       "type": "tag",
-      "currentActivity": 327,
+      "currentActivity": 379,
       "previousActivity": 362,
-      "changePercent": -10,
+      "changePercent": 5,
       "repoCount": 17,
       "representativeRepos": [
         "opencode",
@@ -205,11 +244,24 @@
       ]
     },
     {
+      "name": "Computer Vision",
+      "type": "tag",
+      "currentActivity": 491,
+      "previousActivity": 562,
+      "changePercent": -13,
+      "repoCount": 214,
+      "representativeRepos": [
+        "tensorflow",
+        "transformers",
+        "opencv"
+      ]
+    },
+    {
       "name": "Data Science",
       "type": "tag",
-      "currentActivity": 68,
+      "currentActivity": 72,
       "previousActivity": 77,
-      "changePercent": -12,
+      "changePercent": -6,
       "repoCount": 9,
       "representativeRepos": [
         "prefect",
@@ -219,9 +271,9 @@
     {
       "name": "Tabular",
       "type": "tag",
-      "currentActivity": 3174,
+      "currentActivity": 3507,
       "previousActivity": 3859,
-      "changePercent": -18,
+      "changePercent": -9,
       "repoCount": 225,
       "representativeRepos": [
         "tensorflow",
@@ -232,67 +284,20 @@
     {
       "name": "Code",
       "type": "tag",
-      "currentActivity": 2852,
+      "currentActivity": 3413,
       "previousActivity": 3501,
-      "changePercent": -19,
+      "changePercent": -3,
       "repoCount": 229,
       "representativeRepos": [
         "vscode",
         "langflow",
         "opencode"
       ]
-    },
-    {
-      "name": "Cloud API",
-      "type": "tag",
-      "currentActivity": 4804,
-      "previousActivity": 5298,
-      "changePercent": -9,
-      "repoCount": 624,
-      "representativeRepos": [
-        "tensorflow",
-        "transformers",
-        "langflow"
-      ]
-    },
-    {
-      "name": "Deep Neural Networks",
-      "type": "tag",
-      "currentActivity": 177,
-      "previousActivity": 196,
-      "changePercent": -10,
-      "repoCount": 6,
-      "representativeRepos": [
-        "tensorflow",
-        "opencv"
-      ]
-    },
-    {
-      "name": "Convolutional Neural Networks",
-      "type": "tag",
-      "currentActivity": 166,
-      "previousActivity": 192,
-      "changePercent": -14,
-      "repoCount": 69,
-      "representativeRepos": [
-        "tensorflow"
-      ]
-    },
-    {
-      "name": "Recurrent Neural Networks",
-      "type": "tag",
-      "currentActivity": 166,
-      "previousActivity": 192,
-      "changePercent": -14,
-      "repoCount": 20,
-      "representativeRepos": [
-        "tensorflow"
-      ]
     }
   ],
   "newReleases": [],
   "insights": [
-    "Multi-step Reasoning is the fastest-growing area this week with +24700% commit velocity.",
+    "Multi-step Reasoning is the fastest-growing area this week with +27700% commit velocity.",
     "Activity in Machine Learning Library Selection has slowed by 100% this week."
   ]
 }
