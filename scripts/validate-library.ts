@@ -95,6 +95,92 @@ if (missingFullName.length > 0) {
   errors.push(`${missingFullName.length} repos missing fullName`);
 }
 
+// 7. PRIVATE-REPO LEAK GUARDRAIL — 2026-04-23 incident.
+//
+// The reporium-api `/library/full` endpoint leaked 44 private perditioinc repos
+// into library.json at 2026-04-23T05:03:48 UTC (served publicly for ~10 minutes
+// on reporium.com before takedown). The root cause was a missing
+// `WHERE is_private = false` in the API query; the API also strips the
+// `isPrivate` flag from responses, so the client has no structural signal to
+// filter on.
+//
+// This check is the HARD GUARDRAIL: if any known-private repo name appears in
+// library.json, CI fails — the build does not ship. Update this list whenever
+// private repos are added via:
+//   gh repo list perditioinc --visibility=private -L 500 \
+//     --json nameWithOwner -q '.[].nameWithOwner'
+//
+// A new private repo that isn't on this list would still slip through, which is
+// why there's also a defensive filter in fetch-library.ts AND the primary
+// WHERE-clause fix belongs in reporium-api. Three layers, because one layer
+// already failed once.
+const PRIVATE_REPO_BLOCKLIST = new Set<string>([
+  'perditioinc/18degrees-ecom',
+  'perditioinc/aa-backend-interview-template-main',
+  'perditioinc/anomra',
+  'perditioinc/anomra-api',
+  'perditioinc/anomra-website',
+  'perditioinc/didymo-ai-agent',
+  'perditioinc/didymo-ai-api',
+  'perditioinc/didymo-ai-auth',
+  'perditioinc/didymo-ai-gcp-tts',
+  'perditioinc/didymo-ai-ingest',
+  'perditioinc/didymo-ai-mini',
+  'perditioinc/didymo-ai-openai-stt',
+  'perditioinc/didymo-ai-openai-tts',
+  'perditioinc/didymo-ai-ptr',
+  'perditioinc/didymo-ai-services-lab',
+  'perditioinc/didymo-ai-studio',
+  'perditioinc/didymo-ai-submissions-website',
+  'perditioinc/didymo-ai-usage',
+  'perditioinc/didymo-ai-vector',
+  'perditioinc/didymo-ai-webgl',
+  'perditioinc/didymo-ai-webgl-v2',
+  'perditioinc/didymo-ai-website',
+  'perditioinc/digital-panda-planner',
+  'perditioinc/event-schedule-generator',
+  'perditioinc/figma-make-perditio-website-claude',
+  'perditioinc/giveaway-generator',
+  'perditioinc/ideas-2026',
+  'perditioinc/mind-guard-app',
+  'perditioinc/perditio-figma-website',
+  'perditioinc/perditio-infra',
+  'perditioinc/perditio-platform-api',
+  'perditioinc/perditio-services',
+  'perditioinc/perditio-style-guide',
+  'perditioinc/perditio-web',
+  'perditioinc/perditio-web-app',
+  'perditioinc/perditio-website',
+  'perditioinc/perditioinc.github.io',
+  'perditioinc/reporium-evals',
+  'perditioinc/simon-brain',
+  'perditioinc/ticket-generator',
+  'perditioinc/ticket-issuer',
+  'perditioinc/v0-edm-demo-submission-website',
+  'perditioinc/whatsapp-template-generator',
+  'perditioinc/whatsapp-webhook',
+]);
+
+const leakedPrivate = data.repos.filter(r => PRIVATE_REPO_BLOCKLIST.has(r.fullName));
+if (leakedPrivate.length > 0) {
+  errors.push(
+    `🚨 PRIVATE REPO LEAK: ${leakedPrivate.length} private repo(s) in library.json — ` +
+    `DO NOT SHIP. Names: ${leakedPrivate.map(r => r.fullName).join(', ')}. ` +
+    `Cause is likely a server-side filter regression in reporium-api /library/full.`
+  );
+}
+
+// 7b. Defensive: if an `isPrivate` flag survives into output at all, fail.
+// The API strips this field, so presence-with-truthy means something leaked
+// it back in — either a new API code path or an older cached file merged in.
+const isPrivateTrue = data.repos.filter(r => (r as unknown as { isPrivate?: boolean }).isPrivate === true);
+if (isPrivateTrue.length > 0) {
+  errors.push(
+    `🚨 isPrivate=true present on ${isPrivateTrue.length} repos — ` +
+    `${isPrivateTrue.slice(0, 5).map(r => r.fullName).join(', ')}...`
+  );
+}
+
 // Report
 if (warnings.length > 0) {
   console.warn('⚠️  Warnings:');
