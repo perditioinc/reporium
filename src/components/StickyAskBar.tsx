@@ -419,6 +419,60 @@ const FollowupChips = memo(function FollowupChips({
 });
 
 // ---------------------------------------------------------------------------
+// JellyfishTipsPopover — PR6. Hover/focus the jellyfish to reveal a small
+// popover with 4 tips on getting better answers. Suppressed while the
+// jellyfish is "thinking" so the user isn't distracted mid-stream.
+//
+// Behavior:
+//   - 350ms hover delay before show — avoids flashing when the user is
+//     just moving the cursor across the bar.
+//   - Mouse leave hides immediately. ESC also hides while open.
+//   - Touch users don't get hover; the existing jellyfish click-to-prefill
+//     behavior is preserved. (A tap-to-toggle variant could come later.)
+//   - role="tooltip" so assistive tech announces it. The trigger keeps
+//     its existing aria-label so screen-reader users aren't double-spoken.
+// ---------------------------------------------------------------------------
+const JELLYFISH_TIPS: ReadonlyArray<string> = [
+  'Ask in plain English — no special syntax needed.',
+  'Compare tools: "X vs Y for <use case>".',
+  'Be specific about your stack, scale, or constraints.',
+  'Follow up — Reporium remembers the conversation.',
+];
+
+const JellyfishTipsPopover = memo(function JellyfishTipsPopover({
+  visible,
+}: {
+  visible: boolean;
+}) {
+  if (!visible) return null;
+  return (
+    <div
+      id="jellyfish-tips"
+      role="tooltip"
+      className="absolute left-0 bottom-full mb-2 z-50 w-64 rounded-lg border border-violet-700/50 bg-zinc-900/95 p-3 shadow-lg shadow-violet-950/40 backdrop-blur"
+    >
+      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-violet-300">
+        <span aria-hidden="true">✨</span>
+        Tips for better answers
+      </div>
+      <ul className="space-y-1 text-xs text-zinc-300 leading-snug">
+        {JELLYFISH_TIPS.map((tip) => (
+          <li key={tip} className="flex gap-1.5">
+            <span className="text-violet-400/80 select-none" aria-hidden="true">·</span>
+            <span>{tip}</span>
+          </li>
+        ))}
+      </ul>
+      {/* Pointer triangle — subtle */}
+      <div
+        aria-hidden="true"
+        className="absolute -bottom-1.5 left-3 h-3 w-3 rotate-45 border-b border-r border-violet-700/50 bg-zinc-900/95"
+      />
+    </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
 // JellyfishIcon — bar mascot + thinking state
 //
 // Color story:
@@ -761,6 +815,10 @@ export function StickyAskBar() {
   // Empty array (vs undefined) is also "render nothing" — the chips block
   // is suppressed until a fresh done event arrives.
   const [followups, setFollowups] = useState<string[]>([]);
+  // PR6: jellyfish hover-tips popover. Suppressed during thinking so the
+  // tips don't fight with the streaming animation for attention.
+  const [tipsVisible, setTipsVisible] = useState(false);
+  const tipsHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -885,8 +943,24 @@ export function StickyAskBar() {
       if (sourceRevealTimerRef.current) clearTimeout(sourceRevealTimerRef.current);
       if (retryIntervalRef.current) clearInterval(retryIntervalRef.current);
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      if (tipsHoverTimerRef.current) clearTimeout(tipsHoverTimerRef.current);
     };
   }, []);
+
+  // PR6: kill any visible tips popover the moment we transition into the
+  // thinking state. Otherwise the tooltip would linger over the streaming
+  // animation, fighting for attention. Using the underlying `loading` state
+  // here (not the derived `isLoading`) because that const is declared further
+  // down in the component.
+  useEffect(() => {
+    if (loading) {
+      if (tipsHoverTimerRef.current) {
+        clearTimeout(tipsHoverTimerRef.current);
+        tipsHoverTimerRef.current = null;
+      }
+      setTipsVisible(false);
+    }
+  }, [loading]);
 
   // Progressive source reveal — stagger cards in as they arrive
   useEffect(() => {
@@ -1371,21 +1445,43 @@ export function StickyAskBar() {
     >
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
-        {/* Jellyfish mascot — pulses visibly when thinking */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!question && !isLoading) {
-              setQuestion(currentPlaceholder);
-              inputRef.current?.focus();
-            }
+        {/* Jellyfish mascot — pulses visibly when thinking. Wrapped in a
+            relative container so the PR6 tips popover anchors correctly. */}
+        <div
+          className="relative shrink-0"
+          onMouseEnter={() => {
+            if (isThinking) return;
+            if (tipsHoverTimerRef.current) clearTimeout(tipsHoverTimerRef.current);
+            tipsHoverTimerRef.current = setTimeout(() => setTipsVisible(true), 350);
           }}
-          className={`shrink-0 group ${isThinking && !prefersReducedMotion ? 'jelly-think-pulse' : 'transition-transform group-hover:scale-110'}`}
-          aria-label={isThinking ? 'Thinking…' : 'Ask a suggestion'}
-          aria-busy={isThinking}
+          onMouseLeave={() => {
+            if (tipsHoverTimerRef.current) {
+              clearTimeout(tipsHoverTimerRef.current);
+              tipsHoverTimerRef.current = null;
+            }
+            setTipsVisible(false);
+          }}
+          onFocus={() => { if (!isThinking) setTipsVisible(true); }}
+          onBlur={() => setTipsVisible(false)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setTipsVisible(false); }}
         >
-          <JellyfishIcon size={28} thinking={isThinking} reducedMotion={prefersReducedMotion} />
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!question && !isLoading) {
+                setQuestion(currentPlaceholder);
+                inputRef.current?.focus();
+              }
+            }}
+            className={`shrink-0 group ${isThinking && !prefersReducedMotion ? 'jelly-think-pulse' : 'transition-transform group-hover:scale-110'}`}
+            aria-label={isThinking ? 'Thinking…' : 'Ask a suggestion'}
+            aria-busy={isThinking}
+            aria-describedby={tipsVisible ? 'jellyfish-tips' : undefined}
+          >
+            <JellyfishIcon size={28} thinking={isThinking} reducedMotion={prefersReducedMotion} />
+          </button>
+          <JellyfishTipsPopover visible={tipsVisible && !isThinking} />
+        </div>
 
         <div className="flex-1 min-w-0 relative">
           <input
