@@ -1007,6 +1007,21 @@ export function StickyAskBar() {
     }
   }, [loading]);
 
+  // PR6: global ESC handler while the tips popover is visible. The wrapper's
+  // onKeyDown only fires when the trigger button is keyboard-focused — so a
+  // mouse-hover user pressing ESC would otherwise see no dismiss. Listening
+  // on window covers both the keyboard-focused and hover-only cases without
+  // double-handling (the wrapper handler also calls setTipsVisible(false),
+  // which is idempotent).
+  useEffect(() => {
+    if (!tipsVisible) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setTipsVisible(false);
+    };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [tipsVisible]);
+
   // Progressive source reveal — stagger cards in as they arrive
   useEffect(() => {
     if (sources.length === 0) {
