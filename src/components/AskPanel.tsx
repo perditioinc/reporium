@@ -4,6 +4,19 @@ import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createDataProvider } from '@/lib/dataProvider';
 
+// Mirror-aware repo display — see StickyAskBar.formatRepoDisplay for rationale.
+const MIRROR_OWNER = 'perditioinc';
+
+function formatRepoDisplay(repo: { name: string; owner: string; forked_from: string | null }) {
+  if (repo.forked_from) {
+    return { label: repo.forked_from, href: `https://github.com/${repo.forked_from}`, isFork: true };
+  }
+  if (repo.owner.toLowerCase() === MIRROR_OWNER) {
+    return { label: repo.name, href: `https://github.com/${repo.owner}/${repo.name}`, isFork: true };
+  }
+  return { label: `${repo.owner}/${repo.name}`, href: `https://github.com/${repo.owner}/${repo.name}`, isFork: false };
+}
+
 // ---------------------------------------------------------------------------
 // Types matching /intelligence/ask response schema
 // ---------------------------------------------------------------------------
@@ -214,19 +227,23 @@ function AskPanelInner(_props: AskPanelProps) {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {result.sources.map((repo) => {
                   const score = Math.round(repo.relevance_score * 100);
-                  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
-                  const ghUrl = `https://github.com/${upstream}`;
+                  const display = formatRepoDisplay(repo);
                   return (
                     <a
                       key={`${repo.owner}/${repo.name}`}
-                      href={ghUrl}
+                      href={display.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group block rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 space-y-1.5 hover:border-zinc-600 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-xs font-mono font-medium text-zinc-200 truncate group-hover:text-zinc-100">
-                          {upstream}
+                          {display.label}
+                          {display.isFork && (
+                            <span className="ml-1.5 rounded bg-zinc-800 px-1 py-0.5 text-[9px] uppercase tracking-wider text-zinc-500">
+                              fork
+                            </span>
+                          )}
                         </span>
                         <span className="shrink-0 rounded-full border border-sky-700/30 bg-sky-900/30 px-2 py-0.5 text-[10px] font-medium text-sky-300">
                           {score}%
