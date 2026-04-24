@@ -8,6 +8,82 @@ import { API_URL } from '@/lib/apiUrl';
 
 const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
 
+// Shares AskBar's client-side budget key so /faq expands and /ask submissions
+// draw from one wallet (10/min, 100/day). Does not stop a determined attacker
+// — that requires a server-side proxy (see KAN-272 design memo, Phase 3).
+const RATE_KEY = 'reporium_ask_timestamps';
+const RATE_PER_MIN = 10;
+const RATE_PER_DAY = 100;
+
+// FAQ questions are hardcoded literals, so cache hits are high and safe.
+const CACHE_KEY = 'reporium_faq_answer_cache';
+const CACHE_TTL_MS = 60 * 60 * 1000;
+
+interface CachedAnswer {
+  at: number;
+  answer: string;
+  sources: SourceRepo[];
+}
+
+function readBudget(): { minute: number; day: number } {
+  if (typeof window === 'undefined') return { minute: 0, day: 0 };
+  try {
+    const raw = localStorage.getItem(RATE_KEY);
+    const ts: number[] = raw ? JSON.parse(raw) : [];
+    const now = Date.now();
+    return {
+      minute: ts.filter((t) => t > now - 60_000).length,
+      day: ts.filter((t) => t > now - 86_400_000).length,
+    };
+  } catch {
+    return { minute: 0, day: 0 };
+  }
+}
+
+function recordAsk() {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(RATE_KEY);
+    const ts: number[] = raw ? JSON.parse(raw) : [];
+    const now = Date.now();
+    const pruned = ts.filter((t) => t > now - 86_400_000);
+    pruned.push(now);
+    localStorage.setItem(RATE_KEY, JSON.stringify(pruned));
+  } catch {
+    // localStorage unavailable — degrade gracefully (no counter, no cache)
+  }
+}
+
+function readCache(question: string): CachedAnswer | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    const map: Record<string, CachedAnswer> = raw ? JSON.parse(raw) : {};
+    const hit = map[question];
+    if (!hit || Date.now() - hit.at > CACHE_TTL_MS) return null;
+    return hit;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(question: string, answer: string, sources: SourceRepo[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    const map: Record<string, CachedAnswer> = raw ? JSON.parse(raw) : {};
+    const fresh: Record<string, CachedAnswer> = {};
+    const now = Date.now();
+    for (const [k, v] of Object.entries(map)) {
+      if (now - v.at <= CACHE_TTL_MS) fresh[k] = v;
+    }
+    fresh[question] = { at: now, answer, sources };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(fresh));
+  } catch {
+    // ignore — cache is best-effort
+  }
+}
+
 // Grouped so the page reads as a tour of Reporium's capabilities. Every entry
 // is pinned to a deterministic smart-route match in reporium-api so the answer
 // is always grounded — no generic "not enough information" early-exit. Keep in
@@ -164,10 +240,39 @@ function FAQCard({ question }: { question: string }) {
 
   function load() {
     if (state.status === 'loading' || state.status === 'ready') return;
+
+    const cached = readCache(question);
+    if (cached) {
+      setState({ status: 'ready', answer: cached.answer, sources: cached.sources });
+      return;
+    }
+
+    const { minute, day } = readBudget();
+    if (minute >= RATE_PER_MIN) {
+      setState({
+        status: 'error',
+        error: "You've hit Reporium's per-minute Ask budget (10/min). Try again in a moment.",
+      });
+      return;
+    }
+    if (day >= RATE_PER_DAY) {
+      setState({
+        status: 'error',
+        error: "Today's Ask budget is used up (100/day). Try again tomorrow.",
+      });
+      return;
+    }
+
     const controller = new AbortController();
     controllerRef.current = controller;
     setState({ status: 'loading' });
-    void fetchAnswer(question, controller.signal).then(setState);
+    void fetchAnswer(question, controller.signal).then((next) => {
+      if (next.status === 'ready') {
+        recordAsk();
+        writeCache(question, next.answer ?? '', next.sources ?? []);
+      }
+      setState(next);
+    });
   }
 
   useEffect(() => () => controllerRef.current?.abort(), []);
