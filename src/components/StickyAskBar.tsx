@@ -10,74 +10,107 @@ import rehypeSanitize from 'rehype-sanitize';
 import { API_URL } from '@/lib/apiUrl';
 import {
   CITATION_HREF_PREFIX,
+  buildSourceAnchorMap,
+  findSourceByCitationHref,
   handleCitationClick,
   injectCitations,
   sourceAnchorId,
 } from '@/lib/askCitations';
+import { CitationHoverCard, type CitationSource } from '@/components/CitationHoverCard';
 
 // ---------------------------------------------------------------------------
 // Memoized markdown renderer — only re-parses when answer content changes.
 // Streaming appends trigger re-parse, which is acceptable (parse is fast and
 // keeps output additive with the stream). Sanitized via rehype-sanitize.
+//
+// PR9: the `a` override consults a precomputed anchor map so citation links
+// can render the floating CitationHoverCard preview. The map is keyed by the
+// stable `sourceAnchorId(repo)` so two forks of the same name resolve to
+// distinct sources. The `hoverDisabled` flag suppresses the popover during
+// active streaming (the live answer animation should win over hover affordance).
 // ---------------------------------------------------------------------------
-const MARKDOWN_COMPONENTS = {
-  a: ({ href, ...props }: React.ComponentProps<'a'>) => {
-    // Internal citation link — same-document scroll + ring flash, no new tab.
-    if (href && href.startsWith(CITATION_HREF_PREFIX)) {
+function buildMarkdownComponents(
+  anchorMap: ReadonlyMap<string, CitationSource>,
+  hoverDisabled: boolean,
+) {
+  const citationAnchorClass =
+    'text-violet-300 underline decoration-violet-500/40 underline-offset-2 hover:text-violet-200 hover:decoration-violet-300 cursor-pointer';
+  return {
+    a: ({ href, children, ...props }: React.ComponentProps<'a'>) => {
+      // Internal citation link — same-document scroll + ring flash, no new tab.
+      if (href && href.startsWith(CITATION_HREF_PREFIX)) {
+        const onAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+          e.preventDefault();
+          handleCitationClick(href);
+        };
+        const source = findSourceByCitationHref(href, anchorMap);
+        // PR9: source may be null on a transient stream miss (link emitted
+        // before the matching source is on the map). Fall back to a bare
+        // anchor — still scrolls + flashes once the card is rendered.
+        return (
+          <CitationHoverCard
+            href={href}
+            source={source}
+            disabled={hoverDisabled}
+            onAnchorClick={onAnchorClick}
+            anchorClassName={citationAnchorClass}
+          >
+            {children}
+          </CitationHoverCard>
+        );
+      }
+      // External link — open in new tab as before.
       return (
         <a
           {...props}
           href={href}
-          onClick={(e) => {
-            e.preventDefault();
-            handleCitationClick(href);
-          }}
-          className="text-violet-300 underline decoration-violet-500/40 underline-offset-2 hover:text-violet-200 hover:decoration-violet-300 cursor-pointer"
-          data-citation="1"
-        />
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-zinc-200 underline underline-offset-2 hover:text-white"
+        >
+          {children}
+        </a>
       );
-    }
-    // External link — open in new tab as before.
-    return (
-      <a
-        {...props}
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-zinc-200 underline underline-offset-2 hover:text-white"
-      />
-    );
-  },
-  code: (props: React.ComponentProps<'code'>) => (
-    <code {...props} className="rounded bg-zinc-800 px-1 py-0.5 text-xs" />
-  ),
-  pre: (props: React.ComponentProps<'pre'>) => (
-    <pre {...props} className="rounded-lg bg-zinc-900 p-3 overflow-x-auto my-2 text-xs" />
-  ),
-  ul: (props: React.ComponentProps<'ul'>) => (
-    <ul {...props} className="list-disc pl-5 space-y-1 my-2" />
-  ),
-  ol: (props: React.ComponentProps<'ol'>) => (
-    <ol {...props} className="list-decimal pl-5 space-y-1 my-2" />
-  ),
-  p: (props: React.ComponentProps<'p'>) => (
-    <p {...props} className="my-2 first:mt-0 last:mb-0" />
-  ),
-};
+    },
+    code: (props: React.ComponentProps<'code'>) => (
+      <code {...props} className="rounded bg-zinc-800 px-1 py-0.5 text-xs" />
+    ),
+    pre: (props: React.ComponentProps<'pre'>) => (
+      <pre {...props} className="rounded-lg bg-zinc-900 p-3 overflow-x-auto my-2 text-xs" />
+    ),
+    ul: (props: React.ComponentProps<'ul'>) => (
+      <ul {...props} className="list-disc pl-5 space-y-1 my-2" />
+    ),
+    ol: (props: React.ComponentProps<'ol'>) => (
+      <ol {...props} className="list-decimal pl-5 space-y-1 my-2" />
+    ),
+    p: (props: React.ComponentProps<'p'>) => (
+      <p {...props} className="my-2 first:mt-0 last:mb-0" />
+    ),
+  };
+}
 
 const MarkdownAnswer = memo(function MarkdownAnswer({
   text,
   sources,
+  hoverDisabled,
 }: {
   text: string;
-  sources: ReadonlyArray<{ owner: string; name: string }>;
+  sources: ReadonlyArray<CitationSource>;
+  /** When true, suppresses the citation hover card (e.g. during streaming). */
+  hoverDisabled: boolean;
 }) {
   const linked = useMemo(() => injectCitations(text, sources), [text, sources]);
+  const anchorMap = useMemo(() => buildSourceAnchorMap(sources), [sources]);
+  const components = useMemo(
+    () => buildMarkdownComponents(anchorMap, hoverDisabled),
+    [anchorMap, hoverDisabled],
+  );
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeSanitize]}
-      components={MARKDOWN_COMPONENTS}
+      components={components}
     >
       {linked}
     </ReactMarkdown>
@@ -1848,7 +1881,11 @@ export function StickyAskBar() {
                   <div
                     className="rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-200 leading-relaxed"
                   >
-                    <MarkdownAnswer text={streamingAnswer} sources={sources} />
+                    <MarkdownAnswer
+                      text={streamingAnswer}
+                      sources={sources}
+                      hoverDisabled={isLoading}
+                    />
                     {isLoading && (
                       <span className="inline-block w-0.5 h-4 ml-0.5 bg-zinc-400 align-middle animate-pulse" />
                     )}

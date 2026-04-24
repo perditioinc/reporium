@@ -94,6 +94,38 @@ export function injectCitations(
 }
 
 /**
+ * PR9: O(1) lookup map from citation anchor id to its source repo. Used by
+ * the citation hover preview to render a small floating card with stars +
+ * description on hover, without re-scanning the source list per hover.
+ *
+ * Key shape: the result of `sourceAnchorId(repo)`. Two forks of the same
+ * name produce two distinct keys, so the map is fork-safe.
+ */
+export function buildSourceAnchorMap<T extends { owner: string; name: string }>(
+  sources: ReadonlyArray<T>,
+): Map<string, T> {
+  const map = new Map<string, T>();
+  for (const s of sources) {
+    map.set(sourceAnchorId(s), s);
+  }
+  return map;
+}
+
+/**
+ * PR9: extract the source for a citation `href` such as
+ * `#ask-source-langchain-ai-langchain` from a precomputed anchor map.
+ * Returns null on any non-citation href or unknown anchor.
+ */
+export function findSourceByCitationHref<T extends { owner: string; name: string }>(
+  href: string | undefined | null,
+  anchorMap: ReadonlyMap<string, T>,
+): T | null {
+  if (!href || !href.startsWith(CITATION_HREF_PREFIX)) return null;
+  const id = href.slice(1); // drop leading '#'
+  return anchorMap.get(id) ?? null;
+}
+
+/**
  * Click handler for in-document citation links. Scrolls the matching source
  * card into view and applies a brief ring-flash highlight.
  */
