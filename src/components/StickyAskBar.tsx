@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, memo } from 'react';
+import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -431,6 +432,14 @@ const FollowupChips = memo(function FollowupChips({
 //     behavior is preserved. (A tap-to-toggle variant could come later.)
 //   - role="tooltip" so assistive tech announces it. The trigger keeps
 //     its existing aria-label so screen-reader users aren't double-spoken.
+//
+// Why a portal + position:fixed:
+//   The sticky bar root has overflow:hidden so its rounded corners clip
+//   the answer scroller cleanly. That same overflow clips a tooltip placed
+//   *above* the bar via `bottom-full`. Rendering through a portal to the
+//   document body, with fixed coordinates derived from the trigger's
+//   bounding rect, sidesteps the clipping without weakening the bar's own
+//   layout invariants.
 // ---------------------------------------------------------------------------
 const JELLYFISH_TIPS: ReadonlyArray<string> = [
   'Ask in plain English — no special syntax needed.',
@@ -439,17 +448,48 @@ const JELLYFISH_TIPS: ReadonlyArray<string> = [
   'Follow up — Reporium remembers the conversation.',
 ];
 
+const POPOVER_GAP_PX = 8;
+
 const JellyfishTipsPopover = memo(function JellyfishTipsPopover({
   visible,
+  anchorRef,
 }: {
   visible: boolean;
+  anchorRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  if (!visible) return null;
-  return (
+  const [coords, setCoords] = useState<{ left: number; bottom: number } | null>(null);
+
+  // Recompute the fixed-position anchor whenever the popover becomes
+  // visible, the window scrolls, or the viewport resizes. We anchor by
+  // the trigger's top edge so the popover sits *just above* it.
+  useLayoutEffect(() => {
+    if (!visible) return;
+    const update = () => {
+      const el = anchorRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setCoords({
+        left: Math.round(r.left),
+        bottom: Math.round(window.innerHeight - r.top + POPOVER_GAP_PX),
+      });
+    };
+    update();
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [visible, anchorRef]);
+
+  if (!visible || coords === null || typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
       id="jellyfish-tips"
       role="tooltip"
-      className="absolute left-0 bottom-full mb-2 z-50 w-64 rounded-lg border border-violet-700/50 bg-zinc-900/95 p-3 shadow-lg shadow-violet-950/40 backdrop-blur"
+      style={{ position: 'fixed', left: coords.left, bottom: coords.bottom }}
+      className="z-[60] w-64 rounded-lg border border-violet-700/50 bg-zinc-900/95 p-3 shadow-lg shadow-violet-950/40 backdrop-blur pointer-events-none"
     >
       <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-violet-300">
         <span aria-hidden="true">✨</span>
@@ -468,7 +508,8 @@ const JellyfishTipsPopover = memo(function JellyfishTipsPopover({
         aria-hidden="true"
         className="absolute -bottom-1.5 left-3 h-3 w-3 rotate-45 border-b border-r border-violet-700/50 bg-zinc-900/95"
       />
-    </div>
+    </div>,
+    document.body,
   );
 });
 
@@ -819,6 +860,10 @@ export function StickyAskBar() {
   // tips don't fight with the streaming animation for attention.
   const [tipsVisible, setTipsVisible] = useState(false);
   const tipsHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Anchor for the portal-rendered popover — points at the wrapper around
+  // the jellyfish trigger so the popover can compute its fixed position
+  // outside the sticky bar's overflow:hidden clipping rect.
+  const jellyfishWrapperRef = useRef<HTMLDivElement | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -1446,8 +1491,11 @@ export function StickyAskBar() {
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
         {/* Jellyfish mascot — pulses visibly when thinking. Wrapped in a
-            relative container so the PR6 tips popover anchors correctly. */}
+            relative container so the PR6 tips popover can read its rect.
+            The popover itself escapes via portal (see JellyfishTipsPopover)
+            because the sticky-bar root has overflow:hidden. */}
         <div
+          ref={jellyfishWrapperRef}
           className="relative shrink-0"
           onMouseEnter={() => {
             if (isThinking) return;
@@ -1480,7 +1528,10 @@ export function StickyAskBar() {
           >
             <JellyfishIcon size={28} thinking={isThinking} reducedMotion={prefersReducedMotion} />
           </button>
-          <JellyfishTipsPopover visible={tipsVisible && !isThinking} />
+          <JellyfishTipsPopover
+            visible={tipsVisible && !isThinking}
+            anchorRef={jellyfishWrapperRef}
+          />
         </div>
 
         <div className="flex-1 min-w-0 relative">
