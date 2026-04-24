@@ -8,6 +8,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { API_URL } from '@/lib/apiUrl';
+import {
+  CITATION_HREF_PREFIX,
+  handleCitationClick,
+  injectCitations,
+  sourceAnchorId,
+} from '@/lib/askCitations';
 
 // ---------------------------------------------------------------------------
 // Memoized markdown renderer — only re-parses when answer content changes.
@@ -15,14 +21,33 @@ import { API_URL } from '@/lib/apiUrl';
 // keeps output additive with the stream). Sanitized via rehype-sanitize.
 // ---------------------------------------------------------------------------
 const MARKDOWN_COMPONENTS = {
-  a: (props: React.ComponentProps<'a'>) => (
-    <a
-      {...props}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-zinc-200 underline underline-offset-2 hover:text-white"
-    />
-  ),
+  a: ({ href, ...props }: React.ComponentProps<'a'>) => {
+    // Internal citation link — same-document scroll + ring flash, no new tab.
+    if (href && href.startsWith(CITATION_HREF_PREFIX)) {
+      return (
+        <a
+          {...props}
+          href={href}
+          onClick={(e) => {
+            e.preventDefault();
+            handleCitationClick(href);
+          }}
+          className="text-violet-300 underline decoration-violet-500/40 underline-offset-2 hover:text-violet-200 hover:decoration-violet-300 cursor-pointer"
+          data-citation="1"
+        />
+      );
+    }
+    // External link — open in new tab as before.
+    return (
+      <a
+        {...props}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-zinc-200 underline underline-offset-2 hover:text-white"
+      />
+    );
+  },
   code: (props: React.ComponentProps<'code'>) => (
     <code {...props} className="rounded bg-zinc-800 px-1 py-0.5 text-xs" />
   ),
@@ -40,14 +65,21 @@ const MARKDOWN_COMPONENTS = {
   ),
 };
 
-const MarkdownAnswer = memo(function MarkdownAnswer({ text }: { text: string }) {
+const MarkdownAnswer = memo(function MarkdownAnswer({
+  text,
+  sources,
+}: {
+  text: string;
+  sources: ReadonlyArray<{ owner: string; name: string }>;
+}) {
+  const linked = useMemo(() => injectCitations(text, sources), [text, sources]);
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeSanitize]}
       components={MARKDOWN_COMPONENTS}
     >
-      {text}
+      {linked}
     </ReactMarkdown>
   );
 });
@@ -1816,7 +1848,7 @@ export function StickyAskBar() {
                   <div
                     className="rounded-lg bg-zinc-800/60 px-4 py-3 text-sm text-zinc-200 leading-relaxed"
                   >
-                    <MarkdownAnswer text={streamingAnswer} />
+                    <MarkdownAnswer text={streamingAnswer} sources={sources} />
                     {isLoading && (
                       <span className="inline-block w-0.5 h-4 ml-0.5 bg-zinc-400 align-middle animate-pulse" />
                     )}
@@ -1868,6 +1900,7 @@ export function StickyAskBar() {
                   return (
                     <motion.a
                       key={`${repo.owner}/${repo.name}`}
+                      id={sourceAnchorId(repo)}
                       href={display.href}
                       target="_blank"
                       rel="noopener noreferrer"
