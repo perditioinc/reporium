@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo, memo } from 'react';
+import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -89,11 +90,64 @@ interface TokensUsed {
   total: number;
 }
 
-interface SourcesEvent { type: 'sources'; sources: SourceRepo[]; cache_hit: boolean }
+interface SourcesEvent { type: 'sources'; sources: SourceRepo[]; cache_hit: boolean; route?: string }
 interface TokenEvent { type: 'token'; text: string }
-interface DoneEvent { type: 'done'; tokens: TokensUsed; cache_hit?: boolean }
+interface DoneEvent {
+  type: 'done';
+  tokens: TokensUsed;
+  model?: string;
+  latency_ms?: number;
+  route?: string;
+  cache_hit?: boolean;
+  cache_source?: string;
+  // PR3: handle for posting thumbs feedback to /intelligence/feedback.
+  query_id?: string;
+  // PR4: up to 3 short follow-up questions generated in parallel by Haiku.
+  // Optional — older API deployments will omit this field, in which case
+  // the chips block silently doesn't render.
+  suggestions?: string[];
+}
 interface ErrorEvent { type: 'error'; message: string }
 type StreamEvent = SourcesEvent | TokenEvent | DoneEvent | ErrorEvent;
+
+// ---------------------------------------------------------------------------
+// Repo card display — never surface "perditioinc/<name>" for forks. The
+// perditioinc account is a mirror, not the project home; the parent owner
+// (forked_from) is what users want to see and click through to.
+// ---------------------------------------------------------------------------
+const MIRROR_OWNER = 'perditioinc';
+
+function formatRepoDisplay(repo: { name: string; owner: string; forked_from: string | null }): {
+  label: string;
+  href: string;
+  isFork: boolean;
+} {
+  const isMirror = repo.owner.toLowerCase() === MIRROR_OWNER;
+  // Parent known: link to and label as upstream.
+  if (repo.forked_from) {
+    return {
+      label: repo.forked_from,
+      href: `https://github.com/${repo.forked_from}`,
+      isFork: true,
+    };
+  }
+  // Orphan mirror (forked_from missing) — drop the misleading owner prefix
+  // and tag visually as a fork. Backend hydration will fill forked_from
+  // for new ingests; this prevents stale rows from showing the mirror name.
+  if (isMirror) {
+    return {
+      label: repo.name,
+      href: `https://github.com/${repo.owner}/${repo.name}`,
+      isFork: true,
+    };
+  }
+  // Genuine third-party owner (already correct).
+  return {
+    label: `${repo.owner}/${repo.name}`,
+    href: `https://github.com/${repo.owner}/${repo.name}`,
+    isFork: false,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Client-side rate limit guard
@@ -208,6 +262,254 @@ const AnswerSkeleton = memo(function AnswerSkeleton() {
       <ShimmerLine w="w-4/5" h="h-3" />
       <ShimmerLine w="w-2/3" h="h-3" />
     </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
+// ResponseFooter — renders the trio (model · latency · tokens) under the
+// answer, with cache/route badges when applicable. Helps the user judge
+// cost, speed, and the path the system took to answer.
+// ---------------------------------------------------------------------------
+function shortModelName(model: string | null | undefined): string | null {
+  if (!model) return null;
+  // Trim provider date suffixes like "claude-haiku-4-5-20251001" → "haiku-4.5"
+  const m = model.toLowerCase();
+  if (m.includes('haiku')) return 'Haiku 4.5';
+  if (m.includes('sonnet')) return 'Sonnet 4';
+  if (m.includes('opus')) return 'Opus 4';
+  // Smart-router pseudo-models: "off-topic", "early-exit", route labels.
+  // Surface them so the user knows the LLM was bypassed.
+  return model;
+}
+
+function formatLatency(ms: number | null | undefined): string | null {
+  if (ms == null) return null;
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
+const ResponseFooter = memo(function ResponseFooter({
+  model,
+  latencyMs,
+  tokens,
+  sourcesCount,
+  cacheHit,
+  routeLabel,
+}: {
+  model: string | null;
+  latencyMs: number | null;
+  tokens: { input: number; output: number; total: number };
+  sourcesCount: number;
+  cacheHit: boolean;
+  routeLabel: string | null;
+}) {
+  const modelLabel = shortModelName(model);
+  const latencyLabel = formatLatency(latencyMs);
+  const parts: string[] = [];
+  if (modelLabel) parts.push(modelLabel);
+  if (latencyLabel) parts.push(latencyLabel);
+  if (tokens.total > 0) parts.push(`${tokens.total.toLocaleString()} tokens`);
+  if (sourcesCount > 0) parts.push(`${sourcesCount} repos`);
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 font-mono">
+      {(cacheHit || routeLabel) && (
+        <span
+          className="rounded bg-emerald-950/40 px-1.5 py-0.5 text-[10px] font-medium text-emerald-300/90"
+          title={routeLabel ? `Smart router: ${routeLabel}` : 'Cached response'}
+        >
+          ⚡ {routeLabel ?? 'cached'}
+        </span>
+      )}
+      {parts.map((p, i) => (
+        <span key={p}>
+          {p}
+          {i < parts.length - 1 && <span className="ml-2 text-zinc-700">·</span>}
+        </span>
+      ))}
+      {tokens.total > 0 && (tokens.input > 0 || tokens.output > 0) && (
+        <span className="text-zinc-600" title={`Input ${tokens.input} · Output ${tokens.output}`}>
+          ({tokens.input}↑ {tokens.output}↓)
+        </span>
+      )}
+    </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
+// FeedbackThumbs — 👍 / 👎 toggle. Renders only when the API returned a
+// query_id (so old backend deployments simply don't show the row). Clicking
+// the active thumb deselects it.
+// ---------------------------------------------------------------------------
+const FeedbackThumbs = memo(function FeedbackThumbs({
+  value,
+  onChange,
+}: {
+  value: 'positive' | 'negative' | null;
+  onChange: (next: 'positive' | 'negative') => void;
+}) {
+  return (
+    <div className="flex items-center gap-1" role="group" aria-label="Was this answer helpful?">
+      <button
+        type="button"
+        onClick={() => onChange('positive')}
+        aria-pressed={value === 'positive'}
+        aria-label={value === 'positive' ? 'Remove helpful rating' : 'Mark as helpful'}
+        title={value === 'positive' ? 'Click again to remove' : 'Helpful'}
+        className={
+          'rounded px-1.5 py-0.5 text-xs transition-colors ' +
+          (value === 'positive'
+            ? 'bg-emerald-900/40 text-emerald-300'
+            : 'text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300')
+        }
+      >
+        👍
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('negative')}
+        aria-pressed={value === 'negative'}
+        aria-label={value === 'negative' ? 'Remove unhelpful rating' : 'Mark as unhelpful'}
+        title={value === 'negative' ? 'Click again to remove' : 'Not helpful'}
+        className={
+          'rounded px-1.5 py-0.5 text-xs transition-colors ' +
+          (value === 'negative'
+            ? 'bg-rose-900/40 text-rose-300'
+            : 'text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300')
+        }
+      >
+        👎
+      </button>
+    </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
+// FollowupChips — PR4. Up to 3 short questions generated by Haiku in parallel
+// with the main answer stream. Click submits the question as a fresh ask.
+// Renders nothing when the suggestions array is missing (older API), empty,
+// or while a new query is loading (we drop the previous turn's chips on
+// the next submit so they don't dangle out of context).
+// ---------------------------------------------------------------------------
+const FollowupChips = memo(function FollowupChips({
+  suggestions,
+  onPick,
+}: {
+  suggestions: string[];
+  onPick: (q: string) => void;
+}) {
+  if (!suggestions || suggestions.length === 0) return null;
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label="Suggested follow-up questions">
+      <span className="text-[11px] uppercase tracking-wide text-zinc-500 mr-1 self-center">
+        Try next
+      </span>
+      {suggestions.map((q, i) => (
+        <button
+          key={`${i}-${q}`}
+          type="button"
+          onClick={() => onPick(q)}
+          className="rounded-full border border-zinc-700/70 bg-zinc-900/60 px-2.5 py-1 text-xs text-zinc-300 transition-colors hover:border-violet-500/60 hover:bg-violet-950/40 hover:text-violet-100"
+          title={`Ask: ${q}`}
+        >
+          {q}
+        </button>
+      ))}
+    </div>
+  );
+});
+
+// ---------------------------------------------------------------------------
+// JellyfishTipsPopover — PR6. Hover/focus the jellyfish to reveal a small
+// popover with 4 tips on getting better answers. Suppressed while the
+// jellyfish is "thinking" so the user isn't distracted mid-stream.
+//
+// Behavior:
+//   - 350ms hover delay before show — avoids flashing when the user is
+//     just moving the cursor across the bar.
+//   - Mouse leave hides immediately. ESC also hides while open.
+//   - Touch users don't get hover; the existing jellyfish click-to-prefill
+//     behavior is preserved. (A tap-to-toggle variant could come later.)
+//   - role="tooltip" so assistive tech announces it. The trigger keeps
+//     its existing aria-label so screen-reader users aren't double-spoken.
+//
+// Why a portal + position:fixed:
+//   The sticky bar root has overflow:hidden so its rounded corners clip
+//   the answer scroller cleanly. That same overflow clips a tooltip placed
+//   *above* the bar via `bottom-full`. Rendering through a portal to the
+//   document body, with fixed coordinates derived from the trigger's
+//   bounding rect, sidesteps the clipping without weakening the bar's own
+//   layout invariants.
+// ---------------------------------------------------------------------------
+const JELLYFISH_TIPS: ReadonlyArray<string> = [
+  'Ask in plain English — no special syntax needed.',
+  'Compare tools: "X vs Y for <use case>".',
+  'Be specific about your stack, scale, or constraints.',
+  'Follow up — Reporium remembers the conversation.',
+];
+
+const POPOVER_GAP_PX = 8;
+
+const JellyfishTipsPopover = memo(function JellyfishTipsPopover({
+  visible,
+  anchorRef,
+}: {
+  visible: boolean;
+  anchorRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [coords, setCoords] = useState<{ left: number; bottom: number } | null>(null);
+
+  // Recompute the fixed-position anchor whenever the popover becomes
+  // visible, the window scrolls, or the viewport resizes. We anchor by
+  // the trigger's top edge so the popover sits *just above* it.
+  useLayoutEffect(() => {
+    if (!visible) return;
+    const update = () => {
+      const el = anchorRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setCoords({
+        left: Math.round(r.left),
+        bottom: Math.round(window.innerHeight - r.top + POPOVER_GAP_PX),
+      });
+    };
+    update();
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [visible, anchorRef]);
+
+  if (!visible || coords === null || typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      id="jellyfish-tips"
+      role="tooltip"
+      style={{ position: 'fixed', left: coords.left, bottom: coords.bottom }}
+      className="z-[60] w-64 rounded-lg border border-violet-700/50 bg-zinc-900/95 p-3 shadow-lg shadow-violet-950/40 backdrop-blur pointer-events-none"
+    >
+      <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-violet-300">
+        <span aria-hidden="true">✨</span>
+        Tips for better answers
+      </div>
+      <ul className="space-y-1 text-xs text-zinc-300 leading-snug">
+        {JELLYFISH_TIPS.map((tip) => (
+          <li key={tip} className="flex gap-1.5">
+            <span className="text-violet-400/80 select-none" aria-hidden="true">·</span>
+            <span>{tip}</span>
+          </li>
+        ))}
+      </ul>
+      {/* Pointer triangle — subtle */}
+      <div
+        aria-hidden="true"
+        className="absolute -bottom-1.5 left-3 h-3 w-3 rotate-45 border-b border-r border-violet-700/50 bg-zinc-900/95"
+      />
+    </div>,
+    document.body,
   );
 });
 
@@ -535,10 +837,33 @@ export function StickyAskBar() {
   const [sources, setSources] = useState<SourceRepo[]>([]);
   const [revealedSourceCount, setRevealedSourceCount] = useState(0);
   const [tokensUsed, setTokensUsed] = useState<TokensUsed | null>(null);
+  const [model, setModel] = useState<string | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cacheHit, setCacheHit] = useState(false);
   const [routeLabel, setRouteLabel] = useState<string | null>(null);
+  // Question that produced the currently-shown answer; rendered above the
+  // answer so the user can see what they asked once the input clears.
+  const [askedQuestion, setAskedQuestion] = useState<string | null>(null);
+  // PR3: handle for posting thumbs feedback. Null until the streamed `done`
+  // event arrives. Old API deployments may not emit it — UI degrades by
+  // hiding the thumbs row entirely.
+  const [queryId, setQueryId] = useState<string | null>(null);
+  // Current selection: null = no choice, or "positive" / "negative".
+  const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
+  // PR4: 3 short follow-up questions emitted in the streamed `done` event.
+  // Empty array (vs undefined) is also "render nothing" — the chips block
+  // is suppressed until a fresh done event arrives.
+  const [followups, setFollowups] = useState<string[]>([]);
+  // PR6: jellyfish hover-tips popover. Suppressed during thinking so the
+  // tips don't fight with the streaming animation for attention.
+  const [tipsVisible, setTipsVisible] = useState(false);
+  const tipsHoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Anchor for the portal-rendered popover — points at the wrapper around
+  // the jellyfish trigger so the popover can compute its fixed position
+  // outside the sticky bar's overflow:hidden clipping rect.
+  const jellyfishWrapperRef = useRef<HTMLDivElement | null>(null);
 
   // Session state
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -663,8 +988,39 @@ export function StickyAskBar() {
       if (sourceRevealTimerRef.current) clearTimeout(sourceRevealTimerRef.current);
       if (retryIntervalRef.current) clearInterval(retryIntervalRef.current);
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      if (tipsHoverTimerRef.current) clearTimeout(tipsHoverTimerRef.current);
     };
   }, []);
+
+  // PR6: kill any visible tips popover the moment we transition into the
+  // thinking state. Otherwise the tooltip would linger over the streaming
+  // animation, fighting for attention. Using the underlying `loading` state
+  // here (not the derived `isLoading`) because that const is declared further
+  // down in the component.
+  useEffect(() => {
+    if (loading) {
+      if (tipsHoverTimerRef.current) {
+        clearTimeout(tipsHoverTimerRef.current);
+        tipsHoverTimerRef.current = null;
+      }
+      setTipsVisible(false);
+    }
+  }, [loading]);
+
+  // PR6: global ESC handler while the tips popover is visible. The wrapper's
+  // onKeyDown only fires when the trigger button is keyboard-focused — so a
+  // mouse-hover user pressing ESC would otherwise see no dismiss. Listening
+  // on window covers both the keyboard-focused and hover-only cases without
+  // double-handling (the wrapper handler also calls setTipsVisible(false),
+  // which is idempotent).
+  useEffect(() => {
+    if (!tipsVisible) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setTipsVisible(false);
+    };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [tipsVisible]);
 
   // Progressive source reveal — stagger cards in as they arrive
   useEffect(() => {
@@ -696,17 +1052,50 @@ export function StickyAskBar() {
     setSources([]);
     setRevealedSourceCount(0);
     setTokensUsed(null);
+    setModel(null);
+    setLatencyMs(null);
     setDone(false);
     setError(null);
     setCacheHit(false);
     setRouteLabel(null);
     setQuestion('');
+    setAskedQuestion(null);
+    setQueryId(null);
+    setFeedback(null);
+    setFollowups([]);
     setPhase('idle');
     setBarState('collapsed');
     setLoading(false);
     if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
     inputRef.current?.focus();
   }, []);
+
+  // Clear the input text only — does NOT end the conversation. Used by the
+  // small × inside the input field; preserves session_id and prior answer.
+  const handleClearInput = useCallback(() => {
+    setQuestion('');
+    setError(null);
+    inputRef.current?.focus();
+  }, []);
+
+  // PR3: thumbs up/down toggle. Optimistic local update + best-effort POST.
+  // Clicking the active thumb deselects (sentiment: null). The endpoint is
+  // intentionally fire-and-forget — a dropped feedback click is annoying
+  // but not blocking, and we don't want a network failure to undo the
+  // user's visible selection.
+  const handleFeedback = useCallback((next: 'positive' | 'negative') => {
+    if (!queryId) return;
+    const newValue = feedback === next ? null : next;
+    setFeedback(newValue);
+    fetch(`${API_URL}/intelligence/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query_id: queryId, sentiment: newValue }),
+      // Use keepalive so the request survives page navigation if the user
+      // immediately clicks away after voting.
+      keepalive: true,
+    }).catch(() => { /* swallowed on purpose — see comment above */ });
+  }, [queryId, feedback]);
 
   const { minuteCount, dayCount } = getRateLimitState();
   const atMinuteLimit = minuteCount >= RATE_PER_MIN;
@@ -733,8 +1122,11 @@ export function StickyAskBar() {
   }
 
   async function handleAsk(override?: string) {
-    const q = (override ?? question).trim();
-    if (override !== undefined) setQuestion(override);
+    // First-time use: if user clicks Ask without typing, fall back to the
+    // currently-cycling suggestion so the click does something instead of
+    // showing a "3 characters" error.
+    const rawCandidate = override ?? question;
+    const q = (rawCandidate.trim() || currentPlaceholder.trim()).trim();
     if (!q || q.length < 3) { setError('Please enter at least 3 characters.'); return; }
     if (q.length > 500) { setError('Question must be 500 characters or fewer.'); return; }
     if (INJECTION_RE.test(q)) { setError('That question contains disallowed content. Please rephrase.'); return; }
@@ -751,9 +1143,18 @@ export function StickyAskBar() {
     setSources([]);
     setRevealedSourceCount(0);
     setTokensUsed(null);
+    setModel(null);
+    setLatencyMs(null);
     setDone(false);
     setCacheHit(false);
     setRouteLabel(null);
+    setQueryId(null);
+    setFeedback(null);
+    setFollowups([]);
+    // Move the question text out of the input and into the conversation
+    // header so the input is ready for a follow-up question immediately.
+    setAskedQuestion(q);
+    setQuestion('');
     setPhase('expanding');
     setBarState('expanded');
     recordRequest();
@@ -846,13 +1247,23 @@ export function StickyAskBar() {
           if (event.type === 'sources') {
             setSources(event.sources);
             setPhase('sources');
-            if ('cache_hit' in event && event.cache_hit) setCacheHit(true);
-            if ('route' in event) setRouteLabel((event as Record<string, unknown>).route as string);
+            if (event.cache_hit) setCacheHit(true);
+            if (event.route) setRouteLabel(event.route);
           } else if (event.type === 'token') {
             setStreamingAnswer((prev) => prev + event.text);
             setPhase((p) => (p !== 'streaming' && p !== 'done') ? 'streaming' : p);
           } else if (event.type === 'done') {
             setTokensUsed(event.tokens);
+            if (event.model) setModel(event.model);
+            if (typeof event.latency_ms === 'number') setLatencyMs(event.latency_ms);
+            if (event.cache_hit) setCacheHit(true);
+            if (event.route) setRouteLabel(event.route);
+            if (event.query_id) setQueryId(event.query_id);
+            // PR4: render up to 3 follow-up chips. Empty/missing array
+            // hides the row (older API, off-topic, or generation failed).
+            if (Array.isArray(event.suggestions) && event.suggestions.length > 0) {
+              setFollowups(event.suggestions.slice(0, 3));
+            }
             setDone(true);
             setPhase('done');
             setTurnCount((n) => n + 1);
@@ -1094,21 +1505,49 @@ export function StickyAskBar() {
     >
       {/* Input bar — always visible */}
       <div className="flex items-center gap-2 px-3 py-2 shrink-0 h-14">
-        {/* Jellyfish mascot — pulses visibly when thinking */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!question && !isLoading) {
-              setQuestion(currentPlaceholder);
-              inputRef.current?.focus();
-            }
+        {/* Jellyfish mascot — pulses visibly when thinking. Wrapped in a
+            relative container so the PR6 tips popover can read its rect.
+            The popover itself escapes via portal (see JellyfishTipsPopover)
+            because the sticky-bar root has overflow:hidden. */}
+        <div
+          ref={jellyfishWrapperRef}
+          className="relative shrink-0"
+          onMouseEnter={() => {
+            if (isThinking) return;
+            if (tipsHoverTimerRef.current) clearTimeout(tipsHoverTimerRef.current);
+            tipsHoverTimerRef.current = setTimeout(() => setTipsVisible(true), 350);
           }}
-          className={`shrink-0 group ${isThinking && !prefersReducedMotion ? 'jelly-think-pulse' : 'transition-transform group-hover:scale-110'}`}
-          aria-label={isThinking ? 'Thinking…' : 'Ask a suggestion'}
-          aria-busy={isThinking}
+          onMouseLeave={() => {
+            if (tipsHoverTimerRef.current) {
+              clearTimeout(tipsHoverTimerRef.current);
+              tipsHoverTimerRef.current = null;
+            }
+            setTipsVisible(false);
+          }}
+          onFocus={() => { if (!isThinking) setTipsVisible(true); }}
+          onBlur={() => setTipsVisible(false)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setTipsVisible(false); }}
         >
-          <JellyfishIcon size={28} thinking={isThinking} reducedMotion={prefersReducedMotion} />
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!question && !isLoading) {
+                setQuestion(currentPlaceholder);
+                inputRef.current?.focus();
+              }
+            }}
+            className={`shrink-0 group ${isThinking && !prefersReducedMotion ? 'jelly-think-pulse' : 'transition-transform group-hover:scale-110'}`}
+            aria-label={isThinking ? 'Thinking…' : 'Ask a suggestion'}
+            aria-busy={isThinking}
+            aria-describedby={tipsVisible ? 'jellyfish-tips' : undefined}
+          >
+            <JellyfishIcon size={28} thinking={isThinking} reducedMotion={prefersReducedMotion} />
+          </button>
+          <JellyfishTipsPopover
+            visible={tipsVisible && !isThinking}
+            anchorRef={jellyfishWrapperRef}
+          />
+        </div>
 
         <div className="flex-1 min-w-0 relative">
           <input
@@ -1123,19 +1562,39 @@ export function StickyAskBar() {
             maxLength={500}
             disabled={atMinuteLimit || atDayLimit}
             aria-label="Ask a question about the repo library"
-            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 px-3 text-base sm:text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors"
+            className={`w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-1.5 pl-3 ${question ? 'pr-8' : 'pr-3'} text-base sm:text-sm text-zinc-200 placeholder:text-zinc-500 focus:border-violet-500/50 focus:outline-none focus:ring-1 focus:ring-violet-500/30 disabled:opacity-50 transition-colors`}
           />
 
-          {/* Cycling suggestion overlay — paused during loading */}
+          {/* In-input clear-text button — clears input only, preserves the
+              active conversation/session. Distinct from the conversation
+              reset × in the bar header (which is destructive). */}
+          {question && !isLoading && (
+            <button
+              type="button"
+              onClick={handleClearInput}
+              aria-label="Clear text"
+              title="Clear text"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-700/60 transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="4" y1="4" x2="12" y2="12" /><line x1="12" y1="4" x2="4" y2="12" />
+              </svg>
+            </button>
+          )}
+
+          {/* Cycling suggestion overlay — paused during loading.
+              Click sends the suggestion immediately (was: only prefilled
+              the input, leaving the user with a "3 characters" error if
+              they then hit Ask without typing). */}
           {showSuggestionOverlay && !question && !isFocused && !isLoading && !hasAnswer && (
             <button
               type="button"
               onClick={() => {
-                setQuestion(currentPlaceholder);
                 setShowSuggestionOverlay(false);
-                inputRef.current?.focus();
+                void handleAsk(currentPlaceholder);
               }}
               className="absolute inset-0 flex items-center px-3 text-sm text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer truncate text-left"
+              aria-label={`Ask: ${currentPlaceholder}`}
             >
               {currentPlaceholder}
             </button>
@@ -1213,8 +1672,10 @@ export function StickyAskBar() {
           </button>
         )}
 
-        {/* Clear / close button — when there is content */}
-        {(hasAnswer || error || question) && (
+        {/* Reset-conversation button — only when there's an answer or error
+            in flight. Typing-only clears go through the in-input × button
+            (handleClearInput) which preserves the session. */}
+        {(hasAnswer || error || askedQuestion) && (
           <button
             type="button"
             onClick={handleNewConversation}
@@ -1283,6 +1744,16 @@ export function StickyAskBar() {
             </div>
           )}
 
+          {/* The question that produced the current answer — shown above the
+              answer so the user can see what they asked once the input has
+              self-cleared for a follow-up. */}
+          {askedQuestion && (
+            <div className="pt-1">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-zinc-600 mb-1">You asked</p>
+              <p className="text-sm text-zinc-300 italic">&ldquo;{askedQuestion}&rdquo;</p>
+            </div>
+          )}
+
           {/* Rate limit warning */}
           {(nearMinuteLimit || nearDayLimit) && !atMinuteLimit && !atDayLimit && (
             <p className="text-xs text-amber-500/80">
@@ -1313,63 +1784,8 @@ export function StickyAskBar() {
             </div>
           )}
 
-          {/* ── Source section — skeletons while loading, real cards when ready ── */}
-          {(showSkeleton || sources.length > 0) && (
-            <div className="space-y-1.5">
-              <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-                {sources.length > 0
-                  ? `Sources · ${sources.length} repos`
-                  : 'Sources · searching…'}
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {/* Skeleton cards — shown while no sources yet */}
-                {showSkeleton && sources.length === 0 && (
-                  Array.from({ length: SKELETON_SOURCE_COUNT }).map((_, i) => (
-                    <SourceCardSkeleton key={`skeleton-${i}`} />
-                  ))
-                )}
-                {/* Real source cards — staggered reveal as they arrive */}
-                {sources.slice(0, revealedSourceCount).map((repo, idx) => {
-                  const upstream = repo.forked_from ?? `${repo.owner}/${repo.name}`;
-                  const ghUrl = `https://github.com/${upstream}`;
-                  const score = Math.round(repo.relevance_score * 100);
-                  return (
-                    <motion.a
-                      key={`${repo.owner}/${repo.name}`}
-                      href={ghUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      initial={prefersReducedMotion ? SOURCE_CARD_ANIMATE : SOURCE_CARD_INITIAL}
-                      animate={SOURCE_CARD_ANIMATE}
-                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, delay: idx * 0.05 }}
-                      className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
-                          {upstream}
-                        </span>
-                        <span className="shrink-0 text-xs text-zinc-600">{score}%</span>
-                      </div>
-                      {repo.description && (
-                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2">{repo.description}</p>
-                      )}
-                      {repo.stars != null && (
-                        <p className="mt-1 text-xs text-zinc-600">★ {repo.stars.toLocaleString()}</p>
-                      )}
-                    </motion.a>
-                  );
-                })}
-                {/* While real sources arriving, keep remaining skeleton slots */}
-                {sources.length > 0 && revealedSourceCount < sources.length && (
-                  Array.from({ length: sources.length - revealedSourceCount }).map((_, i) => (
-                    <SourceCardSkeleton key={`filling-${i}`} />
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ── Answer section — skeleton until first token, then streaming ── */}
+          {/* ── Answer section — shown FIRST so the synthesized response leads,
+                 with source repos as supporting evidence below. ── */}
           {(showSkeleton || hasAnswer) && (
             <div className="space-y-2">
               {showSkeleton && !hasAnswer ? (
@@ -1408,15 +1824,85 @@ export function StickyAskBar() {
                 </div>
               )}
               {done && tokensUsed && (
-                <p className="text-xs text-zinc-600 flex items-center gap-1.5">
-                  {(cacheHit || routeLabel) && (
-                    <span className="text-emerald-500/80">⚡ Instant</span>
-                  )}
-                  {sources.length > 0 ? `${sources.length} repos searched` : ''}
-                  {sources.length > 0 && tokensUsed.total > 0 ? ' · ' : ''}
-                  {tokensUsed.total > 0 ? `${tokensUsed.total} tokens` : ''}
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                  <ResponseFooter
+                    model={model}
+                    latencyMs={latencyMs}
+                    tokens={tokensUsed}
+                    sourcesCount={sources.length}
+                    cacheHit={cacheHit}
+                    routeLabel={routeLabel}
+                  />
+                  {queryId && <FeedbackThumbs value={feedback} onChange={handleFeedback} />}
+                </div>
               )}
+              {done && followups.length > 0 && (
+                <FollowupChips
+                  suggestions={followups}
+                  onPick={(q) => { void handleAsk(q); }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* ── Source section — supporting evidence, rendered BELOW the
+                 synthesized answer so the response leads. ── */}
+          {(showSkeleton || sources.length > 0) && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
+                {sources.length > 0
+                  ? `Sources · ${sources.length} repos`
+                  : 'Sources · searching…'}
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {/* Skeleton cards — shown while no sources yet */}
+                {showSkeleton && sources.length === 0 && (
+                  Array.from({ length: SKELETON_SOURCE_COUNT }).map((_, i) => (
+                    <SourceCardSkeleton key={`skeleton-${i}`} />
+                  ))
+                )}
+                {/* Real source cards — staggered reveal as they arrive */}
+                {sources.slice(0, revealedSourceCount).map((repo, idx) => {
+                  const display = formatRepoDisplay(repo);
+                  const score = Math.round(repo.relevance_score * 100);
+                  return (
+                    <motion.a
+                      key={`${repo.owner}/${repo.name}`}
+                      href={display.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={prefersReducedMotion ? SOURCE_CARD_ANIMATE : SOURCE_CARD_INITIAL}
+                      animate={SOURCE_CARD_ANIMATE}
+                      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, delay: idx * 0.05 }}
+                      className="group block rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 hover:border-zinc-600 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-mono text-zinc-300 group-hover:text-zinc-100 truncate">
+                          {display.label}
+                          {display.isFork && (
+                            <span className="ml-1.5 rounded bg-zinc-800 px-1 py-0.5 text-[9px] uppercase tracking-wider text-zinc-500">
+                              fork
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 text-xs text-zinc-600">{score}%</span>
+                      </div>
+                      {repo.description && (
+                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2">{repo.description}</p>
+                      )}
+                      {repo.stars != null && (
+                        <p className="mt-1 text-xs text-zinc-600">★ {repo.stars.toLocaleString()}</p>
+                      )}
+                    </motion.a>
+                  );
+                })}
+                {/* While real sources arriving, keep remaining skeleton slots */}
+                {sources.length > 0 && revealedSourceCount < sources.length && (
+                  Array.from({ length: sources.length - revealedSourceCount }).map((_, i) => (
+                    <SourceCardSkeleton key={`filling-${i}`} />
+                  ))
+                )}
+              </div>
             </div>
           )}
         </div>
