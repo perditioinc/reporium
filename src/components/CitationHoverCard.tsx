@@ -180,9 +180,14 @@ function CitationHoverCardImpl({
   const desc = source ? describeForHover(source.description) : '';
   const label = source ? formatLabel(source) : null;
 
+  // Stable id for aria-describedby wiring. `href` already encodes the anchor
+  // id (e.g. `#ask-source-langchain`), so it makes a unique-per-citation key.
+  const tooltipId = `citation-hover-${href}`;
+
   const card =
     open && pos && source && label ? (
       <div
+        id={tooltipId}
         role="tooltip"
         // pointer-events-none so the card doesn't intercept mouseleave from
         // the wrapper — same flicker-prevention trick as PR6's portal popover.
@@ -223,7 +228,7 @@ function CitationHoverCardImpl({
         onClick={onAnchorClick}
         className={anchorClassName}
         data-citation="1"
-        aria-describedby={open && source ? `citation-hover-${href}` : undefined}
+        aria-describedby={open && source ? tooltipId : undefined}
       >
         {children}
       </a>
