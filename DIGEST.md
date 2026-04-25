@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 24, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 25, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**TypeScript** (+1100% vs last week)
-skills___, claude-context are most active.
+**Self-hosted** (+1416100% vs last week)
+openclaw, tensorflow, vscode are most active.
 
-**AI Agents** (+1100% vs last week)
-skills___, claude-context are most active.
+**Text** (+1256300% vs last week)
+free-programming-books, openclaw, tensorflow are most active.
 
-**Anthropic / Claude** (+1100% vs last week)
-skills___, claude-context are most active.
+**On-premise** (+885300% vs last week)
+tensorflow, vscode, transformers are most active.
 
 ---
 
@@ -25,8 +25,8 @@ skills___, claude-context are most active.
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (70713 commits across 1405 repos)
-- **TypeScript** fastest growing (+1100% commit velocity)
+- **🤖 AI Agents** most active category (46 commits across 667 repos)
+- **Self-hosted** fastest growing (+1416100% commit velocity)
 
 ---
 
