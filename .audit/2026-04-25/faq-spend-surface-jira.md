@@ -12,7 +12,10 @@ The mitigation was authored on 2026-04-24 against `main @ 8224e3a` and
 PR #272 head `63c33e4`. Today's lane re-runs the validation:
 
 - `git fetch --all --prune` clean.
-- `origin/main` HEAD: `8224e3a` (no change since 2026-04-24).
+- `origin/main` HEAD: `53e36ae` (advanced from `8224e3a` via
+  `chore: refresh library data 2026-04-25` — touches only `DIGEST.md`,
+  `public/data/library.json`, `public/data/trends.json`; outside owned
+  scope; no rebase conflict risk for `FAQPanel.tsx`).
 - PR #272 (`claude/feature/faq-page`): HEAD `63c33e4`, `mergeStateStatus`
   `CLEAN`, `mergeable` `MERGEABLE`, no new pushes since the v1 commit.
 - AskBar wallet contract (the assumption the mitigation relies on)
