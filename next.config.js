@@ -6,6 +6,13 @@ const nextConfig = {
   output: 'export',
   trailingSlash: true,
 
+  // Per-page static-generation timeout (default 60s). Production build of
+  // SHA 71a48bb1 failed because /repo/[name]/page hit 60s on /repo/rl across
+  // all 3 retry attempts (Vercel deployment dpl_7Xrjrf8mQUdRLoPJvsj5Qbe1LPTJ
+  // build log). Bump to 240s to absorb slow upstream API responses without
+  // changing rendering strategy.
+  staticPageGenerationTimeout: 240,
+
   // Explicitly expose NEXT_PUBLIC_* vars. Sentry's process polyfill can prevent
   // the default build-time inlining of `process.env.NEXT_PUBLIC_*`, leaving
   // the literal key in the bundle (resolves to undefined at runtime). Declaring
