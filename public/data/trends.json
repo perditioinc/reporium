@@ -1,139 +1,129 @@
 {
-  "generatedAt": "2026-04-25T07:03:24.937Z",
+  "generatedAt": "2026-04-26T06:04:30.159Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-24 07:48:44 +0000",
-    "snapshots": 40
+    "to": "2026-04-25 07:03:27 +0000",
+    "snapshots": 41
   },
   "trending": [
     {
-      "name": "Self-hosted",
-      "type": "tag",
-      "currentActivity": 14161,
-      "previousActivity": 0,
-      "changePercent": 1416100,
-      "repoCount": 1144,
-      "representativeRepos": [
-        "openclaw",
-        "tensorflow",
-        "vscode"
-      ]
-    },
-    {
-      "name": "Text",
-      "type": "tag",
-      "currentActivity": 12563,
-      "previousActivity": 0,
-      "changePercent": 1256300,
-      "repoCount": 972,
-      "representativeRepos": [
-        "free-programming-books",
-        "openclaw",
-        "tensorflow"
-      ]
-    },
-    {
-      "name": "On-premise",
-      "type": "tag",
-      "currentActivity": 8853,
-      "previousActivity": 0,
-      "changePercent": 885300,
-      "repoCount": 704,
-      "representativeRepos": [
-        "tensorflow",
-        "vscode",
-        "transformers"
-      ]
-    },
-    {
-      "name": "Cloud API",
-      "type": "tag",
-      "currentActivity": 6995,
-      "previousActivity": 0,
-      "changePercent": 699500,
-      "repoCount": 624,
-      "representativeRepos": [
-        "tensorflow",
-        "transformers",
-        "langflow"
-      ]
-    },
-    {
-      "name": "Agentic AI",
-      "type": "tag",
-      "currentActivity": 6455,
-      "previousActivity": 0,
-      "changePercent": 645500,
-      "repoCount": 394,
-      "representativeRepos": [
-        "openclaw",
-        "opencode",
-        "langflow"
-      ]
-    },
-    {
       "name": "TypeScript",
       "type": "tag",
-      "currentActivity": 6040,
+      "currentActivity": 9,
       "previousActivity": 0,
-      "changePercent": 604000,
+      "changePercent": 900,
       "repoCount": 205,
       "representativeRepos": [
-        "openclaw",
-        "vscode",
-        "opencode"
+        "skills___",
+        "claude-context"
       ]
     },
     {
-      "name": "Natural Language Processing",
+      "name": "AI Agents",
       "type": "tag",
-      "currentActivity": 5524,
+      "currentActivity": 9,
       "previousActivity": 0,
-      "changePercent": 552400,
-      "repoCount": 221,
+      "changePercent": 900,
+      "repoCount": 5,
       "representativeRepos": [
-        "openclaw",
-        "tensorflow",
-        "transformers"
+        "skills___",
+        "claude-context"
       ]
     },
     {
-      "name": "Developer Tools",
+      "name": "Anthropic / Claude",
       "type": "tag",
-      "currentActivity": 5421,
+      "currentActivity": 9,
       "previousActivity": 0,
-      "changePercent": 542100,
-      "repoCount": 467,
+      "changePercent": 900,
+      "repoCount": 3,
       "representativeRepos": [
-        "free-programming-books",
-        "vscode",
-        "opencode"
+        "skills___",
+        "claude-context"
       ]
     },
     {
-      "name": "Python",
+      "name": "Claude",
       "type": "tag",
-      "currentActivity": 4627,
+      "currentActivity": 9,
       "previousActivity": 0,
-      "changePercent": 462700,
-      "repoCount": 646,
+      "changePercent": 900,
+      "repoCount": 3,
       "representativeRepos": [
-        "free-programming-books",
-        "transformers",
-        "langflow"
+        "skills___",
+        "claude-context"
       ]
     },
     {
-      "name": "Conversational AI",
+      "name": "Claude Code",
       "type": "tag",
-      "currentActivity": 4576,
+      "currentActivity": 9,
       "previousActivity": 0,
-      "changePercent": 457600,
-      "repoCount": 138,
+      "changePercent": 900,
+      "repoCount": 3,
       "representativeRepos": [
-        "openclaw",
-        "dify",
-        "lobehub"
+        "skills___",
+        "claude-context"
+      ]
+    },
+    {
+      "name": "Cline",
+      "type": "tag",
+      "currentActivity": 9,
+      "previousActivity": 0,
+      "changePercent": 900,
+      "repoCount": 2,
+      "representativeRepos": [
+        "skills___",
+        "claude-context"
+      ]
+    },
+    {
+      "name": "Gemini CLI",
+      "type": "tag",
+      "currentActivity": 9,
+      "previousActivity": 0,
+      "changePercent": 900,
+      "repoCount": 2,
+      "representativeRepos": [
+        "skills___",
+        "claude-context"
+      ]
+    },
+    {
+      "name": "Google AI",
+      "type": "tag",
+      "currentActivity": 9,
+      "previousActivity": 0,
+      "changePercent": 900,
+      "repoCount": 3,
+      "representativeRepos": [
+        "skills___",
+        "claude-context"
+      ]
+    },
+    {
+      "name": "OpenAI",
+      "type": "tag",
+      "currentActivity": 9,
+      "previousActivity": 0,
+      "changePercent": 900,
+      "repoCount": 4,
+      "representativeRepos": [
+        "skills___",
+        "claude-context"
+      ]
+    },
+    {
+      "name": "Qwen",
+      "type": "tag",
+      "currentActivity": 9,
+      "previousActivity": 0,
+      "changePercent": 900,
+      "repoCount": 3,
+      "representativeRepos": [
+        "skills___",
+        "claude-context"
       ]
     }
   ],
@@ -142,6 +132,6 @@
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Self-hosted is the fastest-growing area this week with +1416100% commit velocity."
+    "TypeScript is the fastest-growing area this week with +900% commit velocity."
   ]
 }
