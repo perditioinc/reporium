@@ -1,32 +1,33 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 26, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 27, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**TypeScript** (+900% vs last week)
+**AI Agents** (+700% vs last week)
 skills___, claude-context are most active.
 
-**AI Agents** (+900% vs last week)
+**Anthropic / Claude** (+700% vs last week)
 skills___, claude-context are most active.
 
-**Anthropic / Claude** (+900% vs last week)
+**Claude** (+700% vs last week)
 skills___, claude-context are most active.
 
 ---
 
 ## Library Health
-- **1856 repos** · **30 categories** · **13117 unique tags**
-- **889 forks** up to date · **949 forks** behind upstream
+- **1862 repos** · **30 categories** · **13117 unique tags**
+- **894 forks** up to date · **949 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🤖 AI Agents** most active category (46 commits across 667 repos)
-- **TypeScript** fastest growing (+900% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (58608 commits across 1411 repos)
+- **AI Agents** fastest growing (+700% commit velocity)
+- **Text** cooling (-100% change in activity)
 
 ---
 
