@@ -1,16 +1,20 @@
 // @ts-check
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { withSentryConfig } = require('@sentry/nextjs');
+
+// ADR-005: deployment-target conditional rendering.
+// - REPORIUM_DEPLOY_TARGET=github-pages keeps full static export for forks.
+// - Vercel/default uses managed output so repo detail pages can render on demand.
+const DEPLOY_TARGET = process.env.REPORIUM_DEPLOY_TARGET || '';
+const IS_STATIC_EXPORT = DEPLOY_TARGET === 'github-pages';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: IS_STATIC_EXPORT ? 'export' : undefined,
   trailingSlash: true,
 
-  // Per-page static-generation timeout (default 60s). Production build of
-  // SHA 71a48bb1 failed because /repo/[name]/page hit 60s on /repo/rl across
-  // all 3 retry attempts (Vercel deployment dpl_7Xrjrf8mQUdRLoPJvsj5Qbe1LPTJ
-  // build log). Bump to 240s to absorb slow upstream API responses without
-  // changing rendering strategy.
+  // Retained for the github-pages target. The Vercel target no longer renders
+  // the full repo corpus at build time, so this is now a defensive fence.
   staticPageGenerationTimeout: 240,
 
   // Explicitly expose NEXT_PUBLIC_* vars. Sentry's process polyfill can prevent
@@ -23,6 +27,7 @@ const nextConfig = {
     NEXT_PUBLIC_GITHUB_USERNAME: process.env.NEXT_PUBLIC_GITHUB_USERNAME ?? '',
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
     NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
+    REPORIUM_DEPLOY_TARGET: DEPLOY_TARGET,
   },
 
   // Dev-only: proxy /api/* to the Reporium API to avoid CORS issues.
@@ -48,7 +53,8 @@ module.exports = withSentryConfig(nextConfig, {
   // env vars in Vercel / Cloud Run once the DSN is provisioned.
   org: undefined,
   project: undefined,
-  // Static export: no server-side Sentry route instrumentation needed
+  // Static export: no server-side Sentry route instrumentation needed.
+  // Re-enable for the Vercel target in a follow-up if server tracing is desired.
   autoInstrumentServerFunctions: false,
   // Disable source map upload (no auth token configured yet)
   disableSourceMapUpload: true,

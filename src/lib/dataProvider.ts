@@ -60,7 +60,23 @@ class JsonDataProvider implements DataProvider {
     return Math.round(weighted)
   }
 
+  private async readJsonFromDisk<T>(filename: string): Promise<T | null> {
+    try {
+      const importNode = new Function('specifier', 'return import(specifier)') as <TModule>(specifier: string) => Promise<TModule>
+      const fs = await importNode<typeof import('node:fs')>('node:fs')
+      const path = await importNode<typeof import('node:path')>('node:path')
+      const filePath = path.join(process.cwd(), 'data', filename)
+      if (!fs.existsSync(filePath)) return null
+      return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T
+    } catch {
+      return null
+    }
+  }
+
   async getOwnedLibrary(): Promise<LibraryData | null> {
+    if (typeof window === 'undefined') {
+      return this.readJsonFromDisk<LibraryData>('owned.json')
+    }
     try {
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
       const res = await fetch(`${basePath}/data/owned.json`)
@@ -71,6 +87,12 @@ class JsonDataProvider implements DataProvider {
 
   async getLibrary(_onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
     if (this.libraryCache) return this.libraryCache
+    if (typeof window === 'undefined') {
+      const data = await this.readJsonFromDisk<LibraryData>('library.json')
+      if (!data) throw new Error('Library data not found on disk. Run npm run generate.')
+      this.libraryCache = data
+      return data
+    }
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
     const res = await fetch(`${basePath}/data/library.json`)
     if (!res.ok) throw new Error('Library data not found. Run npm run generate to generate it.')
@@ -80,6 +102,9 @@ class JsonDataProvider implements DataProvider {
   }
 
   async getTrends(): Promise<TrendData | null> {
+    if (typeof window === 'undefined') {
+      return this.readJsonFromDisk<TrendData>('trends.json')
+    }
     try {
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
       const res = await fetch(`${basePath}/data/trends.json`)
@@ -89,6 +114,9 @@ class JsonDataProvider implements DataProvider {
   }
 
   async getGaps(): Promise<GapAnalysis | null> {
+    if (typeof window === 'undefined') {
+      return this.readJsonFromDisk<GapAnalysis>('gaps.json')
+    }
     try {
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
       const res = await fetch(`${basePath}/data/gaps.json`)
@@ -265,9 +293,11 @@ class ApiDataProvider implements DataProvider {
     return headers
   }
 
-  private async apiFetch<T>(path: string, timeoutMs = 30_000): Promise<T> {
+  private async apiFetch<T>(path: string, timeoutMs?: number): Promise<T> {
+    const isBuildTime = typeof window === 'undefined' && process.env.NEXT_PHASE === 'phase-production-build'
+    const effectiveTimeout = timeoutMs ?? (isBuildTime ? 8_000 : 30_000)
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    const timer = setTimeout(() => controller.abort(), effectiveTimeout)
     try {
       const res = await fetch(`${this.apiUrl}${path}`, {
         headers: this.buildHeaders(),
@@ -321,14 +351,20 @@ class ApiDataProvider implements DataProvider {
   }
 
   async getOwnedLibrary(): Promise<LibraryData | null> {
-    // Kick off (and cache) the page-1 paginated request so _fetchLibrary() can
-    // reuse it — eliminates the duplicate /library/full hit without slowing Stage 1.
-    // page_size=500 is measured at ~2.4–3.6 s on the live API, same range as the
-    // former page_size=50 call (both are Cloud-Run-bound, not payload-bound).
+    // Show a first useful grid from the static owned artifact before waiting on
+    // the much heavier `/library/full?page_size=500` API call. This makes launch
+    // feel alive even when Cloud Run is cold.
+    const staticOwned = await this.fallback.getOwnedLibrary()
+    if (staticOwned?.repos?.length) return staticOwned
+
+    // Last-resort preview if the static artifact is unavailable.
     try {
-      return await this.getPage1()
+      return await this.apiFetch<LibraryData & { totalPages?: number; totalRepos?: number }>(
+        '/library/full?page=1&page_size=24',
+        8_000
+      )
     } catch {
-      // API unavailable — skip the preview stage; getLibrary() fallback handles it
+      // API unavailable: skip preview; getLibrary() fallback handles it.
       return null
     }
   }
