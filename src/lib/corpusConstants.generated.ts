@@ -2,10 +2,10 @@
 // Regenerate: `npm run generate && node scripts/write-corpus-constants.cjs`
 // Runs automatically in prebuild.
 export const CORPUS_STATS = {
-  reposIndexed: 1825,
-  categories: 28,
+  reposIndexed: 1861,
+  categories: 31,
   graphEdgeTypes: 4,
 } as const;
 
 /** Pre-formatted with thousands separator, e.g. "1,825". */
-export const REPOS_INDEXED_LABEL = "1,825";
+export const REPOS_INDEXED_LABEL = "1,861";
