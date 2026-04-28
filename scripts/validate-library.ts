@@ -11,6 +11,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { LibraryData } from '../src/types/repo';
+import {
+  classifyPrivacy,
+  LEGACY_PRIVATE_BLOCKLIST,
+  type PrivacyEvaluable,
+} from './lib/privacy-filter';
 
 const libraryPath = path.join(process.cwd(), 'public', 'data', 'library.json');
 
@@ -95,73 +100,29 @@ if (missingFullName.length > 0) {
   errors.push(`${missingFullName.length} repos missing fullName`);
 }
 
-// 7. PRIVATE-REPO LEAK GUARDRAIL — 2026-04-23 incident.
+// 7. PRIVATE-REPO LEAK GUARDRAIL — 2026-04-23 incident + 2026-04-28 hardening.
 //
-// The reporium-api `/library/full` endpoint leaked 44 private perditioinc repos
-// into library.json at 2026-04-23T05:03:48 UTC (served publicly for ~10 minutes
-// on reporium.com before takedown). The root cause was a missing
-// `WHERE is_private = false` in the API query; the API also strips the
-// `isPrivate` flag from responses, so the client has no structural signal to
-// filter on.
+// 2026-04-23: 44 private perditioinc repos leaked into library.json (#264).
+// 2026-04-27: hippo-harvest-assignment leaked again because the static
+//             blocklist didn't include it. The lesson: hardcoded lists are
+//             a backstop, not a primary filter.
 //
-// This check is the HARD GUARDRAIL: if any known-private repo name appears in
-// library.json, CI fails — the build does not ship. Update this list whenever
-// private repos are added via:
-//   gh repo list perditioinc --visibility=private -L 500 \
-//     --json nameWithOwner -q '.[].nameWithOwner'
+// This check now has three blocking gates, all using the shared module
+// scripts/lib/privacy-filter.ts so the validator and the generator stay
+// in lockstep:
 //
-// A new private repo that isn't on this list would still slip through, which is
-// why there's also a defensive filter in fetch-library.ts AND the primary
-// WHERE-clause fix belongs in reporium-api. Three layers, because one layer
-// already failed once.
-const PRIVATE_REPO_BLOCKLIST = new Set<string>([
-  'perditioinc/18degrees-ecom',
-  'perditioinc/aa-backend-interview-template-main',
-  'perditioinc/anomra',
-  'perditioinc/anomra-api',
-  'perditioinc/anomra-website',
-  'perditioinc/didymo-ai-agent',
-  'perditioinc/didymo-ai-api',
-  'perditioinc/didymo-ai-auth',
-  'perditioinc/didymo-ai-gcp-tts',
-  'perditioinc/didymo-ai-ingest',
-  'perditioinc/didymo-ai-mini',
-  'perditioinc/didymo-ai-openai-stt',
-  'perditioinc/didymo-ai-openai-tts',
-  'perditioinc/didymo-ai-ptr',
-  'perditioinc/didymo-ai-services-lab',
-  'perditioinc/didymo-ai-studio',
-  'perditioinc/didymo-ai-submissions-website',
-  'perditioinc/didymo-ai-usage',
-  'perditioinc/didymo-ai-vector',
-  'perditioinc/didymo-ai-webgl',
-  'perditioinc/didymo-ai-webgl-v2',
-  'perditioinc/didymo-ai-website',
-  'perditioinc/digital-panda-planner',
-  'perditioinc/event-schedule-generator',
-  'perditioinc/figma-make-perditio-website-claude',
-  'perditioinc/giveaway-generator',
-  'perditioinc/ideas-2026',
-  'perditioinc/mind-guard-app',
-  'perditioinc/perditio-figma-website',
-  'perditioinc/perditio-infra',
-  'perditioinc/perditio-platform-api',
-  'perditioinc/perditio-services',
-  'perditioinc/perditio-style-guide',
-  'perditioinc/perditio-web',
-  'perditioinc/perditio-web-app',
-  'perditioinc/perditio-website',
-  'perditioinc/perditioinc.github.io',
-  'perditioinc/reporium-evals',
-  'perditioinc/simon-brain',
-  'perditioinc/ticket-generator',
-  'perditioinc/ticket-issuer',
-  'perditioinc/v0-edm-demo-submission-website',
-  'perditioinc/whatsapp-template-generator',
-  'perditioinc/whatsapp-webhook',
-]);
+//   7a. STATIC BLOCKLIST — known-private repo names must not appear at all.
+//   7b. STRUCTURAL PRIVACY FIELD — every repo must carry a privacy signal
+//       (isPrivate / private / visibility). Missing-on-all-three = build
+//       fails; we refuse to guess.
+//   7c. PRIVATE-VERDICT — no repo classified `private` may survive into
+//       the artifact. (If the generator ran correctly this is impossible,
+//       but it's cheap insurance against future code paths that bypass
+//       fetch-library.ts.)
 
-const leakedPrivate = data.repos.filter(r => PRIVATE_REPO_BLOCKLIST.has(r.fullName));
+// 7a. Static blocklist — sourced from scripts/lib/privacy-filter.ts so we
+// only update one place when private repos are added.
+const leakedPrivate = data.repos.filter(r => LEGACY_PRIVATE_BLOCKLIST.has(r.fullName));
 if (leakedPrivate.length > 0) {
   errors.push(
     `🚨 PRIVATE REPO LEAK: ${leakedPrivate.length} private repo(s) in library.json — ` +
@@ -170,14 +131,28 @@ if (leakedPrivate.length > 0) {
   );
 }
 
-// 7b. Defensive: if an `isPrivate` flag survives into output at all, fail.
-// The API strips this field, so presence-with-truthy means something leaked
-// it back in — either a new API code path or an older cached file merged in.
-const isPrivateTrue = data.repos.filter(r => (r as unknown as { isPrivate?: boolean }).isPrivate === true);
-if (isPrivateTrue.length > 0) {
+// 7b. Structural privacy-field presence — BLOCKING.
+// Tightened from prior "warn-first" posture (#263). A missing privacy flag
+// on any single repo means we cannot prove the artifact is leak-free, so
+// the build must fail and force the API to expose the field.
+const reposLoose = data.repos as unknown as PrivacyEvaluable[];
+const missingPrivacyField = reposLoose.filter(r => classifyPrivacy(r) === 'unknown');
+if (missingPrivacyField.length > 0) {
   errors.push(
-    `🚨 isPrivate=true present on ${isPrivateTrue.length} repos — ` +
-    `${isPrivateTrue.slice(0, 5).map(r => r.fullName).join(', ')}...`
+    `🚨 PRIVACY FIELD MISSING on ${missingPrivacyField.length}/${data.repos.length} repos — ` +
+    `cannot verify leak-free. Sample offenders: ` +
+    `${missingPrivacyField.slice(0, 5).map(r => r.fullName ?? r.name ?? '<unnamed>').join(', ')}. ` +
+    `Fix: reporium-api /library/full must emit isPrivate (or private / visibility) on every repo.`
+  );
+}
+
+// 7c. Private-verdict survivors — BLOCKING.
+const privateVerdict = reposLoose.filter(r => classifyPrivacy(r) === 'private');
+if (privateVerdict.length > 0) {
+  errors.push(
+    `🚨 PRIVATE-VERDICT REPOS in artifact: ${privateVerdict.length} — ` +
+    `${privateVerdict.slice(0, 5).map(r => r.fullName ?? r.name ?? '<unnamed>').join(', ')}. ` +
+    `The privacy filter in fetch-library.ts should have stripped these.`
   );
 }
 
