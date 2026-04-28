@@ -10,6 +10,8 @@ const path = require('path');
 
 const LIBRARY = path.join(process.cwd(), 'public', 'data', 'library.json');
 const OUT = path.join(process.cwd(), 'src', 'lib', 'corpusConstants.generated.ts');
+const LLMS_TXT = path.join(process.cwd(), 'public', 'llms.txt');
+const AI_PLUGIN = path.join(process.cwd(), 'public', '.well-known', 'ai-plugin.json');
 
 if (!fs.existsSync(LIBRARY)) {
   console.error(`[corpus-constants] ${LIBRARY} missing — run \`npm run generate\` first`);
@@ -41,3 +43,46 @@ export const REPOS_INDEXED_LABEL = ${JSON.stringify(reposIndexed.toLocaleString(
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, ts);
 console.log(`[corpus-constants] wrote ${OUT} (reposIndexed=${reposIndexed}, categories=${categories})`);
+
+// Also keep public/llms.txt in sync. The "Live Corpus" line drifts otherwise
+// (audit 2026-04-27 caught it at 1,825 vs actual 1,856). Replace just that
+// one line so any prose edits to the rest of the file are preserved.
+if (fs.existsSync(LLMS_TXT)) {
+  const orig = fs.readFileSync(LLMS_TXT, 'utf-8');
+  // Match a line of the form: "**Live Corpus**: <num> AI development tools across <num> categories"
+  // Tolerate extra whitespace and an optional thousands separator.
+  const re = /\*\*Live Corpus\*\*:\s*[\d,]+\s+AI development tools across\s+\d+\s+categories/;
+  const replacement = `**Live Corpus**: ${reposIndexed.toLocaleString('en-US')} AI development tools across ${categories} categories`;
+  if (re.test(orig)) {
+    const next = orig.replace(re, replacement);
+    if (next !== orig) {
+      fs.writeFileSync(LLMS_TXT, next);
+      console.log(`[corpus-constants] updated ${LLMS_TXT} corpus line`);
+    } else {
+      console.log(`[corpus-constants] ${LLMS_TXT} already up to date`);
+    }
+  } else {
+    console.warn(`[corpus-constants] ${LLMS_TXT} did not match expected "Live Corpus" pattern — left unchanged`);
+  }
+}
+
+// Same treatment for the AI plugin manifest's description_for_model. JSON
+// edit done as a regex against the string value, not a JSON.parse round-trip,
+// to preserve key ordering and any future hand-tuned formatting.
+if (fs.existsSync(AI_PLUGIN)) {
+  const orig = fs.readFileSync(AI_PLUGIN, 'utf-8');
+  // Match: "Reporium indexes <num> AI development tools and open-source repositories across <num> categories"
+  const re = /Reporium indexes\s+[\d,]+\s+AI development tools and open-source repositories across\s+\d+\s+categories/;
+  const replacement = `Reporium indexes ${reposIndexed.toLocaleString('en-US')} AI development tools and open-source repositories across ${categories} categories`;
+  if (re.test(orig)) {
+    const next = orig.replace(re, replacement);
+    if (next !== orig) {
+      fs.writeFileSync(AI_PLUGIN, next);
+      console.log(`[corpus-constants] updated ${AI_PLUGIN} description_for_model`);
+    } else {
+      console.log(`[corpus-constants] ${AI_PLUGIN} already up to date`);
+    }
+  } else {
+    console.warn(`[corpus-constants] ${AI_PLUGIN} description_for_model did not match expected pattern — left unchanged`);
+  }
+}
