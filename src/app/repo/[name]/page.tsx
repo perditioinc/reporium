@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { cache } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -9,7 +10,23 @@ import { CATEGORIES } from '@/lib/buildCategories';
 import type { EnrichedRepo, QualitySignals } from '@/types/repo';
 import { ViewTracker } from '@/components/ViewTracker'
 import { SimilarReposPanel } from '@/components/SimilarReposPanel';
+import { RepoEvaluationPanel } from '@/components/RepoEvaluationPanel';
 import { createDataProvider } from '@/lib/dataProvider';
+
+// ADR-005: bounded pre-render for Vercel target, full export for github-pages fork.
+const TOP_N_REPOS_FOR_BUILD = Number(process.env.REPORIUM_TOP_N_PREBUILD ?? 250);
+const IS_STATIC_EXPORT = (process.env.REPORIUM_DEPLOY_TARGET ?? '') === 'github-pages';
+
+// dynamicParams and revalidate cannot be branched here — Turbopack's static
+// route-segment parser requires literal values. Defaults are correct for both
+// targets:
+//   - vercel target (output undefined): default dynamicParams=true →
+//       on-demand rendering for repos outside the pre-built top-N. We skip the
+//       explicit revalidate export so the long-tail page is rendered fresh per
+//       request (the upstream API + edge cache provide the dedupe surface).
+//       Revisit in a follow-up if cache invalidation guarantees demand ISR.
+//   - github-pages (output: 'export'): Next.js coerces dynamicParams to false
+//       internally; only repos in generateStaticParams reach the export.
 
 const SKILL_LIFECYCLE_GROUPS: Record<string, string> = {
   'Model Training & Fine-tuning': 'Foundation & Training',
@@ -163,27 +180,15 @@ function groupTaxonomy(taxonomy: RepoDetail['taxonomy']) {
   });
 }
 
-interface RepoEvaluation {
-  pros: string[];
-  cons: string[];
-  best_for: string;
-  avoid_if: string;
-  comparable_to: string[];
-  community_verdict: string;
-}
+// ADR-005: getRepoEvaluation is now fetched client-side via RepoEvaluationPanel
+// (see src/components/RepoEvaluationPanel.tsx). The server-side fetch path has
+// been removed to drop one of the three per-page build-time API calls.
 
-async function getRepoEvaluation(name: string): Promise<RepoEvaluation | null> {
-  const provider = createDataProvider();
-  const providerWithEval = provider as typeof provider & {
-    getRepoEvaluation?: (name: string) => Promise<RepoEvaluation | null>
-  };
-  if (typeof providerWithEval.getRepoEvaluation === 'function') {
-    return providerWithEval.getRepoEvaluation(name);
-  }
-  return null;
-}
-
-async function getRepoDetail(name: string): Promise<RepoDetail | null> {
+// `cache()` dedupes the duplicate fetch from generateMetadata + page body.
+// React.cache is per-request, so two `getRepoDetail(name)` calls in a single
+// SSG/ISR pass share the same in-flight promise. ADR-005 cost-model lever:
+// 3 calls/page → 2 calls/page (then → 1 once getRepoEvaluation is client-side).
+const getRepoDetail = cache(async (name: string): Promise<RepoDetail | null> => {
   try {
     const provider = createDataProvider();
     const apiRepo = await provider.getRepo(name);
@@ -325,7 +330,7 @@ async function getRepoDetail(name: string): Promise<RepoDetail | null> {
     } catch {
       return null;
     }
-}
+});
 
 
 interface RepoPageProps {
@@ -353,12 +358,41 @@ export async function generateMetadata({ params }: RepoPageProps): Promise<Metad
   };
 }
 
+// ADR-005: Bounded pre-render. The github-pages target needs every repo because
+// the static export has no runtime fallback (any path not in the export 404s).
+// The Vercel target pre-renders only the top-N by stars; the long tail is
+// served via on-demand ISR (see `dynamicParams = true` and `revalidate` above).
+//
+// Cost-shape collapse:
+//   github-pages: O(N) pages × O(api_latency × 1) = same as today, no change
+//   vercel:       O(top_N) pages × O(api_latency × 1) at build,
+//                 O(api_latency × 1) per cold ISR rebuild after the 1h window
 export async function generateStaticParams() {
   try {
     const data = JSON.parse(
       readFileSync(join(process.cwd(), 'data', 'library.json'), 'utf-8')
-    ) as { repos: Array<{ name: string }> };
-    return data.repos.map((repo) => ({ name: repo.name }));
+    ) as {
+      repos: Array<{
+        name: string;
+        stars?: number | null;
+        lastUpdated?: string | null;
+        parentStats?: { stars?: number | null } | null;
+      }>;
+    };
+    if (IS_STATIC_EXPORT) {
+      return data.repos.map((repo) => ({ name: repo.name }));
+    }
+    // Sort by effective star count (parent stars for forks, repo stars otherwise),
+    // tiebreak on recency. This matches what users actually navigate to.
+    const ranked = [...data.repos].sort((a, b) => {
+      const aStars = a.parentStats?.stars ?? a.stars ?? 0;
+      const bStars = b.parentStats?.stars ?? b.stars ?? 0;
+      if (bStars !== aStars) return bStars - aStars;
+      const aTime = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0;
+      const bTime = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0;
+      return bTime - aTime;
+    });
+    return ranked.slice(0, TOP_N_REPOS_FOR_BUILD).map((repo) => ({ name: repo.name }));
   } catch {
     return [];
   }
@@ -381,10 +415,9 @@ export default async function RepoDetailPage({
 }) {
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
-  const [repo, evaluation] = await Promise.all([
-    getRepoDetail(decodedName),
-    getRepoEvaluation(decodedName),
-  ]);
+  // ADR-005: server side fetches getRepoDetail only. Evaluation is fetched in
+  // RepoEvaluationPanel after first paint (skeleton until it resolves).
+  const repo = await getRepoDetail(decodedName);
   if (!repo) notFound();
   const skillGroups = groupSkills(repo.ai_dev_skills ?? []);
   const taxonomyGroups = groupTaxonomy(repo.taxonomy ?? []);
@@ -532,76 +565,8 @@ export default async function RepoDetailPage({
               </p>
             </section>
 
-            {evaluation && (
-              <section className="rounded-[24px] border border-zinc-800 bg-gradient-to-br from-zinc-900/80 via-zinc-900/60 to-zinc-950/60 p-5">
-                <h2 className="text-lg font-semibold text-zinc-100">Community Evaluation</h2>
-                {evaluation.community_verdict && (
-                  <p className="mt-3 text-sm leading-7 text-zinc-300 italic">
-                    &ldquo;{evaluation.community_verdict}&rdquo;
-                  </p>
-                )}
-
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  {evaluation.pros?.length > 0 && (
-                    <div>
-                      <p className="mb-2 text-xs uppercase tracking-[0.18em] text-emerald-400">Pros</p>
-                      <ul className="space-y-2">
-                        {evaluation.pros.map((pro, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                            <span className="mt-0.5 text-emerald-500">✓</span>
-                            <span>{pro}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {evaluation.cons?.length > 0 && (
-                    <div>
-                      <p className="mb-2 text-xs uppercase tracking-[0.18em] text-red-400">Cons</p>
-                      <ul className="space-y-2">
-                        {evaluation.cons.map((con, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                            <span className="mt-0.5 text-red-500">✕</span>
-                            <span>{con}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  {evaluation.best_for && (
-                    <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-400">Best for</p>
-                      <p className="mt-1.5 text-sm text-zinc-300">{evaluation.best_for}</p>
-                    </div>
-                  )}
-                  {evaluation.avoid_if && (
-                    <div className="rounded-xl border border-red-900/40 bg-red-950/20 px-4 py-3">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-red-400">Avoid if</p>
-                      <p className="mt-1.5 text-sm text-zinc-300">{evaluation.avoid_if}</p>
-                    </div>
-                  )}
-                </div>
-
-                {evaluation.comparable_to?.length > 0 && (
-                  <div className="mt-4">
-                    <p className="mb-2 text-xs uppercase tracking-[0.18em] text-zinc-500">Comparable to</p>
-                    <div className="flex flex-wrap gap-2">
-                      {evaluation.comparable_to.map((alt) => (
-                        <span
-                          key={alt}
-                          className="rounded-full border border-zinc-700 bg-zinc-800/50 px-3 py-1 text-xs text-zinc-300"
-                        >
-                          {alt}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
+            {/* ADR-005: evaluation now fetched client-side after first paint */}
+            <RepoEvaluationPanel repoName={repo.name} />
 
             <section className="rounded-[24px] border border-zinc-800 bg-zinc-900/60 p-5">
               <h2 className="text-lg font-semibold text-zinc-100">AI Dev Skills</h2>
