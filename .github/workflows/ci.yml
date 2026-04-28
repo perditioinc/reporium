@@ -15,8 +15,13 @@ permissions:
 jobs:
   lint-and-build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        deploy_target: [vercel, github-pages]
     env:
       NEXT_PUBLIC_REPORIUM_API_URL: https://reporium-api-573778300586.us-central1.run.app
+      REPORIUM_DEPLOY_TARGET: ${{ matrix.deploy_target }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -36,7 +41,7 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      - name: Build
+      - name: Build (${{ matrix.deploy_target }})
         run: npm run build
 
   security:
