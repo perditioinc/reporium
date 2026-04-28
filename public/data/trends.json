@@ -1,183 +1,314 @@
 {
-  "generatedAt": "2026-04-27T08:04:06.387Z",
+  "generatedAt": "2026-04-28T08:04:21.901Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-26 06:04:33 +0000",
-    "snapshots": 42
+    "to": "2026-04-28 00:43:09 -0700",
+    "snapshots": 44
   },
   "trending": [
     {
-      "name": "AI Agents",
+      "name": "Tutorial",
       "type": "tag",
-      "currentActivity": 7,
+      "currentActivity": 4671,
       "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 5,
+      "changePercent": 467100,
+      "repoCount": 711,
       "representativeRepos": [
-        "skills___",
-        "claude-context"
+        "openclaw",
+        "react",
+        "transformers"
       ]
     },
     {
-      "name": "Anthropic / Claude",
+      "name": "Security",
       "type": "tag",
-      "currentActivity": 7,
+      "currentActivity": 3667,
       "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 3,
+      "changePercent": 366700,
+      "repoCount": 421,
       "representativeRepos": [
-        "skills___",
-        "claude-context"
+        "freeCodeCamp",
+        "openclaw",
+        "tensorflow"
       ]
     },
     {
-      "name": "Claude",
+      "name": "Real-Time / Streaming",
       "type": "tag",
-      "currentActivity": 7,
+      "currentActivity": 3180,
       "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 3,
+      "changePercent": 318000,
+      "repoCount": 504,
       "representativeRepos": [
-        "skills___",
-        "claude-context"
-      ]
-    },
-    {
-      "name": "Claude Code",
-      "type": "tag",
-      "currentActivity": 7,
-      "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 3,
-      "representativeRepos": [
-        "skills___",
-        "claude-context"
-      ]
-    },
-    {
-      "name": "Cline",
-      "type": "tag",
-      "currentActivity": 7,
-      "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 2,
-      "representativeRepos": [
-        "skills___",
-        "claude-context"
-      ]
-    },
-    {
-      "name": "Gemini CLI",
-      "type": "tag",
-      "currentActivity": 7,
-      "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 2,
-      "representativeRepos": [
-        "skills___",
-        "claude-context"
-      ]
-    },
-    {
-      "name": "Google AI",
-      "type": "tag",
-      "currentActivity": 7,
-      "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 3,
-      "representativeRepos": [
-        "skills___",
-        "claude-context"
+        "openclaw",
+        "transformers",
+        "langchain"
       ]
     },
     {
       "name": "OpenAI",
       "type": "tag",
-      "currentActivity": 7,
+      "currentActivity": 3011,
       "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 4,
+      "changePercent": 301100,
+      "repoCount": 688,
       "representativeRepos": [
-        "skills___",
-        "claude-context"
+        "openclaw",
+        "transformers",
+        "opencode"
       ]
     },
     {
-      "name": "Qwen",
+      "name": "AI Agents",
       "type": "tag",
-      "currentActivity": 7,
+      "currentActivity": 2871,
       "previousActivity": 0,
-      "changePercent": 700,
-      "repoCount": 3,
+      "changePercent": 287100,
+      "repoCount": 403,
       "representativeRepos": [
-        "skills___",
-        "claude-context"
+        "openclaw",
+        "langflow",
+        "dify"
       ]
     },
     {
-      "name": "Caching",
+      "name": "Anthropic / Claude",
       "type": "tag",
-      "currentActivity": 6,
+      "currentActivity": 2861,
       "previousActivity": 0,
-      "changePercent": 600,
-      "repoCount": 2,
+      "changePercent": 286100,
+      "repoCount": 474,
       "representativeRepos": [
-        "claude-context"
+        "openclaw",
+        "opencode",
+        "lobehub"
+      ]
+    },
+    {
+      "name": "Mobile",
+      "type": "tag",
+      "currentActivity": 2802,
+      "previousActivity": 0,
+      "changePercent": 280200,
+      "repoCount": 278,
+      "representativeRepos": [
+        "freeCodeCamp",
+        "openclaw",
+        "react"
+      ]
+    },
+    {
+      "name": "Automation",
+      "type": "tag",
+      "currentActivity": 2629,
+      "previousActivity": 0,
+      "changePercent": 262900,
+      "repoCount": 244,
+      "representativeRepos": [
+        "openclaw",
+        "playwright",
+        "core"
+      ]
+    },
+    {
+      "name": "Claude",
+      "type": "tag",
+      "currentActivity": 2329,
+      "previousActivity": 0,
+      "changePercent": 232900,
+      "repoCount": 412,
+      "representativeRepos": [
+        "openclaw",
+        "opencode",
+        "lobehub"
+      ]
+    },
+    {
+      "name": "Multi-Agent",
+      "type": "tag",
+      "currentActivity": 2212,
+      "previousActivity": 0,
+      "changePercent": 221200,
+      "repoCount": 167,
+      "representativeRepos": [
+        "openclaw",
+        "langflow",
+        "eliza"
       ]
     }
   ],
   "emerging": [],
   "cooling": [
     {
-      "name": "Text",
+      "name": "Web Development",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 8199,
-      "changePercent": -100,
-      "repoCount": 972,
-      "representativeRepos": []
-    },
-    {
-      "name": "datasets",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 60,
-      "changePercent": -100,
-      "repoCount": 2,
-      "representativeRepos": []
-    },
-    {
-      "name": "education",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 60,
-      "changePercent": -100,
-      "repoCount": 3,
-      "representativeRepos": []
-    },
-    {
-      "name": "learning-platform",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 60,
+      "previousActivity": 57,
       "changePercent": -100,
       "repoCount": 1,
       "representativeRepos": []
     },
     {
-      "name": "coding-bootcamp",
+      "name": "API Gateway Development",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 60,
+      "previousActivity": 69,
       "changePercent": -100,
-      "repoCount": 1,
+      "repoCount": 9,
+      "representativeRepos": []
+    },
+    {
+      "name": "AI Agent Orchestration",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 7,
+      "changePercent": -100,
+      "repoCount": 22,
+      "representativeRepos": []
+    },
+    {
+      "name": "DevOps",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 97,
+      "changePercent": -100,
+      "repoCount": 6,
+      "representativeRepos": []
+    },
+    {
+      "name": "Diffusion Models",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 39,
+      "changePercent": -100,
+      "repoCount": 30,
       "representativeRepos": []
     }
   ],
-  "stable": [],
+  "stable": [
+    {
+      "name": "JavaScript",
+      "type": "tag",
+      "currentActivity": 985,
+      "previousActivity": 1091,
+      "changePercent": -10,
+      "repoCount": 241,
+      "representativeRepos": [
+        "freeCodeCamp",
+        "react",
+        "next.js"
+      ]
+    },
+    {
+      "name": "Document Processing",
+      "type": "tag",
+      "currentActivity": 89,
+      "previousActivity": 93,
+      "changePercent": -4,
+      "repoCount": 96,
+      "representativeRepos": [
+        "dify",
+        "milvus",
+        "weaviate"
+      ]
+    },
+    {
+      "name": "Multimodal AI",
+      "type": "tag",
+      "currentActivity": 307,
+      "previousActivity": 382,
+      "changePercent": -20,
+      "repoCount": 206,
+      "representativeRepos": [
+        "transformers",
+        "lobehub",
+        "milvus"
+      ]
+    },
+    {
+      "name": "AI Assistant Architecture",
+      "type": "tag",
+      "currentActivity": 1748,
+      "previousActivity": 1691,
+      "changePercent": 3,
+      "repoCount": 5,
+      "representativeRepos": [
+        "openclaw"
+      ]
+    },
+    {
+      "name": "Cross-platform Development",
+      "type": "tag",
+      "currentActivity": 1759,
+      "previousActivity": 1794,
+      "changePercent": -2,
+      "repoCount": 9,
+      "representativeRepos": [
+        "openclaw",
+        "ppsspp"
+      ]
+    },
+    {
+      "name": "Computational Geometry",
+      "type": "tag",
+      "currentActivity": 27,
+      "previousActivity": 23,
+      "changePercent": 17,
+      "repoCount": 2,
+      "representativeRepos": [
+        "OrcaSlicer"
+      ]
+    },
+    {
+      "name": "Similarity Search",
+      "type": "tag",
+      "currentActivity": 9,
+      "previousActivity": 9,
+      "changePercent": 0,
+      "repoCount": 13,
+      "representativeRepos": [
+        "redis",
+        "weaviate"
+      ]
+    },
+    {
+      "name": "Optical Character Recognition (OCR)",
+      "type": "tag",
+      "currentActivity": 60,
+      "previousActivity": 66,
+      "changePercent": -9,
+      "repoCount": 15,
+      "representativeRepos": [
+        "paperless-ngx",
+        "ImageToolbox"
+      ]
+    },
+    {
+      "name": "Algorithmic Trading Infrastructure",
+      "type": "tag",
+      "currentActivity": 43,
+      "previousActivity": 44,
+      "changePercent": -2,
+      "repoCount": 1,
+      "representativeRepos": [
+        "ccxt"
+      ]
+    },
+    {
+      "name": "API Integration and Standardization",
+      "type": "tag",
+      "currentActivity": 43,
+      "previousActivity": 44,
+      "changePercent": -2,
+      "repoCount": 1,
+      "representativeRepos": [
+        "ccxt"
+      ]
+    }
+  ],
   "newReleases": [],
   "insights": [
-    "AI Agents is the fastest-growing area this week with +700% commit velocity.",
-    "Activity in Text has slowed by 100% this week."
+    "Tutorial is the fastest-growing area this week with +467100% commit velocity.",
+    "Activity in Web Development has slowed by 100% this week."
   ]
 }

@@ -1,33 +1,47 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 27, 2026
+**perditioinc's GitHub Knowledge Library** · Generated April 28, 2026
+
+---
+
+## Today's Activity
+**8 commits** across **7 repos** in your library
+
+| Repo | Commits | Category |
+|------|---------|----------|
+| reporium-trust-score | 2 | Dev Tools & Automation |
+| reporium-roadmap | 1 | Dev Tools & Automation |
+| reporium-audit | 1 | Dev Tools & Automation |
+| reporium | 1 | RAG & Retrieval |
+| reporium-dataset | 1 | RAG & Retrieval |
+| portfolio | 1 | Dev Tools & Automation |
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**AI Agents** (+700% vs last week)
-skills___, claude-context are most active.
+**Tutorial** (+467100% vs last week)
+openclaw, react, transformers are most active.
 
-**Anthropic / Claude** (+700% vs last week)
-skills___, claude-context are most active.
+**Security** (+366700% vs last week)
+freeCodeCamp, openclaw, tensorflow are most active.
 
-**Claude** (+700% vs last week)
-skills___, claude-context are most active.
+**Real-Time / Streaming** (+318000% vs last week)
+openclaw, transformers, langchain are most active.
 
 ---
 
 ## Library Health
-- **1862 repos** · **30 categories** · **13117 unique tags**
-- **894 forks** up to date · **949 forks** behind upstream
-- Most outdated: `awesome` (behind 1 commits)
+- **1861 repos** · **31 categories** · **5326 unique tags**
+- **625 forks** up to date · **1216 forks** behind upstream
+- Most outdated: `rust_` (behind 2169 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (58608 commits across 1411 repos)
-- **AI Agents** fastest growing (+700% commit velocity)
-- **Text** cooling (-100% change in activity)
+- **📚 Learning Resources** most active category (74474 commits across 1348 repos)
+- **Tutorial** fastest growing (+467100% commit velocity)
+- **Web Development** cooling (-100% change in activity)
 
 ---
 
