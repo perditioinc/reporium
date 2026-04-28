@@ -1,12 +1,17 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { EnrichedRepo } from '@/types/repo';
 import { getCategoryColor } from '@/lib/categoryColors';
 
 interface RepoCardMinimalProps {
   repo: EnrichedRepo;
-  onSelect: (name: string) => void;
+  /** Optional click hook (e.g. analytics, graph-sync). The card always
+   *  navigates to /repo/[name] via the wrapping <Link>; onSelect is no
+   *  longer required. Kept optional for backward compat with callers that
+   *  want to observe the click. */
+  onSelect?: (name: string) => void;
   isSelected: boolean;
   isRelated: boolean;
   anySelected: boolean; // true when ANY card is selected (to know whether to dim)
@@ -66,12 +71,21 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
     : 'rgba(255,255,255,0.03)';
 
   return (
+    <Link
+      href={`/repo/${encodeURIComponent(repo.name)}`}
+      prefetch={false}
+      onClick={() => onSelect?.(repo.name)}
+      aria-label={`Open ${repo.name} repository page`}
+      data-testid="repo-card-minimal"
+      data-repo-name={repo.name}
+      style={{ display: 'block', textDecoration: 'none', color: 'inherit', borderRadius: '0.5rem' }}
+      className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+    >
     <motion.div
       layout
       animate={{ opacity }}
       transition={SPRING}
       whileHover={{ y: -2, scale: 1.01 }}
-      onClick={() => onSelect(repo.name)}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
       style={{
@@ -178,5 +192,6 @@ export function RepoCardMinimal({ repo, onSelect, isSelected, isRelated, anySele
         )}
       </motion.div>
     </motion.div>
+    </Link>
   );
 }
