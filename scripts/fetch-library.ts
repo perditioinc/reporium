@@ -13,6 +13,11 @@
 
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'fs'
 import { join } from 'path'
+import {
+  filterPrivateRepos,
+  MissingPrivacyFieldError,
+  type PrivacyEvaluable,
+} from './lib/privacy-filter'
 
 // Load .env.local if it exists (tsx doesn't auto-load Next.js env files)
 const envPath = join(process.cwd(), '.env.local')
@@ -159,80 +164,58 @@ async function main() {
     'totalCommitsFetched',
   ])
 
-  // DEFENSIVE PRIVATE-REPO FILTER — 2026-04-23 incident.
+  // PRIVATE-REPO FILTER — 2026-04-28 hotfix (HARD GATE).
   //
-  // The reporium-api `/library/full` endpoint strips the `isPrivate` field
-  // from responses but does NOT filter `is_private = true` rows out of the
-  // underlying query. That caused all 44 perditioinc private repos to leak
-  // into library.json (and, by transitivity, onto reporium.com) during the
-  // post-merge Vercel build on 2026-04-23T05:03:48 UTC.
+  // Background: 2026-04-23 SEC-HOTFIX (#264) took down 44 leaked private
+  // repos. 2026-04-27 found `hippo-harvest-assignment` re-leaked because it
+  // was created AFTER the static blocklist was last synced. The fix below
+  // is FIELD-DRIVEN: every repo must carry an explicit privacy signal
+  // (`isPrivate`, `private`, or `visibility`). If ANY repo lacks all three,
+  // generation FAILS CLOSED. We do not guess.
   //
-  // This client-side blocklist is defense-in-depth. The primary fix is in
-  // the API (WHERE is_private = false) — this list only catches anything
-  // that slips through upstream. Sync it with `gh repo list perditioinc
-  // --visibility=private --json nameWithOwner -L 500 -q '.[].nameWithOwner'`
-  // whenever private repos are added; the validate-library.ts step will
-  // hard-fail CI if a known-private repo shows up in the output, which is
-  // the real guardrail.
-  const PRIVATE_REPO_BLOCKLIST = new Set<string>([
-    'perditioinc/18degrees-ecom',
-    'perditioinc/aa-backend-interview-template-main',
-    'perditioinc/anomra',
-    'perditioinc/anomra-api',
-    'perditioinc/anomra-website',
-    'perditioinc/didymo-ai-agent',
-    'perditioinc/didymo-ai-api',
-    'perditioinc/didymo-ai-auth',
-    'perditioinc/didymo-ai-gcp-tts',
-    'perditioinc/didymo-ai-ingest',
-    'perditioinc/didymo-ai-mini',
-    'perditioinc/didymo-ai-openai-stt',
-    'perditioinc/didymo-ai-openai-tts',
-    'perditioinc/didymo-ai-ptr',
-    'perditioinc/didymo-ai-services-lab',
-    'perditioinc/didymo-ai-studio',
-    'perditioinc/didymo-ai-submissions-website',
-    'perditioinc/didymo-ai-usage',
-    'perditioinc/didymo-ai-vector',
-    'perditioinc/didymo-ai-webgl',
-    'perditioinc/didymo-ai-webgl-v2',
-    'perditioinc/didymo-ai-website',
-    'perditioinc/digital-panda-planner',
-    'perditioinc/event-schedule-generator',
-    'perditioinc/figma-make-perditio-website-claude',
-    'perditioinc/giveaway-generator',
-    'perditioinc/ideas-2026',
-    'perditioinc/mind-guard-app',
-    'perditioinc/perditio-figma-website',
-    'perditioinc/perditio-infra',
-    'perditioinc/perditio-platform-api',
-    'perditioinc/perditio-services',
-    'perditioinc/perditio-style-guide',
-    'perditioinc/perditio-web',
-    'perditioinc/perditio-web-app',
-    'perditioinc/perditio-website',
-    'perditioinc/perditioinc.github.io',
-    'perditioinc/reporium-evals',
-    'perditioinc/simon-brain',
-    'perditioinc/ticket-generator',
-    'perditioinc/ticket-issuer',
-    'perditioinc/v0-edm-demo-submission-website',
-    'perditioinc/whatsapp-template-generator',
-    'perditioinc/whatsapp-webhook',
-  ])
-
+  // The legacy hardcoded blocklist still runs as a second wall via
+  // `LEGACY_PRIVATE_BLOCKLIST` inside the filter module — even if the API
+  // erroneously labels a known-private repo public, it is dropped.
+  //
+  // See scripts/lib/privacy-filter.ts for the full classification rules.
   const beforeFilter = allRepos.length
-  allRepos = allRepos.filter((r: { fullName?: string; isPrivate?: boolean }) => {
-    if (r.isPrivate === true) return false
-    if (r.fullName && PRIVATE_REPO_BLOCKLIST.has(r.fullName)) {
-      console.warn(`[fetch-library] BLOCKED private repo leaking from API: ${r.fullName}`)
-      return false
+  let kept: PrivacyEvaluable[]
+  let dropped: PrivacyEvaluable[]
+  let legacyDropped: PrivacyEvaluable[]
+  try {
+    const result = filterPrivateRepos(allRepos as PrivacyEvaluable[])
+    kept = result.kept
+    dropped = result.dropped
+    legacyDropped = result.legacyDropped
+  } catch (err) {
+    if (err instanceof MissingPrivacyFieldError) {
+      console.error('[fetch-library] FATAL: privacy fields missing on response payload.')
+      console.error(`[fetch-library] ${err.message}`)
+      console.error(
+        '[fetch-library] Refusing to write public artifacts. The API must expose ' +
+        'isPrivate / private / visibility on every repo before this build can ship.',
+      )
+      process.exit(2)
     }
-    return true
-  })
+    throw err
+  }
+  allRepos = kept as typeof allRepos
+  if (dropped.length > 0) {
+    console.warn(
+      `[fetch-library] dropped ${dropped.length} repo(s) flagged private by API: ` +
+      dropped.slice(0, 10).map((r) => r.fullName ?? r.name ?? '<unnamed>').join(', '),
+    )
+  }
+  if (legacyDropped.length > 0) {
+    console.warn(
+      `[fetch-library] LEGACY-BLOCKLIST caught ${legacyDropped.length} repo(s) that ` +
+      `the API labelled public but are known-private: ` +
+      legacyDropped.map((r) => r.fullName ?? r.name ?? '<unnamed>').join(', '),
+    )
+  }
   const removed = beforeFilter - allRepos.length
   if (removed > 0) {
-    console.warn(`[fetch-library] removed ${removed} private repo(s) that leaked from API /library/full (server-side filter regressed — file reporium-api ticket)`)
+    console.warn(`[fetch-library] privacy filter removed ${removed} repo(s) total (${beforeFilter} → ${allRepos.length})`)
   }
 
   const slimRepos = allRepos.map((repo: Record<string, unknown>) => {
@@ -257,10 +240,31 @@ async function main() {
     return slim
   })
 
-  // Build combined result: use stats/categories/tagMetrics from page 1 (corpus-wide aggregates)
+  // Build combined result: use stats/categories/tagMetrics from page 1 (corpus-wide aggregates).
+  //
+  // RECOMPUTE COUNTS AFTER FILTERING — never copy upstream totals once we've
+  // dropped private repos. Validators (and downstream copy) rely on
+  // stats.total === repos.length, totalRepos === repos.length.
+  const builtCount = slimRepos.filter((r) => !(r as { isFork?: boolean }).isFork).length
+  const forkedCount = slimRepos.length - builtCount
+  const upstreamPageSize: number =
+    typeof page1.pageSize === 'number' && page1.pageSize > 0 ? page1.pageSize : PAGE_SIZE
+  const recomputedTotalPages = Math.max(1, Math.ceil(slimRepos.length / upstreamPageSize))
+
+  const upstreamStats = (page1.stats ?? {}) as Record<string, unknown>
+  const recomputedStats = {
+    ...upstreamStats,
+    total: slimRepos.length,
+    built: builtCount,
+    forked: forkedCount,
+  }
+
   const data = {
     ...page1,
     repos: slimRepos,
+    totalRepos: slimRepos.length,
+    totalPages: recomputedTotalPages,
+    stats: recomputedStats,
   }
 
   const outDir = join(process.cwd(), 'public', 'data')
@@ -271,9 +275,23 @@ async function main() {
   writeFileSync(outPath, JSON.stringify(data), 'utf-8')
 
   // Write owned-only subset for progressive loading.
-  // Keeps full stats/categories so header counts stay accurate on first paint.
+  // Owned subset gets its own recomputed totals so the header counts on first
+  // paint match the rows actually present in that file.
   const ownedRepos = data.repos.filter((r: { isFork?: boolean }) => !r.isFork)
-  const ownedData = { ...data, repos: ownedRepos }
+  const ownedTotalPages = Math.max(1, Math.ceil(ownedRepos.length / upstreamPageSize))
+  const ownedStats = {
+    ...recomputedStats,
+    total: ownedRepos.length,
+    built: ownedRepos.length,
+    forked: 0,
+  }
+  const ownedData = {
+    ...data,
+    repos: ownedRepos,
+    totalRepos: ownedRepos.length,
+    totalPages: ownedTotalPages,
+    stats: ownedStats,
+  }
   const ownedPath = join(outDir, 'owned.json')
   writeFileSync(ownedPath, JSON.stringify(ownedData), 'utf-8')
 
