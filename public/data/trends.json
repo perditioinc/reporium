@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-04-28T08:04:21.901Z",
+  "generatedAt": "2026-04-29T07:58:33.978Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-28 00:43:09 -0700",
-    "snapshots": 44
+    "to": "2026-04-28 08:04:24 +0000",
+    "snapshots": 45
   },
   "trending": [
     {
@@ -12,7 +12,7 @@
       "currentActivity": 4671,
       "previousActivity": 0,
       "changePercent": 467100,
-      "repoCount": 711,
+      "repoCount": 712,
       "representativeRepos": [
         "openclaw",
         "react",
@@ -35,9 +35,9 @@
     {
       "name": "Real-Time / Streaming",
       "type": "tag",
-      "currentActivity": 3180,
+      "currentActivity": 3177,
       "previousActivity": 0,
-      "changePercent": 318000,
+      "changePercent": 317700,
       "repoCount": 504,
       "representativeRepos": [
         "openclaw",
@@ -46,50 +46,11 @@
       ]
     },
     {
-      "name": "OpenAI",
-      "type": "tag",
-      "currentActivity": 3011,
-      "previousActivity": 0,
-      "changePercent": 301100,
-      "repoCount": 688,
-      "representativeRepos": [
-        "openclaw",
-        "transformers",
-        "opencode"
-      ]
-    },
-    {
-      "name": "AI Agents",
-      "type": "tag",
-      "currentActivity": 2871,
-      "previousActivity": 0,
-      "changePercent": 287100,
-      "repoCount": 403,
-      "representativeRepos": [
-        "openclaw",
-        "langflow",
-        "dify"
-      ]
-    },
-    {
-      "name": "Anthropic / Claude",
-      "type": "tag",
-      "currentActivity": 2861,
-      "previousActivity": 0,
-      "changePercent": 286100,
-      "repoCount": 474,
-      "representativeRepos": [
-        "openclaw",
-        "opencode",
-        "lobehub"
-      ]
-    },
-    {
       "name": "Mobile",
       "type": "tag",
-      "currentActivity": 2802,
+      "currentActivity": 2799,
       "previousActivity": 0,
-      "changePercent": 280200,
+      "changePercent": 279900,
       "repoCount": 278,
       "representativeRepos": [
         "freeCodeCamp",
@@ -100,9 +61,9 @@
     {
       "name": "Automation",
       "type": "tag",
-      "currentActivity": 2629,
+      "currentActivity": 2626,
       "previousActivity": 0,
-      "changePercent": 262900,
+      "changePercent": 262600,
       "repoCount": 244,
       "representativeRepos": [
         "openclaw",
@@ -111,29 +72,68 @@
       ]
     },
     {
-      "name": "Claude",
+      "name": "Python Web Framework",
       "type": "tag",
-      "currentActivity": 2329,
+      "currentActivity": 2030,
       "previousActivity": 0,
-      "changePercent": 232900,
-      "repoCount": 412,
+      "changePercent": 203000,
+      "repoCount": 131,
       "representativeRepos": [
         "openclaw",
-        "opencode",
-        "lobehub"
+        "airflow",
+        "posthog"
+      ]
+    },
+    {
+      "name": "Speech to Text",
+      "type": "tag",
+      "currentActivity": 1877,
+      "previousActivity": 0,
+      "changePercent": 187700,
+      "repoCount": 126,
+      "representativeRepos": [
+        "openclaw",
+        "transformers",
+        "openvino"
+      ]
+    },
+    {
+      "name": "React / Next.js",
+      "type": "tag",
+      "currentActivity": 1419,
+      "previousActivity": 0,
+      "changePercent": 141900,
+      "repoCount": 249,
+      "representativeRepos": [
+        "react",
+        "dify",
+        "next.js"
       ]
     },
     {
       "name": "Multi-Agent",
       "type": "tag",
       "currentActivity": 2212,
-      "previousActivity": 0,
-      "changePercent": 221200,
+      "previousActivity": 3,
+      "changePercent": 73633,
       "repoCount": 167,
       "representativeRepos": [
         "openclaw",
         "langflow",
         "eliza"
+      ]
+    },
+    {
+      "name": "Research / Papers",
+      "type": "tag",
+      "currentActivity": 663,
+      "previousActivity": 0,
+      "changePercent": 66300,
+      "repoCount": 479,
+      "representativeRepos": [
+        "vllm",
+        "lobehub",
+        "milvus"
       ]
     }
   ],
@@ -189,9 +189,9 @@
     {
       "name": "JavaScript",
       "type": "tag",
-      "currentActivity": 985,
-      "previousActivity": 1091,
-      "changePercent": -10,
+      "currentActivity": 982,
+      "previousActivity": 1099,
+      "changePercent": -11,
       "repoCount": 241,
       "representativeRepos": [
         "freeCodeCamp",
