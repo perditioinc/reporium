@@ -1,19 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 28, 2026
-
----
-
-## Today's Activity
-**8 commits** across **7 repos** in your library
-
-| Repo | Commits | Category |
-|------|---------|----------|
-| reporium-trust-score | 2 | Dev Tools & Automation |
-| reporium-roadmap | 1 | Dev Tools & Automation |
-| reporium-audit | 1 | Dev Tools & Automation |
-| reporium | 1 | RAG & Retrieval |
-| reporium-dataset | 1 | RAG & Retrieval |
-| portfolio | 1 | Dev Tools & Automation |
+**perditioinc's GitHub Knowledge Library** · Generated April 29, 2026
 
 ---
 
@@ -26,20 +12,20 @@ openclaw, react, transformers are most active.
 **Security** (+366700% vs last week)
 freeCodeCamp, openclaw, tensorflow are most active.
 
-**Real-Time / Streaming** (+318000% vs last week)
+**Real-Time / Streaming** (+317700% vs last week)
 openclaw, transformers, langchain are most active.
 
 ---
 
 ## Library Health
-- **1861 repos** · **31 categories** · **5326 unique tags**
-- **625 forks** up to date · **1216 forks** behind upstream
-- Most outdated: `rust_` (behind 2169 commits)
+- **1861 repos** · **31 categories** · **5332 unique tags**
+- **625 forks** up to date · **1218 forks** behind upstream
+- Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (74474 commits across 1348 repos)
+- **📚 Learning Resources** most active category (77874 commits across 1348 repos)
 - **Tutorial** fastest growing (+467100% commit velocity)
 - **Web Development** cooling (-100% change in activity)
 
