@@ -23,9 +23,20 @@ import {
   type PrivacyEvaluable,
 } from './lib/privacy-filter';
 
+// KAN-132: cover BOTH static-export source paths.
+//   - public/data/library.json: served as a static asset, ships in the
+//     Vercel/static build output. This is the primary leak surface.
+//   - public/data/owned.json:  the owned-repos sidecar, same asset path.
+//   - data/library.json:        synthesized by scripts/sync-data-dir.cjs
+//     during prebuild and read at runtime by generateStaticParams /
+//     getRepoDetail's local-fallback path. Today the sync runs AFTER
+//     this validator, so the two artifacts are identical at validation
+//     time, but a future re-ordering of build steps would silently
+//     bypass the gate. Validating both pins the contract.
 const FILES_TO_CHECK = [
   path.join(process.cwd(), 'public', 'data', 'library.json'),
   path.join(process.cwd(), 'public', 'data', 'owned.json'),
+  path.join(process.cwd(), 'data', 'library.json'),
 ];
 
 let hadFailure = false;
