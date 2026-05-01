@@ -39,10 +39,19 @@ jobs:
         run: npm run gap-analysis
       - name: Generate digest
         run: npm run digest
+      - name: Build FAQ answers
+        env:
+          NEXT_PUBLIC_REPORIUM_API_URL: ${{ secrets.NEXT_PUBLIC_REPORIUM_API_URL }}
+          NEXT_PUBLIC_APP_API_TOKEN: ${{ secrets.NEXT_PUBLIC_APP_API_TOKEN }}
+        run: |
+          # build-faq.ts: pre-computes /faq answers into public/data/faq.json so the
+          # static page renders without per-visitor API calls. Paces at 11s/question
+          # to stay under the /intelligence/ask 6/min-per-IP server limit.
+          npm run build:faq
       - name: Commit updated data
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add public/data/library.json public/data/trends.json DIGEST.md
+          git add public/data/library.json public/data/trends.json public/data/faq.json DIGEST.md
           git commit -m "chore: refresh library data $(date -u +%Y-%m-%d)" || echo "No changes to commit"
           git push
