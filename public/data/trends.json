@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-04-30T08:01:23.202Z",
+  "generatedAt": "2026-05-01T03:47:23.626Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-04-29 07:58:36 +0000",
-    "snapshots": 46
+    "to": "2026-04-30 08:01:26 +0000",
+    "snapshots": 47
   },
   "trending": [
     {
       "name": "Tutorial",
       "type": "tag",
-      "currentActivity": 7124,
+      "currentActivity": 9632,
       "previousActivity": 0,
-      "changePercent": 712400,
+      "changePercent": 963200,
       "repoCount": 711,
       "representativeRepos": [
         "openclaw",
@@ -22,9 +22,9 @@
     {
       "name": "Security",
       "type": "tag",
-      "currentActivity": 5425,
+      "currentActivity": 7235,
       "previousActivity": 0,
-      "changePercent": 542500,
+      "changePercent": 723500,
       "repoCount": 421,
       "representativeRepos": [
         "freeCodeCamp",
@@ -33,37 +33,11 @@
       ]
     },
     {
-      "name": "Docker",
-      "type": "tag",
-      "currentActivity": 5199,
-      "previousActivity": 0,
-      "changePercent": 519900,
-      "repoCount": 590,
-      "representativeRepos": [
-        "openclaw",
-        "tensorflow",
-        "vscode"
-      ]
-    },
-    {
-      "name": "Open Source",
-      "type": "tag",
-      "currentActivity": 4499,
-      "previousActivity": 0,
-      "changePercent": 449900,
-      "repoCount": 486,
-      "representativeRepos": [
-        "tensorflow",
-        "vscode",
-        "opencode"
-      ]
-    },
-    {
       "name": "Real-Time / Streaming",
       "type": "tag",
-      "currentActivity": 4301,
+      "currentActivity": 5726,
       "previousActivity": 0,
-      "changePercent": 430100,
+      "changePercent": 572600,
       "repoCount": 504,
       "representativeRepos": [
         "openclaw",
@@ -74,9 +48,9 @@
     {
       "name": "Mobile",
       "type": "tag",
-      "currentActivity": 3843,
+      "currentActivity": 5070,
       "previousActivity": 0,
-      "changePercent": 384300,
+      "changePercent": 507000,
       "repoCount": 278,
       "representativeRepos": [
         "freeCodeCamp",
@@ -87,9 +61,9 @@
     {
       "name": "Automation",
       "type": "tag",
-      "currentActivity": 3617,
+      "currentActivity": 4828,
       "previousActivity": 0,
-      "changePercent": 361700,
+      "changePercent": 482800,
       "repoCount": 244,
       "representativeRepos": [
         "openclaw",
@@ -98,24 +72,178 @@
       ]
     },
     {
-      "name": "Natural Language Processing",
+      "name": "Python Web Framework",
       "type": "tag",
-      "currentActivity": 3443,
+      "currentActivity": 3627,
       "previousActivity": 0,
-      "changePercent": 344300,
-      "repoCount": 203,
+      "changePercent": 362700,
+      "repoCount": 131,
       "representativeRepos": [
         "openclaw",
+        "django",
+        "airflow"
+      ]
+    },
+    {
+      "name": "Speech to Text",
+      "type": "tag",
+      "currentActivity": 3218,
+      "previousActivity": 0,
+      "changePercent": 321800,
+      "repoCount": 126,
+      "representativeRepos": [
+        "openclaw",
+        "transformers",
+        "openvino"
+      ]
+    },
+    {
+      "name": "React / Next.js",
+      "type": "tag",
+      "currentActivity": 2895,
+      "previousActivity": 0,
+      "changePercent": 289500,
+      "repoCount": 249,
+      "representativeRepos": [
+        "react",
+        "dify",
+        "next.js"
+      ]
+    },
+    {
+      "name": "Curated List",
+      "type": "tag",
+      "currentActivity": 1385,
+      "previousActivity": 0,
+      "changePercent": 138500,
+      "repoCount": 246,
+      "representativeRepos": [
+        "iptv",
+        "lobehub",
+        "redis"
+      ]
+    },
+    {
+      "name": "Multi-Agent",
+      "type": "tag",
+      "currentActivity": 3676,
+      "previousActivity": 3,
+      "changePercent": 122433,
+      "repoCount": 167,
+      "representativeRepos": [
+        "openclaw",
+        "langflow",
+        "eliza"
+      ]
+    }
+  ],
+  "emerging": [],
+  "cooling": [
+    {
+      "name": "Web Development",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 70,
+      "changePercent": -100,
+      "repoCount": 1,
+      "representativeRepos": []
+    },
+    {
+      "name": "DevOps",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 136,
+      "changePercent": -100,
+      "repoCount": 6,
+      "representativeRepos": []
+    },
+    {
+      "name": "API Gateway Development",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 69,
+      "changePercent": -100,
+      "repoCount": 9,
+      "representativeRepos": []
+    },
+    {
+      "name": "Diffusion Models",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 41,
+      "changePercent": -100,
+      "repoCount": 30,
+      "representativeRepos": []
+    },
+    {
+      "name": "Conversational AI Interface Design",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 69,
+      "changePercent": -100,
+      "repoCount": 5,
+      "representativeRepos": []
+    }
+  ],
+  "stable": [
+    {
+      "name": "C++",
+      "type": "tag",
+      "currentActivity": 1435,
+      "previousActivity": 1700,
+      "changePercent": -16,
+      "repoCount": 290,
+      "representativeRepos": [
         "tensorflow",
-        "transformers"
+        "transformers",
+        "rustdesk"
+      ]
+    },
+    {
+      "name": "Computer Vision",
+      "type": "tag",
+      "currentActivity": 613,
+      "previousActivity": 641,
+      "changePercent": -4,
+      "repoCount": 311,
+      "representativeRepos": [
+        "tensorflow",
+        "transformers",
+        "opencode"
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "type": "tag",
+      "currentActivity": 5330,
+      "previousActivity": 6040,
+      "changePercent": -12,
+      "repoCount": 275,
+      "representativeRepos": [
+        "openclaw",
+        "react",
+        "vscode"
+      ]
+    },
+    {
+      "name": "API Integration",
+      "type": "tag",
+      "currentActivity": 1261,
+      "previousActivity": 1423,
+      "changePercent": -11,
+      "repoCount": 65,
+      "representativeRepos": [
+        "langflow",
+        "dify",
+        "airbyte"
       ]
     },
     {
       "name": "Conversational AI",
       "type": "tag",
-      "currentActivity": 3363,
-      "previousActivity": 0,
-      "changePercent": 336300,
+      "currentActivity": 4394,
+      "previousActivity": 4576,
+      "changePercent": -4,
       "repoCount": 102,
       "representativeRepos": [
         "openclaw",
@@ -124,51 +252,69 @@
       ]
     },
     {
-      "name": "Python Web Framework",
+      "name": "Natural Language Processing",
       "type": "tag",
-      "currentActivity": 2737,
-      "previousActivity": 0,
-      "changePercent": 273700,
-      "repoCount": 131,
+      "currentActivity": 4537,
+      "previousActivity": 5524,
+      "changePercent": -18,
+      "repoCount": 203,
       "representativeRepos": [
         "openclaw",
-        "django",
-        "airflow"
-      ]
-    }
-  ],
-  "emerging": [],
-  "cooling": [],
-  "stable": [
-    {
-      "name": "Gemini CLI",
-      "type": "tag",
-      "currentActivity": 13,
-      "previousActivity": 11,
-      "changePercent": 18,
-      "repoCount": 74,
-      "representativeRepos": [
-        "skills___",
-        "claude-context",
-        "reporium-dataset"
+        "tensorflow",
+        "transformers"
       ]
     },
     {
-      "name": "Cline",
+      "name": "Model Optimization",
       "type": "tag",
-      "currentActivity": 13,
-      "previousActivity": 11,
-      "changePercent": 18,
+      "currentActivity": 907,
+      "previousActivity": 881,
+      "changePercent": 3,
+      "repoCount": 132,
+      "representativeRepos": [
+        "tensorflow",
+        "transformers",
+        "pytorch"
+      ]
+    },
+    {
+      "name": "AI Agent Orchestration",
+      "type": "tag",
+      "currentActivity": 7,
+      "previousActivity": 7,
+      "changePercent": 0,
+      "repoCount": 22,
+      "representativeRepos": [
+        "mindsdb"
+      ]
+    },
+    {
+      "name": "Model Quantization",
+      "type": "tag",
+      "currentActivity": 43,
+      "previousActivity": 46,
+      "changePercent": -7,
       "repoCount": 31,
       "representativeRepos": [
-        "skills___",
-        "claude-context",
-        "reporium-dataset"
+        "onnxruntime"
+      ]
+    },
+    {
+      "name": "Natural Language to Code Translation",
+      "type": "tag",
+      "currentActivity": 457,
+      "previousActivity": 521,
+      "changePercent": -12,
+      "repoCount": 13,
+      "representativeRepos": [
+        "opencode",
+        "kilocode"
       ]
     }
   ],
   "newReleases": [],
   "insights": [
-    "Tutorial is the fastest-growing area this week with +712400% commit velocity."
+    "Tutorial is the fastest-growing area this week with +963200% commit velocity.",
+    "Activity in Web Development has slowed by 100% this week."
   ]
 }
