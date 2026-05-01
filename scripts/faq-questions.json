@@ -1,0 +1,51 @@
+{
+  "$comment": "Single source of truth for the FAQ tree. Read by scripts/build-faq.ts which writes the rendered tree (with pre-computed answers) to public/data/faq.json. Add new sections/questions here; rebuild via `npm run build:faq` (also runs nightly in .github/workflows/refresh-data.yml).",
+  "sections": [
+    {
+      "title": "Library stats",
+      "blurb": "Instant SQL counts over the indexed library. Zero token cost.",
+      "questions": [
+        "How many repos are tracked?",
+        "What categories are available?",
+        "How many Python repos are there?"
+      ]
+    },
+    {
+      "title": "Leaderboards",
+      "blurb": "Ranked repos by stars, forks, activity, or recency.",
+      "questions": [
+        "What are the most forked repos?",
+        "What are the most starred repos?",
+        "What are the most active repos?",
+        "What are the newest repos?"
+      ]
+    },
+    {
+      "title": "Topic-narrowed picks",
+      "blurb": "Leaderboards filtered to a specific AI-dev category.",
+      "questions": [
+        "Show me RAG tools with the most stars",
+        "Show me agent tools with the most stars",
+        "Show me inference tools with the most stars",
+        "Show me evaluation tools with the most stars"
+      ]
+    },
+    {
+      "title": "Tag search",
+      "blurb": "Find every repo tagged with a given capability.",
+      "questions": [
+        "Which repos support MCP?",
+        "Which repos use pgvector?"
+      ]
+    },
+    {
+      "title": "Comparisons",
+      "blurb": "Side-by-side metadata for two repos — license, category, stars, activity.",
+      "questions": [
+        "Compare LangChain and LlamaIndex",
+        "What's the difference between vLLM and TGI?",
+        "Compare CrewAI and AutoGen"
+      ]
+    }
+  ]
+}
