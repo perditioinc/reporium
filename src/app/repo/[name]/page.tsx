@@ -192,6 +192,13 @@ const getRepoDetail = cache(async (name: string): Promise<RepoDetail | null> => 
   try {
     const provider = createDataProvider();
     const apiRepo = await provider.getRepo(name);
+    // Defense-in-depth: if the API surfaced a private repo via the wire field
+    // from reporium-api#450, treat it as not-found here. The API filter
+    // (#450) and validator (#278) already block private exposure; this guard
+    // is a belt-and-braces check at the page layer.
+    if (apiRepo !== null && (apiRepo as EnrichedRepo & { isPrivate?: boolean }).isPrivate === true) {
+      return null;
+    }
     if (apiRepo !== null && provider.mode === 'production') {
       // Provider returned data from API (or fell back internally)
       const repo = apiRepo;
@@ -340,8 +347,22 @@ interface RepoPageProps {
 export async function generateMetadata({ params }: RepoPageProps): Promise<Metadata> {
   const { name } = await params;
   const repo = await getRepoDetail(name);
-  const title = repo ? `${repo.owner}/${repo.name}` : name;
-  const description = repo?.readme_summary ?? repo?.description ?? `Explore ${title} on Reporium.`;
+
+  // KAN-131: when the repo cannot be resolved (private / not found / API error),
+  // do NOT echo the URL slug into title/og/twitter. The page renders notFound()
+  // for the body, but metadata is committed before that — historically this
+  // leaked attacker-controlled `name` into <title>${slug} | Reporium</title>.
+  // Return a generic, non-indexable metadata block instead.
+  if (!repo) {
+    return {
+      title: 'Repository not found | Reporium',
+      description: 'This repository could not be found.',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const title = `${repo.owner}/${repo.name}`;
+  const description = repo.readme_summary ?? repo.description ?? `Explore ${title} on Reporium.`;
 
   return {
     title,
