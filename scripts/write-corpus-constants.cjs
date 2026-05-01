@@ -44,25 +44,38 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, ts);
 console.log(`[corpus-constants] wrote ${OUT} (reposIndexed=${reposIndexed}, categories=${categories})`);
 
-// Also keep public/llms.txt in sync. The "Live Corpus" line drifts otherwise
-// (audit 2026-04-27 caught it at 1,825 vs actual 1,856). Replace just that
-// one line so any prose edits to the rest of the file are preserved.
+// Also keep public/llms.txt in sync. The "Live Corpus" line and "AI taxonomy
+// (X categories)" line both drift otherwise (audit 2026-04-27 caught the
+// corpus line at 1,825 vs actual 1,856; KAN-138 caught the taxonomy line at
+// 28 vs actual 31). Replace just those two lines so any prose edits to the
+// rest of the file are preserved.
 if (fs.existsSync(LLMS_TXT)) {
   const orig = fs.readFileSync(LLMS_TXT, 'utf-8');
-  // Match a line of the form: "**Live Corpus**: <num> AI development tools across <num> categories"
-  // Tolerate extra whitespace and an optional thousands separator.
-  const re = /\*\*Live Corpus\*\*:\s*[\d,]+\s+AI development tools across\s+\d+\s+categories/;
-  const replacement = `**Live Corpus**: ${reposIndexed.toLocaleString('en-US')} AI development tools across ${categories} categories`;
-  if (re.test(orig)) {
-    const next = orig.replace(re, replacement);
-    if (next !== orig) {
-      fs.writeFileSync(LLMS_TXT, next);
-      console.log(`[corpus-constants] updated ${LLMS_TXT} corpus line`);
-    } else {
-      console.log(`[corpus-constants] ${LLMS_TXT} already up to date`);
-    }
+  let next = orig;
+
+  // Match: "**Live Corpus**: <num> AI development tools across <num> categories"
+  const corpusRe = /\*\*Live Corpus\*\*:\s*[\d,]+\s+AI development tools across\s+\d+\s+categories/;
+  const corpusReplacement = `**Live Corpus**: ${reposIndexed.toLocaleString('en-US')} AI development tools across ${categories} categories`;
+  if (corpusRe.test(next)) {
+    next = next.replace(corpusRe, corpusReplacement);
   } else {
     console.warn(`[corpus-constants] ${LLMS_TXT} did not match expected "Live Corpus" pattern — left unchanged`);
+  }
+
+  // Match: "AI taxonomy (<num> categories)"
+  const taxonomyRe = /AI taxonomy \(\d+ categories\)/;
+  const taxonomyReplacement = `AI taxonomy (${categories} categories)`;
+  if (taxonomyRe.test(next)) {
+    next = next.replace(taxonomyRe, taxonomyReplacement);
+  } else {
+    console.warn(`[corpus-constants] ${LLMS_TXT} did not match expected "AI taxonomy (N categories)" pattern — left unchanged`);
+  }
+
+  if (next !== orig) {
+    fs.writeFileSync(LLMS_TXT, next);
+    console.log(`[corpus-constants] updated ${LLMS_TXT}`);
+  } else {
+    console.log(`[corpus-constants] ${LLMS_TXT} already up to date`);
   }
 }
 
