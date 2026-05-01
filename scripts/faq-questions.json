@@ -1,41 +1,100 @@
 {
-  "$comment": "Single source of truth for the FAQ tree. Read by scripts/build-faq.ts which writes the rendered tree (with pre-computed answers) to public/data/faq.json. Add new sections/questions here; rebuild via `npm run build:faq` (also runs nightly in .github/workflows/refresh-data.yml).",
+  "$comment": "Single source of truth for the FAQ tree. Read by scripts/build-faq.ts which writes the rendered tree (with pre-computed answers) to public/data/faq.json. Add new sections/questions here; rebuild via `npm run build:faq` (also runs nightly in .github/workflows/refresh-data.yml). Phrasings are tuned to maximize smart-route hits in reporium-api/app/routers/intelligence.py — each section is anchored to a specific smart-route family.",
   "sections": [
     {
       "title": "Library stats",
-      "blurb": "Instant SQL counts over the indexed library. Zero token cost.",
+      "blurb": "Counts and summaries over the indexed library. Mostly $0 SQL.",
       "questions": [
         "How many repos are tracked?",
         "What categories are available?",
-        "How many Python repos are there?"
+        "What programming languages are used?",
+        "How many repos use Python?",
+        "How many repos use TypeScript?",
+        "How many repos use Rust?",
+        "How many repos are in the AI Agents category?",
+        "How many repos are in the RAG & Retrieval category?",
+        "How many repos are in the Foundation Models category?",
+        "Show me Reporium stats"
       ]
     },
     {
       "title": "Leaderboards",
       "blurb": "Ranked repos by stars, forks, activity, or recency.",
       "questions": [
-        "What are the most forked repos?",
         "What are the most starred repos?",
+        "What are the most forked repos?",
         "What are the most active repos?",
-        "What are the newest repos?"
+        "What are the newest repos?",
+        "What are the most popular repos?",
+        "What are the top 10 most starred repos?",
+        "What's new this week?",
+        "What was added recently?",
+        "Show me the latest repos",
+        "What are the oldest repos?"
       ]
     },
     {
-      "title": "Topic-narrowed picks",
-      "blurb": "Leaderboards filtered to a specific AI-dev category.",
+      "title": "Browse by category",
+      "blurb": "Top repos within each AI-dev category. Powered by topic-narrowed leaderboards.",
       "questions": [
-        "Show me RAG tools with the most stars",
-        "Show me agent tools with the most stars",
-        "Show me inference tools with the most stars",
-        "Show me evaluation tools with the most stars"
+        "Show me Foundation Model repos with the most stars",
+        "Show me AI Agent repos with the most stars",
+        "Show me RAG & Retrieval repos with the most stars",
+        "Show me Inference & Serving repos with the most stars",
+        "Show me Model Training repos with the most stars",
+        "Show me Evals & Benchmarking repos with the most stars",
+        "Show me MLOps repos with the most stars",
+        "Show me Computer Vision repos with the most stars",
+        "Show me Robotics repos with the most stars",
+        "Show me Generative Media repos with the most stars"
       ]
     },
     {
-      "title": "Tag search",
-      "blurb": "Find every repo tagged with a given capability.",
+      "title": "Tech stack",
+      "blurb": "Find repos by the framework or platform they're built on.",
+      "questions": [
+        "Which repos use PyTorch?",
+        "Which repos use TensorFlow?",
+        "Which repos use Hugging Face transformers?",
+        "Which repos use LangChain?",
+        "Which repos use LlamaIndex?",
+        "Which repos use FastAPI?",
+        "Which repos use Streamlit?",
+        "Which repos use Gradio?",
+        "Which repos use OpenAI?",
+        "Which repos use Anthropic?"
+      ]
+    },
+    {
+      "title": "Capability tags",
+      "blurb": "Find repos by capability or integration.",
       "questions": [
         "Which repos support MCP?",
-        "Which repos use pgvector?"
+        "Which repos use pgvector?",
+        "Which repos support streaming?",
+        "Which repos support function calling?",
+        "Which repos support multi-modal input?",
+        "Which repos have RAG built in?",
+        "Which repos support fine-tuning?",
+        "Which repos work with local models?",
+        "Which repos support distributed inference?",
+        "Which repos have embeddings out of the box?"
+      ]
+    },
+    {
+      "title": "Repo deep-dives",
+      "blurb": "Read the full Reporium dossier on flagship AI-dev repos.",
+      "questions": [
+        "Tell me about langchain",
+        "Tell me about llamaindex",
+        "Tell me about transformers",
+        "Tell me about vllm",
+        "Tell me about ollama",
+        "Tell me about autogen",
+        "Tell me about crewai",
+        "Tell me about pytorch",
+        "Tell me about dspy",
+        "Tell me about fastapi"
       ]
     },
     {
@@ -43,8 +102,63 @@
       "blurb": "Side-by-side metadata for two repos — license, category, stars, activity.",
       "questions": [
         "Compare LangChain and LlamaIndex",
+        "Compare CrewAI and AutoGen",
         "What's the difference between vLLM and TGI?",
-        "Compare CrewAI and AutoGen"
+        "Compare PyTorch and TensorFlow",
+        "Compare Ollama and llama.cpp",
+        "Compare Streamlit and Gradio",
+        "Compare DSPy and LangChain",
+        "Compare Pinecone and pgvector",
+        "Compare Weaviate and Chroma",
+        "Compare GraphRAG and LightRAG"
+      ]
+    },
+    {
+      "title": "Use cases",
+      "blurb": "Find tools by what you want to do, not what they're built with.",
+      "questions": [
+        "Tools for prompt engineering",
+        "Tools for model evaluation",
+        "Tools for fine-tuning LLMs",
+        "Tools for data preparation",
+        "Tools for deployment",
+        "Tools for monitoring AI systems",
+        "Tools for inference serving",
+        "Tools for training",
+        "Tools for synthetic data generation",
+        "Tools for agent orchestration"
+      ]
+    },
+    {
+      "title": "Build & quality",
+      "blurb": "Filter by license, builder, or engineering quality signals.",
+      "questions": [
+        "Which repos use the MIT license?",
+        "Which repos use Apache license?",
+        "Which repos are built by Microsoft?",
+        "Which repos are built by Google?",
+        "Which repos are built by Anthropic?",
+        "Which repos are built by Hugging Face?",
+        "Which repos are built by NVIDIA?",
+        "Which repos are built by Meta?",
+        "Which repos have tests?",
+        "Which repos have CI?"
+      ]
+    },
+    {
+      "title": "Discovery & alternatives",
+      "blurb": "Find similar repos or trace what depends on a foundational library.",
+      "questions": [
+        "Repos similar to LangChain",
+        "Repos similar to vLLM",
+        "Repos similar to Ollama",
+        "Repos similar to LlamaIndex",
+        "Alternatives to transformers",
+        "What depends on PyTorch?",
+        "What depends on transformers?",
+        "What depends on LangChain?",
+        "What is built on FastAPI?",
+        "What forks llama.cpp?"
       ]
     }
   ]

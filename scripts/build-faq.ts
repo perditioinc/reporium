@@ -134,7 +134,7 @@ async function askOnce(question: string): Promise<FAQAnswer | { _retryable: true
       model: body.model,
       generatedAt: new Date().toISOString(),
     }
-  } catch (err) {
+  } catch {
     return { _retryable: true, status: 0 }
   }
 }
@@ -224,11 +224,21 @@ async function main() {
   console.log(`  errored:  ${errorCount}/${questions.length}`)
   console.log(`  output:   ${OUTPUT_FILE}`)
 
-  // Build is a hard failure ONLY if we have a question with no fresh and no prior
-  // answer. Retaining prior is success; partial freshness is success.
-  if (errorCount > 0) {
-    console.error(`\n[build-faq] FAIL: ${errorCount} question(s) have neither a fresh nor a prior answer.`)
+  // Failure policy: only crash the build if EVERY question failed (clear systemic
+  // problem — API unreachable, auth broken, etc.). Partial failures are normal:
+  // the build runs against a 6/min;60/day per-IP rate-limited endpoint, so a
+  // 100-question run that gets throttled mid-stream still produces useful output.
+  // Errored entries land in faq.json as { error } — FAQPanel renders them with an
+  // inline "Answer unavailable" state, and the next refresh fills them in.
+  if (okCount === 0 && retainedCount === 0) {
+    console.error(`\n[build-faq] FAIL: no questions answered (fresh or retained). API likely unreachable.`)
     process.exit(1)
+  }
+  if (errorCount > 0) {
+    console.warn(
+      `\n[build-faq] partial: ${errorCount}/${questions.length} question(s) errored; ` +
+      `next refresh will retry. Build continues.`,
+    )
   }
 }
 
