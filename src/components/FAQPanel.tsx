@@ -169,7 +169,11 @@ export function FAQPanel() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/data/faq.json', { cache: 'force-cache' })
+    // Default cache (respect Cache-Control + revalidate via ETag) is what we want.
+    // 'force-cache' would hold the browser's cached response for the full max-age
+    // (3600s) without revalidation, so visitors would see a stale tree for an hour
+    // after each refresh-data.yml run. The CDN already handles efficiency upstream.
+    fetch('/data/faq.json')
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
