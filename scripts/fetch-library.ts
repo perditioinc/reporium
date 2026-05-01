@@ -245,6 +245,12 @@ async function main() {
   // RECOMPUTE COUNTS AFTER FILTERING — never copy upstream totals once we've
   // dropped private repos. Validators (and downstream copy) rely on
   // stats.total === repos.length, totalRepos === repos.length.
+  //
+  // Also covers corpus drift during pagination: pagination takes ~150s (15s
+  // rate-limit gap × 10 pages); during that window the corpus can grow
+  // (ingestion adds repos) and page-1 stats.total goes stale relative to
+  // slimRepos, tripping validate-library.ts's hard invariant. Observed
+  // 2026-04-26 run 24950928219: stats.total=1856 vs repos=1861.
   const builtCount = slimRepos.filter((r) => !(r as { isFork?: boolean }).isFork).length
   const forkedCount = slimRepos.length - builtCount
   const upstreamPageSize: number =
