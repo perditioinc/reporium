@@ -6,28 +6,28 @@
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Tutorial** (+963200% vs last week)
-openclaw, react, transformers are most active.
+**Backend** (+8900% vs last week)
+reporium-dataset, reporium-db, portfolio are most active.
 
-**Security** (+723500% vs last week)
-freeCodeCamp, openclaw, tensorflow are most active.
+**Knowledge Graph** (+5700% vs last week)
+reporium-dataset, portfolio, reporium-api are most active.
 
-**Real-Time / Streaming** (+572600% vs last week)
-openclaw, transformers, langchain are most active.
+**Google Cloud** (+5400% vs last week)
+reporium-dataset, portfolio, reporium-api are most active.
 
 ---
 
 ## Library Health
-- **1861 repos** · **31 categories** · **5332 unique tags**
-- **625 forks** up to date · **1218 forks** behind upstream
+- **1866 repos** · **31 categories** · **5329 unique tags**
+- **629 forks** up to date · **1218 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (1940 commits across 1182 repos)
-- **Tutorial** fastest growing (+963200% commit velocity)
-- **Web Development** cooling (-100% change in activity)
+- **📚 Learning Resources** most active category (85389 commits across 1348 repos)
+- **Backend** fastest growing (+8900% commit velocity)
+- **Hybrid Search** cooling (-100% change in activity)
 
 ---
 

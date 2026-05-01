@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T05:01:43.222Z",
+  "generatedAt": "2026-05-01T09:41:52.210Z",
   "sections": [
     {
       "title": "Library stats",
@@ -2627,31 +2627,31 @@
     },
     "Which repos use LangChain?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T03:54:24.265Z"
+      "generatedAt": "2026-05-01T08:34:33.923Z"
     },
     "Which repos use LlamaIndex?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T03:55:25.473Z"
+      "generatedAt": "2026-05-01T08:35:35.124Z"
     },
     "Which repos use FastAPI?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T03:56:26.661Z"
+      "generatedAt": "2026-05-01T08:36:36.294Z"
     },
     "Which repos use Streamlit?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T03:57:27.871Z"
+      "generatedAt": "2026-05-01T08:37:37.471Z"
     },
     "Which repos use Gradio?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T03:58:29.050Z"
+      "generatedAt": "2026-05-01T08:38:38.670Z"
     },
     "Which repos use OpenAI?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T03:59:30.225Z"
+      "generatedAt": "2026-05-01T08:39:39.840Z"
     },
     "Which repos use Anthropic?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:00:31.446Z"
+      "generatedAt": "2026-05-01T08:40:41.015Z"
     },
     "Which repos support MCP?": {
       "answer": "Repos tagged with \"mcp\" (10 shown):\n\n- **vinta/awesome-python** — 295,138 stars (Foundation Models)\n- **affaan-m/everything-claude-code** — 170,467 stars (AI Agents)\n- **f/prompts.chat** — 161,195 stars (Foundation Models)\n- **langflow-ai/langflow** — 147,526 stars (AI Agents)\n- **anthropics/skills** — 126,310 stars (Foundation Models)\n- **NousResearch/hermes-agent** — 125,656 stars (Foundation Models)\n- **microsoft/markitdown** — 118,827 stars (Foundation Models)\n- **firecrawl/firecrawl** — 113,181 stars (AI Agents)\n- **microsoft/generative-ai-for-beginners** — 110,027 stars (AI Agents)\n- **Shubhamsaboo/awesome-llm-apps** — 108,121 stars (AI Agents)",
@@ -2869,75 +2869,75 @@
     },
     "Which repos support streaming?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:03:34.985Z"
+      "generatedAt": "2026-05-01T08:43:44.580Z"
     },
     "Which repos support function calling?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:04:36.139Z"
+      "generatedAt": "2026-05-01T08:44:45.734Z"
     },
     "Which repos support multi-modal input?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:05:37.404Z"
+      "generatedAt": "2026-05-01T08:45:46.918Z"
     },
     "Which repos have RAG built in?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:06:38.564Z"
+      "generatedAt": "2026-05-01T08:46:48.113Z"
     },
     "Which repos support fine-tuning?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:07:39.736Z"
+      "generatedAt": "2026-05-01T08:47:49.288Z"
     },
     "Which repos work with local models?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:08:40.890Z"
+      "generatedAt": "2026-05-01T08:48:50.487Z"
     },
     "Which repos support distributed inference?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:09:42.045Z"
+      "generatedAt": "2026-05-01T08:49:51.675Z"
     },
     "Which repos have embeddings out of the box?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:10:43.247Z"
+      "generatedAt": "2026-05-01T08:50:52.862Z"
     },
     "Tell me about langchain": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:11:44.905Z"
+      "generatedAt": "2026-05-01T08:51:54.040Z"
     },
     "Tell me about llamaindex": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:12:46.074Z"
+      "generatedAt": "2026-05-01T08:52:55.220Z"
     },
     "Tell me about transformers": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:13:47.259Z"
+      "generatedAt": "2026-05-01T08:53:56.419Z"
     },
     "Tell me about vllm": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:14:48.443Z"
+      "generatedAt": "2026-05-01T08:54:57.600Z"
     },
     "Tell me about ollama": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:15:49.771Z"
+      "generatedAt": "2026-05-01T08:55:58.783Z"
     },
     "Tell me about autogen": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:16:50.958Z"
+      "generatedAt": "2026-05-01T08:56:59.967Z"
     },
     "Tell me about crewai": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:17:52.365Z"
+      "generatedAt": "2026-05-01T08:58:01.140Z"
     },
     "Tell me about pytorch": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:18:53.522Z"
+      "generatedAt": "2026-05-01T08:59:02.331Z"
     },
     "Tell me about dspy": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:19:54.713Z"
+      "generatedAt": "2026-05-01T09:00:03.507Z"
     },
     "Tell me about fastapi": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:20:55.909Z"
+      "generatedAt": "2026-05-01T09:01:04.678Z"
     },
     "Compare LangChain and LlamaIndex": {
       "answer": "Based on the repos in the Reporium library, I can compare these two popular RAG and document processing frameworks:\n\n**LlamaIndex** (perditioinc/llama_index, 48.2k★) is described as \"the leading document agent and OCR platform.\" It appears to specialize in document processing, OCR capabilities, and building document-centric AI agents. With nearly 50k stars, it has strong community adoption and seems particularly focused on extracting insights from documents and building agents around document workflows.\n\n**LangChain** is referenced through **Langchain-Chatchat** (perditioinc/Langchain-Chatchat, 37.7k★), which is \"based on Langchain\" and provides \"local knowledge based LLM RAG and Agent applications\" supporting models like ChatGLM, Qwen, and Llama. This suggests LangChain has a broader focus on general-purpose RAG applications and agent development, with strong support for integrating various language models.\n\n**Key Differences:**\n- **LlamaIndex** appears more specialized for document processing and OCR use cases\n- **LangChain** seems more general-purpose for building RAG applications and agents across different LLMs\n- Both have strong community adoption (48k vs 38k stars respectively)\n- LangChain appears to have broader model ecosystem support based on the Chatchat implementation\n\nHowever, the context doesn't provide detailed technical specifications for direct LangChain comparison, as only the LangChain-based Chatchat implementation is included in these specific repo summaries.",
@@ -3102,151 +3102,151 @@
     },
     "Compare PyTorch and TensorFlow": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:25:00.629Z"
+      "generatedAt": "2026-05-01T09:05:09.482Z"
     },
     "Compare Ollama and llama.cpp": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:26:01.834Z"
+      "generatedAt": "2026-05-01T09:06:10.664Z"
     },
     "Compare Streamlit and Gradio": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:27:03.004Z"
+      "generatedAt": "2026-05-01T09:07:11.856Z"
     },
     "Compare DSPy and LangChain": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:28:04.155Z"
+      "generatedAt": "2026-05-01T09:08:13.028Z"
     },
     "Compare Pinecone and pgvector": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:29:05.336Z"
+      "generatedAt": "2026-05-01T09:09:14.248Z"
     },
     "Compare Weaviate and Chroma": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:30:06.489Z"
+      "generatedAt": "2026-05-01T09:10:15.438Z"
     },
     "Compare GraphRAG and LightRAG": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:31:07.697Z"
+      "generatedAt": "2026-05-01T09:11:16.621Z"
     },
     "Tools for prompt engineering": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:32:08.862Z"
+      "generatedAt": "2026-05-01T09:12:17.813Z"
     },
     "Tools for model evaluation": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:33:10.049Z"
+      "generatedAt": "2026-05-01T09:13:19.044Z"
     },
     "Tools for fine-tuning LLMs": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:34:11.232Z"
+      "generatedAt": "2026-05-01T09:14:20.247Z"
     },
     "Tools for data preparation": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:35:12.419Z"
+      "generatedAt": "2026-05-01T09:15:21.432Z"
     },
     "Tools for deployment": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:36:13.657Z"
+      "generatedAt": "2026-05-01T09:16:22.615Z"
     },
     "Tools for monitoring AI systems": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:37:14.848Z"
+      "generatedAt": "2026-05-01T09:17:23.790Z"
     },
     "Tools for inference serving": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:38:16.033Z"
+      "generatedAt": "2026-05-01T09:18:24.964Z"
     },
     "Tools for training": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:39:17.220Z"
+      "generatedAt": "2026-05-01T09:19:26.183Z"
     },
     "Tools for synthetic data generation": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:40:18.403Z"
+      "generatedAt": "2026-05-01T09:20:27.370Z"
     },
     "Tools for agent orchestration": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:41:19.606Z"
+      "generatedAt": "2026-05-01T09:21:28.549Z"
     },
     "Which repos use the MIT license?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:42:20.746Z"
+      "generatedAt": "2026-05-01T09:22:29.727Z"
     },
     "Which repos use Apache license?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:43:21.920Z"
+      "generatedAt": "2026-05-01T09:23:30.883Z"
     },
     "Which repos are built by Microsoft?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:44:23.110Z"
+      "generatedAt": "2026-05-01T09:24:32.098Z"
     },
     "Which repos are built by Google?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:45:24.301Z"
+      "generatedAt": "2026-05-01T09:25:33.291Z"
     },
     "Which repos are built by Anthropic?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:46:25.503Z"
+      "generatedAt": "2026-05-01T09:26:34.474Z"
     },
     "Which repos are built by Hugging Face?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:47:26.687Z"
+      "generatedAt": "2026-05-01T09:27:35.656Z"
     },
     "Which repos are built by NVIDIA?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:48:27.860Z"
+      "generatedAt": "2026-05-01T09:28:36.832Z"
     },
     "Which repos are built by Meta?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:49:29.047Z"
+      "generatedAt": "2026-05-01T09:29:38.025Z"
     },
     "Which repos have tests?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:50:30.230Z"
+      "generatedAt": "2026-05-01T09:30:39.214Z"
     },
     "Which repos have CI?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:51:31.436Z"
+      "generatedAt": "2026-05-01T09:31:40.387Z"
     },
     "Repos similar to LangChain": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:52:32.606Z"
+      "generatedAt": "2026-05-01T09:32:41.581Z"
     },
     "Repos similar to vLLM": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:53:33.760Z"
+      "generatedAt": "2026-05-01T09:33:42.764Z"
     },
     "Repos similar to Ollama": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:54:34.942Z"
+      "generatedAt": "2026-05-01T09:34:43.974Z"
     },
     "Repos similar to LlamaIndex": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:55:36.120Z"
+      "generatedAt": "2026-05-01T09:35:45.157Z"
     },
     "Alternatives to transformers": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:56:37.292Z"
+      "generatedAt": "2026-05-01T09:36:46.340Z"
     },
     "What depends on PyTorch?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:57:38.472Z"
+      "generatedAt": "2026-05-01T09:37:47.509Z"
     },
     "What depends on transformers?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:58:39.645Z"
+      "generatedAt": "2026-05-01T09:38:48.672Z"
     },
     "What depends on LangChain?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T04:59:40.824Z"
+      "generatedAt": "2026-05-01T09:39:49.874Z"
     },
     "What is built on FastAPI?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T05:00:42.003Z"
+      "generatedAt": "2026-05-01T09:40:51.040Z"
     },
     "What forks llama.cpp?": {
       "error": "failed after 3 attempts (last status=429)",
-      "generatedAt": "2026-05-01T05:01:43.222Z"
+      "generatedAt": "2026-05-01T09:41:52.210Z"
     }
   }
 }
