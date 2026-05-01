@@ -60,8 +60,27 @@ jobs:
           npm run sitemap
       - name: Commit updated data
         run: |
+          set -e
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add public/data/library.json public/data/trends.json public/data/faq.json public/sitemap.xml DIGEST.md
-          git commit -m "chore: refresh library data $(date -u +%Y-%m-%d)" || echo "No changes to commit"
-          git push
+          if ! git commit -m "chore: refresh library data $(date -u +%Y-%m-%d)"; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          # The build:faq step takes ~18 minutes for 100 questions; in that window,
+          # other PRs to main can land and make our local main stale. Rebase + retry
+          # the push a few times so a concurrent merge doesn't discard the freshly
+          # built artifacts. Run 25200173112 lost a 30+ min refresh to this race.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "push succeeded on attempt $attempt"
+              exit 0
+            fi
+            echo "push attempt $attempt rejected (likely concurrent merge); rebasing and retrying..."
+            git fetch origin main
+            git rebase origin/main
+            sleep 5
+          done
+          echo "::error::push failed after 5 rebase+retry attempts; abandoning to avoid loops"
+          exit 1
