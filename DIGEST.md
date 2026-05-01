@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated April 30, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 1, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Tutorial** (+712400% vs last week)
+**Tutorial** (+963200% vs last week)
 openclaw, react, transformers are most active.
 
-**Security** (+542500% vs last week)
+**Security** (+723500% vs last week)
 freeCodeCamp, openclaw, tensorflow are most active.
 
-**Docker** (+519900% vs last week)
-openclaw, tensorflow, vscode are most active.
+**Real-Time / Streaming** (+572600% vs last week)
+openclaw, transformers, langchain are most active.
 
 ---
 
@@ -25,8 +25,9 @@ openclaw, tensorflow, vscode are most active.
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (81749 commits across 1348 repos)
-- **Tutorial** fastest growing (+712400% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (1940 commits across 1182 repos)
+- **Tutorial** fastest growing (+963200% commit velocity)
+- **Web Development** cooling (-100% change in activity)
 
 ---
 
