@@ -31,7 +31,24 @@ const MetricsSidebar = dynamic(() => import('@/components/MetricsSidebar').then(
 const LibraryInsightsWidget = dynamic(() => import('@/components/LibraryInsightsWidget').then(m => ({ default: m.LibraryInsightsWidget })), { ssr: false });
 const CrossDimensionWidget = dynamic(() => import('@/components/CrossDimensionWidget').then(m => ({ default: m.CrossDimensionWidget })), { ssr: false });
 const RecommendationsWidget = dynamic(() => import('@/components/RecommendationsWidget').then(m => ({ default: m.RecommendationsWidget })), { ssr: false });
-const HomeGraphWidget = dynamic(() => import('@/components/HomeGraphWidget').then(m => ({ default: m.HomeGraphWidget })), { ssr: false });
+// KAN-154: HomeGraphWidget is `ssr: false` (Three.js + d3-force-3d are
+// browser-only), so SSR returns nothing and the widget pops into a 420px
+// container after hydration — shifting the grid below by 420 px on
+// mobile (= score ≈ 0.5 on the wrapper, the dominant remaining CLS
+// after KAN-153). Reserve the matching placeholder during SSR so the
+// layout settles in-place.
+const HomeGraphWidget = dynamic(
+  () => import('@/components/HomeGraphWidget').then(m => ({ default: m.HomeGraphWidget })),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        aria-hidden
+        className="h-[420px] rounded-xl border border-zinc-800 bg-[#0a0a0f]"
+      />
+    ),
+  }
+);
 
 
 
@@ -858,10 +875,15 @@ export function HomePageClient() {
 
         <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4">
 
-          {/* Widget tabs — sticky at top */}
-          {data && (
-            <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 border-b border-zinc-800">
-              <div className="flex">
+          {/* Widget tabs — sticky at top.
+              KAN-154: render the wrapper unconditionally so its height
+              is reserved during SSR (before `data` resolves). Without
+              this, the tabs bar pops in after hydration and pushes
+              everything below by ~28 px. The buttons themselves are
+              still gated on `data` so they don't render disabled. */}
+          <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 border-b border-zinc-800 h-7">
+            {data && (
+              <div className="flex h-full">
                 {([
                   { key: 'overview', label: 'Overview' },
                   { key: 'stats', label: 'Stats' },
@@ -882,8 +904,8 @@ export function HomePageClient() {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
           {/* Generic error */}
           {error && (
             <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
@@ -1004,9 +1026,21 @@ export function HomePageClient() {
             </ErrorBoundary>
           </div>
 
-          {/* Filter bar — sticky below widget tabs */}
+          {/* Filter bar — sticky below widget tabs.
+              KAN-154: render the outer wrapper unconditionally with a
+              fixed compact height so SSR reserves the footprint. The
+              filter UI itself stays gated on `data`. The inner row
+              (default closed-state) is ~36 px (`py-1.5` + button text +
+              border-b); the open-state advanced filter panel below it
+              is still conditional on `filtersOpen` and only appears
+              after explicit user interaction, well after CLS is
+              measured. */}
+          <div
+            className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 min-h-[36px]"
+            data-tour="search"
+          >
           {data && (
-            <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6" data-tour="search">
+            <>
               <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50 overflow-x-auto sm:overflow-x-visible">
                   <button
                     onClick={() => { setFiltersOpen(v => !v); ensureFullLibrary(); }}
@@ -1150,11 +1184,43 @@ export function HomePageClient() {
                   />
                 </div>
               )}
-            </div>
+            </>
           )}
+          </div>
 
-          {/* Grid — explore mode with inline expansion */}
-          <div className="px-3 sm:px-4 md:px-6" data-tour="grid">
+          {/* Grid — explore mode with inline expansion.
+              KAN-154: reserve the post-load grid footprint to clear the
+              dominant mobile CLS shifter (`data-tour="grid"`, score
+              ≈ 0.54). Page hydrates through three stages (LoadingState →
+              owned-only → preview), and the wrapper grew from ~500 px
+              (Stage 2: a handful of owned repos) to ~3500 px (Stage 3:
+              60-card preview), pushing every element below.
+
+              The floor is sized to land *just under* the natural post-load
+              height per breakpoint so the wrapper never shrinks when data
+              arrives (`min-h` doesn't fight a taller content). Heights
+              measured from the post-KAN-153 Lighthouse trace: each
+              `RepoCardMinimal` renders at ~111 px on mobile.
+                mobile (2-col, 412 px) : 30 rows × 111 + 29 × 8  ≈ 3562 → 3500
+                sm     (3-col)         : 20 rows × 120 + 19 × 12 ≈ 2628 → 2400
+                lg     (4-col)         : 15 rows × 130 + 14 × 12 ≈ 2118 → 1900
+                xl     (5-col)         : 12 rows × 130 + 11 × 12 ≈ 1692 → 1500
+
+              The floor stays on permanently UNLESS the user actively
+              filters/searches — at which point we let the wrapper shrink
+              to fit the result set so we don't show 3000 px of empty
+              space below 5 result cards. The CLS measurement is
+              completed long before any filter interaction. */}
+          {(() => {
+            const userFiltering = activeFilterCount > 0 || search.trim().length > 0;
+            const floor = userFiltering
+              ? ''
+              : 'min-h-[3500px] sm:min-h-[2400px] lg:min-h-[1900px] xl:min-h-[1500px]';
+            return (
+          <div
+            className={`px-3 sm:px-4 md:px-6 ${floor}`}
+            data-tour="grid"
+          >
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
             {isLoading ? (
               <LoadingState />
@@ -1327,6 +1393,8 @@ export function HomePageClient() {
             )}
           </ErrorBoundary>
           </div>
+            );
+          })()}
 
           {/* Footer */}
           <footer className="mx-3 sm:mx-4 md:mx-6 mt-8 border-t border-zinc-800 pt-6 pb-4">
