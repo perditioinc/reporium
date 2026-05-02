@@ -16,6 +16,7 @@ import { LoadingState } from '@/components/LoadingState';
 import { LoadingBanner } from '@/components/LoadingBanner';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
+import { reposIndexedLabel } from '@/lib/corpusLabels';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
 import { CyberpunkBillboard } from '@/components/CyberpunkBillboard';
@@ -1290,7 +1291,7 @@ export function HomePageClient() {
                 <h4 className="text-zinc-300 font-medium mb-2">About</h4>
                 <ul className="space-y-1.5">
                   <li><span className="text-zinc-600">Built by perditioinc</span></li>
-                  <li><span className="text-zinc-600">{data?.repos.length ?? 0} repos indexed</span></li>
+                  <li><span className="text-zinc-600">{reposIndexedLabel(data?.repos.length)} repos indexed</span></li>
                   <li><span className="text-zinc-600">Next.js + FastAPI</span></li>
                 </ul>
               </div>
