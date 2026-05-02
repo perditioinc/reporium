@@ -1,33 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 1, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 2, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Backend** (+8900% vs last week)
-reporium-dataset, reporium-db, portfolio are most active.
+**Tutorial** (+1170400% vs last week)
+openclaw, react, bootstrap are most active.
 
-**Knowledge Graph** (+5700% vs last week)
-reporium-dataset, portfolio, reporium-api are most active.
+**Docker** (+869200% vs last week)
+openclaw, tensorflow, vscode are most active.
 
-**Google Cloud** (+5400% vs last week)
-reporium-dataset, portfolio, reporium-api are most active.
+**Security** (+853700% vs last week)
+freeCodeCamp, openclaw, tensorflow are most active.
 
 ---
 
 ## Library Health
-- **1866 repos** · **31 categories** · **5329 unique tags**
-- **629 forks** up to date · **1218 forks** behind upstream
+- **1867 repos** · **31 categories** · **5332 unique tags**
+- **630 forks** up to date · **1218 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (85389 commits across 1348 repos)
-- **Backend** fastest growing (+8900% commit velocity)
-- **Hybrid Search** cooling (-100% change in activity)
+- **📚 Learning Resources** most active category (88709 commits across 1348 repos)
+- **Tutorial** fastest growing (+1170400% commit velocity)
 
 ---
 
