@@ -18,9 +18,57 @@ export interface LoadProgress {
   detail: string
 }
 
+/**
+ * KAN-152: lean repo projection returned by `GET /library/preview`.
+ *
+ * Strict subset of {@link EnrichedRepo} containing only the fields the
+ * `RepoCardMinimal` grid renders above the fold. Aggregates (commitStats,
+ * taxonomy, parentStats, builders, forkSync, etc.) are intentionally omitted
+ * so the home payload drops from ~5.2 MB to ~0.4 MB.
+ *
+ * Note: `stars` and `forks` are pre-coalesced server-side via
+ * `COALESCE(parent_stars, stargazers_count, 0)` — clients should NOT need
+ * `parentStats?.stars` fallback when consuming preview data.
+ */
+export interface PreviewRepo {
+  id: string
+  name: string
+  fullName: string
+  description: string | null
+  isFork: boolean
+  forkedFrom: string | null
+  language: string | null
+  stars: number
+  forks: number
+  lastUpdated: string | null
+  primaryCategory: string | null
+  dbCategory: string | null
+  enrichedTags: string[]
+  isArchived: boolean
+  url: string
+}
+
+/** KAN-152: response shape for `GET /library/preview`. */
+export interface PreviewData {
+  generatedAt: string
+  totalRepos: number
+  limit: number
+  sort: 'stars' | 'updated' | 'activity'
+  category: string | null
+  repos: PreviewRepo[]
+}
+
 export interface DataProvider {
   mode: DataMode
   getOwnedLibrary(): Promise<LibraryData | null>
+  /**
+   * KAN-152: lightweight projected library for first paint.
+   * Returns ~563 B/repo vs ~3 KB/repo from `getLibrary()`. Defaults to top 300
+   * repos sorted by stars. Falls back to a `LibraryData`-shaped synthesis
+   * (via `getOwnedLibrary()` + first page of `getLibrary()`) when the API is
+   * unavailable so callers never see a hard failure.
+   */
+  getPreview(limit?: number): Promise<PreviewData>
   getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData>
   getDegradedState(): boolean
   clearDegradedState(): void
@@ -83,6 +131,44 @@ class JsonDataProvider implements DataProvider {
       if (!res.ok) return null
       return res.json()
     } catch { return null }
+  }
+
+  /**
+   * KAN-152: synthesise a `PreviewData` from the static library JSON when
+   * running in lite/JSON mode. The home page treats preview as the primary
+   * first-paint shape; without this fallback, a JSON-only build would crash
+   * before the lazy `getLibrary()` ever fires.
+   */
+  async getPreview(limit = 300): Promise<PreviewData> {
+    const lib = await this.getLibrary()
+    const sorted = [...lib.repos].sort(
+      (a, b) => (b.parentStats?.stars ?? b.stars ?? 0) - (a.parentStats?.stars ?? a.stars ?? 0),
+    )
+    const repos: PreviewRepo[] = sorted.slice(0, limit).map((r) => ({
+      id: String(r.id),
+      name: r.name,
+      fullName: r.fullName,
+      description: r.description,
+      isFork: r.isFork,
+      forkedFrom: r.forkedFrom,
+      language: r.language,
+      stars: r.parentStats?.stars ?? r.stars ?? 0,
+      forks: r.parentStats?.forks ?? r.forks ?? 0,
+      lastUpdated: r.lastUpdated,
+      primaryCategory: r.primaryCategory ?? null,
+      dbCategory: r.dbCategory ?? null,
+      enrichedTags: r.enrichedTags ?? [],
+      isArchived: r.isArchived,
+      url: r.url,
+    }))
+    return {
+      generatedAt: lib.generatedAt,
+      totalRepos: lib.repos.length,
+      limit,
+      sort: 'stars',
+      category: null,
+      repos,
+    }
   }
 
   async getLibrary(_onProgress?: (p: LoadProgress) => void): Promise<LibraryData> {
@@ -367,6 +453,39 @@ class ApiDataProvider implements DataProvider {
       // API unavailable: skip preview; getLibrary() fallback handles it.
       return null
     }
+  }
+
+  /**
+   * KAN-152: lean preview cache — `/library/preview?limit=N` returns a
+   * projected ~1.5 KB-per-repo payload that the home grid renders before any
+   * `/library/full` call. Endpoint shipped via KAN-151 (PR #461 @ 8634aa10).
+   *
+   * Cached in-memory for the session; on API failure we fall back to the
+   * `JsonDataProvider` synthesis so the home page never loses its first
+   * paint to a transient outage.
+   */
+  private previewCache: PreviewData | null = null
+  private previewPromise: Promise<PreviewData> | null = null
+  async getPreview(limit = 300): Promise<PreviewData> {
+    if (this.previewCache) return this.previewCache
+    if (this.previewPromise) return this.previewPromise
+    this.previewPromise = (async () => {
+      try {
+        const data = await this.apiFetch<PreviewData>(`/library/preview?limit=${limit}`)
+        this.previewCache = data
+        return data
+      } catch {
+        // API unavailable — synthesise from the bundled library JSON so the
+        // home page still renders. Mark degraded so the banner appears.
+        this.degraded = true
+        const fallback = await this.fallback.getPreview(limit)
+        this.previewCache = fallback
+        return fallback
+      } finally {
+        this.previewPromise = null
+      }
+    })()
+    return this.previewPromise
   }
 
   getDegradedState(): boolean {
