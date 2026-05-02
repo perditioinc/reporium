@@ -17,6 +17,7 @@ import {
   sourceAnchorId,
 } from '@/lib/askCitations';
 import { CitationHoverCard, type CitationSource } from '@/components/CitationHoverCard';
+import { AskBudgetIndicator } from './AskBudgetIndicator';
 
 // ---------------------------------------------------------------------------
 // Memoized markdown renderer — only re-parses when answer content changes.
@@ -1818,6 +1819,11 @@ export function StickyAskBar() {
               <p className="text-sm text-zinc-300 italic">&ldquo;{askedQuestion}&rdquo;</p>
             </div>
           )}
+
+          {/* Persistent client-side budget meter (Design Phase 1 — P2). */}
+          <div className="flex justify-end pt-1">
+            <AskBudgetIndicator className="w-44" compact />
+          </div>
 
           {/* Rate limit warning */}
           {(nearMinuteLimit || nearDayLimit) && !atMinuteLimit && !atDayLimit && (

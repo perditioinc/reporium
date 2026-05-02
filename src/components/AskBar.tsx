@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { AskBudgetIndicator } from './AskBudgetIndicator';
 
 // ---------------------------------------------------------------------------
 // Session ID management (KAN-158/KAN-159)
@@ -340,6 +341,11 @@ export function AskBar({ apiUrl }: AskBarProps) {
             'Ask'
           )}
         </button>
+      </div>
+
+      {/* Persistent client-side budget meter (Design Phase 1 — P2). */}
+      <div className="flex justify-end">
+        <AskBudgetIndicator className="w-40" />
       </div>
 
       {/* Loading status */}
