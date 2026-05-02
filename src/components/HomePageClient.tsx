@@ -31,7 +31,24 @@ const MetricsSidebar = dynamic(() => import('@/components/MetricsSidebar').then(
 const LibraryInsightsWidget = dynamic(() => import('@/components/LibraryInsightsWidget').then(m => ({ default: m.LibraryInsightsWidget })), { ssr: false });
 const CrossDimensionWidget = dynamic(() => import('@/components/CrossDimensionWidget').then(m => ({ default: m.CrossDimensionWidget })), { ssr: false });
 const RecommendationsWidget = dynamic(() => import('@/components/RecommendationsWidget').then(m => ({ default: m.RecommendationsWidget })), { ssr: false });
-const HomeGraphWidget = dynamic(() => import('@/components/HomeGraphWidget').then(m => ({ default: m.HomeGraphWidget })), { ssr: false });
+// KAN-154: HomeGraphWidget is `ssr: false` (Three.js + d3-force-3d are
+// browser-only), so SSR returns nothing and the widget pops into a 420px
+// container after hydration — shifting the grid below by 420 px on
+// mobile (= score ≈ 0.5 on the wrapper, the dominant remaining CLS
+// after KAN-153). Reserve the matching placeholder during SSR so the
+// layout settles in-place.
+const HomeGraphWidget = dynamic(
+  () => import('@/components/HomeGraphWidget').then(m => ({ default: m.HomeGraphWidget })),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        aria-hidden
+        className="h-[420px] rounded-xl border border-zinc-800 bg-[#0a0a0f]"
+      />
+    ),
+  }
+);
 
 
 
