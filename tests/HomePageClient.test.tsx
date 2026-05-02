@@ -7,6 +7,7 @@ import type { LibraryData } from '@/types/repo';
 var mockProvider: {
   mode: 'production';
   getOwnedLibrary: jest.Mock;
+  getPreview: jest.Mock;
   getLibrary: jest.Mock;
   getDegradedState: jest.Mock;
   getTrends: jest.Mock;
@@ -44,6 +45,7 @@ jest.mock('next/navigation', () => ({
 mockProvider = {
   mode: 'production',
   getOwnedLibrary: jest.fn(),
+  getPreview: jest.fn(),
   getLibrary: jest.fn(),
   getDegradedState: jest.fn(),
   getTrends: jest.fn(),
@@ -82,6 +84,17 @@ describe('HomePageClient', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockProvider.getOwnedLibrary.mockResolvedValue(null);
+    // KAN-152: home now consumes `/library/preview` for first paint; mock
+    // returns a minimum-viable PreviewData shape so the component renders
+    // before any lazy `/library/full` upgrade trigger fires.
+    mockProvider.getPreview.mockResolvedValue({
+      generatedAt: '2026-03-24T00:00:00Z',
+      totalRepos: 0,
+      limit: 300,
+      sort: 'stars',
+      category: null,
+      repos: [],
+    });
     mockProvider.getLibrary.mockResolvedValue(libraryFixture);
     mockProvider.getDegradedState.mockReturnValue(true);
     mockProvider.getTrends.mockResolvedValue(null);

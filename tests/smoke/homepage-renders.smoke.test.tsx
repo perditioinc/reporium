@@ -12,6 +12,7 @@ import { loadLibraryFixture } from './_fixtures';
 var mockProvider: {
   mode: 'production';
   getOwnedLibrary: jest.Mock;
+  getPreview: jest.Mock;
   getLibrary: jest.Mock;
   getDegradedState: jest.Mock;
   clearDegradedState: jest.Mock;
@@ -47,6 +48,7 @@ jest.mock('@/components/MetricsSidebar', () => ({ MetricsSidebar: () => null }))
 mockProvider = {
   mode: 'production',
   getOwnedLibrary: jest.fn(),
+  getPreview: jest.fn(),
   getLibrary: jest.fn(),
   getDegradedState: jest.fn(),
   clearDegradedState: jest.fn(),
@@ -74,6 +76,33 @@ describe('smoke: homepage renders meaningful content', () => {
       categories: real.categories?.slice(0, 5) ?? [],
     };
     mockProvider.getOwnedLibrary.mockResolvedValue(null);
+    // KAN-152: preview is now the first-paint payload. Project the trimmed
+    // fixture into a minimal PreviewData so the grid renders before any
+    // lazy `/library/full` upgrade.
+    mockProvider.getPreview.mockResolvedValue({
+      generatedAt: trimmed.generatedAt,
+      totalRepos: trimmed.repos.length,
+      limit: 300,
+      sort: 'stars',
+      category: null,
+      repos: trimmed.repos.map((r) => ({
+        id: String(r.id),
+        name: r.name,
+        fullName: r.fullName,
+        description: r.description,
+        isFork: r.isFork,
+        forkedFrom: r.forkedFrom,
+        language: r.language,
+        stars: r.parentStats?.stars ?? r.stars ?? 0,
+        forks: r.parentStats?.forks ?? r.forks ?? 0,
+        lastUpdated: r.lastUpdated,
+        primaryCategory: r.primaryCategory ?? null,
+        dbCategory: r.dbCategory ?? null,
+        enrichedTags: r.enrichedTags ?? [],
+        isArchived: r.isArchived,
+        url: r.url,
+      })),
+    });
     mockProvider.getLibrary.mockResolvedValue(trimmed);
     mockProvider.getDegradedState.mockReturnValue(false);
     mockProvider.getTrends.mockResolvedValue(null);
