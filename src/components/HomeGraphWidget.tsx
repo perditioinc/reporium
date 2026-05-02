@@ -7,12 +7,14 @@
  */
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { GraphEdge, NodeMeta } from '@/components/KnowledgeGraph3D';
 import { loadGraphDataset } from '@/lib/graphData';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { GraphFallbackPanel } from '@/components/GraphFallbackPanel';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 // Dynamic import — Three.js doesn't work with SSR/static export
 const KnowledgeGraph = dynamic(
@@ -31,6 +33,7 @@ interface HomeGraphWidgetProps {
 
 export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGraphWidgetProps = {}) {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
@@ -43,7 +46,10 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
   // Defer graph fetch until the widget scrolls into view — prevents loading
   // the graph (and its fallback library data) on pages where the user never
   // scrolls below the fold (saves up to ~27 MB on mobile).
+  // KAN-153: also short-circuit on mobile so the IntersectionObserver never
+  // attaches to the (mobile) link card.
   useEffect(() => {
+    if (isMobile) return;
     const el = containerRef.current;
     if (!el) { setIsVisible(true); return; }
     if (!('IntersectionObserver' in window)) { setIsVisible(true); return; }
@@ -58,10 +64,11 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
-    if (!isVisible) return;
+    // KAN-153: skip the 10k-edge fetch entirely on mobile.
+    if (isMobile || !isVisible) return;
     let cancelled = false;
     const controller = new AbortController();
     setLoading(true);
@@ -94,7 +101,7 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
       cancelled = true;
       controller.abort();
     };
-  }, [isVisible]);
+  }, [isVisible, isMobile]);
 
   const nodeCount = useMemo(
     () => nodeMetadata.size || new Set(edges.flatMap((e) => [e.source, e.target])).size,
@@ -114,6 +121,30 @@ export function HomeGraphWidget({ selectedRepoName, onGraphNodeSelect }: HomeGra
     },
     [router, onGraphNodeSelect],
   );
+
+  // KAN-153 (KAN-121 design): on mobile, replace the heavy 3D widget with a
+  // static link card. Skips the 10k-edge fetch and the Three.js + d3-force-3d
+  // chunks entirely. SSR renders the desktop tree (isMobile=false initial),
+  // hydration corrects post-mount; the placeholder height matches the
+  // desktop widget's 420px so layout settles without a perceptible jump.
+  if (isMobile) {
+    return (
+      <Link
+        href="/graph"
+        data-testid="home-graph-mobile-cta"
+        className="flex h-[420px] flex-col justify-center rounded-xl border border-zinc-800 bg-[#0a0a0f] p-6 text-center transition-colors hover:border-cyan-500/40 hover:bg-zinc-900/40"
+      >
+        <h2 className="text-base font-semibold text-zinc-200">Knowledge Graph</h2>
+        <p className="mx-auto mt-2 max-w-xs text-xs text-zinc-500">
+          The interactive 3D graph is desktop-optimized. Open the full graph to explore every repo
+          and its connections.
+        </p>
+        <span className="mx-auto mt-4 inline-flex items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-100">
+          View graph <span aria-hidden>→</span>
+        </span>
+      </Link>
+    );
+  }
 
   return (
     <div ref={containerRef} className="rounded-xl border border-zinc-800 bg-[#0a0a0f] overflow-hidden">
