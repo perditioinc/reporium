@@ -875,10 +875,15 @@ export function HomePageClient() {
 
         <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4">
 
-          {/* Widget tabs — sticky at top */}
-          {data && (
-            <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 border-b border-zinc-800">
-              <div className="flex">
+          {/* Widget tabs — sticky at top.
+              KAN-154: render the wrapper unconditionally so its height
+              is reserved during SSR (before `data` resolves). Without
+              this, the tabs bar pops in after hydration and pushes
+              everything below by ~28 px. The buttons themselves are
+              still gated on `data` so they don't render disabled. */}
+          <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 border-b border-zinc-800 h-7">
+            {data && (
+              <div className="flex h-full">
                 {([
                   { key: 'overview', label: 'Overview' },
                   { key: 'stats', label: 'Stats' },
@@ -899,8 +904,8 @@ export function HomePageClient() {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
           {/* Generic error */}
           {error && (
             <div className="mx-3 sm:mx-4 md:mx-6 rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
@@ -1021,9 +1026,21 @@ export function HomePageClient() {
             </ErrorBoundary>
           </div>
 
-          {/* Filter bar — sticky below widget tabs */}
+          {/* Filter bar — sticky below widget tabs.
+              KAN-154: render the outer wrapper unconditionally with a
+              fixed compact height so SSR reserves the footprint. The
+              filter UI itself stays gated on `data`. The inner row
+              (default closed-state) is ~36 px (`py-1.5` + button text +
+              border-b); the open-state advanced filter panel below it
+              is still conditional on `filtersOpen` and only appears
+              after explicit user interaction, well after CLS is
+              measured. */}
+          <div
+            className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6 min-h-[36px]"
+            data-tour="search"
+          >
           {data && (
-            <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6" data-tour="search">
+            <>
               <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50 overflow-x-auto sm:overflow-x-visible">
                   <button
                     onClick={() => { setFiltersOpen(v => !v); ensureFullLibrary(); }}
@@ -1167,8 +1184,9 @@ export function HomePageClient() {
                   />
                 </div>
               )}
-            </div>
+            </>
           )}
+          </div>
 
           {/* Grid — explore mode with inline expansion.
               KAN-154: reserve the post-load grid footprint to clear the
