@@ -172,6 +172,42 @@ function computeTopTags(repos: EnrichedRepo[], limit = 20): DerivedTagTrend[] {
     .map(([tag, repoCount]) => ({ tag, repoCount }));
 }
 
+/**
+ * Choose the most reliable freshness signal from the API responses.
+ * Preference: trendData.generatedAt -> libraryData.generatedAt -> trendData.period.to.
+ * Returns null if no parseable signal is present.
+ */
+export function pickFreshnessIso(
+  trendData: TrendData | null,
+  libraryData: LibraryData | null,
+): string | null {
+  const candidates = [
+    trendData?.generatedAt,
+    libraryData?.generatedAt,
+    trendData?.period?.to,
+  ];
+  for (const c of candidates) {
+    if (c && !Number.isNaN(new Date(c).getTime())) return c;
+  }
+  return null;
+}
+
+/** Format an absolute time as a coarse "as of" relative phrase. */
+export function formatRelativeAsOf(iso: string, now: number = Date.now()): string {
+  const ts = new Date(iso).getTime();
+  if (Number.isNaN(ts)) return 'as of unknown';
+  const ageMs = now - ts;
+  const minutes = Math.round(ageMs / 60_000);
+  if (minutes < 1) return 'as of just now';
+  if (minutes < 60) return `as of ${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.round(ageMs / 3_600_000);
+  if (hours < 24) return `as of ${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.round(ageMs / 86_400_000);
+  return `as of ${days} day${days === 1 ? '' : 's'} ago`;
+}
+
+const STALE_THRESHOLD_MS = 48 * 60 * 60 * 1000;
+
 export default function TrendsPage() {
   const [data, setData] = useState<LibraryData | null>(null);
   const [trendData, setTrendData] = useState<TrendData | null>(null);
@@ -254,6 +290,18 @@ export default function TrendsPage() {
     return computeTopTags(data.repos, 20);
   }, [data, snapshotsAvailable]);
 
+  // Freshness: surface "as of" stamp + amber stale banner when data > 48h old.
+  // Recurring failure mode is silent-green ingestion — the page renders empty
+  // sections that look like "nothing happened this week" instead of "the
+  // pipeline is lagging." Pin the timestamp + banner to the top.
+  const freshnessIso = useMemo(
+    () => pickFreshnessIso(trendData, data),
+    [trendData, data],
+  );
+  const ageMs = freshnessIso ? Date.now() - new Date(freshnessIso).getTime() : null;
+  const isStale = ageMs !== null && ageMs > STALE_THRESHOLD_MS;
+  const asOfLabel = freshnessIso ? formatRelativeAsOf(freshnessIso) : null;
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* Nav */}
@@ -262,6 +310,15 @@ export default function TrendsPage() {
           ← Reporium
         </Link>
         <h1 className="text-lg font-bold text-zinc-100">Trends</h1>
+        {asOfLabel && (
+          <span
+            data-testid="trends-freshness-stamp"
+            className="text-xs text-zinc-600"
+            title={freshnessIso ?? undefined}
+          >
+            {asOfLabel}
+          </span>
+        )}
         {data && (
           <span className="ml-auto text-xs text-zinc-600">
             {data.repos.length.toLocaleString()} repos
@@ -279,6 +336,17 @@ export default function TrendsPage() {
         {error && (
           <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-400">
             Failed to load: {error}
+          </div>
+        )}
+
+        {isStale && (
+          <div
+            data-testid="trends-stale-banner"
+            role="status"
+            className="rounded-xl border border-amber-900/50 bg-amber-950/30 p-4 text-sm text-amber-300"
+          >
+            Data is older than 48h &mdash; the ingestion pipeline may be lagging. The sections
+            below reflect the last successful refresh{asOfLabel ? ` (${asOfLabel})` : ''}.
           </div>
         )}
 
