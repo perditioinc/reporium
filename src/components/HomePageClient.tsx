@@ -1153,8 +1153,29 @@ export function HomePageClient() {
             </div>
           )}
 
-          {/* Grid — explore mode with inline expansion */}
-          <div className="px-3 sm:px-4 md:px-6" data-tour="grid">
+          {/* Grid — explore mode with inline expansion.
+              KAN-154: reserve the post-load grid footprint while the page is
+              still hydrating data through three stages (LoadingState →
+              owned-only → preview). Without this floor the grid container
+              grows from ~500px (Stage 2: a handful of owned repos) to
+              ~4000px (Stage 3: 60-card preview), which is the dominant
+              remaining mobile CLS. The floor sizes match GRID_PAGE_SIZE (60)
+              cards at RepoCardMinimal's ~130px height across breakpoints:
+                mobile (2-col) : 30 rows × 130 + 29 × 8 gap ≈ 4132 px
+                sm     (3-col) : 20 rows × 140 + 19 × 12 gap ≈ 3028 px
+                lg     (4-col) : 15 rows × 150 + 14 × 12 gap ≈ 2418 px
+                xl     (5-col) : 12 rows × 150 + 11 × 12 gap ≈ 1932 px
+              We drop the floor once the natural grid contains ≥ GRID_PAGE_SIZE
+              cards so post-data filters don't produce empty space below
+              shrunken result sets. */}
+          <div
+            className={`px-3 sm:px-4 md:px-6 ${
+              filteredAndSortedRepos.length < GRID_PAGE_SIZE
+                ? 'min-h-[4150px] sm:min-h-[3050px] lg:min-h-[2450px] xl:min-h-[1950px]'
+                : ''
+            }`}
+            data-tour="grid"
+          >
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
             {isLoading ? (
               <LoadingState />
