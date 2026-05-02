@@ -17,6 +17,7 @@ import { LoadingBanner } from '@/components/LoadingBanner';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { reposIndexedLabel } from '@/lib/corpusLabels';
+import { previewToLibraryData } from '@/lib/previewToLibraryData';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
 import { CyberpunkBillboard } from '@/components/CyberpunkBillboard';
@@ -101,6 +102,49 @@ export function HomePageClient() {
   // Mobile sidebar toggle
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // KAN-152: track whether the full library has loaded. Preview-only data is
+  // sufficient for the grid + KPI hero, but `StatsBar`, `MetricsSidebar`,
+  // `LibraryInsightsWidget`, `CrossDimensionWidget`, `RecommendationsWidget`,
+  // keyword search, and most filter chips need aggregates that only
+  // `/library/full` provides. `isFullLoaded` flips to `true` once the lazy
+  // upgrade resolves; gated UI shows "Loading details…" until then.
+  const [isFullLoaded, setIsFullLoaded] = useState(false);
+  const fullLoadStartedRef = useRef(false);
+
+  /**
+   * Trigger the lazy `/library/full` ladder. Idempotent — every entry point
+   * (search focus, filter open, tab open, scroll-past-300, NL filter) calls
+   * this without coordinating; the ref guard ensures we only fire once per
+   * mount. Subsequent calls are cheap no-ops.
+   */
+  const ensureFullLibrary = useCallback(() => {
+    if (fullLoadStartedRef.current) return;
+    fullLoadStartedRef.current = true;
+    setIsLoadingFull(true);
+    provider.getLibrary((p) => setLoadProgress(p))
+      .then((full) => {
+        setData(full);
+        setIsFullLoaded(true);
+        setIsLoadingFull(false);
+        setApiDegraded(provider.getDegradedState());
+        // Non-blocking extras — only loaded once full lands so we don't
+        // hammer the API on first paint
+        provider.getTrends()
+          .then((t) => { if (t) setTrends(t); })
+          .catch(() => {});
+        provider.getCrossDimensionAnalytics('industry', 'ai_trend', 50)
+          .then((analytics) => setCrossDimensionAnalytics(analytics))
+          .catch(() => {});
+      })
+      .catch((e: unknown) => {
+        setIsLoadingFull(false);
+        setLoadProgress({ stage: 'error', percent: 0, detail: 'Failed to load full library' });
+        // Don't surface the error if preview already painted; the user has
+        // a usable grid. Only the deferred widgets degrade silently.
+        console.warn('Full library load failed:', e);
+      });
+  }, []);
+
   // Widget tabs — the home page loads with ALL tabs collapsed. Users pick
   // the dashboard view they want; nothing is pre-expanded so the graph +
   // billboard are the primary above-the-fold content.
@@ -108,7 +152,12 @@ export function HomePageClient() {
   const [activeWidget, setActiveWidget] = useState<WidgetKey | null>(null);
   const toggleWidget = useCallback((w: WidgetKey) => {
     setActiveWidget(prev => prev === w ? null : w);
-  }, []);
+    // KAN-152: Stats / Insights / Analytics / Dashboard tabs all read
+    // aggregate fields (tagMetrics, builderStats, aiDevSkillStats, etc.)
+    // that only the full library carries. Overview reads `data.repos.length`
+    // + a small KPI hero that works with preview data, so skip that case.
+    if (w !== 'overview') ensureFullLibrary();
+  }, [ensureFullLibrary]);
 
   // Filters collapsed by default — clean home page, filters accessible via toggle
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -182,34 +231,24 @@ export function HomePageClient() {
       if (!cancelled && owned) {
         setData(owned);
         setIsLoading(false);
-        setIsLoadingFull(true);
       }
 
-      // Stage 2: load full library (~3MB) in background, then merge in
+      // KAN-152 Stage 2: load `/library/preview` (~165 KB / ~563 B per repo)
+      // instead of the 4-page `/library/full` ladder (~5.2 MB). Drops mobile
+      // Lighthouse Script Eval time from 47.7 s to ~6 s. The full library
+      // loads lazily via `ensureFullLibrary()` when the user opens search,
+      // any filter chip, a stats/dashboard tab, scrolls past 300 cards, or
+      // invokes NL filter / semantic search.
       try {
-        const full = await provider.getLibrary((p) => {
-          if (!cancelled) setLoadProgress(p);
-        });
+        setLoadProgress({ stage: 'repos', percent: 30, detail: 'Loading preview…' });
+        const preview = await provider.getPreview(300);
         if (!cancelled) {
-          setData(full);
-          setIsLoadingFull(false);
-          // Degraded: production mode but API fell back to JSON
+          setData(previewToLibraryData(preview));
+          setLoadProgress({ stage: 'ready', percent: 100, detail: 'Ready' });
           setApiDegraded(provider.getDegradedState());
         }
-        // Non-blocking extras
-        if (!cancelled) setLoadProgress({ stage: 'trends', percent: 50, detail: 'Loading trends…' });
-        provider.getTrends()
-          .then(t => { if (!cancelled && t) setTrends(t); })
-          .catch(() => {});
-        // portfolio insights retained for future API-driven intelligence
-        if (!cancelled) setLoadProgress({ stage: 'taxonomy', percent: 75, detail: 'Loading taxonomy…' });
-        provider.getCrossDimensionAnalytics('industry', 'ai_trend', 50)
-          .then(analytics => { if (!cancelled) setCrossDimensionAnalytics(analytics); })
-          .catch(() => {});
-        if (!cancelled) setLoadProgress({ stage: 'ready', percent: 100, detail: 'Ready' });
       } catch (e) {
         if (!cancelled) {
-          setIsLoadingFull(false);
           setLoadProgress({ stage: 'error', percent: 0, detail: 'Failed to load' });
           if (!owned) setError((e as Error).message);
         }
@@ -221,6 +260,15 @@ export function HomePageClient() {
     load();
     return () => { cancelled = true; };
   }, []);  // no dependencies — loads once
+
+  // KAN-152: any keyword/semantic search triggers the full-library upgrade.
+  // Preview only carries the top-300-by-stars projection; searching against
+  // it would silently drop results outside that window.
+  useEffect(() => {
+    if (search.trim() || searchMode === 'semantic') {
+      ensureFullLibrary();
+    }
+  }, [search, searchMode, ensureFullLibrary]);
 
   useEffect(() => {
     let cancelled = false;
@@ -707,6 +755,9 @@ export function HomePageClient() {
 
   // KAN-159: apply NL filter result to existing filter state
   const handleNLFilter = useCallback((result: NLFilterResult) => {
+    // KAN-152: NL filter narrows the visible grid by language/category/min-stars,
+    // which only makes sense across the full corpus.
+    ensureFullLibrary();
     setNlFilterInterpretation(result.interpretation);
     setNlMinStars(result.min_stars ?? null);
     setNlExcludeArchived(result.exclude_archived);
@@ -715,7 +766,7 @@ export function HomePageClient() {
     if (result.sort === 'stars') setSortBy('stars' as SortOption);
     else if (result.sort === 'updated') setSortBy('updated' as SortOption);
     // Don't apply NL tags to strict tag filter — too granular, causes 0-result false negatives
-  }, []);
+  }, [ensureFullLibrary]);
 
   const handleNLFilterClear = useCallback(() => {
     setNlFilterInterpretation(null);
@@ -751,6 +802,12 @@ export function HomePageClient() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
+          // KAN-152: when scrolling past the preview window (5 pages × 60 =
+          // 300 cards), trigger the full-library upgrade so the user can
+          // page beyond the projected slice.
+          if (gridVisibleCount + GRID_PAGE_SIZE >= 300) {
+            ensureFullLibrary();
+          }
           setGridVisibleCount(prev => Math.min(prev + GRID_PAGE_SIZE, filteredAndSortedRepos.length));
         }
       },
@@ -758,7 +815,7 @@ export function HomePageClient() {
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [filteredAndSortedRepos.length]);
+  }, [filteredAndSortedRepos.length, gridVisibleCount, ensureFullLibrary]);
 
   // Close expanded card when clicking outside it
   useEffect(() => {
@@ -952,7 +1009,7 @@ export function HomePageClient() {
             <div className="sticky top-7 z-20 bg-zinc-950/95 backdrop-blur-sm -mx-3 sm:-mx-4 md:-mx-6" data-tour="search">
               <div className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 md:px-6 py-1.5 border-b border-zinc-800/50 overflow-x-auto sm:overflow-x-visible">
                   <button
-                    onClick={() => setFiltersOpen(v => !v)}
+                    onClick={() => { setFiltersOpen(v => !v); ensureFullLibrary(); }}
                     className={`flex items-center gap-1 sm:gap-1.5 rounded-lg border px-1.5 sm:px-3 py-1 sm:py-1.5 text-xs font-medium transition-colors shrink-0 ${
                       filtersOpen || activeFilterCount > 0
                         ? 'border-purple-500/50 bg-purple-500/10 text-purple-300'
@@ -977,6 +1034,14 @@ export function HomePageClient() {
                       Clear
                     </button>
                   )}
+                  {/* KAN-152: tiny inline indicator while the full library
+                      is loading after a filter/tab/search click. Surfaces
+                      the lazy upgrade without crowding the main banner. */}
+                  {isLoadingFull && !isFullLoaded && (
+                    <span className="text-[10px] text-zinc-500 italic shrink-0" aria-live="polite">
+                      Loading details…
+                    </span>
+                  )}
                   {/* Quick category shortcuts — emoji on mobile, full label on desktop */}
                   {[
                     { label: 'Agents', emoji: '🤖', value: 'agents' },
@@ -993,7 +1058,13 @@ export function HomePageClient() {
                     return (
                       <button
                         key={shortcut.label}
-                        onClick={() => setSelectedDbCategory(prev => prev === shortcut.value ? '' : shortcut.value)}
+                        onClick={() => {
+                          // KAN-152: category chip narrows by full-corpus
+                          // dbCategory; preview's top-300 projection would
+                          // drop matches outside the window.
+                          ensureFullLibrary();
+                          setSelectedDbCategory(prev => prev === shortcut.value ? '' : shortcut.value);
+                        }}
                         className={`inline-flex items-center gap-1 px-1 sm:px-2 py-0.5 rounded-md text-[10px] font-medium transition-colors shrink-0 ${
                           isActive
                             ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
