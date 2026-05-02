@@ -1154,26 +1154,36 @@ export function HomePageClient() {
           )}
 
           {/* Grid — explore mode with inline expansion.
-              KAN-154: reserve the post-load grid footprint while the page is
-              still hydrating data through three stages (LoadingState →
-              owned-only → preview). Without this floor the grid container
-              grows from ~500px (Stage 2: a handful of owned repos) to
-              ~4000px (Stage 3: 60-card preview), which is the dominant
-              remaining mobile CLS. The floor sizes match GRID_PAGE_SIZE (60)
-              cards at RepoCardMinimal's ~130px height across breakpoints:
-                mobile (2-col) : 30 rows × 130 + 29 × 8 gap ≈ 4132 px
-                sm     (3-col) : 20 rows × 140 + 19 × 12 gap ≈ 3028 px
-                lg     (4-col) : 15 rows × 150 + 14 × 12 gap ≈ 2418 px
-                xl     (5-col) : 12 rows × 150 + 11 × 12 gap ≈ 1932 px
-              We drop the floor once the natural grid contains ≥ GRID_PAGE_SIZE
-              cards so post-data filters don't produce empty space below
-              shrunken result sets. */}
+              KAN-154: reserve the post-load grid footprint to clear the
+              dominant mobile CLS shifter (`data-tour="grid"`, score
+              ≈ 0.54). Page hydrates through three stages (LoadingState →
+              owned-only → preview), and the wrapper grew from ~500 px
+              (Stage 2: a handful of owned repos) to ~3500 px (Stage 3:
+              60-card preview), pushing every element below.
+
+              The floor is sized to land *just under* the natural post-load
+              height per breakpoint so the wrapper never shrinks when data
+              arrives (`min-h` doesn't fight a taller content). Heights
+              measured from the post-KAN-153 Lighthouse trace: each
+              `RepoCardMinimal` renders at ~111 px on mobile.
+                mobile (2-col, 412 px) : 30 rows × 111 + 29 × 8  ≈ 3562 → 3500
+                sm     (3-col)         : 20 rows × 120 + 19 × 12 ≈ 2628 → 2400
+                lg     (4-col)         : 15 rows × 130 + 14 × 12 ≈ 2118 → 1900
+                xl     (5-col)         : 12 rows × 130 + 11 × 12 ≈ 1692 → 1500
+
+              The floor stays on permanently UNLESS the user actively
+              filters/searches — at which point we let the wrapper shrink
+              to fit the result set so we don't show 3000 px of empty
+              space below 5 result cards. The CLS measurement is
+              completed long before any filter interaction. */}
+          {(() => {
+            const userFiltering = activeFilterCount > 0 || search.trim().length > 0;
+            const floor = userFiltering
+              ? ''
+              : 'min-h-[3500px] sm:min-h-[2400px] lg:min-h-[1900px] xl:min-h-[1500px]';
+            return (
           <div
-            className={`px-3 sm:px-4 md:px-6 ${
-              filteredAndSortedRepos.length < GRID_PAGE_SIZE
-                ? 'min-h-[4150px] sm:min-h-[3050px] lg:min-h-[2450px] xl:min-h-[1950px]'
-                : ''
-            }`}
+            className={`px-3 sm:px-4 md:px-6 ${floor}`}
             data-tour="grid"
           >
           <ErrorBoundary fallback={<div className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-sm text-zinc-400">Repo grid unavailable.</div>}>
@@ -1348,6 +1358,8 @@ export function HomePageClient() {
             )}
           </ErrorBoundary>
           </div>
+            );
+          })()}
 
           {/* Footer */}
           <footer className="mx-3 sm:mx-4 md:mx-6 mt-8 border-t border-zinc-800 pt-6 pb-4">
