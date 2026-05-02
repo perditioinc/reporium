@@ -1,6 +1,6 @@
 'use client';
 
-import { StickyAskBar } from './StickyAskBar';
+import { StickyAskBarBoot } from './StickyAskBarBoot';
 import { StickyNavBar } from './StickyNavBar';
 import { RouteProgress } from './RouteProgress';
 import { GlobalKeyboardScroll } from './GlobalKeyboardScroll';
@@ -17,7 +17,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       <GlobalKeyboardScroll />
       <StickyNavBar />
       <div className="pb-14">{children}</div>
-      <StickyAskBar />
+      <StickyAskBarBoot />
     </>
   );
 }
