@@ -1,6 +1,9 @@
 // @ts-check
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { withSentryConfig } = require('@sentry/nextjs');
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 // ADR-005: deployment-target conditional rendering.
 // - REPORIUM_DEPLOY_TARGET=github-pages keeps full static export for forks.
@@ -12,10 +15,6 @@ const IS_STATIC_EXPORT = DEPLOY_TARGET === 'github-pages';
 const nextConfig = {
   output: IS_STATIC_EXPORT ? 'export' : undefined,
   trailingSlash: true,
-
-  // Retained for the github-pages target. The Vercel target no longer renders
-  // the full repo corpus at build time, so this is now a defensive fence.
-  staticPageGenerationTimeout: 240,
 
   // Explicitly expose NEXT_PUBLIC_* vars. Sentry's process polyfill can prevent
   // the default build-time inlining of `process.env.NEXT_PUBLIC_*`, leaving
@@ -46,16 +45,18 @@ const nextConfig = {
   },
 }
 
-module.exports = withSentryConfig(nextConfig, {
-  // Suppress Sentry build-time logs (sourcemap upload etc.)
-  silent: true,
-  // org/project intentionally undefined here — set via SENTRY_ORG / SENTRY_PROJECT
-  // env vars in Vercel / Cloud Run once the DSN is provisioned.
-  org: undefined,
-  project: undefined,
-  // Static export: no server-side Sentry route instrumentation needed.
-  // Re-enable for the Vercel target in a follow-up if server tracing is desired.
-  autoInstrumentServerFunctions: false,
-  // Disable source map upload (no auth token configured yet)
-  disableSourceMapUpload: true,
-});
+module.exports = withBundleAnalyzer(
+  withSentryConfig(nextConfig, {
+    // Suppress Sentry build-time logs (sourcemap upload etc.)
+    silent: true,
+    // org/project intentionally undefined here — set via SENTRY_ORG / SENTRY_PROJECT
+    // env vars in Vercel / Cloud Run once the DSN is provisioned.
+    org: undefined,
+    project: undefined,
+    // Static export: no server-side Sentry route instrumentation needed.
+    // Re-enable for the Vercel target in a follow-up if server tracing is desired.
+    autoInstrumentServerFunctions: false,
+    // Disable source map upload (no auth token configured yet)
+    disableSourceMapUpload: true,
+  }),
+);
