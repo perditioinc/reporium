@@ -8,6 +8,7 @@
     "prebuild": "npm run validate:privacy && node scripts/write-corpus-constants.cjs && node scripts/sync-data-dir.cjs",
     "refresh-stats": "node scripts/write-corpus-constants.cjs",
     "build": "npx tsx scripts/generate-sitemap.ts && next build",
+    "build:analyze": "npx tsx scripts/generate-sitemap.ts && node -e \"process.env.ANALYZE='true'; require('child_process').execSync('next build --webpack', { stdio: 'inherit', env: process.env })\"",
     "postbuild": "node scripts/strip-large-static-json.cjs",
     "sitemap": "npx tsx scripts/generate-sitemap.ts",
     "generate": "npx tsx scripts/fetch-library.ts",
@@ -54,6 +55,7 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.4",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
