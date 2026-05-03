@@ -29,13 +29,40 @@ import type {
 import type { PreviewData, PreviewRepo } from '@/lib/dataProvider'
 
 /**
+ * Promote the preview's optional `parentStats` block (when KAN-179
+ * `?include=parent` was requested) to a full `ParentRepoStats`. The preview
+ * shape omits `openIssues`, so we default it to 0; nothing on the card
+ * surface reads it.
+ */
+function liftParentStats(p: PreviewRepo): ParentRepoStats | null {
+  if (!p.parentStats) return null
+  return {
+    owner: p.parentStats.owner,
+    repo: p.parentStats.repo,
+    stars: p.parentStats.stars,
+    forks: p.parentStats.forks,
+    openIssues: 0,
+    lastCommitDate: p.parentStats.lastCommitDate ?? '',
+    isArchived: p.parentStats.isArchived,
+    description: p.parentStats.description,
+    url: p.parentStats.url,
+  }
+}
+
+/**
  * For a forked preview repo, synthesise the minimum `parentStats` fields the
  * card surface reads. The preview's `stars`/`forks` values are already
  * pre-coalesced server-side (`COALESCE(parent_stars, ...)`) so we mirror
  * those into the synth `parentStats` to keep the card's
  * `parentStats?.stars ?? stars` lookup behaving identically.
+ *
+ * KAN-185: prefer the real `parentStats` block from `?include=parent` when
+ * present, since it carries the genuine `isArchived` flag /insights/ Health
+ * Alerts depends on. Falls back to the fork-only synth otherwise.
  */
 function synthParentStatsForFork(p: PreviewRepo): ParentRepoStats | null {
+  const lifted = liftParentStats(p)
+  if (lifted) return lifted
   if (!p.isFork || !p.forkedFrom) return null
   const [owner, repo] = p.forkedFrom.split('/')
   if (!owner || !repo) return null
@@ -66,6 +93,19 @@ function idHash(s: string): number {
 
 /** Promote a `PreviewRepo` to an `EnrichedRepo` with empty aggregates. */
 export function previewToEnrichedRepo(p: PreviewRepo): EnrichedRepo {
+  // KAN-185: surface optional include blocks when present. Empty-default
+  // shapes match the previous behaviour for the home-page baseline (no
+  // include tokens) so downstream consumers continue to see safe zeros.
+  const commitStats = p.commitStats
+    ? {
+        today: 0,
+        last7Days: p.commitStats.last7Days,
+        last30Days: p.commitStats.last30Days,
+        last90Days: p.commitStats.last90Days,
+        recentCommits: [],
+      }
+    : { today: 0, last7Days: 0, last30Days: 0, last90Days: 0, recentCommits: [] }
+
   return {
     id: idHash(p.id),
     name: p.name,
@@ -90,7 +130,7 @@ export function previewToEnrichedRepo(p: PreviewRepo): EnrichedRepo {
     forkedAt: null,
     yourLastPushAt: null,
     upstreamLastPushAt: null,
-    upstreamCreatedAt: null,
+    upstreamCreatedAt: p.upstreamCreatedAt ?? null,
     forkSync: null,
     weeklyCommitCount: 0,
     languageBreakdown: {},
@@ -102,7 +142,7 @@ export function previewToEnrichedRepo(p: PreviewRepo): EnrichedRepo {
     primaryCategory: p.primaryCategory ?? '',
     allCategories: p.primaryCategory ? [p.primaryCategory] : [],
     dbCategory: p.dbCategory,
-    commitStats: { today: 0, last7Days: 0, last30Days: 0, last90Days: 0, recentCommits: [] },
+    commitStats,
     latestRelease: null,
     aiDevSkills: [],
     pmSkills: [],
@@ -110,6 +150,7 @@ export function previewToEnrichedRepo(p: PreviewRepo): EnrichedRepo {
     programmingLanguages: p.language ? [p.language] : [],
     builders: [],
     taxonomy: [],
+    qualitySignals: (p.qualitySignals as EnrichedRepo['qualitySignals']) ?? null,
   }
 }
 
