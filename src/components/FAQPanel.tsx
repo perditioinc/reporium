@@ -83,9 +83,35 @@ function isAnswer(e: FAQEntry | undefined): e is FAQAnswer {
   return !!e && 'answer' in e;
 }
 
+// KAN-183: render-on-demand for FAQ markdown bodies.
+//
+// Why: with ~100 questions, mounting <ReactMarkdown> for every entry up-front
+// (even inside a collapsed <details>) blows the main-thread budget. Mobile
+// Lighthouse measured TBT=342ms / main-thread-work=2.2s on this page. The
+// <details> element only hides the body visually; React still renders all
+// children regardless of open state.
+//
+// Fix: track the open state per card via the native <details> onToggle event,
+// and ONLY mount <ReactMarkdown> once the user expands the card. Once mounted,
+// keep it mounted ('renderedOnce') so re-collapsing+re-expanding is instant
+// and the prose state (e.g. text selection) survives a toggle.
+//
+// SEO note: this is a 'use client' component that fetches /data/faq.json on
+// mount, so the answer body is never in the SSR HTML in the first place. The
+// question text (the SEO-relevant part) remains in the rendered <summary>.
+// Deferring the markdown render does not change the SSR output.
 function FAQCard({ question, entry }: { question: string; entry: FAQEntry | undefined }) {
+  const [renderedOnce, setRenderedOnce] = useState(false);
+
   return (
-    <details className="group rounded-lg border border-zinc-800 bg-zinc-900/60 open:bg-zinc-900 transition-colors">
+    <details
+      className="group rounded-lg border border-zinc-800 bg-zinc-900/60 open:bg-zinc-900 transition-colors"
+      onToggle={(e) => {
+        if ((e.currentTarget as HTMLDetailsElement).open) {
+          setRenderedOnce(true);
+        }
+      }}
+    >
       <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-3">
         <span className="text-sm font-medium text-zinc-100">{question}</span>
         <span
@@ -105,13 +131,15 @@ function FAQCard({ question, entry }: { question: string; entry: FAQEntry | unde
         {isAnswer(entry) && (
           <div className="space-y-3">
             <div className="prose prose-invert prose-sm max-w-none text-sm text-zinc-200">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeSanitize]}
-                components={MARKDOWN_COMPONENTS}
-              >
-                {entry.answer}
-              </ReactMarkdown>
+              {renderedOnce ? (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeSanitize]}
+                  components={MARKDOWN_COMPONENTS}
+                >
+                  {entry.answer}
+                </ReactMarkdown>
+              ) : null}
             </div>
             {entry.sources.length > 0 && (
               <div>
