@@ -3,31 +3,16 @@
 
 ---
 
-## Trending This Week
-These areas in your library are seeing accelerating activity:
-
-**Tutorial** (+1431900% vs last week)
-openclaw, react, bootstrap are most active.
-
-**Security** (+1054400% vs last week)
-freeCodeCamp, openclaw, tensorflow are most active.
-
-**Real-Time / Streaming** (+818600% vs last week)
-openclaw, transformers, yt-dlp are most active.
-
----
-
 ## Library Health
-- **1867 repos** · **31 categories** · **5332 unique tags**
-- **630 forks** up to date · **1218 forks** behind upstream
+- **1870 repos** · **31 categories** · **5332 unique tags**
+- **633 forks** up to date · **1218 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (1555 commits across 1188 repos)
-- **Tutorial** fastest growing (+1431900% commit velocity)
-- **DevOps** cooling (-100% change in activity)
+- **📚 Learning Resources** most active category (69204 commits across 1347 repos)
+- **Automation** cooling (-100% change in activity)
 
 ---
 
