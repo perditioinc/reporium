@@ -1,217 +1,72 @@
 {
-  "generatedAt": "2026-05-03T06:24:26.275Z",
+  "generatedAt": "2026-05-03T07:46:29.634Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-02 07:55:13 +0000",
-    "snapshots": 50
+    "to": "2026-05-03 07:16:23 +0000",
+    "snapshots": 51
   },
-  "trending": [
-    {
-      "name": "Tutorial",
-      "type": "tag",
-      "currentActivity": 14319,
-      "previousActivity": 0,
-      "changePercent": 1431900,
-      "repoCount": 711,
-      "representativeRepos": [
-        "openclaw",
-        "react",
-        "bootstrap"
-      ]
-    },
-    {
-      "name": "Security",
-      "type": "tag",
-      "currentActivity": 10544,
-      "previousActivity": 0,
-      "changePercent": 1054400,
-      "repoCount": 421,
-      "representativeRepos": [
-        "freeCodeCamp",
-        "openclaw",
-        "tensorflow"
-      ]
-    },
-    {
-      "name": "Real-Time / Streaming",
-      "type": "tag",
-      "currentActivity": 8186,
-      "previousActivity": 0,
-      "changePercent": 818600,
-      "repoCount": 504,
-      "representativeRepos": [
-        "openclaw",
-        "transformers",
-        "yt-dlp"
-      ]
-    },
-    {
-      "name": "Mobile",
-      "type": "tag",
-      "currentActivity": 7260,
-      "previousActivity": 0,
-      "changePercent": 726000,
-      "repoCount": 278,
-      "representativeRepos": [
-        "freeCodeCamp",
-        "openclaw",
-        "react"
-      ]
-    },
-    {
-      "name": "Automation",
-      "type": "tag",
-      "currentActivity": 6479,
-      "previousActivity": 0,
-      "changePercent": 647900,
-      "repoCount": 244,
-      "representativeRepos": [
-        "openclaw",
-        "playwright",
-        "core"
-      ]
-    },
-    {
-      "name": "Python Web Framework",
-      "type": "tag",
-      "currentActivity": 5143,
-      "previousActivity": 0,
-      "changePercent": 514300,
-      "repoCount": 131,
-      "representativeRepos": [
-        "openclaw",
-        "django",
-        "airflow"
-      ]
-    },
-    {
-      "name": "Multi-Agent",
-      "type": "tag",
-      "currentActivity": 5086,
-      "previousActivity": 1,
-      "changePercent": 508500,
-      "repoCount": 167,
-      "representativeRepos": [
-        "openclaw",
-        "langflow",
-        "eliza"
-      ]
-    },
-    {
-      "name": "Speech to Text",
-      "type": "tag",
-      "currentActivity": 4432,
-      "previousActivity": 0,
-      "changePercent": 443200,
-      "repoCount": 126,
-      "representativeRepos": [
-        "openclaw",
-        "transformers",
-        "openvino"
-      ]
-    },
-    {
-      "name": "React / Next.js",
-      "type": "tag",
-      "currentActivity": 4424,
-      "previousActivity": 0,
-      "changePercent": 442400,
-      "repoCount": 249,
-      "representativeRepos": [
-        "react",
-        "dify",
-        "next.js"
-      ]
-    },
-    {
-      "name": "API",
-      "type": "tag",
-      "currentActivity": 2894,
-      "previousActivity": 0,
-      "changePercent": 289400,
-      "repoCount": 247,
-      "representativeRepos": [
-        "react",
-        "langchain",
-        "pytorch"
-      ]
-    }
-  ],
+  "trending": [],
   "emerging": [],
   "cooling": [
     {
-      "name": "DevOps",
+      "name": "Automation",
       "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 13,
+      "currentActivity": 6,
+      "previousActivity": 2629,
       "changePercent": -100,
-      "repoCount": 6,
-      "representativeRepos": []
-    },
-    {
-      "name": "Diffusion Models",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 6,
-      "changePercent": -100,
-      "repoCount": 30,
-      "representativeRepos": []
-    },
-    {
-      "name": "AI Workflow Orchestration",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 37,
-      "changePercent": -100,
-      "repoCount": 10,
-      "representativeRepos": []
-    },
-    {
-      "name": "Neural Architecture Search",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 23,
-      "changePercent": -100,
-      "repoCount": 9,
-      "representativeRepos": []
-    },
-    {
-      "name": "MLOps and ML Engineering",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 28,
-      "changePercent": -100,
-      "repoCount": 1,
-      "representativeRepos": []
-    }
-  ],
-  "stable": [
-    {
-      "name": "API Development",
-      "type": "tag",
-      "currentActivity": 10,
-      "previousActivity": 10,
-      "changePercent": 0,
-      "repoCount": 19,
+      "repoCount": 244,
       "representativeRepos": [
+        "portfolio",
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "CLI Tool",
+      "type": "tag",
+      "currentActivity": 3,
+      "previousActivity": 727,
+      "changePercent": -100,
+      "repoCount": 202,
+      "representativeRepos": [
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "Docker",
+      "type": "tag",
+      "currentActivity": 13,
+      "previousActivity": 3451,
+      "changePercent": -100,
+      "repoCount": 590,
+      "representativeRepos": [
+        "reporium-dataset",
         "reporium-api"
       ]
     },
     {
-      "name": "Production ML Systems",
+      "name": "JavaScript",
       "type": "tag",
-      "currentActivity": 114,
-      "previousActivity": 137,
-      "changePercent": -17,
-      "repoCount": 8,
+      "currentActivity": 3,
+      "previousActivity": 985,
+      "changePercent": -100,
+      "repoCount": 241,
       "representativeRepos": [
-        "mlflow"
+        "reporium-dataset"
       ]
+    },
+    {
+      "name": "Keras",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 32,
+      "changePercent": -100,
+      "repoCount": 57,
+      "representativeRepos": []
     }
   ],
+  "stable": [],
   "newReleases": [],
   "insights": [
-    "Tutorial is the fastest-growing area this week with +1431900% commit velocity.",
-    "Activity in DevOps has slowed by 100% this week."
+    "Activity in Automation has slowed by 100% this week."
   ]
 }
