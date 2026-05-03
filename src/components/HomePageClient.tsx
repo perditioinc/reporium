@@ -17,7 +17,7 @@ import { LoadingBanner } from '@/components/LoadingBanner';
 import { buildIntersectionMetrics } from '@/lib/buildTagMetrics';
 import { createDataProvider, SearchMode, LoadProgress } from '@/lib/dataProvider';
 import { reposIndexedLabel } from '@/lib/corpusLabels';
-import { previewToLibraryData } from '@/lib/previewToLibraryData';
+import { mergeAggregatesIntoLibraryData, previewToLibraryData } from '@/lib/previewToLibraryData';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { CategoryFilterBar } from '@/components/CategoryFilterBar';
 import { CyberpunkBillboard } from '@/components/CyberpunkBillboard';
@@ -256,11 +256,13 @@ export function HomePageClient() {
       // loads lazily via `ensureFullLibrary()` when the user opens search,
       // any filter chip, a stats/dashboard tab, scrolls past 300 cards, or
       // invokes NL filter / semantic search.
+      let stage2Data: LibraryData | null = null;
       try {
         setLoadProgress({ stage: 'repos', percent: 30, detail: 'Loading preview…' });
         const preview = await provider.getPreview(300);
         if (!cancelled) {
-          setData(previewToLibraryData(preview));
+          stage2Data = previewToLibraryData(preview);
+          setData(stage2Data);
           setLoadProgress({ stage: 'ready', percent: 100, detail: 'Ready' });
           setApiDegraded(provider.getDegradedState());
         }
@@ -271,6 +273,35 @@ export function HomePageClient() {
         }
       } finally {
         if (!cancelled) setIsLoading(false);
+      }
+
+      // KAN-189 Stage 2.5: fetch `/library/aggregates` (~3.8 MB, KAN-188 backend)
+      // eagerly so `StatsBar`, `MetricsSidebar`, `LibraryInsightsWidget`,
+      // `CrossDimensionWidget`, and the dashboard widgets light up before the
+      // user clicks anything that triggers the full-library lazy upgrade.
+      // Aggregates carry `tagMetrics`, `gapAnalysis`, `categories`,
+      // `builderStats`, `aiDevSkillStats`, `pmSkillStats` — the fields a
+      // preview-derived `LibraryData` leaves empty.
+      //
+      // The merge is `setData(prev => ...)` so a race with `ensureFullLibrary`
+      // is safe — both surfaces carry the same aggregate field shapes, and
+      // we always read the latest `repos` array from `prev`.
+      //
+      // Failure here is silent: widgets keep rendering against the empty
+      // aggregates from the preview-derived shape, and the lazy
+      // `ensureFullLibrary()` upgrade still fills them in later. We never
+      // surface a hard error to the user from this stage.
+      if (!cancelled && stage2Data) {
+        provider.getAggregates()
+          .then((aggregates) => {
+            if (cancelled) return;
+            setData((prev) => prev ? mergeAggregatesIntoLibraryData(prev, aggregates) : prev);
+            setApiDegraded(provider.getDegradedState());
+          })
+          .catch(() => {
+            // Aggregates failed to load — widgets gracefully render placeholders
+            // until ensureFullLibrary() fills them in.
+          });
       }
     }
 

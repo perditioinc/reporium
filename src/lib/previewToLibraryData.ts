@@ -26,7 +26,7 @@ import type {
   LibraryData,
   ParentRepoStats,
 } from '@/types/repo'
-import type { PreviewData, PreviewRepo } from '@/lib/dataProvider'
+import type { AggregatesData, PreviewData, PreviewRepo } from '@/lib/dataProvider'
 
 /**
  * Promote the preview's optional `parentStats` block (when KAN-179
@@ -188,5 +188,42 @@ export function previewToLibraryData(preview: PreviewData): LibraryData {
     aiDevSkillStats: [],
     pmSkillStats: [],
     totalRepos: preview.totalRepos,
+  }
+}
+
+/**
+ * KAN-189: graft `/library/aggregates` payload onto an existing
+ * `LibraryData` (typically the preview-derived first paint built by
+ * `previewToLibraryData`). Returns a NEW `LibraryData` so the React caller's
+ * `setData` triggers a re-render — no in-place mutation.
+ *
+ * The aggregates payload is the source of truth for `stats`, `gapAnalysis`,
+ * `tagMetrics`, `categories`, `builderStats`, `aiDevSkillStats`,
+ * `pmSkillStats`. The preview-derived `stats.total` matches `totalRepos`,
+ * but the preview can only count `built` / `forked` against the top-300
+ * projection — once aggregates land, those counts become accurate against
+ * the full corpus.
+ *
+ * `repos` and `username` are preserved from the prior `LibraryData` (this
+ * adapter never touches the repo array, which keeps growing through Stage 1
+ * → Stage 2 → Stage 3). When Stage 3 (full library) lands later, the
+ * aggregates will already be present and the merge is a no-op-shaped
+ * overwrite.
+ */
+export function mergeAggregatesIntoLibraryData(
+  base: LibraryData,
+  aggregates: AggregatesData,
+): LibraryData {
+  return {
+    ...base,
+    generatedAt: aggregates.generatedAt,
+    stats: aggregates.stats,
+    gapAnalysis: aggregates.gapAnalysis,
+    tagMetrics: aggregates.tagMetrics,
+    categories: aggregates.categories,
+    builderStats: aggregates.builderStats,
+    aiDevSkillStats: aggregates.aiDevSkillStats,
+    pmSkillStats: aggregates.pmSkillStats,
+    totalRepos: aggregates.totalRepos,
   }
 }

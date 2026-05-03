@@ -5,7 +5,21 @@
  * Falls back to JSON if API is unreachable.
  */
 
-import type { LibraryData, EnrichedRepo, TrendData, GapAnalysis, PortfolioInsights, TaxonomyValueOption, CrossDimensionAnalytics, SimilarRepo } from '@/types/repo'
+import type {
+  LibraryData,
+  LibraryStats,
+  EnrichedRepo,
+  TrendData,
+  GapAnalysis,
+  PortfolioInsights,
+  TaxonomyValueOption,
+  CrossDimensionAnalytics,
+  SimilarRepo,
+  TagMetrics,
+  Category,
+  BuilderStats,
+  SkillStats,
+} from '@/types/repo'
 
 export type DataMode = 'lite' | 'production'
 export type SearchMode = 'keyword' | 'semantic'
@@ -89,6 +103,31 @@ export interface PreviewData {
   repos: PreviewRepo[]
 }
 
+/**
+ * KAN-189: response shape for `GET /library/aggregates` (KAN-188 backend, PR
+ * #476 squash `7aadbbb`). Carries the aggregate computations that
+ * `LibraryData` exposed alongside the `repos` array, without the array — so
+ * the home/insights/trends pages can light up `StatsBar`, `MetricsSidebar`,
+ * `LibraryInsightsWidget`, `CrossDimensionWidget`, `RecommendationsWidget`
+ * before the full ~5 MB `/library/full` ladder lands.
+ *
+ * The endpoint is unauthenticated and CDN-cached `public, s-maxage=300,
+ * stale-while-revalidate=60`. Payload is ~3.8 MB at default (driven mostly
+ * by the ~5300-row `tagMetrics` array). Drops to a single canonical shape;
+ * unlike `/library/preview` there are no `?include=` toggles.
+ */
+export interface AggregatesData {
+  generatedAt: string
+  totalRepos: number
+  stats: LibraryStats
+  gapAnalysis: GapAnalysis
+  tagMetrics: TagMetrics[]
+  categories: Category[]
+  builderStats: BuilderStats[]
+  aiDevSkillStats: SkillStats[]
+  pmSkillStats: SkillStats[]
+}
+
 export interface DataProvider {
   mode: DataMode
   getOwnedLibrary(): Promise<LibraryData | null>
@@ -106,6 +145,19 @@ export interface DataProvider {
    * session without clobbering each other.
    */
   getPreview(limit?: number, options?: GetPreviewOptions): Promise<PreviewData>
+  /**
+   * KAN-189: lightweight aggregate-only payload for first-paint of widgets
+   * that read `tagMetrics` / `gapAnalysis` / `builderStats` / `aiDevSkillStats`
+   * / `pmSkillStats` / `categories`. Eagerly fetched between Stage 2 (preview
+   * cards) and Stage 3 (full library lazy load) so `StatsBar`, `MetricsSidebar`,
+   * `LibraryInsightsWidget`, `CrossDimensionWidget`, `RecommendationsWidget`
+   * light up before any user interaction triggers `getLibrary()`.
+   *
+   * Single canonical shape — no params, single in-memory cache slot. Falls
+   * back to a `JsonDataProvider`-derived synthesis on API failure so widgets
+   * never see a hard error.
+   */
+  getAggregates(): Promise<AggregatesData>
   getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData>
   getDegradedState(): boolean
   clearDegradedState(): void
@@ -257,6 +309,27 @@ class JsonDataProvider implements DataProvider {
     const data: LibraryData = await res.json()
     this.libraryCache = data
     return data
+  }
+
+  /**
+   * KAN-189: synthesise an `AggregatesData` from the static library JSON when
+   * running in lite/JSON mode. The aggregate widgets treat aggregates as the
+   * primary first-paint shape; without this fallback, jest tests + JSON-only
+   * builds would crash before the lazy `getLibrary()` ever fires.
+   */
+  async getAggregates(): Promise<AggregatesData> {
+    const lib = await this.getLibrary()
+    return {
+      generatedAt: lib.generatedAt,
+      totalRepos: lib.totalRepos ?? lib.repos.length,
+      stats: lib.stats,
+      gapAnalysis: lib.gapAnalysis,
+      tagMetrics: lib.tagMetrics,
+      categories: lib.categories,
+      builderStats: lib.builderStats,
+      aiDevSkillStats: lib.aiDevSkillStats,
+      pmSkillStats: lib.pmSkillStats,
+    }
   }
 
   async getTrends(): Promise<TrendData | null> {
@@ -568,6 +641,39 @@ class ApiDataProvider implements DataProvider {
       }
     })()
     this.previewPromises.set(cacheKey, promise)
+    return promise
+  }
+
+  /**
+   * KAN-189: aggregate cache — `/library/aggregates` (KAN-188, PR #476 squash
+   * `7aadbbb`) returns the ~3.8 MB aggregate-only payload that the home /
+   * insights / trends pages render before any `/library/full` call. Single
+   * canonical shape, single cache slot, single in-flight promise — no params.
+   *
+   * On API failure we fall back to the `JsonDataProvider` synthesis so the
+   * aggregate widgets never lose their first paint to a transient outage.
+   * Marks degraded so the "Live data is unavailable" banner appears.
+   */
+  private aggregatesCache: AggregatesData | null = null
+  private aggregatesPromise: Promise<AggregatesData> | null = null
+  async getAggregates(): Promise<AggregatesData> {
+    if (this.aggregatesCache) return this.aggregatesCache
+    if (this.aggregatesPromise) return this.aggregatesPromise
+    const promise = (async () => {
+      try {
+        const data = await this.apiFetch<AggregatesData>('/library/aggregates')
+        this.aggregatesCache = data
+        return data
+      } catch {
+        this.degraded = true
+        const fallback = await this.fallback.getAggregates()
+        this.aggregatesCache = fallback
+        return fallback
+      } finally {
+        this.aggregatesPromise = null
+      }
+    })()
+    this.aggregatesPromise = promise
     return promise
   }
 
