@@ -15,6 +15,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { EnrichedRepo, LibraryData } from '@/types/repo';
+import { createDataProvider } from '@/lib/dataProvider';
+import { previewToLibraryData } from '@/lib/previewToLibraryData';
 
 const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '';
 
@@ -119,20 +121,26 @@ export default function InsightsPage() {
 
   useEffect(() => {
     async function load() {
-      // page_size max is 500 per API constraint; use timeout to avoid cold-start hangs
+      // KAN-185: replace the 1.46 MB `/library/full?page_size=500` fetch with
+      // `/library/preview?include=stats,parent,quality` (~500 KB) — KAN-179
+      // backend (PR #472 @ 60e751e). All five sections (rising/most-active/
+      // newly-discovered/category-leaders/health-alerts) read commitStats,
+      // parentStats and qualitySignals which the include= tokens surface.
+      // `forkedAt`/`createdAt` are not in any include block; the
+      // newlyDiscovered section gracefully renders empty until lazy upgrade.
+      const provider = createDataProvider();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10_000);
       try {
-        const [libraryRes, trendRes] = await Promise.all([
-          fetch(`${API_URL}/library/full?page=1&page_size=500`, { signal: controller.signal }),
+        const [preview, trendRes] = await Promise.all([
+          provider.getPreview(300, { include: ['stats', 'parent', 'quality'] }),
           API_URL
             ? fetch(`${API_URL}/trends/report`, { signal: controller.signal }).catch(() => null)
             : Promise.resolve(null),
         ]);
         clearTimeout(timeoutId);
-        if (!libraryRes.ok) throw new Error(`API error ${libraryRes.status}`);
-        setData(await libraryRes.json());
-        if (trendRes?.ok) {
+        setData(previewToLibraryData(preview));
+        if (trendRes && 'ok' in trendRes && trendRes.ok) {
           const td = await trendRes.json() as { period?: { snapshots?: number } };
           setTrendSnapshotsAvailable((td.period?.snapshots ?? 0) > 0);
         } else {
