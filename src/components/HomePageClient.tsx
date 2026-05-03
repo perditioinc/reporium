@@ -467,6 +467,32 @@ export function HomePageClient() {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }, [data]);
 
+  /**
+   * KAN-201: Map of category name → set of tags appearing in that category's
+   * repos. Replaces the trimmed `categories[].tags` field that previously came
+   * straight from /library/aggregates (largest single payload contributor at
+   * ~1.52 MB / 40%; see KAN-195 audit). FilterBar consumes this to drive the
+   * per-category tag row when a category is selected. Same derivation pattern
+   * as `MetricsSidebar.CategoryDetailView` (which reads from the local
+   * hardcoded `CATEGORIES` array).
+   */
+  const categoryTagsMap = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    if (!data) return map;
+    for (const repo of data.repos) {
+      const cats = repo.allCategories ?? [];
+      for (const catName of cats) {
+        let set = map.get(catName);
+        if (!set) {
+          set = new Set<string>();
+          map.set(catName, set);
+        }
+        for (const tag of repo.enrichedTags) set.add(tag);
+      }
+    }
+    return map;
+  }, [data]);
+
   // Stable sidebar data object — only recalculates when data or categories change
   const sidebarData = useMemo(() => {
     if (!data) return null;
@@ -1169,6 +1195,7 @@ export function HomePageClient() {
                     selectedSyncStatus={selectedSyncStatus}
                     sortBy={sortBy}
                     categories={normalizedCategories}
+                    categoryTagsMap={categoryTagsMap}
                     selectedCategory={selectedCategory}
                     onCategoryChange={setSelectedCategory}
                     onTypeChange={setSelectedType}
