@@ -8,6 +8,7 @@ var mockProvider: {
   mode: 'production';
   getOwnedLibrary: jest.Mock;
   getPreview: jest.Mock;
+  getAggregates: jest.Mock;
   getLibrary: jest.Mock;
   getDegradedState: jest.Mock;
   getTrends: jest.Mock;
@@ -46,6 +47,7 @@ mockProvider = {
   mode: 'production',
   getOwnedLibrary: jest.fn(),
   getPreview: jest.fn(),
+  getAggregates: jest.fn(),
   getLibrary: jest.fn(),
   getDegradedState: jest.fn(),
   getTrends: jest.fn(),
@@ -96,6 +98,20 @@ describe('HomePageClient', () => {
       repos: [],
     });
     mockProvider.getLibrary.mockResolvedValue(libraryFixture);
+    // KAN-189: Stage 2.5 — `/library/aggregates` fired eagerly between preview
+    // and full. Default resolves with empty aggregate-only shape; tests that
+    // care about the merge override per-test.
+    mockProvider.getAggregates.mockResolvedValue({
+      generatedAt: '2026-03-24T00:00:00Z',
+      totalRepos: 0,
+      stats: libraryFixture.stats,
+      gapAnalysis: libraryFixture.gapAnalysis,
+      tagMetrics: [],
+      categories: [],
+      builderStats: [],
+      aiDevSkillStats: [],
+      pmSkillStats: [],
+    });
     mockProvider.getDegradedState.mockReturnValue(true);
     mockProvider.getTrends.mockResolvedValue(null);
     mockProvider.getGaps.mockResolvedValue(null);

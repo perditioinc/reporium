@@ -224,6 +224,156 @@ describe('ApiDataProvider.getPreview KAN-185 include= option', () => {
   })
 })
 
+describe('ApiDataProvider.getAggregates KAN-189', () => {
+  const originalEnv = process.env
+
+  beforeEach(() => {
+    process.env = { ...originalEnv }
+    process.env.NEXT_PUBLIC_REPORIUM_API_URL = 'https://api.example.com'
+  })
+
+  afterEach(() => {
+    process.env = originalEnv
+    jest.restoreAllMocks()
+  })
+
+  const aggregatesPayload = {
+    generatedAt: '2026-05-03T10:07:23.035849+00:00',
+    totalRepos: 1870,
+    stats: {
+      total: 1870,
+      built: 19,
+      forked: 1851,
+      languages: ['Python', 'TypeScript'],
+      topTags: ['Forked', 'Python'],
+    },
+    gapAnalysis: {
+      generatedAt: '2026-05-03T10:07:23.035874+00:00',
+      gaps: [],
+    },
+    tagMetrics: [
+      {
+        tag: 'demo-tag',
+        repoCount: 1,
+        percentage: 0.1,
+        topLanguage: 'Python',
+        languageBreakdown: { Python: 1 },
+        updatedLast30Days: 0,
+        updatedLast90Days: 0,
+        olderThan90Days: 0,
+        activityScore: 0,
+        relatedTags: [],
+        mostRecentRepo: '',
+        mostRecentDate: '',
+        repos: [],
+        avgUpstreamAge: 0,
+        avgTimeSinceForked: 0,
+        mostOutdatedRepo: '',
+        avgBehindBy: 0,
+      },
+    ],
+    categories: [
+      { id: 'agents', name: 'AI Agents', description: '', tags: [], color: '#000', icon: '🤖', repoCount: 100 },
+    ],
+    builderStats: [
+      { login: 'microsoft', displayName: 'Microsoft', category: 'big-tech', repoCount: 66, totalParentStars: 1, topRepos: [], avatarUrl: 'https://avatars.githubusercontent.com/microsoft' },
+    ],
+    aiDevSkillStats: [
+      { skill: 'Foundation Model Architecture', lifecycleGroup: 'Foundation & Training', repoCount: 456, coverage: 'strong', topRepos: [] },
+    ],
+    pmSkillStats: [
+      { skill: 'AI-Native Architecture', repoCount: 582, coverage: 'strong', topRepos: [] },
+    ],
+  }
+
+  test('getAggregates() fetches /library/aggregates and returns the parsed payload', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => aggregatesPayload,
+    })
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    const data = await provider.getAggregates()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      'https://api.example.com/library/aggregates',
+    )
+    expect(data.totalRepos).toBe(1870)
+    expect(data.tagMetrics).toHaveLength(1)
+    expect(data.builderStats[0].login).toBe('microsoft')
+    expect(data.aiDevSkillStats[0].skill).toBe('Foundation Model Architecture')
+    expect(data.pmSkillStats[0].skill).toBe('AI-Native Architecture')
+    expect(data.categories[0].id).toBe('agents')
+  })
+
+  test('getAggregates() caches the result — second call hits cache, no second fetch', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => aggregatesPayload,
+    })
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    const first = await provider.getAggregates()
+    const second = await provider.getAggregates()
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(second).toBe(first)
+  })
+
+  test('getAggregates() deduplicates concurrent in-flight requests', async () => {
+    let resolveFetch: (value: unknown) => void = () => {}
+    const fetchMock = jest.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve
+        }),
+    )
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    const a = provider.getAggregates()
+    const b = provider.getAggregates()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    resolveFetch({ ok: true, json: async () => aggregatesPayload })
+    const [resolvedA, resolvedB] = await Promise.all([a, b])
+    expect(resolvedA).toBe(resolvedB)
+  })
+
+  test('getAggregates() falls back to JSON synthesis on API failure and marks degraded', async () => {
+    // First call: /library/aggregates fails. Second call (inside fallback):
+    // /data/library.json succeeds with a minimal LibraryData shape.
+    const libraryJson = {
+      username: 'test',
+      generatedAt: '2026-05-03T00:00:00Z',
+      stats: { total: 0, built: 0, forked: 0, languages: [], topTags: [] },
+      repos: [],
+      tagMetrics: [{ tag: 'a' }],
+      categories: [{ id: 'c1' }],
+      gapAnalysis: { generatedAt: '2026-05-03T00:00:00Z', gaps: [] },
+      builderStats: [{ login: 'b' }],
+      aiDevSkillStats: [{ skill: 's' }],
+      pmSkillStats: [{ skill: 'p' }],
+      totalRepos: 0,
+    }
+
+    const fetchMock = jest.fn()
+      .mockRejectedValueOnce(new Error('API error: 503'))
+      .mockResolvedValueOnce({ ok: true, json: async () => libraryJson })
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    const data = await provider.getAggregates()
+
+    expect(provider.getDegradedState()).toBe(true)
+    expect(data.tagMetrics).toHaveLength(1)
+    expect(data.builderStats[0].login).toBe('b')
+  })
+})
+
 describe('ApiDataProvider.apiFetch timeout', () => {
   const originalEnv = process.env
 

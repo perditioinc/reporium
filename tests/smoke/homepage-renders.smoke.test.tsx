@@ -13,6 +13,7 @@ var mockProvider: {
   mode: 'production';
   getOwnedLibrary: jest.Mock;
   getPreview: jest.Mock;
+  getAggregates: jest.Mock;
   getLibrary: jest.Mock;
   getDegradedState: jest.Mock;
   clearDegradedState: jest.Mock;
@@ -49,6 +50,7 @@ mockProvider = {
   mode: 'production',
   getOwnedLibrary: jest.fn(),
   getPreview: jest.fn(),
+  getAggregates: jest.fn(),
   getLibrary: jest.fn(),
   getDegradedState: jest.fn(),
   clearDegradedState: jest.fn(),
@@ -104,6 +106,20 @@ describe('smoke: homepage renders meaningful content', () => {
       })),
     });
     mockProvider.getLibrary.mockResolvedValue(trimmed);
+    // KAN-189: Stage 2.5 — `/library/aggregates` resolves with the trimmed
+    // aggregate fields so the merge after preview leaves the visible widget
+    // surface intact (StatsBar/MetricsSidebar/insights/analytics widgets).
+    mockProvider.getAggregates.mockResolvedValue({
+      generatedAt: trimmed.generatedAt,
+      totalRepos: trimmed.totalRepos ?? trimmed.repos.length,
+      stats: trimmed.stats,
+      gapAnalysis: trimmed.gapAnalysis,
+      tagMetrics: trimmed.tagMetrics,
+      categories: trimmed.categories,
+      builderStats: trimmed.builderStats,
+      aiDevSkillStats: trimmed.aiDevSkillStats,
+      pmSkillStats: trimmed.pmSkillStats,
+    });
     mockProvider.getDegradedState.mockReturnValue(false);
     mockProvider.getTrends.mockResolvedValue(null);
     mockProvider.getGaps.mockResolvedValue(null);
