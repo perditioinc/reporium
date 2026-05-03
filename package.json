@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run validate:privacy && node scripts/write-corpus-constants.cjs && node scripts/sync-data-dir.cjs",
+    "prebuild": "npm run validate:privacy && node scripts/write-corpus-constants.cjs && node scripts/sync-data-dir.cjs && node scripts/build-repo-slugs.cjs",
     "refresh-stats": "node scripts/write-corpus-constants.cjs",
     "build": "npx tsx scripts/generate-sitemap.ts && next build",
     "analyze": "cross-env ANALYZE=true next build --webpack",
