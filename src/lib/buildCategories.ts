@@ -1,12 +1,22 @@
 import { EnrichedRepo, Category } from '@/types/repo';
 
 /**
+ * Internal category definition: same shape as the public `Category` plus the
+ * `tags` array used to assign repos to categories. KAN-201 removed `tags` from
+ * the public `Category` type to drop ~1.52 MB from /library/aggregates; the
+ * tag list lives here only and is not serialized over the wire.
+ */
+export interface CategoryDefinition extends Category {
+  tags: string[]; // enrichedTags that belong to this category
+}
+
+/**
  * Hardcoded list of exactly 58 content categories across 6 lifecycle groups.
  * These are fixed buckets — never derived dynamically from tags.
  * A repo can belong to multiple categories (allCategories).
  * primaryCategory = category with the most matching tags.
  */
-export const CATEGORIES: Category[] = [
+export const CATEGORIES: CategoryDefinition[] = [
 
   // ─── Group 1: Foundation & Training ────────────────────────────────────────
 
@@ -742,8 +752,12 @@ export function buildCategories(repos: EnrichedRepo[]): Category[] {
   }
 
   // Build repoCount for each category (count repos where category is in allCategories)
+  // KAN-201: strip the internal `tags` field — it is not part of the public
+  // `Category` shape and would otherwise leak through static-data exports
+  // and the API library serialization (see `dataProvider.ts`).
   return CATEGORIES
-    .map(cat => ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .map(({ tags: _tags, ...cat }) => ({
       ...cat,
       repoCount: repos.filter(r => r.allCategories.includes(cat.name)).length,
     }))

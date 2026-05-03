@@ -7,6 +7,15 @@ interface FilterBarProps {
   categories: Category[];
   languages: string[];
   allTags: string[];
+  /**
+   * KAN-201: Map from category name → set of tags appearing in repos
+   * assigned to that category. Replaces the trimmed `Category.tags` field
+   * that previously came from /library/aggregates. Derived in
+   * `HomePageClient` from per-repo `enrichedTags` filtered by
+   * `allCategories.includes(cat.name)` (mirrors the `MetricsSidebar`
+   * `CategoryDetailView` pattern).
+   */
+  categoryTagsMap?: Map<string, Set<string>>;
   tagMetrics: TagMetrics[];
   selectedCategory: string;
   selectedType: 'all' | 'built' | 'forked';
@@ -100,6 +109,7 @@ type TabId =
 /** Filter and sort controls for the repo library */
 export function FilterBar({
   categories,
+  categoryTagsMap,
   languages,
   allTags,
   tagMetrics,
@@ -159,10 +169,19 @@ export function FilterBar({
 
   const tagMetricsMap = new Map(tagMetrics.map((m) => [m.tag, m]));
 
-  // Determine which tags to show in tag row (used in categories tab)
+  // Determine which tags to show in tag row (used in categories tab).
+  // KAN-201: when a category is selected, we used to read `selectedCat.tags`
+  // straight from /library/aggregates. The API field has been removed; instead
+  // the parent component derives a Map<categoryName, Set<tag>> from per-repo
+  // `enrichedTags` filtered by `allCategories.includes(cat.name)`. If the map
+  // is missing (e.g. tests not passing it), fall back to showing all tags so
+  // the UI stays usable rather than empty.
   const selectedCat = categories.find(c => c.id === selectedCategory);
-  const tagsToShow: string[] = selectedCat
-    ? allTags.filter(t => selectedCat.tags.includes(t))
+  const selectedCatTagSet = selectedCat
+    ? categoryTagsMap?.get(selectedCat.name)
+    : undefined;
+  const tagsToShow: string[] = selectedCat && selectedCatTagSet
+    ? allTags.filter(t => selectedCatTagSet.has(t))
     : [...allTags].sort((a, b) => {
         const ca = tagMetricsMap.get(a)?.repoCount ?? 0;
         const cb = tagMetricsMap.get(b)?.repoCount ?? 0;

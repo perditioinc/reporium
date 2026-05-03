@@ -236,12 +236,20 @@ export interface GapAnalysis {
   gaps: Gap[];
 }
 
-/** A broad content category grouping multiple tags */
+/**
+ * A broad content category grouping multiple tags.
+ *
+ * KAN-201: `tags` removed from this public type. The category-tag mapping is
+ * an internal implementation detail of `lib/buildCategories.ts` (see
+ * `CategoryDefinition`). Frontend consumers must derive category-tag
+ * intersection from per-repo `enrichedTags` filtered by
+ * `allCategories.includes(cat.name)`. This trim drops ~1.52 MB / 40% of
+ * the `/library/aggregates` payload (KAN-195 audit).
+ */
 export interface Category {
   id: string;           // kebab-case identifier
   name: string;
   description: string;
-  tags: string[];        // enrichedTags that belong to this category
   repoCount: number;
   color: string;         // hex color for visualization
   icon: string;         // emoji icon
