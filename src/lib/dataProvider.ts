@@ -29,6 +29,12 @@ export interface LoadProgress {
  * Note: `stars` and `forks` are pre-coalesced server-side via
  * `COALESCE(parent_stars, stargazers_count, 0)` — clients should NOT need
  * `parentStats?.stars` fallback when consuming preview data.
+ *
+ * KAN-185: optional fields are surfaced when the caller asks for them via
+ * `getPreview(limit, { include: ['stats', 'parent', 'quality'] })`. The
+ * server projection (KAN-179) attaches each block independently — `stats`
+ * adds `commitStats`, `parent` adds `parentStats` + `upstreamCreatedAt`,
+ * `quality` adds `qualitySignals`. Consumers MUST treat each as optional.
  */
 export interface PreviewRepo {
   id: string
@@ -46,6 +52,31 @@ export interface PreviewRepo {
   enrichedTags: string[]
   isArchived: boolean
   url: string
+  /** KAN-185 / KAN-179: present when `?include=stats` is passed. */
+  commitStats?: { last7Days: number; last30Days: number; last90Days: number }
+  /** KAN-185 / KAN-179: present when `?include=parent` is passed. */
+  parentStats?: {
+    owner: string
+    repo: string
+    stars: number
+    forks: number
+    isArchived: boolean
+    lastCommitDate: string | null
+    description: string | null
+    url: string
+  }
+  /** KAN-185 / KAN-179: present when `?include=parent` is passed. */
+  upstreamCreatedAt?: string | null
+  /** KAN-185 / KAN-179: present when `?include=quality` is passed. */
+  qualitySignals?: Record<string, unknown>
+}
+
+/** KAN-185: opt-in field-set tokens for `GET /library/preview?include=`. */
+export type PreviewIncludeToken = 'stats' | 'parent' | 'quality'
+
+/** KAN-185: options accepted by `getPreview()`. */
+export interface GetPreviewOptions {
+  include?: PreviewIncludeToken[]
 }
 
 /** KAN-152: response shape for `GET /library/preview`. */
@@ -67,8 +98,14 @@ export interface DataProvider {
    * repos sorted by stars. Falls back to a `LibraryData`-shaped synthesis
    * (via `getOwnedLibrary()` + first page of `getLibrary()`) when the API is
    * unavailable so callers never see a hard failure.
+   *
+   * KAN-185: pass `{ include: [...] }` to opt into KAN-179's optional field
+   * blocks (`stats` -> commitStats, `parent` -> parentStats + upstreamCreatedAt,
+   * `quality` -> qualitySignals). Cache key is keyed on the include set, so
+   * a baseline preview and an enriched preview can co-exist in the same SPA
+   * session without clobbering each other.
    */
-  getPreview(limit?: number): Promise<PreviewData>
+  getPreview(limit?: number, options?: GetPreviewOptions): Promise<PreviewData>
   getLibrary(onProgress?: (p: LoadProgress) => void): Promise<LibraryData>
   getDegradedState(): boolean
   clearDegradedState(): void
@@ -138,29 +175,64 @@ class JsonDataProvider implements DataProvider {
    * running in lite/JSON mode. The home page treats preview as the primary
    * first-paint shape; without this fallback, a JSON-only build would crash
    * before the lazy `getLibrary()` ever fires.
+   *
+   * KAN-185: when `options.include` requests a block, surface that block from
+   * the in-memory `EnrichedRepo` so /insights and /trends keep working under
+   * lite-mode (jest, JSON-only builds) without requiring the API.
    */
-  async getPreview(limit = 300): Promise<PreviewData> {
+  async getPreview(limit = 300, options?: GetPreviewOptions): Promise<PreviewData> {
     const lib = await this.getLibrary()
     const sorted = [...lib.repos].sort(
       (a, b) => (b.parentStats?.stars ?? b.stars ?? 0) - (a.parentStats?.stars ?? a.stars ?? 0),
     )
-    const repos: PreviewRepo[] = sorted.slice(0, limit).map((r) => ({
-      id: String(r.id),
-      name: r.name,
-      fullName: r.fullName,
-      description: r.description,
-      isFork: r.isFork,
-      forkedFrom: r.forkedFrom,
-      language: r.language,
-      stars: r.parentStats?.stars ?? r.stars ?? 0,
-      forks: r.parentStats?.forks ?? r.forks ?? 0,
-      lastUpdated: r.lastUpdated,
-      primaryCategory: r.primaryCategory ?? null,
-      dbCategory: r.dbCategory ?? null,
-      enrichedTags: r.enrichedTags ?? [],
-      isArchived: r.isArchived,
-      url: r.url,
-    }))
+    const wantStats = options?.include?.includes('stats') ?? false
+    const wantParent = options?.include?.includes('parent') ?? false
+    const wantQuality = options?.include?.includes('quality') ?? false
+    const repos: PreviewRepo[] = sorted.slice(0, limit).map((r) => {
+      const base: PreviewRepo = {
+        id: String(r.id),
+        name: r.name,
+        fullName: r.fullName,
+        description: r.description,
+        isFork: r.isFork,
+        forkedFrom: r.forkedFrom,
+        language: r.language,
+        stars: r.parentStats?.stars ?? r.stars ?? 0,
+        forks: r.parentStats?.forks ?? r.forks ?? 0,
+        lastUpdated: r.lastUpdated,
+        primaryCategory: r.primaryCategory ?? null,
+        dbCategory: r.dbCategory ?? null,
+        enrichedTags: r.enrichedTags ?? [],
+        isArchived: r.isArchived,
+        url: r.url,
+      }
+      if (wantStats && r.commitStats) {
+        base.commitStats = {
+          last7Days: r.commitStats.last7Days ?? 0,
+          last30Days: r.commitStats.last30Days ?? 0,
+          last90Days: r.commitStats.last90Days ?? 0,
+        }
+      }
+      if (wantParent) {
+        if (r.parentStats) {
+          base.parentStats = {
+            owner: r.parentStats.owner,
+            repo: r.parentStats.repo,
+            stars: r.parentStats.stars,
+            forks: r.parentStats.forks,
+            isArchived: r.parentStats.isArchived,
+            lastCommitDate: r.parentStats.lastCommitDate ?? null,
+            description: r.parentStats.description,
+            url: r.parentStats.url,
+          }
+        }
+        base.upstreamCreatedAt = r.upstreamCreatedAt ?? null
+      }
+      if (wantQuality && r.qualitySignals) {
+        base.qualitySignals = r.qualitySignals as Record<string, unknown>
+      }
+      return base
+    })
     return {
       generatedAt: lib.generatedAt,
       totalRepos: lib.repos.length,
@@ -463,29 +535,40 @@ class ApiDataProvider implements DataProvider {
    * Cached in-memory for the session; on API failure we fall back to the
    * `JsonDataProvider` synthesis so the home page never loses its first
    * paint to a transient outage.
+   *
+   * KAN-185: opt-in field blocks via `/library/preview?include=stats,parent,quality`
+   * (server: KAN-179, PR #472 @ 60e751e). Per-include cache keys keep the home
+   * baseline (~165 KB / no include tokens) and the enriched insights/trends
+   * payload (~500 KB / 3 tokens) co-resident in the same SPA session.
    */
-  private previewCache: PreviewData | null = null
-  private previewPromise: Promise<PreviewData> | null = null
-  async getPreview(limit = 300): Promise<PreviewData> {
-    if (this.previewCache) return this.previewCache
-    if (this.previewPromise) return this.previewPromise
-    this.previewPromise = (async () => {
+  private previewCache: Map<string, PreviewData> = new Map()
+  private previewPromises: Map<string, Promise<PreviewData>> = new Map()
+  async getPreview(limit = 300, options?: GetPreviewOptions): Promise<PreviewData> {
+    const includeSorted = [...(options?.include ?? [])].sort()
+    const cacheKey = `preview:${limit}:${includeSorted.join(',') || 'none'}`
+    const cached = this.previewCache.get(cacheKey)
+    if (cached) return cached
+    const inflight = this.previewPromises.get(cacheKey)
+    if (inflight) return inflight
+    const includeParam = includeSorted.length ? `&include=${includeSorted.join(',')}` : ''
+    const promise = (async () => {
       try {
-        const data = await this.apiFetch<PreviewData>(`/library/preview?limit=${limit}`)
-        this.previewCache = data
+        const data = await this.apiFetch<PreviewData>(`/library/preview?limit=${limit}${includeParam}`)
+        this.previewCache.set(cacheKey, data)
         return data
       } catch {
         // API unavailable — synthesise from the bundled library JSON so the
         // home page still renders. Mark degraded so the banner appears.
         this.degraded = true
-        const fallback = await this.fallback.getPreview(limit)
-        this.previewCache = fallback
+        const fallback = await this.fallback.getPreview(limit, options)
+        this.previewCache.set(cacheKey, fallback)
         return fallback
       } finally {
-        this.previewPromise = null
+        this.previewPromises.delete(cacheKey)
       }
     })()
-    return this.previewPromise
+    this.previewPromises.set(cacheKey, promise)
+    return promise
   }
 
   getDegradedState(): boolean {

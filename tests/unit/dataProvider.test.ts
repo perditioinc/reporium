@@ -79,6 +79,151 @@ describe('createDataProvider', () => {
   })
 })
 
+describe('ApiDataProvider.getPreview KAN-185 include= option', () => {
+  const originalEnv = process.env
+
+  beforeEach(() => {
+    process.env = { ...originalEnv }
+    process.env.NEXT_PUBLIC_REPORIUM_API_URL = 'https://api.example.com'
+  })
+
+  afterEach(() => {
+    process.env = originalEnv
+    jest.restoreAllMocks()
+  })
+
+  test('getPreview without include= calls /library/preview?limit=N (no include param)', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        generatedAt: '2026-05-03T00:00:00Z',
+        totalRepos: 1,
+        limit: 300,
+        sort: 'stars',
+        category: null,
+        repos: [],
+      }),
+    })
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    await provider.getPreview(300)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      'https://api.example.com/library/preview?limit=300'
+    )
+  })
+
+  test('getPreview with include=stats,parent,quality appends sorted include= param', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        generatedAt: '2026-05-03T00:00:00Z',
+        totalRepos: 1,
+        limit: 300,
+        sort: 'stars',
+        category: null,
+        repos: [],
+      }),
+    })
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    await provider.getPreview(300, { include: ['quality', 'stats', 'parent'] })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    // Tokens are sorted to give a stable cache key, so request URL is also stable.
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      'https://api.example.com/library/preview?limit=300&include=parent,quality,stats'
+    )
+  })
+
+  test('getPreview caches per include set; baseline + enriched coexist', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        generatedAt: '2026-05-03T00:00:00Z',
+        totalRepos: 1,
+        limit: 300,
+        sort: 'stars',
+        category: null,
+        repos: [],
+      }),
+    })
+    global.fetch = fetchMock as jest.Mock
+
+    const provider = createDataProvider()
+    await provider.getPreview(300)
+    await provider.getPreview(300) // cache hit
+    await provider.getPreview(300, { include: ['stats'] })
+    await provider.getPreview(300, { include: ['stats'] }) // cache hit
+    await provider.getPreview(300, { include: ['stats', 'parent', 'quality'] })
+
+    // Three distinct cache keys -> three network requests.
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]))
+    expect(urls).toContain('https://api.example.com/library/preview?limit=300')
+    expect(urls).toContain('https://api.example.com/library/preview?limit=300&include=stats')
+    expect(urls).toContain(
+      'https://api.example.com/library/preview?limit=300&include=parent,quality,stats'
+    )
+  })
+
+  test('getPreview surfaces optional include blocks from server response', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        generatedAt: '2026-05-03T00:00:00Z',
+        totalRepos: 1,
+        limit: 300,
+        sort: 'stars',
+        category: null,
+        repos: [
+          {
+            id: 'r1',
+            name: 'demo',
+            fullName: 'p/demo',
+            description: null,
+            isFork: false,
+            forkedFrom: null,
+            language: 'Python',
+            stars: 1234,
+            forks: 12,
+            lastUpdated: '2026-05-01T00:00:00Z',
+            primaryCategory: 'agents',
+            dbCategory: 'agents',
+            enrichedTags: ['agents'],
+            isArchived: false,
+            url: 'https://github.com/p/demo',
+            commitStats: { last7Days: 3, last30Days: 12, last90Days: 40 },
+            parentStats: {
+              owner: 'upstream',
+              repo: 'demo',
+              stars: 9999,
+              forks: 200,
+              isArchived: false,
+              lastCommitDate: '2026-05-02T00:00:00Z',
+              description: 'desc',
+              url: 'https://github.com/upstream/demo',
+            },
+            upstreamCreatedAt: '2024-01-01T00:00:00Z',
+            qualitySignals: { activity_score: 42, overall_score: 88 },
+          },
+        ],
+      }),
+    }) as jest.Mock
+
+    const provider = createDataProvider()
+    const data = await provider.getPreview(300, { include: ['stats', 'parent', 'quality'] })
+    const repo = data.repos[0]
+    expect(repo.commitStats).toEqual({ last7Days: 3, last30Days: 12, last90Days: 40 })
+    expect(repo.parentStats?.isArchived).toBe(false)
+    expect(repo.upstreamCreatedAt).toBe('2024-01-01T00:00:00Z')
+    expect(repo.qualitySignals).toEqual({ activity_score: 42, overall_score: 88 })
+  })
+})
+
 describe('ApiDataProvider.apiFetch timeout', () => {
   const originalEnv = process.env
 

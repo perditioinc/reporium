@@ -14,8 +14,8 @@
  *   2. libraryData.generatedAt
  *   3. trendData.period.to
  *
- * The page hits two endpoints in parallel:
- *   GET ${API_URL}/library/full?... -> { generatedAt, repos: [...] }
+ * The page hits two endpoints in parallel (KAN-185 migration):
+ *   provider.getPreview(...)        -> { generatedAt, repos: [...] }
  *   GET ${API_URL}/trends/report    -> { generatedAt, period: {...}, ... }
  */
 
@@ -55,15 +55,27 @@ const emptyTrends = (generatedAt: string): TrendData => ({
 });
 
 function mockFetchSequence(library: LibraryData, trends: TrendData | null) {
-  // The component fires both fetches in parallel via Promise.all and matches by URL.
+  // KAN-185: /library/full has been replaced with `dataProvider.getPreview()`.
+  // The provider still calls `fetch()` internally with /library/preview; we
+  // match on either path so the test is resilient to that refactor.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fetchMock = jest.fn((url: any) => {
     const urlStr = String(url);
-    if (urlStr.includes('/library/full')) {
+    if (urlStr.includes('/library/preview') || urlStr.includes('/library/full')) {
+      // Translate the LibraryData fixture into a PreviewData-shaped response
+      // so dataProvider.getPreview() returns the same `generatedAt` the
+      // freshness logic compares against.
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: async () => library,
+        json: async () => ({
+          generatedAt: library.generatedAt,
+          totalRepos: library.repos.length,
+          limit: 300,
+          sort: 'stars',
+          category: null,
+          repos: [],
+        }),
       } as Response);
     }
     if (urlStr.includes('/trends/report')) {
@@ -84,8 +96,18 @@ function mockFetchSequence(library: LibraryData, trends: TrendData | null) {
 }
 
 describe('TrendsPage staleness UI', () => {
+  const originalEnv = process.env;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // KAN-185: TrendsPage uses createDataProvider() now; we need the API
+    // provider so /library/preview is fetched (and intercepted) instead of
+    // the JsonDataProvider's /data/library.json fallback.
+    process.env = { ...originalEnv, NEXT_PUBLIC_REPORIUM_API_URL: 'https://api.example.com' };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   test('fresh data: renders an "as of" stamp and NO stale banner', async () => {
