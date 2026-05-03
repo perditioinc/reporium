@@ -133,7 +133,7 @@ describe('mergeAggregatesIntoLibraryData KAN-189', () => {
         avgBehindBy: 0,
       },
     ],
-    categories: [{ id: 'agents', name: 'Agents', description: '', tags: [], color: '#000', icon: '🤖', repoCount: 100 }],
+    categories: [{ id: 'agents', name: 'Agents', description: '', color: '#000', icon: '🤖', repoCount: 100 }],
     builderStats: [{ login: 'microsoft', displayName: 'Microsoft', category: 'big-tech', repoCount: 66, totalParentStars: 1, topRepos: [], avatarUrl: '' }],
     aiDevSkillStats: [{ skill: 'Foundation Model Architecture', lifecycleGroup: 'Foundation & Training', repoCount: 456, coverage: 'strong', topRepos: [] }],
     pmSkillStats: [{ skill: 'AI-Native Architecture', repoCount: 582, coverage: 'strong', topRepos: [] }],

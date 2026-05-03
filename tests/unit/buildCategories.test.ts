@@ -145,7 +145,19 @@ describe('buildCategories', () => {
     expect(evalCat?.id).toBe('eval-frameworks');
     expect(evalCat?.icon).toBeDefined();
     expect(evalCat?.color).toBeDefined();
-    expect(Array.isArray(evalCat?.tags)).toBe(true);
+  });
+
+  it('KAN-201: build output strips internal `tags` field from public Category shape', () => {
+    const repos = [makeRepo({ enrichedTags: ['evals'] })];
+    const categories = buildCategories(repos);
+    for (const cat of categories) {
+      // The internal CATEGORIES table still carries tags, but the public
+      // shape returned to the frontend (and serialized over /library/aggregates)
+      // should not. KAN-201 dropped this to trim ~1.52 MB / 40% from the
+      // payload — frontend derives category-tag intersection from per-repo
+      // enrichedTags filtered by allCategories.
+      expect((cat as { tags?: unknown }).tags).toBeUndefined();
+    }
   });
 
   it('assigns allCategories with all matching categories', () => {
