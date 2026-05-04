@@ -1,59 +1,13 @@
 {
-  "generatedAt": "2026-05-03T07:46:29.634Z",
+  "generatedAt": "2026-05-04T08:15:12.389Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-03 07:16:23 +0000",
-    "snapshots": 51
+    "to": "2026-05-03 08:38:17 +0000",
+    "snapshots": 52
   },
   "trending": [],
   "emerging": [],
   "cooling": [
-    {
-      "name": "Automation",
-      "type": "tag",
-      "currentActivity": 6,
-      "previousActivity": 2629,
-      "changePercent": -100,
-      "repoCount": 244,
-      "representativeRepos": [
-        "portfolio",
-        "reporium-dataset"
-      ]
-    },
-    {
-      "name": "CLI Tool",
-      "type": "tag",
-      "currentActivity": 3,
-      "previousActivity": 727,
-      "changePercent": -100,
-      "repoCount": 202,
-      "representativeRepos": [
-        "reporium-dataset"
-      ]
-    },
-    {
-      "name": "Docker",
-      "type": "tag",
-      "currentActivity": 13,
-      "previousActivity": 3451,
-      "changePercent": -100,
-      "repoCount": 590,
-      "representativeRepos": [
-        "reporium-dataset",
-        "reporium-api"
-      ]
-    },
-    {
-      "name": "JavaScript",
-      "type": "tag",
-      "currentActivity": 3,
-      "previousActivity": 985,
-      "changePercent": -100,
-      "repoCount": 241,
-      "representativeRepos": [
-        "reporium-dataset"
-      ]
-    },
     {
       "name": "Keras",
       "type": "tag",
@@ -62,11 +16,49 @@
       "changePercent": -100,
       "repoCount": 57,
       "representativeRepos": []
+    },
+    {
+      "name": "AWS",
+      "type": "tag",
+      "currentActivity": 1,
+      "previousActivity": 279,
+      "changePercent": -100,
+      "repoCount": 130,
+      "representativeRepos": [
+        "modular"
+      ]
+    },
+    {
+      "name": "Spark",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 34,
+      "changePercent": -100,
+      "repoCount": 27,
+      "representativeRepos": []
+    },
+    {
+      "name": "Pose Estimation",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 23,
+      "changePercent": -100,
+      "repoCount": 36,
+      "representativeRepos": []
+    },
+    {
+      "name": "Convolutional Neural Networks",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 61,
+      "changePercent": -100,
+      "repoCount": 68,
+      "representativeRepos": []
     }
   ],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Activity in Automation has slowed by 100% this week."
+    "Activity in Keras has slowed by 100% this week."
   ]
 }
