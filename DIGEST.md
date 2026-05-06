@@ -1,5 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 5, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 6, 2026
 
 ---
 
@@ -11,8 +11,8 @@
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (1042 commits across 1191 repos)
-- **Keras** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (892 commits across 1191 repos)
+- **Automation** cooling (-100% change in activity)
 
 ---
 
