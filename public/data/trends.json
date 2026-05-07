@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-06T08:05:02.438Z",
+  "generatedAt": "2026-05-07T08:12:52.990Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-05 08:46:00 +0000",
-    "snapshots": 54
+    "to": "2026-05-06 08:57:00 +0000",
+    "snapshots": 55
   },
   "trending": [],
   "emerging": [],
@@ -11,60 +11,47 @@
     {
       "name": "Automation",
       "type": "tag",
-      "currentActivity": 2,
-      "previousActivity": 4828,
+      "currentActivity": 0,
+      "previousActivity": 10,
       "changePercent": -100,
       "repoCount": 244,
-      "representativeRepos": [
-        "portfolio",
-        "reporium-dataset"
-      ]
+      "representativeRepos": []
     },
     {
       "name": "C++",
       "type": "tag",
-      "currentActivity": 1,
-      "previousActivity": 1435,
+      "currentActivity": 0,
+      "previousActivity": 28,
       "changePercent": -100,
       "repoCount": 290,
-      "representativeRepos": [
-        "reporium-dataset"
-      ]
+      "representativeRepos": []
     },
     {
       "name": "Caching",
       "type": "tag",
-      "currentActivity": 3,
-      "previousActivity": 1211,
+      "currentActivity": 0,
+      "previousActivity": 39,
       "changePercent": -100,
       "repoCount": 191,
-      "representativeRepos": [
-        "reporium-metrics",
-        "reporium-roadmap",
-        "reporium-dataset"
-      ]
+      "representativeRepos": []
     },
     {
-      "name": "CLI Tool",
+      "name": "Database",
       "type": "tag",
-      "currentActivity": 1,
-      "previousActivity": 1377,
+      "currentActivity": 0,
+      "previousActivity": 93,
       "changePercent": -100,
-      "repoCount": 202,
-      "representativeRepos": [
-        "reporium-dataset"
-      ]
+      "repoCount": 397,
+      "representativeRepos": []
     },
     {
-      "name": "Computer Vision",
+      "name": "Docker",
       "type": "tag",
-      "currentActivity": 1,
-      "previousActivity": 613,
+      "currentActivity": 0,
+      "previousActivity": 25,
       "changePercent": -100,
-      "repoCount": 311,
-      "representativeRepos": [
-        "reporium-dataset"
-      ]
+      "repoCount": 590,
+      "representativeRepos": []
     }
   ],
   "stable": [],
