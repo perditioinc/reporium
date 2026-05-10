@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-09T07:32:01.145Z",
+  "generatedAt": "2026-05-10T06:31:29.543Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-08 08:07:29 +0000",
-    "snapshots": 57
+    "to": "2026-05-09 08:23:56 +0000",
+    "snapshots": 58
   },
   "trending": [],
   "emerging": [],
@@ -12,45 +12,45 @@
       "name": "Automation",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 6479,
+      "previousActivity": 6,
       "changePercent": -100,
       "repoCount": 244,
-      "representativeRepos": []
-    },
-    {
-      "name": "C++",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 2103,
-      "changePercent": -100,
-      "repoCount": 290,
       "representativeRepos": []
     },
     {
       "name": "Caching",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 2298,
+      "previousActivity": 23,
       "changePercent": -100,
       "repoCount": 191,
       "representativeRepos": []
     },
     {
-      "name": "CLI Tool",
+      "name": "Database",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 1934,
+      "previousActivity": 51,
       "changePercent": -100,
-      "repoCount": 202,
+      "repoCount": 397,
       "representativeRepos": []
     },
     {
-      "name": "Computer Vision",
+      "name": "Docker",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 869,
+      "previousActivity": 13,
       "changePercent": -100,
-      "repoCount": 311,
+      "repoCount": 590,
+      "representativeRepos": []
+    },
+    {
+      "name": "Evals",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 21,
+      "changePercent": -100,
+      "repoCount": 500,
       "representativeRepos": []
     }
   ],
