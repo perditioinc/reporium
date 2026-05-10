@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-10T07:40:21.041Z",
+  "generatedAt": "2026-05-10T09:20:47.699Z",
   "sections": [
     {
       "title": "Library stats",
@@ -248,55 +248,55 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-05-09T07:32:05.640Z"
+      "generatedAt": "2026-05-10T07:54:46.897Z"
     },
     "What categories are available?": {
       "answer": "Reporium tracks repos across **18** categories:\n\n- **Foundation Models** (600 repos)\n- **Dev Tools & Automation** (324 repos)\n- **Learning Resources** (193 repos)\n- **AI Agents** (180 repos)\n- **Model Training** (109 repos)\n- **Inference & Serving** (95 repos)\n- **MLOps & Infrastructure** (56 repos)\n- **Data Science & Analytics** (54 repos)\n- **RAG & Retrieval** (53 repos)\n- **Robotics** (51 repos)\n- **Computer Vision** (50 repos)\n- **Evals & Benchmarking** (37 repos)\n- **Generative Media** (27 repos)\n- **Cloud & Platforms** (15 repos)\n- **Industry: Audio & Music** (5 repos)\n- **ML Platform & Infrastructure** (3 repos)\n- **Edge & Mobile AI** (2 repos)\n- **Search & Knowledge** (1 repos)",
       "sources": [],
       "model": "smart-route:list_categories",
-      "generatedAt": "2026-05-09T07:32:16.746Z"
+      "generatedAt": "2026-05-10T07:54:57.983Z"
     },
     "What programming languages are used?": {
-      "answer": "Top programming languages across Reporium:\n\n- **Python** (790 repos)\n- **TypeScript** (272 repos)\n- **Jupyter Notebook** (146 repos)\n- **C++** (118 repos)\n- **Go** (84 repos)\n- **JavaScript** (84 repos)\n- **Rust** (61 repos)\n- **C** (39 repos)\n- **C#** (29 repos)\n- **HTML** (21 repos)\n- **Java** (19 repos)\n- **Shell** (18 repos)\n- **Swift** (15 repos)\n- **Cuda** (8 repos)\n- **CSS** (7 repos)\n- **PHP** (6 repos)\n- **MDX** (6 repos)\n- **Ruby** (5 repos)\n- **Lua** (3 repos)\n- **TeX** (3 repos)",
+      "answer": "Top programming languages across Reporium:\n\n- **Python** (792 repos)\n- **TypeScript** (273 repos)\n- **Jupyter Notebook** (146 repos)\n- **C++** (118 repos)\n- **JavaScript** (84 repos)\n- **Go** (84 repos)\n- **Rust** (61 repos)\n- **C** (39 repos)\n- **C#** (29 repos)\n- **HTML** (21 repos)\n- **Java** (19 repos)\n- **Shell** (18 repos)\n- **Swift** (15 repos)\n- **Cuda** (8 repos)\n- **CSS** (7 repos)\n- **MDX** (6 repos)\n- **PHP** (6 repos)\n- **Ruby** (5 repos)\n- **TeX** (3 repos)\n- **Zig** (3 repos)",
       "sources": [],
       "model": "smart-route:list_languages",
-      "generatedAt": "2026-05-09T07:32:27.840Z"
+      "generatedAt": "2026-05-10T07:55:09.070Z"
     },
     "How many repos use Python?": {
-      "answer": "There are **790** repos written in Python tracked in Reporium.",
+      "answer": "There are **792** repos written in Python tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-05-09T07:32:38.945Z"
+      "generatedAt": "2026-05-10T07:55:20.153Z"
     },
     "How many repos use TypeScript?": {
-      "answer": "There are **272** repos written in TypeScript tracked in Reporium.",
+      "answer": "There are **273** repos written in TypeScript tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-05-09T07:32:50.039Z"
+      "generatedAt": "2026-05-10T07:55:31.238Z"
     },
     "How many repos use Rust?": {
       "answer": "There are **61** repos written in Rust tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-05-09T07:33:01.139Z"
+      "generatedAt": "2026-05-10T07:55:42.322Z"
     },
     "How many repos are in the AI Agents category?": {
-      "answer": "There are **1,882** public repositories tracked in Reporium.",
+      "answer": "There are **1,885** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-05-09T07:33:12.247Z"
+      "generatedAt": "2026-05-10T07:55:53.402Z"
     },
     "How many repos are in the RAG & Retrieval category?": {
-      "answer": "There are **1,882** public repositories tracked in Reporium.",
+      "answer": "There are **1,885** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-05-09T07:33:23.347Z"
+      "generatedAt": "2026-05-10T07:56:04.482Z"
     },
     "How many repos are in the Foundation Models category?": {
-      "answer": "There are **1,882** public repositories tracked in Reporium.",
+      "answer": "There are **1,885** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-05-09T07:33:34.445Z"
+      "generatedAt": "2026-05-10T07:56:15.564Z"
     },
     "Show me Reporium stats": {
       "answer": "I can help you with that! Based on the Reporium repos tracked in the platform, here are the key stats-focused tools:\n\n**Core Stats & Metrics:**\n\n1. **perditioinc/reporium-dataset** — Public dataset mirror for reporium.com with nightly-updated AI dev tool statistics from reporium-db. It provides comprehensive analytics access for researchers and developers tracking AI tool trends.\n\n2. **perditioinc/reporium-metrics** — Platform performance tracking over time using ASCII trend charts and nightly automated collection. Lightweight Python-based approach that eliminates heavy dependencies.\n\n3. **perditioinc/reporium-roadmap** — Public product roadmap auto-updated nightly with live GitHub stats, providing transparency into Reporium's development priorities.\n\n4. **perditioinc/reporium-trust-score** — Hourly trust-score measurement for Reporium, computed as a composite of Reliability × Quality × Integrity × Freshness.\n\n**Quality Assessment:**\n\n5. **perditioinc/reporium-scoring** — Scores any GitHub repo 0-100 based on README quality, activity, community health, and CI/CD maturity.\n\nAll of these tools are Python-based and designed for automated nightly updates, ensuring fresh data. However, note that they all show minimal adoption (1 star, 0 contributors each) with 0% issue close rates, suggesting they're early-stage or experimental components of the broader Reporium platform.",
@@ -383,17 +383,17 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-05-09T07:33:45.643Z"
+      "generatedAt": "2026-05-10T07:56:26.733Z"
     },
     "What are the most starred repos?": {
-      "answer": "Top 10 most-starred repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** (Dev Tools & Automation) — 499,358 stars\n- **sindresorhus/awesome** (Dev Tools & Automation) — 463,070 stars\n- **freeCodeCamp/freeCodeCamp** (Learning Resources) — 444,216 stars\n- **public-apis/public-apis** (Dev Tools & Automation) — 432,435 stars\n- **EbookFoundation/free-programming-books** (Dev Tools & Automation) — 387,777 stars\n- **openclaw/openclaw** (Dev Tools & Automation) — 368,802 stars\n- **vinta/awesome-python** (Foundation Models) — 296,152 stars\n- **practical-tutorials/project-based-learning** (Dev Tools & Automation) — 264,975 stars\n- **facebook/react** (Dev Tools & Automation) — 244,825 stars\n- **TheAlgorithms/Python** (Dev Tools & Automation) — 220,805 stars",
+      "answer": "Top 10 most-starred repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** (Dev Tools & Automation) — 500,001 stars\n- **sindresorhus/awesome** (Dev Tools & Automation) — 464,232 stars\n- **freeCodeCamp/freeCodeCamp** (Learning Resources) — 444,374 stars\n- **public-apis/public-apis** (Dev Tools & Automation) — 433,406 stars\n- **EbookFoundation/free-programming-books** (Dev Tools & Automation) — 387,931 stars\n- **openclaw/openclaw** (Dev Tools & Automation) — 369,994 stars\n- **vinta/awesome-python** (Foundation Models) — 296,658 stars\n- **practical-tutorials/project-based-learning** (Dev Tools & Automation) — 265,131 stars\n- **facebook/react** (Dev Tools & Automation) — 244,884 stars\n- **TheAlgorithms/Python** (Dev Tools & Automation) — 220,883 stars",
       "sources": [
         {
           "name": "build-your-own-x",
           "owner": "codecrafters-io",
           "forked_from": "codecrafters-io/build-your-own-x",
           "description": "Master programming by recreating your favorite technologies from scratch.",
-          "stars": 499358,
+          "stars": 500001,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -403,7 +403,7 @@
           "owner": "sindresorhus",
           "forked_from": "sindresorhus/awesome",
           "description": "😎 Awesome lists about all kinds of interesting topics",
-          "stars": 463070,
+          "stars": 464232,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -413,7 +413,7 @@
           "owner": "freeCodeCamp",
           "forked_from": "freeCodeCamp/freeCodeCamp",
           "description": "freeCodeCamp.org's open-source codebase and curriculum. Learn math, programming, and computer science for free.",
-          "stars": 444216,
+          "stars": 444374,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -423,7 +423,7 @@
           "owner": "public-apis",
           "forked_from": "public-apis/public-apis",
           "description": "A collective list of free APIs",
-          "stars": 432435,
+          "stars": 433406,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -433,7 +433,7 @@
           "owner": "EbookFoundation",
           "forked_from": "EbookFoundation/free-programming-books",
           "description": ":books: Freely available programming books",
-          "stars": 387777,
+          "stars": 387931,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -443,7 +443,7 @@
           "owner": "openclaw",
           "forked_from": "openclaw/openclaw",
           "description": "Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 ",
-          "stars": 368802,
+          "stars": 369994,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -453,7 +453,7 @@
           "owner": "vinta",
           "forked_from": "vinta/awesome-python",
           "description": "An opinionated list of awesome Python frameworks, libraries, software and resources.",
-          "stars": 296152,
+          "stars": 296658,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -463,7 +463,7 @@
           "owner": "practical-tutorials",
           "forked_from": "practical-tutorials/project-based-learning",
           "description": "Curated list of project-based tutorials",
-          "stars": 264975,
+          "stars": 265131,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -473,7 +473,7 @@
           "owner": "facebook",
           "forked_from": "facebook/react",
           "description": "The library for web and native user interfaces.",
-          "stars": 244825,
+          "stars": 244884,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -483,17 +483,17 @@
           "owner": "TheAlgorithms",
           "forked_from": "TheAlgorithms/Python",
           "description": "All Algorithms implemented in Python",
-          "stars": 220805,
+          "stars": 220883,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-05-09T07:33:56.743Z"
+      "generatedAt": "2026-05-10T07:56:37.813Z"
     },
     "What are the most forked repos?": {
-      "answer": "Most forked repos in Reporium:\n\n- **NVIDIA-NeMo/Guardrails** — 5,854 stars, activity: 0\n- **khanh-atom/n8n-atom-fork** — 55 stars, activity: 0\n- **jianchang512/pyvideotrans** — 17,317 stars, activity: 0\n- **ClickHouse/ClickHouse** — 47,227 stars, activity: 0\n- **cmusatyalab/steeleagle** — 12 stars, activity: 0\n- **Wan-Video/Wan2.1** — 15,957 stars, activity: 0\n- **facebookresearch/NeuralCompression** — 599 stars, activity: 0\n- **AiuniAI/Unique3D** — 3,559 stars, activity: 0\n- **openai/openai-agents-python** — 25,922 stars, activity: 0\n- **deepfence/ThreatMapper** — 5,262 stars, activity: 0",
+      "answer": "Most forked repos in Reporium:\n\n- **NVIDIA-NeMo/Guardrails** — 5,854 stars, activity: 0\n- **khanh-atom/n8n-atom-fork** — 55 stars, activity: 0\n- **Infatoshi/cuda-course** — 3,589 stars, activity: 0\n- **deepfence/ThreatMapper** — 5,264 stars, activity: 0\n- **jianchang512/pyvideotrans** — 17,353 stars, activity: 0\n- **google/airio** — 24 stars, activity: 0\n- **Wan-Video/Wan2.1** — 15,983 stars, activity: 0\n- **cmusatyalab/steeleagle** — 12 stars, activity: 0\n- **winfunc/opcode** — 21,776 stars, activity: 0\n- **ClickHouse/ClickHouse** — 47,304 stars, activity: 0",
       "sources": [
         {
           "name": "Guardrails",
@@ -516,21 +516,51 @@
           "integration_tags": []
         },
         {
-          "name": "pyvideotrans",
-          "owner": "jianchang512",
-          "forked_from": "jianchang512/pyvideotrans",
+          "name": "cuda-course",
+          "owner": "Infatoshi",
+          "forked_from": "Infatoshi/cuda-course",
           "description": null,
-          "stars": 17317,
+          "stars": 3589,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "ClickHouse",
-          "owner": "ClickHouse",
-          "forked_from": "ClickHouse/ClickHouse",
+          "name": "ThreatMapper",
+          "owner": "deepfence",
+          "forked_from": "deepfence/ThreatMapper",
           "description": null,
-          "stars": 47227,
+          "stars": 5264,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "pyvideotrans",
+          "owner": "jianchang512",
+          "forked_from": "jianchang512/pyvideotrans",
+          "description": null,
+          "stars": 17353,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "airio",
+          "owner": "google",
+          "forked_from": "google/airio",
+          "description": null,
+          "stars": 24,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "Wan2.1",
+          "owner": "Wan-Video",
+          "forked_from": "Wan-Video/Wan2.1",
+          "description": null,
+          "stars": 15983,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -546,88 +576,48 @@
           "integration_tags": []
         },
         {
-          "name": "Wan2.1",
-          "owner": "Wan-Video",
-          "forked_from": "Wan-Video/Wan2.1",
+          "name": "opcode",
+          "owner": "winfunc",
+          "forked_from": "winfunc/opcode",
           "description": null,
-          "stars": 15957,
+          "stars": 21776,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "NeuralCompression",
-          "owner": "facebookresearch",
-          "forked_from": "facebookresearch/NeuralCompression",
+          "name": "ClickHouse",
+          "owner": "ClickHouse",
+          "forked_from": "ClickHouse/ClickHouse",
           "description": null,
-          "stars": 599,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "Unique3D",
-          "owner": "AiuniAI",
-          "forked_from": "AiuniAI/Unique3D",
-          "description": null,
-          "stars": 3559,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "openai-agents-python",
-          "owner": "openai",
-          "forked_from": "openai/openai-agents-python",
-          "description": null,
-          "stars": 25922,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "ThreatMapper",
-          "owner": "deepfence",
-          "forked_from": "deepfence/ThreatMapper",
-          "description": null,
-          "stars": 5262,
+          "stars": 47304,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_forked",
-      "generatedAt": "2026-05-09T07:34:07.845Z"
+      "generatedAt": "2026-05-10T07:56:48.904Z"
     },
     "What are the most active repos?": {
-      "answer": "Most active repos in Reporium:\n\n- **freeCodeCamp/freeCodeCamp** — 444,216 stars, activity: 0\n- **jianchang512/pyvideotrans** — 17,317 stars, activity: 0\n- **deepfence/ThreatMapper** — 5,262 stars, activity: 0\n- **ClickHouse/ClickHouse** — 47,227 stars, activity: 0\n- **cmusatyalab/steeleagle** — 12 stars, activity: 0\n- **Wan-Video/Wan2.1** — 15,957 stars, activity: 0\n- **AiuniAI/Unique3D** — 3,559 stars, activity: 0\n- **facebookresearch/NeuralCompression** — 599 stars, activity: 0\n- **openai/openai-agents-python** — 25,922 stars, activity: 0\n- **google/adk-java** — 1,534 stars, activity: 0",
+      "answer": "Most active repos in Reporium:\n\n- **google/generative-ai-go** — 857 stars, activity: 0\n- **Infatoshi/cuda-course** — 3,589 stars, activity: 0\n- **ClickHouse/ClickHouse** — 47,304 stars, activity: 0\n- **deepfence/ThreatMapper** — 5,264 stars, activity: 0\n- **jianchang512/pyvideotrans** — 17,353 stars, activity: 0\n- **google/airio** — 24 stars, activity: 0\n- **cmusatyalab/steeleagle** — 12 stars, activity: 0\n- **Wan-Video/Wan2.1** — 15,983 stars, activity: 0\n- **winfunc/opcode** — 21,776 stars, activity: 0\n- **google/adk-java** — 1,542 stars, activity: 0",
       "sources": [
         {
-          "name": "freeCodeCamp",
-          "owner": "freeCodeCamp",
-          "forked_from": "freeCodeCamp/freeCodeCamp",
+          "name": "generative-ai-go",
+          "owner": "google",
+          "forked_from": "google/generative-ai-go",
           "description": null,
-          "stars": 444216,
+          "stars": 857,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "pyvideotrans",
-          "owner": "jianchang512",
-          "forked_from": "jianchang512/pyvideotrans",
+          "name": "cuda-course",
+          "owner": "Infatoshi",
+          "forked_from": "Infatoshi/cuda-course",
           "description": null,
-          "stars": 17317,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "ThreatMapper",
-          "owner": "deepfence",
-          "forked_from": "deepfence/ThreatMapper",
-          "description": null,
-          "stars": 5262,
+          "stars": 3589,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -637,7 +627,37 @@
           "owner": "ClickHouse",
           "forked_from": "ClickHouse/ClickHouse",
           "description": null,
-          "stars": 47227,
+          "stars": 47304,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "ThreatMapper",
+          "owner": "deepfence",
+          "forked_from": "deepfence/ThreatMapper",
+          "description": null,
+          "stars": 5264,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "pyvideotrans",
+          "owner": "jianchang512",
+          "forked_from": "jianchang512/pyvideotrans",
+          "description": null,
+          "stars": 17353,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "airio",
+          "owner": "google",
+          "forked_from": "google/airio",
+          "description": null,
+          "stars": 24,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -657,37 +677,17 @@
           "owner": "Wan-Video",
           "forked_from": "Wan-Video/Wan2.1",
           "description": null,
-          "stars": 15957,
+          "stars": 15983,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "Unique3D",
-          "owner": "AiuniAI",
-          "forked_from": "AiuniAI/Unique3D",
+          "name": "opcode",
+          "owner": "winfunc",
+          "forked_from": "winfunc/opcode",
           "description": null,
-          "stars": 3559,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "NeuralCompression",
-          "owner": "facebookresearch",
-          "forked_from": "facebookresearch/NeuralCompression",
-          "description": null,
-          "stars": 599,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "openai-agents-python",
-          "owner": "openai",
-          "forked_from": "openai/openai-agents-python",
-          "description": null,
-          "stars": 25922,
+          "stars": 21776,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -697,24 +697,24 @@
           "owner": "google",
           "forked_from": "google/adk-java",
           "description": null,
-          "stars": 1534,
+          "stars": 1542,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_active",
-      "generatedAt": "2026-05-09T07:34:18.949Z"
+      "generatedAt": "2026-05-10T07:56:59.987Z"
     },
     "What are the newest repos?": {
-      "answer": "Most newest repos in Reporium:\n\n- **VoltAgent/awesome-design-md** — 71,742 stars, activity: 0\n- **ultraworkers/claw-code** — 190,273 stars, activity: 0\n- **mitkox/vllm-turboquant** — 582 stars, activity: 0\n- **capgym/cap-x** — 470 stars, activity: 0\n- **facebookresearch/tribev2** — 2,430 stars, activity: 0\n- **HKUDS/OpenSpace** — 6,032 stars, activity: 0\n- **zarazhangrui/codebase-to-course** — 4,236 stars, activity: 0\n- **perditioinc/repo-intelligence** — 1 stars, activity: 0\n- **aidancorrell/arcana** — 7 stars, activity: 0\n- **danveloper/flash-moe** — 3,807 stars, activity: 0",
+      "answer": "Most newest repos in Reporium:\n\n- **VoltAgent/awesome-design-md** — 73,809 stars, activity: 0\n- **ultraworkers/claw-code** — 190,781 stars, activity: 0\n- **mitkox/vllm-turboquant** — 584 stars, activity: 0\n- **capgym/cap-x** — 478 stars, activity: 0\n- **facebookresearch/tribev2** — 2,482 stars, activity: 0\n- **HKUDS/OpenSpace** — 6,087 stars, activity: 0\n- **zarazhangrui/codebase-to-course** — 4,284 stars, activity: 0\n- **perditioinc/repo-intelligence** — 1 stars, activity: 0\n- **aidancorrell/arcana** — 7 stars, activity: 0\n- **danveloper/flash-moe** — 3,817 stars, activity: 0",
       "sources": [
         {
           "name": "awesome-design-md",
           "owner": "VoltAgent",
           "forked_from": "VoltAgent/awesome-design-md",
           "description": null,
-          "stars": 71742,
+          "stars": 73809,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -724,7 +724,7 @@
           "owner": "ultraworkers",
           "forked_from": "ultraworkers/claw-code",
           "description": null,
-          "stars": 190273,
+          "stars": 190781,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -734,7 +734,7 @@
           "owner": "mitkox",
           "forked_from": "mitkox/vllm-turboquant",
           "description": null,
-          "stars": 582,
+          "stars": 584,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -744,7 +744,7 @@
           "owner": "capgym",
           "forked_from": "capgym/cap-x",
           "description": null,
-          "stars": 470,
+          "stars": 478,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -754,7 +754,7 @@
           "owner": "facebookresearch",
           "forked_from": "facebookresearch/tribev2",
           "description": null,
-          "stars": 2430,
+          "stars": 2482,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -764,7 +764,7 @@
           "owner": "HKUDS",
           "forked_from": "HKUDS/OpenSpace",
           "description": null,
-          "stars": 6032,
+          "stars": 6087,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -774,7 +774,7 @@
           "owner": "zarazhangrui",
           "forked_from": "zarazhangrui/codebase-to-course",
           "description": null,
-          "stars": 4236,
+          "stars": 4284,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -804,24 +804,24 @@
           "owner": "danveloper",
           "forked_from": "danveloper/flash-moe",
           "description": null,
-          "stars": 3807,
+          "stars": 3817,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_newest",
-      "generatedAt": "2026-05-09T07:34:30.073Z"
+      "generatedAt": "2026-05-10T07:57:11.079Z"
     },
     "What are the most popular repos?": {
-      "answer": "Most popular repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** — 499,358 stars, activity: 0\n- **sindresorhus/awesome** — 463,070 stars, activity: 0\n- **freeCodeCamp/freeCodeCamp** — 444,216 stars, activity: 0\n- **public-apis/public-apis** — 432,435 stars, activity: 0\n- **EbookFoundation/free-programming-books** — 387,777 stars, activity: 0\n- **openclaw/openclaw** — 368,802 stars, activity: 0\n- **vinta/awesome-python** — 296,152 stars, activity: 0\n- **practical-tutorials/project-based-learning** — 264,975 stars, activity: 0\n- **facebook/react** — 244,825 stars, activity: 0\n- **TheAlgorithms/Python** — 220,805 stars, activity: 0",
+      "answer": "Most popular repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** — 500,001 stars, activity: 0\n- **sindresorhus/awesome** — 464,232 stars, activity: 0\n- **freeCodeCamp/freeCodeCamp** — 444,374 stars, activity: 0\n- **public-apis/public-apis** — 433,406 stars, activity: 0\n- **EbookFoundation/free-programming-books** — 387,931 stars, activity: 0\n- **openclaw/openclaw** — 369,994 stars, activity: 0\n- **vinta/awesome-python** — 296,658 stars, activity: 0\n- **practical-tutorials/project-based-learning** — 265,131 stars, activity: 0\n- **facebook/react** — 244,884 stars, activity: 0\n- **TheAlgorithms/Python** — 220,883 stars, activity: 0",
       "sources": [
         {
           "name": "build-your-own-x",
           "owner": "codecrafters-io",
           "forked_from": "codecrafters-io/build-your-own-x",
           "description": null,
-          "stars": 499358,
+          "stars": 500001,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -831,7 +831,7 @@
           "owner": "sindresorhus",
           "forked_from": "sindresorhus/awesome",
           "description": null,
-          "stars": 463070,
+          "stars": 464232,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -841,7 +841,7 @@
           "owner": "freeCodeCamp",
           "forked_from": "freeCodeCamp/freeCodeCamp",
           "description": null,
-          "stars": 444216,
+          "stars": 444374,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -851,7 +851,7 @@
           "owner": "public-apis",
           "forked_from": "public-apis/public-apis",
           "description": null,
-          "stars": 432435,
+          "stars": 433406,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -861,7 +861,7 @@
           "owner": "EbookFoundation",
           "forked_from": "EbookFoundation/free-programming-books",
           "description": null,
-          "stars": 387777,
+          "stars": 387931,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -871,7 +871,7 @@
           "owner": "openclaw",
           "forked_from": "openclaw/openclaw",
           "description": null,
-          "stars": 368802,
+          "stars": 369994,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -881,7 +881,7 @@
           "owner": "vinta",
           "forked_from": "vinta/awesome-python",
           "description": null,
-          "stars": 296152,
+          "stars": 296658,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -891,7 +891,7 @@
           "owner": "practical-tutorials",
           "forked_from": "practical-tutorials/project-based-learning",
           "description": null,
-          "stars": 264975,
+          "stars": 265131,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -901,7 +901,7 @@
           "owner": "facebook",
           "forked_from": "facebook/react",
           "description": null,
-          "stars": 244825,
+          "stars": 244884,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -911,14 +911,14 @@
           "owner": "TheAlgorithms",
           "forked_from": "TheAlgorithms/Python",
           "description": null,
-          "stars": 220805,
+          "stars": 220883,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_popular",
-      "generatedAt": "2026-05-09T07:34:41.168Z"
+      "generatedAt": "2026-05-10T07:57:22.164Z"
     },
     "What are the top 10 most starred repos?": {
       "answer": "Based on the repo data provided, here are the top 5 most starred repos I can identify:\n\n1. **perditioinc/awesome** (451.3k★) — A comprehensive collection of awesome lists covering all kinds of interesting topics, serving as a learning resource across multiple domains.\n\n2. **perditioinc/GitHubDaily** (45.9k★) — A curated list of cool, interesting, and practical open-source projects from GitHub, including technical tutorials, developer tools, programming resources, and tech news.\n\n3. **perditioinc/recommenders** (21.6k★) — Best practices and implementations for recommendation systems.\n\n4. **perditioinc/reporium-roadmap** — Public product roadmap for reporium.com with live GitHub stats (star count not provided in the data).\n\n5. **perditioinc/reporium-db** — Nightly GitHub metadata sync infrastructure powering reporium.com (star count not provided in the data).",
@@ -975,57 +975,37 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-05-09T07:34:52.330Z"
+      "generatedAt": "2026-05-10T07:57:33.257Z"
     },
     "What's new this week?": {
-      "answer": "Recently added repos (10 shown):\n\n- **refactoringhq/tolaria** — 9,863 stars\n- **docusealco/docuseal** — 14,229 stars\n- **CJackHwang/ds2api** — 3,622 stars\n- **cocoindex-io/cocoindex** — 8,520 stars\n- **PriorLabs/TabPFN** — 6,438 stars\n- **qbittorrent/qBittorrent** — 37,200 stars\n- **fspecii/ace-step-ui** — 3,118 stars\n- **Arindam200/awesome-ai-apps** — 11,632 stars\n- **Hmbown/DeepSeek-TUI** — 10,014 stars\n- **addyosmani/agent-skills** — 28,895 stars",
+      "answer": "Recently added repos (10 shown):\n\n- **z-lab/dflash** — 3,923 stars\n- **Augani/openreel-video** — 2,140 stars\n- **BigBodyCobain/Shadowbroker** — 6,156 stars\n- **qbittorrent/qBittorrent** — 37,300 stars\n- **fspecii/ace-step-ui** — 3,420 stars\n- **cocoindex-io/cocoindex** — 9,203 stars\n- **Hmbown/DeepSeek-TUI** — 22,404 stars\n- **Arindam200/awesome-ai-apps** — 12,033 stars\n- **PriorLabs/TabPFN** — 6,898 stars\n- **docusealco/docuseal** — 15,962 stars",
       "sources": [
         {
-          "name": "tolaria",
-          "owner": "refactoringhq",
-          "forked_from": "refactoringhq/tolaria",
-          "description": "Desktop app to manage markdown knowledge bases",
-          "stars": 9863,
+          "name": "dflash",
+          "owner": "z-lab",
+          "forked_from": "z-lab/dflash",
+          "description": "DFlash: Block Diffusion for Flash Speculative Decoding",
+          "stars": 3923,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "docuseal",
-          "owner": "docusealco",
-          "forked_from": "docusealco/docuseal",
-          "description": "Open source DocuSign alternative. Create, fill, and sign digital documents ✍️",
-          "stars": 14229,
+          "name": "openreel-video",
+          "owner": "Augani",
+          "forked_from": "Augani/openreel-video",
+          "description": "OpenReel Video - Professional browser-based video editor. Open source CapCut alternative. 100% browser-based, no installation, no cloud uploads, no watermarks.",
+          "stars": 2140,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "ds2api",
-          "owner": "CJackHwang",
-          "forked_from": "CJackHwang/ds2api",
-          "description": "DeepSeek-Compatible Middleware Interface: A technical exploration project in Go, focusing on high-concurrency protocol adaptation. It serves as a reference implementation for converting diverse web protocols into standardized formats.",
-          "stars": 3622,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "cocoindex",
-          "owner": "cocoindex-io",
-          "forked_from": "cocoindex-io/cocoindex",
-          "description": "Incremental engine for long horizon agents 🌟 Star if you like it!",
-          "stars": 8520,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "TabPFN",
-          "owner": "PriorLabs",
-          "forked_from": "PriorLabs/TabPFN",
-          "description": "⚡ TabPFN: Foundation Model for Tabular Data ⚡",
-          "stars": 6438,
+          "name": "Shadowbroker",
+          "owner": "BigBodyCobain",
+          "forked_from": "BigBodyCobain/Shadowbroker",
+          "description": "Open-source intelligence for the global theater. Track everything from the corporate/private jets of the wealthy, and spy satellites, to seismic events in one unified interface. Hook an AI agent up to have it parse through data and find previously unseen correlations. The knowledge is available to all but rarely aggregated in the open, until now.",
+          "stars": 6156,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -1035,7 +1015,7 @@
           "owner": "qbittorrent",
           "forked_from": "qbittorrent/qBittorrent",
           "description": "qBittorrent BitTorrent client",
-          "stars": 37200,
+          "stars": 37300,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -1045,17 +1025,17 @@
           "owner": "fspecii",
           "forked_from": "fspecii/ace-step-ui",
           "description": "🎵 The Ultimate Open Source Suno Alternative - Professional UI for ACE-Step 1.5 AI Music Generation. Free, local, unlimited. Stop paying for Suno!",
-          "stars": 3118,
+          "stars": 3420,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "awesome-ai-apps",
-          "owner": "Arindam200",
-          "forked_from": "Arindam200/awesome-ai-apps",
-          "description": "A collection of projects showcasing RAG, agents, workflows, and other AI use cases",
-          "stars": 11632,
+          "name": "cocoindex",
+          "owner": "cocoindex-io",
+          "forked_from": "cocoindex-io/cocoindex",
+          "description": "Incremental engine for long horizon agents 🌟 Star if you like it!",
+          "stars": 9203,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -1065,30 +1045,50 @@
           "owner": "Hmbown",
           "forked_from": "Hmbown/DeepSeek-TUI",
           "description": "Coding agent for DeepSeek models that runs in your terminal",
-          "stars": 10014,
+          "stars": 22404,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "agent-skills",
-          "owner": "addyosmani",
-          "forked_from": "addyosmani/agent-skills",
-          "description": "Production-grade engineering skills for AI coding agents.",
-          "stars": 28895,
+          "name": "awesome-ai-apps",
+          "owner": "Arindam200",
+          "forked_from": "Arindam200/awesome-ai-apps",
+          "description": "A collection of projects showcasing RAG, agents, workflows, and other AI use cases",
+          "stars": 12033,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "TabPFN",
+          "owner": "PriorLabs",
+          "forked_from": "PriorLabs/TabPFN",
+          "description": "⚡ TabPFN: Foundation Model for Tabular Data ⚡",
+          "stars": 6898,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "docuseal",
+          "owner": "docusealco",
+          "forked_from": "docusealco/docuseal",
+          "description": "Open source DocuSign alternative. Create, fill, and sign digital documents ✍️",
+          "stars": 15962,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:recently_added",
-      "generatedAt": "2026-05-09T07:35:03.423Z"
+      "generatedAt": "2026-05-10T07:57:44.351Z"
     },
     "What was added recently?": {
       "answer": "I don't have enough relevant information in the Reporium knowledge base to answer that question. Try asking about specific AI dev tools, libraries, or repository categories.",
       "sources": [],
       "model": "early-exit",
-      "generatedAt": "2026-05-09T07:35:15.542Z"
+      "generatedAt": "2026-05-10T07:57:55.876Z"
     },
     "Show me the latest repos": {
       "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nIf you're looking to explore repos from the sources I have available, I can help you with:\n- **Specific repo comparisons** (e.g., \"Compare perditioinc/reporium-db and perditioinc/reporium-dataset\")\n- **Finding tools for a use case** (e.g., \"What repos help with GitHub metadata management?\")\n- **Understanding what a specific repo does** (e.g., \"What does perditioinc/reporium-mcp do?\")\n\nWhat would you like to know about the AI dev tools and repos I have?",
@@ -1175,7 +1175,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-05-09T07:35:26.677Z"
+      "generatedAt": "2026-05-10T07:58:06.971Z"
     },
     "What are the oldest repos?": {
       "answer": "Most oldest repos in Reporium:\n\n- **spree/spree** — 15,394 stars, activity: 0\n- **git/git** — 60,759 stars, activity: 0\n- **mongodb/mongo** — 28,288 stars, activity: 0\n- **biopython/biopython** — 5,006 stars, activity: 0\n- **redis/redis** — 74,158 stars, activity: 0\n- **nltk/nltk** — 14,602 stars, activity: 0\n- **aubio/aubio** — 3,697 stars, activity: 0\n- **mrdoob/three.js** — 112,330 stars, activity: 0\n- **marcuswestin/store.js** — 13,995 stars, activity: 0\n- **scikit-learn/scikit-learn** — 65,985 stars, activity: 0",

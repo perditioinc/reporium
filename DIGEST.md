@@ -11,7 +11,7 @@
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (446 commits across 1206 repos)
+- **🛠 Dev Tools & Automation** most active category (445 commits across 1206 repos)
 - **Automation** cooling (-100% change in activity)
 
 ---
