@@ -1,18 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 11, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 12, 2026
+
+---
+
+## Today's Activity
+**8 commits** across **8 repos** in your library
+
+| Repo | Commits | Category |
+|------|---------|----------|
+| reporium-metrics | 1 | Dev Tools & Automation |
+| reporium-audit | 1 | Dev Tools & Automation |
+| portfolio | 1 | Dev Tools & Automation |
+| reporium-roadmap | 1 | Dev Tools & Automation |
+| reporium | 1 | RAG & Retrieval |
+| reporium-dataset | 1 | AI Agents |
 
 ---
 
 ## Library Health
-- **1889 repos** · **31 categories** · **5332 unique tags**
-- **652 forks** up to date · **1218 forks** behind upstream
-- Most outdated: `awesome` (behind 1 commits)
+- **1892 repos** · **31 categories** · **5332 unique tags**
+- **592 forks** up to date · **1281 forks** behind upstream
+- Most outdated: `pi-mono` (behind 884 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (400 commits across 1210 repos)
-- **Automation** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (1149 commits across 1209 repos)
+- **Database** cooling (-100% change in activity)
 
 ---
 
