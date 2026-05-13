@@ -1,53 +1,147 @@
 {
-  "generatedAt": "2026-05-12T08:21:34.605Z",
+  "generatedAt": "2026-05-13T08:31:45.176Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-11 09:48:01 +0000",
-    "snapshots": 61
+    "to": "2026-05-12 09:14:20 +0000",
+    "snapshots": 62
   },
-  "trending": [],
-  "emerging": [],
-  "cooling": [
-    {
-      "name": "Database",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 7,
-      "changePercent": -100,
-      "repoCount": 397,
-      "representativeRepos": []
-    },
+  "trending": [
     {
       "name": "Python",
       "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 7,
-      "changePercent": -100,
-      "repoCount": 1125,
-      "representativeRepos": []
+      "currentActivity": 228,
+      "previousActivity": 0,
+      "changePercent": 22800,
+      "repoCount": 1142,
+      "representativeRepos": [
+        "DeepSeek-TUI",
+        "cocoindex",
+        "TabPFN"
+      ]
     },
     {
-      "name": "Roadmap",
+      "name": "Anthropic / Claude",
       "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 6,
-      "changePercent": -100,
-      "repoCount": 251,
-      "representativeRepos": []
+      "currentActivity": 200,
+      "previousActivity": 0,
+      "changePercent": 20000,
+      "repoCount": 492,
+      "representativeRepos": [
+        "DeepSeek-TUI",
+        "tolaria",
+        "cocoindex"
+      ]
     },
     {
-      "name": "Backend",
+      "name": "Claude",
       "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 7,
-      "changePercent": -100,
-      "repoCount": 118,
-      "representativeRepos": []
+      "currentActivity": 200,
+      "previousActivity": 0,
+      "changePercent": 20000,
+      "repoCount": 430,
+      "representativeRepos": [
+        "DeepSeek-TUI",
+        "tolaria",
+        "cocoindex"
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "type": "tag",
+      "currentActivity": 147,
+      "previousActivity": 0,
+      "changePercent": 14700,
+      "repoCount": 287,
+      "representativeRepos": [
+        "DeepSeek-TUI",
+        "tolaria",
+        "cocoindex"
+      ]
+    },
+    {
+      "name": "MCP",
+      "type": "tag",
+      "currentActivity": 146,
+      "previousActivity": 0,
+      "changePercent": 14600,
+      "repoCount": 333,
+      "representativeRepos": [
+        "DeepSeek-TUI",
+        "tolaria",
+        "cocoindex"
+      ]
+    },
+    {
+      "name": "Real-Time / Streaming",
+      "type": "tag",
+      "currentActivity": 144,
+      "previousActivity": 0,
+      "changePercent": 14400,
+      "repoCount": 517,
+      "representativeRepos": [
+        "DeepSeek-TUI",
+        "cocoindex",
+        "easy-vibe"
+      ]
+    },
+    {
+      "name": "Caching",
+      "type": "tag",
+      "currentActivity": 143,
+      "previousActivity": 0,
+      "changePercent": 14300,
+      "repoCount": 200,
+      "representativeRepos": [
+        "cocoindex",
+        "TabPFN",
+        "Shadowbroker"
+      ]
+    },
+    {
+      "name": "Database",
+      "type": "tag",
+      "currentActivity": 127,
+      "previousActivity": 0,
+      "changePercent": 12700,
+      "repoCount": 408,
+      "representativeRepos": [
+        "qBittorrent",
+        "docuseal",
+        "cocoindex"
+      ]
+    },
+    {
+      "name": "Node.js",
+      "type": "tag",
+      "currentActivity": 111,
+      "previousActivity": 0,
+      "changePercent": 11100,
+      "repoCount": 349,
+      "representativeRepos": [
+        "tolaria",
+        "Shadowbroker",
+        "ds2api"
+      ]
+    },
+    {
+      "name": "Claude Code",
+      "type": "tag",
+      "currentActivity": 110,
+      "previousActivity": 0,
+      "changePercent": 11000,
+      "repoCount": 242,
+      "representativeRepos": [
+        "tolaria",
+        "cocoindex",
+        "easy-vibe"
+      ]
     }
   ],
+  "emerging": [],
+  "cooling": [],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Activity in Database has slowed by 100% this week."
+    "Python is the fastest-growing area this week with +22800% commit velocity."
   ]
 }

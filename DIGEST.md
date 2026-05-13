@@ -1,32 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 12, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 13, 2026
 
 ---
 
-## Today's Activity
-**8 commits** across **8 repos** in your library
+## Trending This Week
+These areas in your library are seeing accelerating activity:
 
-| Repo | Commits | Category |
-|------|---------|----------|
-| reporium-metrics | 1 | Dev Tools & Automation |
-| reporium-audit | 1 | Dev Tools & Automation |
-| portfolio | 1 | Dev Tools & Automation |
-| reporium-roadmap | 1 | Dev Tools & Automation |
-| reporium | 1 | RAG & Retrieval |
-| reporium-dataset | 1 | AI Agents |
+**Python** (+22800% vs last week)
+DeepSeek-TUI, cocoindex, TabPFN are most active.
+
+**Anthropic / Claude** (+20000% vs last week)
+DeepSeek-TUI, tolaria, cocoindex are most active.
+
+**Claude** (+20000% vs last week)
+DeepSeek-TUI, tolaria, cocoindex are most active.
 
 ---
 
 ## Library Health
 - **1892 repos** · **31 categories** · **5332 unique tags**
 - **592 forks** up to date · **1281 forks** behind upstream
-- Most outdated: `pi-mono` (behind 884 commits)
+- Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (1149 commits across 1209 repos)
-- **Database** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (808 commits across 1209 repos)
+- **Python** fastest growing (+22800% commit velocity)
 
 ---
 
