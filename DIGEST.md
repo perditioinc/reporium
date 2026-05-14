@@ -1,32 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 13, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 14, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Python** (+22800% vs last week)
-DeepSeek-TUI, cocoindex, TabPFN are most active.
+**Python** (+13900% vs last week)
+TabPFN, Shadowbroker, dflash are most active.
 
-**Anthropic / Claude** (+20000% vs last week)
-DeepSeek-TUI, tolaria, cocoindex are most active.
+**Anthropic / Claude** (+11500% vs last week)
+easy-vibe, Shadowbroker, agentmemory are most active.
 
-**Claude** (+20000% vs last week)
-DeepSeek-TUI, tolaria, cocoindex are most active.
+**Claude** (+11500% vs last week)
+easy-vibe, Shadowbroker, agentmemory are most active.
 
 ---
 
 ## Library Health
-- **1892 repos** · **31 categories** · **5332 unique tags**
-- **592 forks** up to date · **1281 forks** behind upstream
+- **1898 repos** · **31 categories** · **5332 unique tags**
+- **598 forks** up to date · **1281 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (808 commits across 1209 repos)
-- **Python** fastest growing (+22800% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (789 commits across 1215 repos)
+- **Python** fastest growing (+13900% commit velocity)
 
 ---
 

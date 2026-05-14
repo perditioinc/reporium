@@ -1,139 +1,139 @@
 {
-  "generatedAt": "2026-05-13T08:31:45.176Z",
+  "generatedAt": "2026-05-14T08:26:28.857Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-12 09:14:20 +0000",
-    "snapshots": 62
+    "to": "2026-05-13 09:23:42 +0000",
+    "snapshots": 63
   },
   "trending": [
     {
       "name": "Python",
       "type": "tag",
-      "currentActivity": 228,
+      "currentActivity": 139,
       "previousActivity": 0,
-      "changePercent": 22800,
-      "repoCount": 1142,
+      "changePercent": 13900,
+      "repoCount": 1141,
       "representativeRepos": [
-        "DeepSeek-TUI",
-        "cocoindex",
-        "TabPFN"
+        "TabPFN",
+        "Shadowbroker",
+        "dflash"
       ]
     },
     {
       "name": "Anthropic / Claude",
       "type": "tag",
-      "currentActivity": 200,
+      "currentActivity": 115,
       "previousActivity": 0,
-      "changePercent": 20000,
+      "changePercent": 11500,
       "repoCount": 492,
       "representativeRepos": [
-        "DeepSeek-TUI",
-        "tolaria",
-        "cocoindex"
+        "easy-vibe",
+        "Shadowbroker",
+        "agentmemory"
       ]
     },
     {
       "name": "Claude",
       "type": "tag",
-      "currentActivity": 200,
+      "currentActivity": 115,
       "previousActivity": 0,
-      "changePercent": 20000,
+      "changePercent": 11500,
       "repoCount": 430,
       "representativeRepos": [
-        "DeepSeek-TUI",
-        "tolaria",
-        "cocoindex"
-      ]
-    },
-    {
-      "name": "TypeScript",
-      "type": "tag",
-      "currentActivity": 147,
-      "previousActivity": 0,
-      "changePercent": 14700,
-      "repoCount": 287,
-      "representativeRepos": [
-        "DeepSeek-TUI",
-        "tolaria",
-        "cocoindex"
-      ]
-    },
-    {
-      "name": "MCP",
-      "type": "tag",
-      "currentActivity": 146,
-      "previousActivity": 0,
-      "changePercent": 14600,
-      "repoCount": 333,
-      "representativeRepos": [
-        "DeepSeek-TUI",
-        "tolaria",
-        "cocoindex"
-      ]
-    },
-    {
-      "name": "Real-Time / Streaming",
-      "type": "tag",
-      "currentActivity": 144,
-      "previousActivity": 0,
-      "changePercent": 14400,
-      "repoCount": 517,
-      "representativeRepos": [
-        "DeepSeek-TUI",
-        "cocoindex",
-        "easy-vibe"
+        "easy-vibe",
+        "Shadowbroker",
+        "agentmemory"
       ]
     },
     {
       "name": "Caching",
       "type": "tag",
-      "currentActivity": 143,
+      "currentActivity": 103,
       "previousActivity": 0,
-      "changePercent": 14300,
-      "repoCount": 200,
+      "changePercent": 10300,
+      "repoCount": 199,
       "representativeRepos": [
-        "cocoindex",
         "TabPFN",
-        "Shadowbroker"
+        "Shadowbroker",
+        "agentmemory"
       ]
     },
     {
       "name": "Database",
       "type": "tag",
-      "currentActivity": 127,
+      "currentActivity": 88,
       "previousActivity": 0,
-      "changePercent": 12700,
+      "changePercent": 8800,
       "repoCount": 408,
       "representativeRepos": [
-        "qBittorrent",
-        "docuseal",
-        "cocoindex"
-      ]
-    },
-    {
-      "name": "Node.js",
-      "type": "tag",
-      "currentActivity": 111,
-      "previousActivity": 0,
-      "changePercent": 11100,
-      "repoCount": 349,
-      "representativeRepos": [
-        "tolaria",
+        "easy-vibe",
         "Shadowbroker",
-        "ds2api"
+        "agentmemory"
       ]
     },
     {
-      "name": "Claude Code",
+      "name": "Real-Time / Streaming",
       "type": "tag",
-      "currentActivity": 110,
+      "currentActivity": 88,
       "previousActivity": 0,
-      "changePercent": 11000,
-      "repoCount": 242,
+      "changePercent": 8800,
+      "repoCount": 517,
       "representativeRepos": [
-        "tolaria",
-        "cocoindex",
-        "easy-vibe"
+        "easy-vibe",
+        "TabPFN",
+        "Shadowbroker"
+      ]
+    },
+    {
+      "name": "Embeddings",
+      "type": "tag",
+      "currentActivity": 83,
+      "previousActivity": 0,
+      "changePercent": 8300,
+      "repoCount": 301,
+      "representativeRepos": [
+        "TabPFN",
+        "agentmemory",
+        "reporium-api"
+      ]
+    },
+    {
+      "name": "MCP",
+      "type": "tag",
+      "currentActivity": 81,
+      "previousActivity": 0,
+      "changePercent": 8100,
+      "repoCount": 333,
+      "representativeRepos": [
+        "easy-vibe",
+        "agentmemory",
+        "oracle-ai-developer-hub"
+      ]
+    },
+    {
+      "name": "Evals",
+      "type": "tag",
+      "currentActivity": 74,
+      "previousActivity": 0,
+      "changePercent": 7400,
+      "repoCount": 506,
+      "representativeRepos": [
+        "dflash",
+        "agentmemory",
+        "oracle-ai-developer-hub"
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "type": "tag",
+      "currentActivity": 74,
+      "previousActivity": 0,
+      "changePercent": 7400,
+      "repoCount": 287,
+      "representativeRepos": [
+        "Shadowbroker",
+        "agentmemory",
+        "openreel-video"
       ]
     }
   ],
@@ -142,6 +142,6 @@
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Python is the fastest-growing area this week with +22800% commit velocity."
+    "Python is the fastest-growing area this week with +13900% commit velocity."
   ]
 }
