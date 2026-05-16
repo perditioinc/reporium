@@ -1,121 +1,69 @@
 {
-  "generatedAt": "2026-05-15T08:38:23.642Z",
+  "generatedAt": "2026-05-16T07:48:46.109Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-14 09:18:36 +0000",
-    "snapshots": 64
+    "to": "2026-05-15 09:31:05 +0000",
+    "snapshots": 65
   },
   "trending": [
     {
       "name": "Python",
       "type": "tag",
-      "currentActivity": 103,
+      "currentActivity": 75,
       "previousActivity": 0,
-      "changePercent": 10300,
+      "changePercent": 7500,
       "repoCount": 1141,
       "representativeRepos": [
         "omlx",
         "CloakBrowser",
-        "Shadowbroker"
-      ]
-    },
-    {
-      "name": "Anthropic / Claude",
-      "type": "tag",
-      "currentActivity": 84,
-      "previousActivity": 0,
-      "changePercent": 8400,
-      "repoCount": 492,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "Shadowbroker"
-      ]
-    },
-    {
-      "name": "Claude",
-      "type": "tag",
-      "currentActivity": 84,
-      "previousActivity": 0,
-      "changePercent": 8400,
-      "repoCount": 430,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "Shadowbroker"
-      ]
-    },
-    {
-      "name": "Caching",
-      "type": "tag",
-      "currentActivity": 78,
-      "previousActivity": 0,
-      "changePercent": 7800,
-      "repoCount": 199,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "Shadowbroker"
+        "MasterDnsVPN"
       ]
     },
     {
       "name": "Database",
       "type": "tag",
-      "currentActivity": 70,
+      "currentActivity": 62,
       "previousActivity": 0,
-      "changePercent": 7000,
+      "changePercent": 6200,
       "repoCount": 408,
       "representativeRepos": [
         "agentmemory",
-        "Shadowbroker",
-        "reporium-metrics"
-      ]
-    },
-    {
-      "name": "Roadmap",
-      "type": "tag",
-      "currentActivity": 70,
-      "previousActivity": 0,
-      "changePercent": 7000,
-      "repoCount": 254,
-      "representativeRepos": [
-        "CloakBrowser",
-        "openreel-video",
+        "reporium-metrics",
         "reporium-audit"
       ]
     },
     {
-      "name": "Real-Time / Streaming",
+      "name": "Anthropic / Claude",
       "type": "tag",
-      "currentActivity": 65,
+      "currentActivity": 59,
       "previousActivity": 0,
-      "changePercent": 6500,
-      "repoCount": 517,
+      "changePercent": 5900,
+      "repoCount": 492,
       "representativeRepos": [
         "omlx",
         "agentmemory",
-        "Shadowbroker"
+        "openreel-video"
       ]
     },
     {
-      "name": "TypeScript",
+      "name": "Claude",
       "type": "tag",
-      "currentActivity": 64,
+      "currentActivity": 59,
       "previousActivity": 0,
-      "changePercent": 6400,
-      "repoCount": 287,
+      "changePercent": 5900,
+      "repoCount": 430,
       "representativeRepos": [
-        "CloakBrowser",
+        "omlx",
         "agentmemory",
-        "Shadowbroker"
+        "openreel-video"
       ]
     },
     {
       "name": "MCP",
       "type": "tag",
-      "currentActivity": 61,
+      "currentActivity": 57,
       "previousActivity": 0,
-      "changePercent": 6100,
+      "changePercent": 5700,
       "repoCount": 333,
       "representativeRepos": [
         "omlx",
@@ -126,14 +74,66 @@
     {
       "name": "Embeddings",
       "type": "tag",
-      "currentActivity": 61,
+      "currentActivity": 57,
       "previousActivity": 0,
-      "changePercent": 6100,
+      "changePercent": 5700,
       "repoCount": 301,
       "representativeRepos": [
         "omlx",
         "agentmemory",
         "portfolio"
+      ]
+    },
+    {
+      "name": "Caching",
+      "type": "tag",
+      "currentActivity": 54,
+      "previousActivity": 0,
+      "changePercent": 5400,
+      "repoCount": 199,
+      "representativeRepos": [
+        "omlx",
+        "agentmemory",
+        "MasterDnsVPN"
+      ]
+    },
+    {
+      "name": "Claude Code",
+      "type": "tag",
+      "currentActivity": 47,
+      "previousActivity": 0,
+      "changePercent": 4700,
+      "repoCount": 242,
+      "representativeRepos": [
+        "omlx",
+        "agentmemory",
+        "reporium"
+      ]
+    },
+    {
+      "name": "Roadmap",
+      "type": "tag",
+      "currentActivity": 47,
+      "previousActivity": 0,
+      "changePercent": 4700,
+      "repoCount": 254,
+      "representativeRepos": [
+        "CloakBrowser",
+        "openreel-video",
+        "reporium-audit"
+      ]
+    },
+    {
+      "name": "Backend",
+      "type": "tag",
+      "currentActivity": 47,
+      "previousActivity": 0,
+      "changePercent": 4700,
+      "repoCount": 118,
+      "representativeRepos": [
+        "reporium-metrics",
+        "reporium-audit",
+        "reporium-db"
       ]
     }
   ],
@@ -142,6 +142,6 @@
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Python is the fastest-growing area this week with +10300% commit velocity."
+    "Python is the fastest-growing area this week with +7500% commit velocity."
   ]
 }
