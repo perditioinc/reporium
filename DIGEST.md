@@ -6,13 +6,13 @@
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Python** (+6600% vs last week)
-omlx, CloakBrowser, MasterDnsVPN are most active.
+**Python** (+6100% vs last week)
+omlx, CloakBrowser, reporium-metrics are most active.
 
-**Database** (+5400% vs last week)
+**Database** (+4500% vs last week)
 agentmemory, reporium-metrics, reporium-audit are most active.
 
-**Anthropic / Claude** (+5000% vs last week)
+**Anthropic / Claude** (+4200% vs last week)
 omlx, agentmemory, portfolio are most active.
 
 ---
@@ -25,8 +25,8 @@ omlx, agentmemory, portfolio are most active.
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (733 commits across 1216 repos)
-- **Python** fastest growing (+6600% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (732 commits across 1216 repos)
+- **Python** fastest growing (+6100% commit velocity)
 
 ---
 
