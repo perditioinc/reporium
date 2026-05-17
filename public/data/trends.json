@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-05-16T07:48:46.109Z",
+  "generatedAt": "2026-05-17T06:42:56.192Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-15 09:31:05 +0000",
-    "snapshots": 65
+    "to": "2026-05-16 08:40:37 +0000",
+    "snapshots": 66
   },
   "trending": [
     {
       "name": "Python",
       "type": "tag",
-      "currentActivity": 75,
+      "currentActivity": 66,
       "previousActivity": 0,
-      "changePercent": 7500,
+      "changePercent": 6600,
       "repoCount": 1141,
       "representativeRepos": [
         "omlx",
@@ -22,9 +22,9 @@
     {
       "name": "Database",
       "type": "tag",
-      "currentActivity": 62,
+      "currentActivity": 54,
       "previousActivity": 0,
-      "changePercent": 6200,
+      "changePercent": 5400,
       "repoCount": 408,
       "representativeRepos": [
         "agentmemory",
@@ -35,35 +35,35 @@
     {
       "name": "Anthropic / Claude",
       "type": "tag",
-      "currentActivity": 59,
+      "currentActivity": 50,
       "previousActivity": 0,
-      "changePercent": 5900,
+      "changePercent": 5000,
       "repoCount": 492,
       "representativeRepos": [
         "omlx",
         "agentmemory",
-        "openreel-video"
+        "portfolio"
       ]
     },
     {
       "name": "Claude",
       "type": "tag",
-      "currentActivity": 59,
+      "currentActivity": 50,
       "previousActivity": 0,
-      "changePercent": 5900,
+      "changePercent": 5000,
       "repoCount": 430,
       "representativeRepos": [
         "omlx",
         "agentmemory",
-        "openreel-video"
+        "portfolio"
       ]
     },
     {
       "name": "MCP",
       "type": "tag",
-      "currentActivity": 57,
+      "currentActivity": 50,
       "previousActivity": 0,
-      "changePercent": 5700,
+      "changePercent": 5000,
       "repoCount": 333,
       "representativeRepos": [
         "omlx",
@@ -74,9 +74,9 @@
     {
       "name": "Embeddings",
       "type": "tag",
-      "currentActivity": 57,
+      "currentActivity": 50,
       "previousActivity": 0,
-      "changePercent": 5700,
+      "changePercent": 5000,
       "repoCount": 301,
       "representativeRepos": [
         "omlx",
@@ -87,9 +87,9 @@
     {
       "name": "Caching",
       "type": "tag",
-      "currentActivity": 54,
+      "currentActivity": 46,
       "previousActivity": 0,
-      "changePercent": 5400,
+      "changePercent": 4600,
       "repoCount": 199,
       "representativeRepos": [
         "omlx",
@@ -100,9 +100,9 @@
     {
       "name": "Claude Code",
       "type": "tag",
-      "currentActivity": 47,
+      "currentActivity": 42,
       "previousActivity": 0,
-      "changePercent": 4700,
+      "changePercent": 4200,
       "repoCount": 242,
       "representativeRepos": [
         "omlx",
@@ -111,24 +111,24 @@
       ]
     },
     {
-      "name": "Roadmap",
+      "name": "Evals",
       "type": "tag",
-      "currentActivity": 47,
+      "currentActivity": 41,
       "previousActivity": 0,
-      "changePercent": 4700,
-      "repoCount": 254,
+      "changePercent": 4100,
+      "repoCount": 506,
       "representativeRepos": [
-        "CloakBrowser",
-        "openreel-video",
-        "reporium-audit"
+        "omlx",
+        "agentmemory",
+        "reporium-roadmap"
       ]
     },
     {
       "name": "Backend",
       "type": "tag",
-      "currentActivity": 47,
+      "currentActivity": 41,
       "previousActivity": 0,
-      "changePercent": 4700,
+      "changePercent": 4100,
       "repoCount": 118,
       "representativeRepos": [
         "reporium-metrics",
@@ -142,6 +142,6 @@
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Python is the fastest-growing area this week with +7500% commit velocity."
+    "Python is the fastest-growing area this week with +6600% commit velocity."
   ]
 }
