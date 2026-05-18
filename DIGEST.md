@@ -1,32 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 17, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 18, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Python** (+6100% vs last week)
+**Python** (+5900% vs last week)
 omlx, CloakBrowser, reporium-metrics are most active.
 
-**Database** (+4500% vs last week)
+**Database** (+4400% vs last week)
 agentmemory, reporium-metrics, reporium-audit are most active.
 
-**Anthropic / Claude** (+4200% vs last week)
+**Anthropic / Claude** (+4100% vs last week)
 omlx, agentmemory, portfolio are most active.
 
 ---
 
 ## Library Health
-- **1899 repos** · **31 categories** · **5332 unique tags**
-- **599 forks** up to date · **1281 forks** behind upstream
+- **1902 repos** · **31 categories** · **5332 unique tags**
+- **602 forks** up to date · **1281 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (732 commits across 1216 repos)
-- **Python** fastest growing (+6100% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (727 commits across 1219 repos)
+- **Python** fastest growing (+5900% commit velocity)
 
 ---
 
