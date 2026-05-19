@@ -1,147 +1,62 @@
 {
-  "generatedAt": "2026-05-18T09:37:45.038Z",
+  "generatedAt": "2026-05-19T08:57:20.116Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-17 09:50:55 +0000",
-    "snapshots": 68
+    "to": "2026-05-18 10:29:36 +0000",
+    "snapshots": 69
   },
-  "trending": [
+  "trending": [],
+  "emerging": [],
+  "cooling": [
     {
-      "name": "Python",
+      "name": "API Integration",
       "type": "tag",
-      "currentActivity": 59,
-      "previousActivity": 0,
-      "changePercent": 5900,
-      "repoCount": 1141,
-      "representativeRepos": [
-        "omlx",
-        "CloakBrowser",
-        "reporium-metrics"
-      ]
+      "currentActivity": 0,
+      "previousActivity": 7,
+      "changePercent": -100,
+      "repoCount": 65,
+      "representativeRepos": []
     },
     {
-      "name": "Database",
+      "name": "Statistics",
       "type": "tag",
-      "currentActivity": 44,
-      "previousActivity": 0,
-      "changePercent": 4400,
-      "repoCount": 408,
-      "representativeRepos": [
-        "agentmemory",
-        "reporium-metrics",
-        "reporium-audit"
-      ]
+      "currentActivity": 0,
+      "previousActivity": 21,
+      "changePercent": -100,
+      "repoCount": 122,
+      "representativeRepos": []
     },
     {
-      "name": "Anthropic / Claude",
+      "name": "OpenTelemetry",
       "type": "tag",
-      "currentActivity": 41,
-      "previousActivity": 0,
-      "changePercent": 4100,
-      "repoCount": 492,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "portfolio"
-      ]
+      "currentActivity": 0,
+      "previousActivity": 16,
+      "changePercent": -100,
+      "repoCount": 47,
+      "representativeRepos": []
     },
     {
-      "name": "Claude",
+      "name": "Content Extraction",
       "type": "tag",
-      "currentActivity": 41,
-      "previousActivity": 0,
-      "changePercent": 4100,
-      "repoCount": 430,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "portfolio"
-      ]
+      "currentActivity": 0,
+      "previousActivity": 7,
+      "changePercent": -100,
+      "repoCount": 4,
+      "representativeRepos": []
     },
     {
-      "name": "MCP",
+      "name": "Web Scraping",
       "type": "tag",
-      "currentActivity": 41,
-      "previousActivity": 0,
-      "changePercent": 4100,
-      "repoCount": 333,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "portfolio"
-      ]
-    },
-    {
-      "name": "Embeddings",
-      "type": "tag",
-      "currentActivity": 41,
-      "previousActivity": 0,
-      "changePercent": 4100,
-      "repoCount": 301,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "portfolio"
-      ]
-    },
-    {
-      "name": "Caching",
-      "type": "tag",
-      "currentActivity": 37,
-      "previousActivity": 0,
-      "changePercent": 3700,
-      "repoCount": 199,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "reporium-metrics"
-      ]
-    },
-    {
-      "name": "Claude Code",
-      "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 0,
-      "changePercent": 3500,
-      "repoCount": 242,
-      "representativeRepos": [
-        "omlx",
-        "agentmemory",
-        "reporium"
-      ]
-    },
-    {
-      "name": "Roadmap",
-      "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 0,
-      "changePercent": 3500,
-      "repoCount": 254,
-      "representativeRepos": [
-        "CloakBrowser",
-        "reporium-audit",
-        "portfolio"
-      ]
-    },
-    {
-      "name": "Backend",
-      "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 0,
-      "changePercent": 3500,
-      "repoCount": 118,
-      "representativeRepos": [
-        "reporium-metrics",
-        "reporium-audit",
-        "reporium-db"
-      ]
+      "currentActivity": 0,
+      "previousActivity": 7,
+      "changePercent": -100,
+      "repoCount": 15,
+      "representativeRepos": []
     }
   ],
-  "emerging": [],
-  "cooling": [],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Python is the fastest-growing area this week with +5900% commit velocity."
+    "Activity in API Integration has slowed by 100% this week."
   ]
 }

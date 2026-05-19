@@ -1,32 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 18, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 19, 2026
 
 ---
 
-## Trending This Week
-These areas in your library are seeing accelerating activity:
+## Today's Activity
+**7 commits** across **7 repos** in your library
 
-**Python** (+5900% vs last week)
-omlx, CloakBrowser, reporium-metrics are most active.
-
-**Database** (+4400% vs last week)
-agentmemory, reporium-metrics, reporium-audit are most active.
-
-**Anthropic / Claude** (+4100% vs last week)
-omlx, agentmemory, portfolio are most active.
+| Repo | Commits | Category |
+|------|---------|----------|
+| reporium-metrics | 1 | Dev Tools & Automation |
+| reporium-audit | 1 | Dev Tools & Automation |
+| portfolio | 1 | Dev Tools & Automation |
+| reporium-roadmap | 1 | Dev Tools & Automation |
+| reporium | 1 | RAG & Retrieval |
+| reporium-dataset | 1 | AI Agents |
 
 ---
 
 ## Library Health
-- **1902 repos** · **31 categories** · **5332 unique tags**
-- **602 forks** up to date · **1281 forks** behind upstream
-- Most outdated: `awesome` (behind 1 commits)
+- **1920 repos** · **31 categories** · **5332 unique tags**
+- **586 forks** up to date · **1315 forks** behind upstream
+- Most outdated: `pi-mono` (behind 1002 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (727 commits across 1219 repos)
-- **Python** fastest growing (+5900% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (1397 commits across 1230 repos)
+- **API Integration** cooling (-100% change in activity)
 
 ---
 
