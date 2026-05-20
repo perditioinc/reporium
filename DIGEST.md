@@ -1,32 +1,33 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 19, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 20, 2026
 
 ---
 
-## Today's Activity
-**7 commits** across **7 repos** in your library
+## Trending This Week
+These areas in your library are seeing accelerating activity:
 
-| Repo | Commits | Category |
-|------|---------|----------|
-| reporium-metrics | 1 | Dev Tools & Automation |
-| reporium-audit | 1 | Dev Tools & Automation |
-| portfolio | 1 | Dev Tools & Automation |
-| reporium-roadmap | 1 | Dev Tools & Automation |
-| reporium | 1 | RAG & Retrieval |
-| reporium-dataset | 1 | AI Agents |
+**AWS** (+2900% vs last week)
+floci, supertonic, reactive-resume are most active.
+
+**Quantization** (+1050% vs last week)
+reporium-dataset, DreamServer, Sana are most active.
+
+**Ollama** (+791% vs last week)
+openhuman, reporium-dataset, DreamServer are most active.
 
 ---
 
 ## Library Health
 - **1920 repos** · **31 categories** · **5332 unique tags**
 - **586 forks** up to date · **1315 forks** behind upstream
-- Most outdated: `pi-mono` (behind 1002 commits)
+- Most outdated: `Ghost` (behind 7 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (1397 commits across 1230 repos)
-- **API Integration** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (1071 commits across 1230 repos)
+- **AWS** fastest growing (+2900% commit velocity)
+- **OpenTelemetry** cooling (-100% change in activity)
 
 ---
 
