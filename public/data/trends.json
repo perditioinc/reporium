@@ -1,11 +1,24 @@
 {
-  "generatedAt": "2026-05-23T08:04:56.427Z",
+  "generatedAt": "2026-05-24T06:57:21.357Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-22 09:41:05 +0000",
-    "snapshots": 73
+    "to": "2026-05-23 09:07:45 +0000",
+    "snapshots": 74
   },
   "trending": [
+    {
+      "name": "Tutorial",
+      "type": "tag",
+      "currentActivity": 128,
+      "previousActivity": 3,
+      "changePercent": 4167,
+      "repoCount": 727,
+      "representativeRepos": [
+        "supertonic",
+        "reporium-dataset",
+        "dograh"
+      ]
+    },
     {
       "name": "AI Safety",
       "type": "tag",
@@ -17,19 +30,6 @@
         "supertonic",
         "DreamServer",
         "Sana"
-      ]
-    },
-    {
-      "name": "Tutorial",
-      "type": "tag",
-      "currentActivity": 128,
-      "previousActivity": 4,
-      "changePercent": 3100,
-      "repoCount": 727,
-      "representativeRepos": [
-        "supertonic",
-        "reporium-dataset",
-        "dograh"
       ]
     },
     {
@@ -97,6 +97,19 @@
       ]
     },
     {
+      "name": "Rust",
+      "type": "tag",
+      "currentActivity": 40,
+      "previousActivity": 3,
+      "changePercent": 1233,
+      "repoCount": 187,
+      "representativeRepos": [
+        "supertonic",
+        "reporium-dataset",
+        "my-translator"
+      ]
+    },
+    {
       "name": "Image Generation",
       "type": "tag",
       "currentActivity": 35,
@@ -121,19 +134,6 @@
         "my-translator",
         "DreamServer"
       ]
-    },
-    {
-      "name": "GPU / CUDA",
-      "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 3,
-      "changePercent": 1067,
-      "repoCount": 282,
-      "representativeRepos": [
-        "reporium-dataset",
-        "DreamServer",
-        "Sana"
-      ]
     }
   ],
   "emerging": [],
@@ -142,7 +142,7 @@
       "name": "Statistics",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 14,
+      "previousActivity": 9,
       "changePercent": -100,
       "repoCount": 126,
       "representativeRepos": []
@@ -151,7 +151,7 @@
       "name": "OpenTelemetry",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 14,
+      "previousActivity": 9,
       "changePercent": -100,
       "repoCount": 47,
       "representativeRepos": []
@@ -160,7 +160,7 @@
       "name": "Hybrid Search",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 14,
+      "previousActivity": 9,
       "changePercent": -100,
       "repoCount": 68,
       "representativeRepos": []
@@ -169,8 +169,8 @@
       "name": "LLM Serving",
       "type": "tag",
       "currentActivity": 4,
-      "previousActivity": 37,
-      "changePercent": -89,
+      "previousActivity": 32,
+      "changePercent": -87,
       "repoCount": 157,
       "representativeRepos": [
         "reporium-dataset"
@@ -180,8 +180,8 @@
       "name": "Tool Use",
       "type": "tag",
       "currentActivity": 4,
-      "previousActivity": 37,
-      "changePercent": -89,
+      "previousActivity": 32,
+      "changePercent": -87,
       "repoCount": 141,
       "representativeRepos": [
         "reporium-dataset"
@@ -190,24 +190,24 @@
   ],
   "stable": [
     {
-      "name": "Caching",
+      "name": "MCP",
       "type": "tag",
-      "currentActivity": 48,
-      "previousActivity": 46,
-      "changePercent": 4,
-      "repoCount": 205,
+      "currentActivity": 35,
+      "previousActivity": 42,
+      "changePercent": -17,
+      "repoCount": 340,
       "representativeRepos": [
-        "reporium-metrics",
+        "portfolio",
         "reporium-roadmap",
-        "reporium-dataset"
+        "reporium"
       ]
     },
     {
       "name": "vLLM",
       "type": "tag",
       "currentActivity": 34,
-      "previousActivity": 37,
-      "changePercent": -8,
+      "previousActivity": 32,
+      "changePercent": 6,
       "repoCount": 138,
       "representativeRepos": [
         "reporium-dataset",
@@ -217,9 +217,9 @@
     {
       "name": "Backend",
       "type": "tag",
-      "currentActivity": 46,
-      "previousActivity": 41,
-      "changePercent": 12,
+      "currentActivity": 42,
+      "previousActivity": 37,
+      "changePercent": 14,
       "repoCount": 118,
       "representativeRepos": [
         "reporium-metrics",
@@ -228,24 +228,11 @@
       ]
     },
     {
-      "name": "Embeddings",
-      "type": "tag",
-      "currentActivity": 55,
-      "previousActivity": 50,
-      "changePercent": 10,
-      "repoCount": 305,
-      "representativeRepos": [
-        "supertonic",
-        "portfolio",
-        "reporium-roadmap"
-      ]
-    },
-    {
       "name": "Data Pipeline Engineering",
       "type": "tag",
-      "currentActivity": 8,
-      "previousActivity": 7,
-      "changePercent": 14,
+      "currentActivity": 7,
+      "previousActivity": 6,
+      "changePercent": 17,
       "repoCount": 24,
       "representativeRepos": [
         "reporium-db",
@@ -255,7 +242,7 @@
   ],
   "newReleases": [],
   "insights": [
-    "AI Safety is the fastest-growing area this week with +3600% commit velocity.",
+    "Tutorial is the fastest-growing area this week with +4167% commit velocity.",
     "Activity in Statistics has slowed by 100% this week."
   ]
 }
