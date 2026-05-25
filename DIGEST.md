@@ -1,32 +1,32 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 24, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 25, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Tutorial** (+4167% vs last week)
-supertonic, reporium-dataset, dograh are most active.
+**Ollama** (+1650% vs last week)
+whichllm, DreamServer, reporium-dataset are most active.
 
-**AI Safety** (+3600% vs last week)
-supertonic, DreamServer, Sana are most active.
+**Quantization** (+1650% vs last week)
+whichllm, DreamServer, reporium-dataset are most active.
 
-**AWS** (+2700% vs last week)
-supertonic, reactive-resume are most active.
+**AI Safety** (+1300% vs last week)
+supertonic, DreamServer are most active.
 
 ---
 
 ## Library Health
-- **1927 repos** · **31 categories** · **5332 unique tags**
-- **593 forks** up to date · **1315 forks** behind upstream
+- **1930 repos** · **31 categories** · **5332 unique tags**
+- **596 forks** up to date · **1315 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (857 commits across 1237 repos)
-- **Tutorial** fastest growing (+4167% commit velocity)
+- **🛠 Dev Tools & Automation** most active category (827 commits across 1240 repos)
+- **Ollama** fastest growing (+1650% commit velocity)
 - **Statistics** cooling (-100% change in activity)
 
 ---

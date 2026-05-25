@@ -1,138 +1,132 @@
 {
-  "generatedAt": "2026-05-24T06:57:21.357Z",
+  "generatedAt": "2026-05-25T09:46:41.897Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-23 09:07:45 +0000",
-    "snapshots": 74
+    "to": "2026-05-24 08:29:22 +0000",
+    "snapshots": 75
   },
   "trending": [
     {
-      "name": "Tutorial",
+      "name": "Ollama",
       "type": "tag",
-      "currentActivity": 128,
-      "previousActivity": 3,
-      "changePercent": 4167,
-      "repoCount": 727,
+      "currentActivity": 35,
+      "previousActivity": 2,
+      "changePercent": 1650,
+      "repoCount": 214,
       "representativeRepos": [
-        "supertonic",
-        "reporium-dataset",
-        "dograh"
-      ]
-    },
-    {
-      "name": "AI Safety",
-      "type": "tag",
-      "currentActivity": 36,
-      "previousActivity": 0,
-      "changePercent": 3600,
-      "repoCount": 121,
-      "representativeRepos": [
-        "supertonic",
+        "whichllm",
         "DreamServer",
-        "Sana"
-      ]
-    },
-    {
-      "name": "AWS",
-      "type": "tag",
-      "currentActivity": 27,
-      "previousActivity": 0,
-      "changePercent": 2700,
-      "repoCount": 136,
-      "representativeRepos": [
-        "supertonic",
-        "reactive-resume"
-      ]
-    },
-    {
-      "name": "React / Next.js",
-      "type": "tag",
-      "currentActivity": 78,
-      "previousActivity": 3,
-      "changePercent": 2500,
-      "repoCount": 267,
-      "representativeRepos": [
-        "reporium-dataset",
-        "analytics",
-        "DreamServer"
+        "reporium-dataset"
       ]
     },
     {
       "name": "Quantization",
       "type": "tag",
-      "currentActivity": 65,
-      "previousActivity": 3,
-      "changePercent": 2067,
+      "currentActivity": 35,
+      "previousActivity": 2,
+      "changePercent": 1650,
       "repoCount": 171,
       "representativeRepos": [
-        "reporium-dataset",
+        "whichllm",
         "DreamServer",
-        "Sana"
+        "reporium-dataset"
       ]
     },
     {
-      "name": "Ollama",
+      "name": "AI Safety",
       "type": "tag",
-      "currentActivity": 64,
-      "previousActivity": 3,
-      "changePercent": 2033,
-      "repoCount": 214,
+      "currentActivity": 13,
+      "previousActivity": 0,
+      "changePercent": 1300,
+      "repoCount": 121,
       "representativeRepos": [
-        "reporium-dataset",
-        "DreamServer",
-        "whichllm"
+        "supertonic",
+        "DreamServer"
+      ]
+    },
+    {
+      "name": "Multimodal AI",
+      "type": "tag",
+      "currentActivity": 23,
+      "previousActivity": 2,
+      "changePercent": 1050,
+      "repoCount": 208,
+      "representativeRepos": [
+        "whichllm",
+        "reporium-dataset"
       ]
     },
     {
       "name": "Planning / CoT",
       "type": "tag",
-      "currentActivity": 52,
-      "previousActivity": 3,
-      "changePercent": 1633,
+      "currentActivity": 23,
+      "previousActivity": 2,
+      "changePercent": 1050,
       "repoCount": 224,
       "representativeRepos": [
-        "reporium-dataset",
         "whichllm",
-        "ai-factory"
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "Data Engineering",
+      "type": "tag",
+      "currentActivity": 23,
+      "previousActivity": 2,
+      "changePercent": 1050,
+      "repoCount": 30,
+      "representativeRepos": [
+        "whichllm",
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "Simulation",
+      "type": "tag",
+      "currentActivity": 23,
+      "previousActivity": 2,
+      "changePercent": 1050,
+      "repoCount": 143,
+      "representativeRepos": [
+        "whichllm",
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "Llama",
+      "type": "tag",
+      "currentActivity": 23,
+      "previousActivity": 2,
+      "changePercent": 1050,
+      "repoCount": 100,
+      "representativeRepos": [
+        "whichllm",
+        "reporium-dataset"
       ]
     },
     {
       "name": "Rust",
       "type": "tag",
-      "currentActivity": 40,
-      "previousActivity": 3,
-      "changePercent": 1233,
+      "currentActivity": 16,
+      "previousActivity": 2,
+      "changePercent": 700,
       "repoCount": 187,
       "representativeRepos": [
         "supertonic",
-        "reporium-dataset",
-        "my-translator"
-      ]
-    },
-    {
-      "name": "Image Generation",
-      "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 3,
-      "changePercent": 1067,
-      "repoCount": 153,
-      "representativeRepos": [
-        "reporium-dataset",
         "DreamServer",
-        "Sana"
+        "reporium-dataset"
       ]
     },
     {
-      "name": "Speech to Text",
+      "name": "Game Dev",
       "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 3,
-      "changePercent": 1067,
-      "repoCount": 129,
+      "currentActivity": 15,
+      "previousActivity": 2,
+      "changePercent": 650,
+      "repoCount": 57,
       "representativeRepos": [
-        "reporium-dataset",
-        "my-translator",
-        "DreamServer"
+        "DreamServer",
+        "reporium-dataset"
       ]
     }
   ],
@@ -168,9 +162,9 @@
     {
       "name": "LLM Serving",
       "type": "tag",
-      "currentActivity": 4,
-      "previousActivity": 32,
-      "changePercent": -87,
+      "currentActivity": 3,
+      "previousActivity": 31,
+      "changePercent": -90,
       "repoCount": 157,
       "representativeRepos": [
         "reporium-dataset"
@@ -179,9 +173,9 @@
     {
       "name": "Tool Use",
       "type": "tag",
-      "currentActivity": 4,
-      "previousActivity": 32,
-      "changePercent": -87,
+      "currentActivity": 3,
+      "previousActivity": 31,
+      "changePercent": -90,
       "repoCount": 141,
       "representativeRepos": [
         "reporium-dataset"
@@ -190,36 +184,113 @@
   ],
   "stable": [
     {
-      "name": "MCP",
+      "name": "Database",
       "type": "tag",
-      "currentActivity": 35,
-      "previousActivity": 42,
-      "changePercent": -17,
-      "repoCount": 340,
+      "currentActivity": 52,
+      "previousActivity": 44,
+      "changePercent": 18,
+      "repoCount": 421,
       "representativeRepos": [
-        "portfolio",
-        "reporium-roadmap",
-        "reporium"
+        "DreamServer",
+        "reporium-metrics",
+        "reporium-audit"
       ]
     },
     {
-      "name": "vLLM",
+      "name": "Evals",
       "type": "tag",
-      "currentActivity": 34,
-      "previousActivity": 32,
-      "changePercent": 6,
-      "repoCount": 138,
+      "currentActivity": 39,
+      "previousActivity": 34,
+      "changePercent": 15,
+      "repoCount": 512,
       "representativeRepos": [
-        "reporium-dataset",
+        "supertonic",
+        "whichllm",
         "DreamServer"
+      ]
+    },
+    {
+      "name": "HuggingFace",
+      "type": "tag",
+      "currentActivity": 24,
+      "previousActivity": 22,
+      "changePercent": 9,
+      "repoCount": 436,
+      "representativeRepos": [
+        "supertonic",
+        "whichllm",
+        "reporium-dataset"
+      ]
+    },
+    {
+      "name": "Google Cloud",
+      "type": "tag",
+      "currentActivity": 12,
+      "previousActivity": 11,
+      "changePercent": 9,
+      "repoCount": 195,
+      "representativeRepos": [
+        "reporium-audit",
+        "portfolio",
+        "reporium-roadmap"
+      ]
+    },
+    {
+      "name": "GraphQL",
+      "type": "tag",
+      "currentActivity": 11,
+      "previousActivity": 10,
+      "changePercent": 10,
+      "repoCount": 46,
+      "representativeRepos": [
+        "reporium-metrics",
+        "reporium-db",
+        "portfolio"
+      ]
+    },
+    {
+      "name": "OpenAI",
+      "type": "tag",
+      "currentActivity": 36,
+      "previousActivity": 31,
+      "changePercent": 16,
+      "repoCount": 710,
+      "representativeRepos": [
+        "supertonic",
+        "whichllm",
+        "DreamServer"
+      ]
+    },
+    {
+      "name": "Roadmap",
+      "type": "tag",
+      "currentActivity": 32,
+      "previousActivity": 35,
+      "changePercent": -9,
+      "repoCount": 256,
+      "representativeRepos": [
+        "reporium-audit",
+        "portfolio",
+        "reporium-roadmap"
+      ]
+    },
+    {
+      "name": "Natural Language Processing",
+      "type": "tag",
+      "currentActivity": 4,
+      "previousActivity": 4,
+      "changePercent": 0,
+      "repoCount": 203,
+      "representativeRepos": [
+        "reporium"
       ]
     },
     {
       "name": "Backend",
       "type": "tag",
-      "currentActivity": 42,
-      "previousActivity": 37,
-      "changePercent": 14,
+      "currentActivity": 37,
+      "previousActivity": 35,
+      "changePercent": 6,
       "repoCount": 118,
       "representativeRepos": [
         "reporium-metrics",
@@ -228,21 +299,20 @@
       ]
     },
     {
-      "name": "Data Pipeline Engineering",
+      "name": "Graph Neural Networks",
       "type": "tag",
-      "currentActivity": 7,
-      "previousActivity": 6,
-      "changePercent": 17,
-      "repoCount": 24,
+      "currentActivity": 4,
+      "previousActivity": 4,
+      "changePercent": 0,
+      "repoCount": 17,
       "representativeRepos": [
-        "reporium-db",
         "reporium"
       ]
     }
   ],
   "newReleases": [],
   "insights": [
-    "Tutorial is the fastest-growing area this week with +4167% commit velocity.",
+    "Ollama is the fastest-growing area this week with +1650% commit velocity.",
     "Activity in Statistics has slowed by 100% this week."
   ]
 }
