@@ -1,19 +1,19 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 25, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 26, 2026
 
 ---
 
 ## Trending This Week
 These areas in your library are seeing accelerating activity:
 
-**Ollama** (+1650% vs last week)
-whichllm, DreamServer, reporium-dataset are most active.
+**Multimodal AI** (+1500% vs last week)
+whichllm, reporium-dataset are most active.
 
-**Quantization** (+1650% vs last week)
-whichllm, DreamServer, reporium-dataset are most active.
+**Planning / CoT** (+1500% vs last week)
+whichllm, reporium-dataset are most active.
 
-**AI Safety** (+1300% vs last week)
-supertonic, DreamServer are most active.
+**Data Engineering** (+1500% vs last week)
+whichllm, reporium-dataset are most active.
 
 ---
 
@@ -25,9 +25,9 @@ supertonic, DreamServer are most active.
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (827 commits across 1240 repos)
-- **Ollama** fastest growing (+1650% commit velocity)
-- **Statistics** cooling (-100% change in activity)
+- **🛠 Dev Tools & Automation** most active category (808 commits across 1240 repos)
+- **Multimodal AI** fastest growing (+1500% commit velocity)
+- **LLM Serving** cooling (-94% change in activity)
 
 ---
 
