@@ -1,19 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 26, 2026
-
----
-
-## Trending This Week
-These areas in your library are seeing accelerating activity:
-
-**Multimodal AI** (+1500% vs last week)
-whichllm, reporium-dataset are most active.
-
-**Planning / CoT** (+1500% vs last week)
-whichllm, reporium-dataset are most active.
-
-**Data Engineering** (+1500% vs last week)
-whichllm, reporium-dataset are most active.
+**perditioinc's GitHub Knowledge Library** · Generated May 27, 2026
 
 ---
 
@@ -25,9 +11,8 @@ whichllm, reporium-dataset are most active.
 ---
 
 ## 30-Day Summary
-- **🛠 Dev Tools & Automation** most active category (808 commits across 1240 repos)
-- **Multimodal AI** fastest growing (+1500% commit velocity)
-- **LLM Serving** cooling (-94% change in activity)
+- **🛠 Dev Tools & Automation** most active category (794 commits across 1240 repos)
+- **AWS** cooling (-100% change in activity)
 
 ---
 
