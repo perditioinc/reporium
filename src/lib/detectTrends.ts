@@ -36,6 +36,18 @@ export function computeTrendSignals(
   const cooling: TrendSignal[] = [];
   const stable: TrendSignal[] = [];
 
+  // Guard against frozen commit-stat input: when the current snapshot has no
+  // commit activity at all (upstream collection stalled), every previously
+  // active tag would otherwise register as a false "-100% cooling" signal.
+  // Treat this as "no data to report" rather than fabricating a cooldown.
+  const currentTotalActivity = [...allTags].reduce(
+    (sum, tag) => (SYSTEM_TAGS.has(tag) ? sum : sum + tagActivity(currentSnapshot, tag).count),
+    0
+  );
+  if (currentTotalActivity === 0) {
+    return { trending, emerging, cooling, stable };
+  }
+
   for (const tag of allTags) {
     if (SYSTEM_TAGS.has(tag)) continue;
     const current = tagActivity(currentSnapshot, tag);
