@@ -128,26 +128,21 @@ describe('computeTrendSignals', () => {
     expect(ragSignal?.changePercent).toBe(100);
   });
 
-  it('identifies an emerging tag (previous activity 0, current > 5)', () => {
-    // A tag that didn't exist in previous snapshot (count = 0) but has activity now
-    // previous.count will be 0 which is < 2, and current.count = 10 > 5
-    // changePercent = (10-0)/max(0,1)*100 = 1000% > 50, so it goes into trending first
-    // To test emerging specifically: need previous.count < 2 AND changePercent <= 50
-    // That's hard to achieve, so just verify the tag shows up in either trending OR emerging
+  it('identifies an emerging tag (previous activity below baseline, current > 5)', () => {
+    // A tag absent from the previous snapshot (count = 0 < TREND_BASELINE) with
+    // activity now. It must land in `emerging` — NOT `trending` — so its
+    // meaningless growth-off-zero percent never surfaces as a trend.
     const current = makeSnapshot([
       makeRepo({ name: 'a', enrichedTags: ['NewTech'], commitStats: { today: 0, last7Days: 10, last30Days: 0, last90Days: 0, recentCommits: [] } }),
     ]);
     const previous = makeSnapshot([
-      // NewTech not in previous at all (count = 0 < 2), current = 10 > 5
       makeRepo({ name: 'a', enrichedTags: ['OtherTag'], commitStats: { today: 0, last7Days: 1, last30Days: 0, last90Days: 0, recentCommits: [] } }),
     ]);
     const result = computeTrendSignals(current, previous);
-    // With previous.count = 0, changePercent = 1000% > 50, so trending wins over emerging
-    // The tag should appear in trending (since changePercent > 50 and current.count > 5)
-    const allSignals = [...result.trending, ...result.emerging, ...result.cooling, ...result.stable];
-    const signal = allSignals.find(s => s.name === 'NewTech');
+    const signal = result.emerging.find(s => s.name === 'NewTech');
     expect(signal).toBeDefined();
     expect(signal?.currentActivity).toBe(10);
+    expect(result.trending.find(s => s.name === 'NewTech')).toBeUndefined();
   });
 
   it('identifies a cooling tag (>30% decrease, previous > 5)', () => {
@@ -194,6 +189,60 @@ describe('computeTrendSignals', () => {
     ]);
     const result = computeTrendSignals(current, previous);
     expect(result.cooling.find(s => s.name === 'OldTech')).toBeDefined();
+  });
+
+  it('routes a near-zero-baseline tag to emerging, not trending with an absurd percent', () => {
+    // Post-thaw shape: current snapshot has real activity, previous is ~0.
+    // Must NOT explode into trending at +4000%.
+    const current = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['Postthaw'], commitStats: { today: 0, last7Days: 40, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const previous = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['OtherTag'], commitStats: { today: 0, last7Days: 8, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const result = computeTrendSignals(current, previous);
+    expect(result.trending.find(s => s.name === 'Postthaw')).toBeUndefined();
+    const emerging = result.emerging.find(s => s.name === 'Postthaw');
+    expect(emerging).toBeDefined();
+    expect(emerging!.changePercent).toBeLessThanOrEqual(999);
+  });
+
+  it('requires a previous baseline >= 5 to trend (low baseline => emerging)', () => {
+    const current = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['LowBase'], commitStats: { today: 0, last7Days: 50, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const previous = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['LowBase'], commitStats: { today: 0, last7Days: 4, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const result = computeTrendSignals(current, previous);
+    expect(result.trending.find(s => s.name === 'LowBase')).toBeUndefined();
+    expect(result.emerging.find(s => s.name === 'LowBase')).toBeDefined();
+  });
+
+  it('clamps the displayed changePercent to <= 999 even for a real-baseline explosion', () => {
+    const current = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['Boom'], commitStats: { today: 0, last7Days: 600, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const previous = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['Boom'], commitStats: { today: 0, last7Days: 5, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const result = computeTrendSignals(current, previous);
+    const sig = result.trending.find(s => s.name === 'Boom');
+    expect(sig).toBeDefined();           // prev=5 meets baseline -> trends
+    expect(sig!.changePercent).toBe(999); // raw ~11900% clamped
+  });
+
+  it('still trends a tag with a real baseline and moderate growth', () => {
+    const current = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['RealTrend'], commitStats: { today: 0, last7Days: 30, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const previous = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['RealTrend'], commitStats: { today: 0, last7Days: 10, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const result = computeTrendSignals(current, previous);
+    const sig = result.trending.find(s => s.name === 'RealTrend');
+    expect(sig).toBeDefined();
+    expect(sig!.changePercent).toBe(200);
   });
 
   it('filters out system tags (Forked, Active, etc.)', () => {

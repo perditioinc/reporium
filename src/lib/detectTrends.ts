@@ -2,6 +2,11 @@ import { LibraryData, TrendSignal } from '@/types/repo';
 
 const SYSTEM_TAGS = new Set(['Forked', 'Built by Me', 'Active', 'Inactive', 'Archived', 'Popular']);
 
+// Minimum previous-week activity for a tag to qualify as "trending" rather than
+// "emerging". Below this, a growth percentage off the near-zero base is noise
+// (e.g. 1→20 reads as +1900%), so the tag is treated as newly emerging instead.
+const TREND_BASELINE = 5;
+
 /**
  * Compute total commit activity for a given tag across repos in a snapshot.
  * Uses commitStats.last7Days if available, falls back to commitsLast7Days length or weeklyCommitCount.
@@ -60,13 +65,22 @@ export function computeTrendSignals(
       type: 'tag',
       currentActivity: current.count,
       previousActivity: previous.count,
-      changePercent: Math.round(changePercent),
+      // Clamp the DISPLAYED percent to a sane band. Growth off a tiny base
+      // produces nonsense numbers (a 0→20 jump is "+2000%"); even with the
+      // baseline gate below, clamp so the UI never shows "+22800%".
+      changePercent: Math.max(-100, Math.min(Math.round(changePercent), 999)),
       repoCount,
       representativeRepos: current.repos,
     };
 
-    if (changePercent > 50 && current.count > 5) trending.push(signal);
-    else if (previous.count < 2 && current.count > 5) emerging.push(signal);
+    // A tag can only "trend" if it had a real previous baseline — otherwise the
+    // growth percent is meaningless (a tag going 0→20 isn't trending +2000%,
+    // it's newly active). This matters most right after a commit-stat thaw,
+    // when the prior ~7 days of snapshots are still all-zero: every active tag
+    // would otherwise explode into the trending bucket with absurd percentages.
+    // Low-baseline tags are routed to "emerging" instead. (checked FIRST.)
+    if (previous.count < TREND_BASELINE && current.count > 5) emerging.push(signal);
+    else if (changePercent > 50 && current.count > 5) trending.push(signal);
     else if (changePercent < -30 && previous.count > 5) cooling.push(signal);
     else if (Math.abs(changePercent) < 20 && current.count > 3) stable.push(signal);
   }
