@@ -1,23 +1,27 @@
 # Reporium Roadmap
 
-## Current State (March 2026)
+## Current State
 
 `reporium` is the human-facing Next.js frontend for the Reporium suite.
 
 - The main dashboard browses the live portfolio with keyword and semantic search modes
 - `/ask` provides a dedicated natural-language query page backed by the API intelligence layer
-- `/runs` shows ingestion run history and operational status
 - `/taxonomy` provides a Taxonomy Explorer for the live multi-dimensional taxonomy
+- `/trends` shows trending/emerging/cooling activity across the library
+- `/insights` surfaces portfolio insights, cross-dimension analytics, and gap analysis
+- `/graph` renders the knowledge-graph visualization of the library
+- `/stacks`, `/wiki`, `/ai-native`, and `/architecture` provide curated browse experiences over the taxonomy
 - `/repo/[name]` renders repo detail pages with taxonomy, quality, dependencies, similar repos, and related metadata
-- The dashboard surfaces portfolio insights, cross-dimension analytics, gap analysis, and a Trending This Week widget
+- `/faq` documents how the library and forking workflow work
 - Repo cards show quality badges, license badges, open issues, semantic match percentages, and taxonomy-aware metadata
 - Taxonomy filters are live in the sidebar across AI trends, industries, use cases, modalities, deployment context, license, skills, PM skills, tags, and builders
 
 ## Recent Platform Additions
 
 - Ask page and lightweight ask-entry points from the main dashboard
-- Run history page and reusable runs table
-- Taxonomy Explorer page for the 8-dimension taxonomy model
+- Trends page with trending/emerging/cooling signals and a staleness banner
+- Taxonomy Explorer page for the multi-dimension taxonomy model
+- Knowledge-graph visualization page
 - Similar Repos section on repo detail pages
 - Gap analysis grouped by taxonomy dimension
 - Trending widget and proactive portfolio insights widgets

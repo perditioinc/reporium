@@ -163,6 +163,39 @@ describe('computeTrendSignals', () => {
     expect(signal?.changePercent).toBeLessThan(0);
   });
 
+  it('returns empty buckets when the current snapshot has zero total commit activity (frozen commit-stat input)', () => {
+    // Regression guard: when commit-stat collection freezes upstream, every
+    // repo's last7Days reads 0. Previously this produced a wall of false
+    // "-100% cooling" signals (and a public "everything slowed 100%" insight)
+    // because cooling only requires previous>5 + a >30% drop. With no current
+    // activity at all, there is nothing real to report — emit empty buckets.
+    const current = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['RAG'], commitStats: { today: 0, last7Days: 0, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+      makeRepo({ name: 'b', enrichedTags: ['LLM'], commitStats: { today: 0, last7Days: 0, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const previous = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['RAG'], commitStats: { today: 0, last7Days: 40, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+      makeRepo({ name: 'b', enrichedTags: ['LLM'], commitStats: { today: 0, last7Days: 70, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const result = computeTrendSignals(current, previous);
+    expect(result.trending).toHaveLength(0);
+    expect(result.emerging).toHaveLength(0);
+    expect(result.cooling).toHaveLength(0);
+    expect(result.stable).toHaveLength(0);
+  });
+
+  it('still reports cooling when current activity is present but reduced', () => {
+    // Sanity: the zero-activity guard must NOT suppress genuine cooling.
+    const current = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['OldTech'], commitStats: { today: 0, last7Days: 3, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const previous = makeSnapshot([
+      makeRepo({ name: 'a', enrichedTags: ['OldTech'], commitStats: { today: 0, last7Days: 10, last30Days: 0, last90Days: 0, recentCommits: [] } }),
+    ]);
+    const result = computeTrendSignals(current, previous);
+    expect(result.cooling.find(s => s.name === 'OldTech')).toBeDefined();
+  });
+
   it('filters out system tags (Forked, Active, etc.)', () => {
     const current = makeSnapshot([
       makeRepo({ name: 'a', enrichedTags: ['Active', 'Forked'], commitStats: { today: 0, last7Days: 20, last30Days: 0, last90Days: 0, recentCommits: [] } }),
