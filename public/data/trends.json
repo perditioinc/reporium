@@ -1,62 +1,16 @@
 {
-  "generatedAt": "2026-05-28T09:42:59.180Z",
+  "generatedAt": "2026-05-30T08:15:51.196Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-27 09:51:37 +0000",
-    "snapshots": 78
+    "to": "2026-05-28 10:35:02 +0000",
+    "snapshots": 79
   },
   "trending": [],
   "emerging": [],
-  "cooling": [
-    {
-      "name": "Automation",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 43,
-      "changePercent": -100,
-      "repoCount": 256,
-      "representativeRepos": []
-    },
-    {
-      "name": "C++",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 73,
-      "changePercent": -100,
-      "repoCount": 297,
-      "representativeRepos": []
-    },
-    {
-      "name": "CLI Tool",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 36,
-      "changePercent": -100,
-      "repoCount": 207,
-      "representativeRepos": []
-    },
-    {
-      "name": "Caching",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 56,
-      "changePercent": -100,
-      "repoCount": 205,
-      "representativeRepos": []
-    },
-    {
-      "name": "Computer Vision",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 6,
-      "changePercent": -100,
-      "repoCount": 312,
-      "representativeRepos": []
-    }
-  ],
+  "cooling": [],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Activity in Automation has slowed by 100% this week."
+    "Trend data is building up. Check back after a few daily refreshes."
   ]
 }
