@@ -1,17 +1,33 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 30, 2026
+**perditioinc's GitHub Knowledge Library** · Generated May 31, 2026
+
+---
+
+## Trending This Week
+These areas in your library are seeing accelerating activity:
+
+**Automation** (+999% vs last week)
+openclaw, playwright, core are most active.
+
+**C++** (+999% vs last week)
+tensorflow, yt-dlp, transformers are most active.
+
+**CLI Tool** (+999% vs last week)
+yt-dlp, bun, mermaid are most active.
 
 ---
 
 ## Library Health
-- **1930 repos** · **31 categories** · **5332 unique tags**
-- **596 forks** up to date · **1315 forks** behind upstream
+- **1937 repos** · **31 categories** · **5332 unique tags**
+- **602 forks** up to date · **1315 forks** behind upstream
 - Most outdated: `awesome` (behind 1 commits)
 
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (70207 commits across 1380 repos)
+- **📚 Learning Resources** most active category (70172 commits across 1380 repos)
+- **Automation** fastest growing (+999% commit velocity)
+- **Gemini CLI** cooling (-100% change in activity)
 
 ---
 
