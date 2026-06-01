@@ -1,5 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated May 31, 2026
+**perditioinc's GitHub Knowledge Library** · Generated June 1, 2026
 
 ---
 
@@ -12,8 +12,8 @@ openclaw, playwright, core are most active.
 **C++** (+999% vs last week)
 tensorflow, yt-dlp, transformers are most active.
 
-**CLI Tool** (+999% vs last week)
-yt-dlp, bun, mermaid are most active.
+**Caching** (+999% vs last week)
+yt-dlp, bun, vllm are most active.
 
 ---
 
@@ -25,7 +25,7 @@ yt-dlp, bun, mermaid are most active.
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (70172 commits across 1380 repos)
+- **📚 Learning Resources** most active category (70151 commits across 1380 repos)
 - **Automation** fastest growing (+999% commit velocity)
 - **Gemini CLI** cooling (-100% change in activity)
 

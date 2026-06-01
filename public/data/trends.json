@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-05-31T07:41:08.667Z",
+  "generatedAt": "2026-06-01T11:06:30.334Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-30 09:13:47 +0000",
-    "snapshots": 80
+    "to": "2026-05-31 09:09:54 +0000",
+    "snapshots": 81
   },
   "trending": [
     {
       "name": "Automation",
       "type": "tag",
       "currentActivity": 3638,
-      "previousActivity": 39,
+      "previousActivity": 38,
       "changePercent": 999,
       "repoCount": 256,
       "representativeRepos": [
@@ -33,6 +33,19 @@
       ]
     },
     {
+      "name": "Caching",
+      "type": "tag",
+      "currentActivity": 1484,
+      "previousActivity": 46,
+      "changePercent": 999,
+      "repoCount": 205,
+      "representativeRepos": [
+        "yt-dlp",
+        "bun",
+        "vllm"
+      ]
+    },
+    {
       "name": "CLI Tool",
       "type": "tag",
       "currentActivity": 829,
@@ -46,23 +59,10 @@
       ]
     },
     {
-      "name": "Caching",
-      "type": "tag",
-      "currentActivity": 1484,
-      "previousActivity": 48,
-      "changePercent": 999,
-      "repoCount": 205,
-      "representativeRepos": [
-        "yt-dlp",
-        "bun",
-        "vllm"
-      ]
-    },
-    {
       "name": "Database",
       "type": "tag",
       "currentActivity": 2271,
-      "previousActivity": 129,
+      "previousActivity": 125,
       "changePercent": 999,
       "repoCount": 421,
       "representativeRepos": [
@@ -88,7 +88,7 @@
       "name": "Evals",
       "type": "tag",
       "currentActivity": 867,
-      "previousActivity": 74,
+      "previousActivity": 73,
       "changePercent": 999,
       "repoCount": 512,
       "representativeRepos": [
@@ -214,18 +214,9 @@
       "name": "Prompt Injection",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 39,
+      "previousActivity": 38,
       "changePercent": -100,
       "repoCount": 52,
-      "representativeRepos": []
-    },
-    {
-      "name": "Open WebUI",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 34,
-      "changePercent": -100,
-      "repoCount": 23,
       "representativeRepos": []
     },
     {
@@ -235,6 +226,15 @@
       "previousActivity": 34,
       "changePercent": -100,
       "repoCount": 61,
+      "representativeRepos": []
+    },
+    {
+      "name": "Open WebUI",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 34,
+      "changePercent": -100,
+      "repoCount": 23,
       "representativeRepos": []
     },
     {
