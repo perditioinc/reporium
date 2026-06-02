@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-01T11:06:30.334Z",
+  "generatedAt": "2026-06-02T10:00:17.734Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-05-31 09:09:54 +0000",
-    "snapshots": 81
+    "to": "2026-06-01 11:58:30 +0000",
+    "snapshots": 82
   },
   "trending": [
     {
       "name": "Automation",
       "type": "tag",
       "currentActivity": 3638,
-      "previousActivity": 38,
+      "previousActivity": 18,
       "changePercent": 999,
       "repoCount": 256,
       "representativeRepos": [
@@ -23,7 +23,7 @@
       "name": "C++",
       "type": "tag",
       "currentActivity": 1095,
-      "previousActivity": 69,
+      "previousActivity": 36,
       "changePercent": 999,
       "repoCount": 297,
       "representativeRepos": [
@@ -33,23 +33,10 @@
       ]
     },
     {
-      "name": "Caching",
-      "type": "tag",
-      "currentActivity": 1484,
-      "previousActivity": 46,
-      "changePercent": 999,
-      "repoCount": 205,
-      "representativeRepos": [
-        "yt-dlp",
-        "bun",
-        "vllm"
-      ]
-    },
-    {
       "name": "CLI Tool",
       "type": "tag",
       "currentActivity": 829,
-      "previousActivity": 34,
+      "previousActivity": 7,
       "changePercent": 999,
       "repoCount": 207,
       "representativeRepos": [
@@ -59,10 +46,23 @@
       ]
     },
     {
+      "name": "Caching",
+      "type": "tag",
+      "currentActivity": 1484,
+      "previousActivity": 25,
+      "changePercent": 999,
+      "repoCount": 205,
+      "representativeRepos": [
+        "yt-dlp",
+        "bun",
+        "vllm"
+      ]
+    },
+    {
       "name": "Database",
       "type": "tag",
       "currentActivity": 2271,
-      "previousActivity": 125,
+      "previousActivity": 52,
       "changePercent": 999,
       "repoCount": 421,
       "representativeRepos": [
@@ -75,7 +75,7 @@
       "name": "Docker",
       "type": "tag",
       "currentActivity": 6103,
-      "previousActivity": 96,
+      "previousActivity": 26,
       "changePercent": 999,
       "repoCount": 608,
       "representativeRepos": [
@@ -88,7 +88,7 @@
       "name": "Evals",
       "type": "tag",
       "currentActivity": 867,
-      "previousActivity": 73,
+      "previousActivity": 39,
       "changePercent": 999,
       "repoCount": 512,
       "representativeRepos": [
@@ -98,10 +98,23 @@
       ]
     },
     {
+      "name": "Game Dev",
+      "type": "tag",
+      "currentActivity": 210,
+      "previousActivity": 15,
+      "changePercent": 999,
+      "repoCount": 57,
+      "representativeRepos": [
+        "godot",
+        "supabase",
+        "redis"
+      ]
+    },
+    {
       "name": "HuggingFace",
       "type": "tag",
       "currentActivity": 911,
-      "previousActivity": 40,
+      "previousActivity": 24,
       "changePercent": 999,
       "repoCount": 436,
       "representativeRepos": [
@@ -114,7 +127,7 @@
       "name": "Image Generation",
       "type": "tag",
       "currentActivity": 619,
-      "previousActivity": 35,
+      "previousActivity": 15,
       "changePercent": 999,
       "repoCount": 153,
       "representativeRepos": [
@@ -122,22 +135,22 @@
         "lobehub",
         "pytorch-lightning"
       ]
-    },
-    {
-      "name": "JavaScript",
-      "type": "tag",
-      "currentActivity": 2050,
-      "previousActivity": 31,
-      "changePercent": 999,
-      "repoCount": 249,
-      "representativeRepos": [
-        "freeCodeCamp",
-        "react",
-        "bootstrap"
-      ]
     }
   ],
   "emerging": [
+    {
+      "name": "Mobile",
+      "type": "tag",
+      "currentActivity": 4413,
+      "previousActivity": 4,
+      "changePercent": 999,
+      "repoCount": 290,
+      "representativeRepos": [
+        "freeCodeCamp",
+        "openclaw",
+        "react"
+      ]
+    },
     {
       "name": "Conversational AI",
       "type": "tag",
@@ -152,6 +165,32 @@
       ]
     },
     {
+      "name": "Natural Language Processing",
+      "type": "tag",
+      "currentActivity": 3378,
+      "previousActivity": 4,
+      "changePercent": 999,
+      "repoCount": 203,
+      "representativeRepos": [
+        "openclaw",
+        "tensorflow",
+        "transformers"
+      ]
+    },
+    {
+      "name": "Multi-Agent",
+      "type": "tag",
+      "currentActivity": 2515,
+      "previousActivity": 3,
+      "changePercent": 999,
+      "repoCount": 176,
+      "representativeRepos": [
+        "openclaw",
+        "langflow",
+        "eliza"
+      ]
+    },
+    {
       "name": "AI Assistant Architecture",
       "type": "tag",
       "currentActivity": 2252,
@@ -161,60 +200,14 @@
       "representativeRepos": [
         "openclaw"
       ]
-    },
-    {
-      "name": "Cross-platform Development",
-      "type": "tag",
-      "currentActivity": 2252,
-      "previousActivity": 0,
-      "changePercent": 999,
-      "repoCount": 9,
-      "representativeRepos": [
-        "openclaw"
-      ]
-    },
-    {
-      "name": "Machine Learning",
-      "type": "tag",
-      "currentActivity": 1114,
-      "previousActivity": 4,
-      "changePercent": 999,
-      "repoCount": 295,
-      "representativeRepos": [
-        "freeCodeCamp",
-        "tensorflow",
-        "transformers"
-      ]
-    },
-    {
-      "name": "Multi-Agent Systems",
-      "type": "tag",
-      "currentActivity": 1054,
-      "previousActivity": 0,
-      "changePercent": 999,
-      "repoCount": 88,
-      "representativeRepos": [
-        "langflow",
-        "dify",
-        "lobehub"
-      ]
     }
   ],
   "cooling": [
     {
-      "name": "Gemini CLI",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 22,
-      "changePercent": -100,
-      "repoCount": 83,
-      "representativeRepos": []
-    },
-    {
       "name": "Prompt Injection",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 38,
+      "previousActivity": 18,
       "changePercent": -100,
       "repoCount": 52,
       "representativeRepos": []
@@ -223,7 +216,7 @@
       "name": "Agent Memory",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 34,
+      "previousActivity": 15,
       "changePercent": -100,
       "repoCount": 61,
       "representativeRepos": []
@@ -232,7 +225,7 @@
       "name": "Open WebUI",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 34,
+      "previousActivity": 15,
       "changePercent": -100,
       "repoCount": 23,
       "representativeRepos": []
@@ -241,9 +234,18 @@
       "name": "ComfyUI",
       "type": "tag",
       "currentActivity": 0,
-      "previousActivity": 35,
+      "previousActivity": 15,
       "changePercent": -100,
       "repoCount": 38,
+      "representativeRepos": []
+    },
+    {
+      "name": "Qdrant",
+      "type": "tag",
+      "currentActivity": 0,
+      "previousActivity": 15,
+      "changePercent": -100,
+      "repoCount": 50,
       "representativeRepos": []
     }
   ],
@@ -251,7 +253,7 @@
   "newReleases": [],
   "insights": [
     "Automation is the fastest-growing area this week with +999% commit velocity.",
-    "Conversational AI, AI Assistant Architecture, Cross-platform Development are newly active in your library.",
-    "Activity in Gemini CLI has slowed by 100% this week."
+    "Mobile, Conversational AI, Natural Language Processing are newly active in your library.",
+    "Activity in Prompt Injection has slowed by 100% this week."
   ]
 }
