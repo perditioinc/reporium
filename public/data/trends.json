@@ -1,42 +1,16 @@
 {
-  "generatedAt": "2026-06-03T10:32:08.468Z",
+  "generatedAt": "2026-06-04T09:42:05.554Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-06-02 11:13:10 +0000",
-    "snapshots": 83
+    "to": "2026-06-03 11:15:17 +0000",
+    "snapshots": 84
   },
   "trending": [
-    {
-      "name": "C++",
-      "type": "tag",
-      "currentActivity": 1095,
-      "previousActivity": 16,
-      "changePercent": 999,
-      "repoCount": 297,
-      "representativeRepos": [
-        "tensorflow",
-        "yt-dlp",
-        "transformers"
-      ]
-    },
-    {
-      "name": "Caching",
-      "type": "tag",
-      "currentActivity": 1484,
-      "previousActivity": 6,
-      "changePercent": 999,
-      "repoCount": 205,
-      "representativeRepos": [
-        "yt-dlp",
-        "bun",
-        "vllm"
-      ]
-    },
     {
       "name": "Database",
       "type": "tag",
       "currentActivity": 2271,
-      "previousActivity": 24,
+      "previousActivity": 6,
       "changePercent": 999,
       "repoCount": 421,
       "representativeRepos": [
@@ -46,62 +20,10 @@
       ]
     },
     {
-      "name": "Docker",
-      "type": "tag",
-      "currentActivity": 6103,
-      "previousActivity": 6,
-      "changePercent": 999,
-      "repoCount": 608,
-      "representativeRepos": [
-        "openclaw",
-        "tensorflow",
-        "vscode"
-      ]
-    },
-    {
-      "name": "Evals",
-      "type": "tag",
-      "currentActivity": 867,
-      "previousActivity": 17,
-      "changePercent": 999,
-      "repoCount": 512,
-      "representativeRepos": [
-        "transformers",
-        "langchain",
-        "scikit-learn"
-      ]
-    },
-    {
-      "name": "HuggingFace",
-      "type": "tag",
-      "currentActivity": 911,
-      "previousActivity": 16,
-      "changePercent": 999,
-      "repoCount": 436,
-      "representativeRepos": [
-        "transformers",
-        "vllm",
-        "litellm"
-      ]
-    },
-    {
-      "name": "Large Language Models",
-      "type": "tag",
-      "currentActivity": 1907,
-      "previousActivity": 18,
-      "changePercent": 999,
-      "repoCount": 662,
-      "representativeRepos": [
-        "dify",
-        "langchain",
-        "vllm"
-      ]
-    },
-    {
       "name": "Python",
       "type": "tag",
       "currentActivity": 3268,
-      "previousActivity": 37,
+      "previousActivity": 6,
       "changePercent": 999,
       "repoCount": 1154,
       "representativeRepos": [
@@ -111,29 +33,29 @@
       ]
     },
     {
-      "name": "Anthropic / Claude",
+      "name": "Roadmap",
       "type": "tag",
-      "currentActivity": 3722,
+      "currentActivity": 2202,
       "previousActivity": 5,
       "changePercent": 999,
-      "repoCount": 504,
+      "repoCount": 256,
       "representativeRepos": [
-        "openclaw",
-        "opencode",
-        "lobehub"
+        "tensorflow",
+        "vscode",
+        "react-native"
       ]
     },
     {
-      "name": "Claude",
+      "name": "Backend",
       "type": "tag",
-      "currentActivity": 3266,
-      "previousActivity": 5,
+      "currentActivity": 557,
+      "previousActivity": 6,
       "changePercent": 999,
-      "repoCount": 442,
+      "repoCount": 118,
       "representativeRepos": [
-        "openclaw",
-        "opencode",
-        "lobehub"
+        "transformers",
+        "langflow",
+        "langchain"
       ]
     }
   ],
@@ -142,7 +64,7 @@
       "name": "Tutorial",
       "type": "tag",
       "currentActivity": 7540,
-      "previousActivity": 3,
+      "previousActivity": 1,
       "changePercent": 999,
       "repoCount": 727,
       "representativeRepos": [
@@ -155,13 +77,26 @@
       "name": "Open Source",
       "type": "tag",
       "currentActivity": 6174,
-      "previousActivity": 4,
+      "previousActivity": 2,
       "changePercent": 999,
       "repoCount": 503,
       "representativeRepos": [
         "tensorflow",
         "vscode",
         "bootstrap"
+      ]
+    },
+    {
+      "name": "Docker",
+      "type": "tag",
+      "currentActivity": 6103,
+      "previousActivity": 1,
+      "changePercent": 999,
+      "repoCount": 608,
+      "representativeRepos": [
+        "openclaw",
+        "tensorflow",
+        "vscode"
       ]
     },
     {
@@ -178,57 +113,24 @@
       ]
     },
     {
-      "name": "Mobile",
+      "name": "OpenAI",
       "type": "tag",
-      "currentActivity": 4413,
+      "currentActivity": 4671,
       "previousActivity": 1,
       "changePercent": 999,
-      "repoCount": 290,
-      "representativeRepos": [
-        "freeCodeCamp",
-        "openclaw",
-        "react"
-      ]
-    },
-    {
-      "name": "Real-Time / Streaming",
-      "type": "tag",
-      "currentActivity": 4223,
-      "previousActivity": 3,
-      "changePercent": 999,
-      "repoCount": 528,
+      "repoCount": 710,
       "representativeRepos": [
         "openclaw",
-        "yt-dlp",
+        "opencode",
         "transformers"
       ]
     }
   ],
-  "cooling": [
-    {
-      "name": "Aider",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 16,
-      "changePercent": -100,
-      "repoCount": 25,
-      "representativeRepos": []
-    },
-    {
-      "name": "KV Cache",
-      "type": "tag",
-      "currentActivity": 0,
-      "previousActivity": 16,
-      "changePercent": -100,
-      "repoCount": 41,
-      "representativeRepos": []
-    }
-  ],
+  "cooling": [],
   "stable": [],
   "newReleases": [],
   "insights": [
-    "C++ is the fastest-growing area this week with +999% commit velocity.",
-    "Tutorial, Open Source, Security are newly active in your library.",
-    "Activity in Aider has slowed by 100% this week."
+    "Database is the fastest-growing area this week with +999% commit velocity.",
+    "Tutorial, Open Source, Docker are newly active in your library."
   ]
 }
