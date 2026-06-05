@@ -1,70 +1,17 @@
 {
-  "generatedAt": "2026-06-04T09:42:05.554Z",
+  "generatedAt": "2026-06-05T09:03:50.610Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-06-03 11:15:17 +0000",
-    "snapshots": 84
+    "to": "2026-06-04 11:08:19 +0000",
+    "snapshots": 85
   },
-  "trending": [
-    {
-      "name": "Database",
-      "type": "tag",
-      "currentActivity": 2271,
-      "previousActivity": 6,
-      "changePercent": 999,
-      "repoCount": 421,
-      "representativeRepos": [
-        "dify",
-        "iptv",
-        "supabase"
-      ]
-    },
-    {
-      "name": "Python",
-      "type": "tag",
-      "currentActivity": 3268,
-      "previousActivity": 6,
-      "changePercent": 999,
-      "repoCount": 1154,
-      "representativeRepos": [
-        "freeCodeCamp",
-        "tensorflow",
-        "yt-dlp"
-      ]
-    },
-    {
-      "name": "Roadmap",
-      "type": "tag",
-      "currentActivity": 2202,
-      "previousActivity": 5,
-      "changePercent": 999,
-      "repoCount": 256,
-      "representativeRepos": [
-        "tensorflow",
-        "vscode",
-        "react-native"
-      ]
-    },
-    {
-      "name": "Backend",
-      "type": "tag",
-      "currentActivity": 557,
-      "previousActivity": 6,
-      "changePercent": 999,
-      "repoCount": 118,
-      "representativeRepos": [
-        "transformers",
-        "langflow",
-        "langchain"
-      ]
-    }
-  ],
+  "trending": [],
   "emerging": [
     {
       "name": "Tutorial",
       "type": "tag",
       "currentActivity": 7540,
-      "previousActivity": 1,
+      "previousActivity": 0,
       "changePercent": 999,
       "repoCount": 727,
       "representativeRepos": [
@@ -77,7 +24,7 @@
       "name": "Open Source",
       "type": "tag",
       "currentActivity": 6174,
-      "previousActivity": 2,
+      "previousActivity": 0,
       "changePercent": 999,
       "repoCount": 503,
       "representativeRepos": [
@@ -90,7 +37,7 @@
       "name": "Docker",
       "type": "tag",
       "currentActivity": 6103,
-      "previousActivity": 1,
+      "previousActivity": 0,
       "changePercent": 999,
       "repoCount": 608,
       "representativeRepos": [
@@ -103,7 +50,7 @@
       "name": "Security",
       "type": "tag",
       "currentActivity": 5032,
-      "previousActivity": 3,
+      "previousActivity": 0,
       "changePercent": 999,
       "repoCount": 445,
       "representativeRepos": [
@@ -116,7 +63,7 @@
       "name": "OpenAI",
       "type": "tag",
       "currentActivity": 4671,
-      "previousActivity": 1,
+      "previousActivity": 0,
       "changePercent": 999,
       "repoCount": 710,
       "representativeRepos": [
@@ -130,7 +77,6 @@
   "stable": [],
   "newReleases": [],
   "insights": [
-    "Database is the fastest-growing area this week with +999% commit velocity.",
     "Tutorial, Open Source, Docker are newly active in your library."
   ]
 }

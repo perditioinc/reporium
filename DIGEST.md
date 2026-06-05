@@ -1,19 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated June 4, 2026
-
----
-
-## Trending This Week
-These areas in your library are seeing accelerating activity:
-
-**Database** (+999% vs last week)
-dify, iptv, supabase are most active.
-
-**Python** (+999% vs last week)
-freeCodeCamp, tensorflow, yt-dlp are most active.
-
-**Roadmap** (+999% vs last week)
-tensorflow, vscode, react-native are most active.
+**perditioinc's GitHub Knowledge Library** · Generated June 5, 2026
 
 ---
 
@@ -25,8 +11,7 @@ tensorflow, vscode, react-native are most active.
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (70098 commits across 1380 repos)
-- **Database** fastest growing (+999% commit velocity)
+- **📚 Learning Resources** most active category (70054 commits across 1380 repos)
 
 ---
 
