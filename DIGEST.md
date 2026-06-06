@@ -1,5 +1,5 @@
 # Reporium Daily Digest
-**perditioinc's GitHub Knowledge Library** · Generated June 5, 2026
+**perditioinc's GitHub Knowledge Library** · Generated June 6, 2026
 
 ---
 
@@ -11,7 +11,7 @@
 ---
 
 ## 30-Day Summary
-- **📚 Learning Resources** most active category (70054 commits across 1380 repos)
+- **📚 Learning Resources** most active category (70033 commits across 1380 repos)
 
 ---
 
