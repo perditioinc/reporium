@@ -1,44 +1,124 @@
 {
-  "generatedAt": "2026-06-06T08:23:29.449Z",
+  "generatedAt": "2026-06-07T07:50:28.875Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-06-05 10:00:47 +0000",
-    "snapshots": 86
+    "to": "2026-06-06 09:15:30 +0000",
+    "snapshots": 87
   },
   "trending": [],
-  "emerging": [
+  "emerging": [],
+  "cooling": [],
+  "stable": [
     {
-      "name": "Tutorial",
+      "name": "Automation",
       "type": "tag",
-      "currentActivity": 7540,
-      "previousActivity": 0,
-      "changePercent": 999,
-      "repoCount": 727,
+      "currentActivity": 3638,
+      "previousActivity": 3638,
+      "changePercent": 0,
+      "repoCount": 256,
       "representativeRepos": [
         "openclaw",
-        "react",
-        "bootstrap"
+        "playwright",
+        "core"
       ]
     },
     {
-      "name": "Open Source",
+      "name": "C++",
       "type": "tag",
-      "currentActivity": 6174,
-      "previousActivity": 0,
-      "changePercent": 999,
-      "repoCount": 503,
+      "currentActivity": 1095,
+      "previousActivity": 1095,
+      "changePercent": 0,
+      "repoCount": 297,
       "representativeRepos": [
         "tensorflow",
-        "vscode",
-        "bootstrap"
+        "yt-dlp",
+        "transformers"
+      ]
+    },
+    {
+      "name": "CLI Tool",
+      "type": "tag",
+      "currentActivity": 829,
+      "previousActivity": 829,
+      "changePercent": 0,
+      "repoCount": 207,
+      "representativeRepos": [
+        "yt-dlp",
+        "bun",
+        "mermaid"
+      ]
+    },
+    {
+      "name": "Caching",
+      "type": "tag",
+      "currentActivity": 1484,
+      "previousActivity": 1484,
+      "changePercent": 0,
+      "repoCount": 205,
+      "representativeRepos": [
+        "yt-dlp",
+        "bun",
+        "vllm"
+      ]
+    },
+    {
+      "name": "Computer Vision",
+      "type": "tag",
+      "currentActivity": 649,
+      "previousActivity": 649,
+      "changePercent": 0,
+      "repoCount": 312,
+      "representativeRepos": [
+        "tensorflow",
+        "opencode",
+        "transformers"
+      ]
+    },
+    {
+      "name": "Course",
+      "type": "tag",
+      "currentActivity": 905,
+      "previousActivity": 905,
+      "changePercent": 0,
+      "repoCount": 204,
+      "representativeRepos": [
+        "freeCodeCamp",
+        "yt-dlp",
+        "next.js"
+      ]
+    },
+    {
+      "name": "Database",
+      "type": "tag",
+      "currentActivity": 2271,
+      "previousActivity": 2271,
+      "changePercent": 0,
+      "repoCount": 421,
+      "representativeRepos": [
+        "dify",
+        "iptv",
+        "supabase"
+      ]
+    },
+    {
+      "name": "Deep Learning",
+      "type": "tag",
+      "currentActivity": 554,
+      "previousActivity": 554,
+      "changePercent": 0,
+      "repoCount": 251,
+      "representativeRepos": [
+        "immich",
+        "pytorch",
+        "netron"
       ]
     },
     {
       "name": "Docker",
       "type": "tag",
       "currentActivity": 6103,
-      "previousActivity": 0,
-      "changePercent": 999,
+      "previousActivity": 6103,
+      "changePercent": 0,
       "repoCount": 608,
       "representativeRepos": [
         "openclaw",
@@ -47,36 +127,21 @@
       ]
     },
     {
-      "name": "Security",
+      "name": "Evals",
       "type": "tag",
-      "currentActivity": 5032,
-      "previousActivity": 0,
-      "changePercent": 999,
-      "repoCount": 445,
+      "currentActivity": 867,
+      "previousActivity": 867,
+      "changePercent": 0,
+      "repoCount": 512,
       "representativeRepos": [
-        "freeCodeCamp",
-        "openclaw",
-        "tensorflow"
-      ]
-    },
-    {
-      "name": "OpenAI",
-      "type": "tag",
-      "currentActivity": 4671,
-      "previousActivity": 0,
-      "changePercent": 999,
-      "repoCount": 710,
-      "representativeRepos": [
-        "openclaw",
-        "opencode",
-        "transformers"
+        "transformers",
+        "langchain",
+        "scikit-learn"
       ]
     }
   ],
-  "cooling": [],
-  "stable": [],
   "newReleases": [],
   "insights": [
-    "Tutorial, Open Source, Docker are newly active in your library."
+    "Trend data is building up. Check back after a few daily refreshes."
   ]
 }
