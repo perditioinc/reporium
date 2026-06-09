@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-08T11:06:43.317Z",
+  "generatedAt": "2026-06-09T10:19:45.391Z",
   "sections": [
     {
       "title": "Library stats",
@@ -5079,14 +5079,14 @@
       "generatedAt": "2026-06-07T08:31:50.970Z"
     },
     "Tools for monitoring AI systems": {
-      "answer": "Repos for **monitoring** (10 shown):\n\n- **GokuMohandas/Made-With-ML** — 47,888 stars (Foundation Models)\n- **langfuse/langfuse** — 28,567 stars (AI Agents)\n- **mlflow/mlflow** — 26,324 stars (MLOps & Infrastructure)\n- **agentscope-ai/agentscope** — 26,295 stars (AI Agents)\n- **jarrodwatts/claude-hud** — 24,574 stars (Foundation Models)\n- **fastfetch-cli/fastfetch** — 23,087 stars (Dev Tools & Automation)\n- **PrefectHQ/prefect** — 22,552 stars (Learning Resources)\n- **EthicalML/awesome-production-machine-learning** — 20,598 stars (Model Training)\n- **stas00/ml-engineering** — 18,062 stars (Learning Resources)\n- **cft0808/edict** — 15,988 stars (AI Agents)",
+      "answer": "Repos for **monitoring** (10 shown):\n\n- **GokuMohandas/Made-With-ML** — 47,924 stars (Foundation Models)\n- **langfuse/langfuse** — 28,669 stars (AI Agents)\n- **agentscope-ai/agentscope** — 26,475 stars (AI Agents)\n- **mlflow/mlflow** — 26,353 stars (MLOps & Infrastructure)\n- **jarrodwatts/claude-hud** — 24,686 stars (Foundation Models)\n- **fastfetch-cli/fastfetch** — 23,111 stars (Dev Tools & Automation)\n- **PrefectHQ/prefect** — 22,569 stars (Learning Resources)\n- **EthicalML/awesome-production-machine-learning** — 20,605 stars (Model Training)\n- **stas00/ml-engineering** — 18,070 stars (Learning Resources)\n- **cft0808/edict** — 16,008 stars (AI Agents)",
       "sources": [
         {
           "name": "Made-With-ML",
           "owner": "GokuMohandas",
           "forked_from": "GokuMohandas/Made-With-ML",
           "description": "Learn how to design, develop, deploy and iterate on production-grade ML applications.",
-          "stars": 47888,
+          "stars": 47924,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5096,17 +5096,7 @@
           "owner": "langfuse",
           "forked_from": "langfuse/langfuse",
           "description": "🪢 Open source LLM engineering platform: LLM Observability, metrics, evals, prompt management, playground, datasets. Integrates with OpenTelemetry, Langchain, OpenAI SDK, LiteLLM, and more. 🍊YC W23 ",
-          "stars": 28567,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "mlflow",
-          "owner": "mlflow",
-          "forked_from": "mlflow/mlflow",
-          "description": "The open source AI engineering platform. MLflow enables teams of all sizes to debug, evaluate, monitor, and optimize production-quality AI agents, LLM applications, and ML models while controlling costs and managing access to models and data.",
-          "stars": 26324,
+          "stars": 28669,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5116,7 +5106,17 @@
           "owner": "agentscope-ai",
           "forked_from": "agentscope-ai/agentscope",
           "description": "Build and run agents you can see, understand and trust.",
-          "stars": 26295,
+          "stars": 26475,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "mlflow",
+          "owner": "mlflow",
+          "forked_from": "mlflow/mlflow",
+          "description": "The open source AI engineering platform. MLflow enables teams of all sizes to debug, evaluate, monitor, and optimize production-quality AI agents, LLM applications, and ML models while controlling costs and managing access to models and data.",
+          "stars": 26353,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5126,7 +5126,7 @@
           "owner": "jarrodwatts",
           "forked_from": "jarrodwatts/claude-hud",
           "description": "A Claude Code plugin that shows what's happening - context usage, active tools, running agents, and todo progress",
-          "stars": 24574,
+          "stars": 24686,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5136,7 +5136,7 @@
           "owner": "fastfetch-cli",
           "forked_from": "fastfetch-cli/fastfetch",
           "description": "A maintained, feature-rich and performance oriented, neofetch like system information tool.",
-          "stars": 23087,
+          "stars": 23111,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5146,7 +5146,7 @@
           "owner": "PrefectHQ",
           "forked_from": "PrefectHQ/prefect",
           "description": "Prefect is a workflow orchestration framework for building resilient data pipelines in Python.",
-          "stars": 22552,
+          "stars": 22569,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5156,7 +5156,7 @@
           "owner": "EthicalML",
           "forked_from": "EthicalML/awesome-production-machine-learning",
           "description": "A curated list of awesome open source libraries to deploy, monitor, version and scale your machine learning",
-          "stars": 20598,
+          "stars": 20605,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5166,7 +5166,7 @@
           "owner": "stas00",
           "forked_from": "stas00/ml-engineering",
           "description": "Machine Learning Engineering Open Book",
-          "stars": 18062,
+          "stars": 18070,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5176,24 +5176,24 @@
           "owner": "cft0808",
           "forked_from": "cft0808/edict",
           "description": "🏛️ 三省六部制 · OpenClaw Multi-Agent Orchestration System — 9 specialized AI agents with real-time dashboard, model config, and full audit trails",
-          "stars": 15988,
+          "stars": 16008,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:skill_search",
-      "generatedAt": "2026-06-07T08:32:02.058Z"
+      "generatedAt": "2026-06-09T10:15:07.215Z"
     },
     "Tools for inference serving": {
-      "answer": "Repos for **inference** (10 shown):\n\n- **Comfy-Org/ComfyUI** — 115,893 stars (Generative Media)\n- **ggml-org/llama.cpp** — 114,910 stars (Foundation Models)\n- **immich-app/immich** — 102,721 stars (Learning Resources)\n- **vllm-project/vllm** — 82,040 stars (Inference & Serving)\n- **nomic-ai/gpt4all** — 77,356 stars (Foundation Models)\n- **meta-llama/llama** — 59,454 stars (Model Training)\n- **ultralytics/ultralytics** — 58,066 stars (Computer Vision)\n- **ultralytics/yolov5** — 57,496 stars (Data Science & Analytics)\n- **facebookresearch/segment-anything** — 54,300 stars (Inference & Serving)\n- **xai-org/grok-1** — 51,683 stars (Foundation Models)",
+      "answer": "Repos for **inference** (10 shown):\n\n- **Comfy-Org/ComfyUI** — 116,154 stars (Generative Media)\n- **ggml-org/llama.cpp** — 115,515 stars (Foundation Models)\n- **immich-app/immich** — 102,854 stars (Learning Resources)\n- **vllm-project/vllm** — 82,209 stars (Inference & Serving)\n- **nomic-ai/gpt4all** — 77,356 stars (Foundation Models)\n- **meta-llama/llama** — 59,455 stars (Model Training)\n- **ultralytics/ultralytics** — 58,145 stars (Computer Vision)\n- **ultralytics/yolov5** — 57,503 stars (Data Science & Analytics)\n- **facebookresearch/segment-anything** — 54,312 stars (Inference & Serving)\n- **xai-org/grok-1** — 51,680 stars (Foundation Models)",
       "sources": [
         {
           "name": "ComfyUI",
           "owner": "Comfy-Org",
           "forked_from": "Comfy-Org/ComfyUI",
           "description": "The most powerful and modular diffusion model GUI, api and backend with a graph/nodes interface.",
-          "stars": 115893,
+          "stars": 116154,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5203,7 +5203,7 @@
           "owner": "ggml-org",
           "forked_from": "ggml-org/llama.cpp",
           "description": "LLM inference in C/C++",
-          "stars": 114910,
+          "stars": 115515,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5213,7 +5213,7 @@
           "owner": "immich-app",
           "forked_from": "immich-app/immich",
           "description": "High performance self-hosted photo and video management solution.",
-          "stars": 102721,
+          "stars": 102854,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5223,7 +5223,7 @@
           "owner": "vllm-project",
           "forked_from": "vllm-project/vllm",
           "description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
-          "stars": 82040,
+          "stars": 82209,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5243,7 +5243,7 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama",
           "description": "Inference code for Llama models",
-          "stars": 59454,
+          "stars": 59455,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5253,7 +5253,7 @@
           "owner": "ultralytics",
           "forked_from": "ultralytics/ultralytics",
           "description": "Ultralytics YOLO 🚀",
-          "stars": 58066,
+          "stars": 58145,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5263,7 +5263,7 @@
           "owner": "ultralytics",
           "forked_from": "ultralytics/yolov5",
           "description": "YOLOv5 🚀 in PyTorch > ONNX > CoreML > TFLite",
-          "stars": 57496,
+          "stars": 57503,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5273,7 +5273,7 @@
           "owner": "facebookresearch",
           "forked_from": "facebookresearch/segment-anything",
           "description": "The repository provides code for running inference with the SegmentAnything Model (SAM), links for downloading the trained model checkpoints, and example notebooks that show how to use the model.",
-          "stars": 54300,
+          "stars": 54312,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5283,24 +5283,24 @@
           "owner": "xai-org",
           "forked_from": "xai-org/grok-1",
           "description": "Grok open release",
-          "stars": 51683,
+          "stars": 51680,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:skill_search",
-      "generatedAt": "2026-06-07T08:32:13.131Z"
+      "generatedAt": "2026-06-09T10:15:18.581Z"
     },
     "Tools for training": {
-      "answer": "Repos for **training** (10 shown):\n\n- **tensorflow/tensorflow** — 195,564 stars (Inference & Serving)\n- **deepseek-ai/DeepSeek-V3** — 103,691 stars (Foundation Models)\n- **pytorch/pytorch** — 100,536 stars (Model Training)\n- **rasbt/LLMs-from-scratch** — 96,739 stars (Model Training)\n- **karpathy/autoresearch** — 85,327 stars (Foundation Models)\n- **karpathy/autoresearch** — 85,327 stars (Foundation Models)\n- **mlabonne/llm-course** — 79,907 stars (AI Agents)\n- **CompVis/stable-diffusion** — 73,082 stars (Foundation Models)\n- **hiyouga/LlamaFactory** — 71,936 stars (Model Training)\n- **hiyouga/LlamaFactory** — 71,936 stars (Model Training)",
+      "answer": "Repos for **training** (10 shown):\n\n- **tensorflow/tensorflow** — 195,606 stars (Inference & Serving)\n- **deepseek-ai/DeepSeek-V3** — 103,718 stars (Foundation Models)\n- **pytorch/pytorch** — 100,599 stars (Model Training)\n- **rasbt/LLMs-from-scratch** — 96,849 stars (Model Training)\n- **karpathy/autoresearch** — 85,569 stars (Foundation Models)\n- **karpathy/autoresearch** — 85,569 stars (Foundation Models)\n- **mlabonne/llm-course** — 79,948 stars (AI Agents)\n- **CompVis/stable-diffusion** — 73,087 stars (Foundation Models)\n- **hiyouga/LlamaFactory** — 71,990 stars (Model Training)\n- **hiyouga/LlamaFactory** — 71,990 stars (Model Training)",
       "sources": [
         {
           "name": "tensorflow",
           "owner": "tensorflow",
           "forked_from": "tensorflow/tensorflow",
           "description": "An Open Source Machine Learning Framework for Everyone",
-          "stars": 195564,
+          "stars": 195606,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5310,7 +5310,7 @@
           "owner": "deepseek-ai",
           "forked_from": "deepseek-ai/DeepSeek-V3",
           "description": null,
-          "stars": 103691,
+          "stars": 103718,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5320,7 +5320,7 @@
           "owner": "pytorch",
           "forked_from": "pytorch/pytorch",
           "description": "Tensors and Dynamic neural networks in Python with strong GPU acceleration",
-          "stars": 100536,
+          "stars": 100599,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5330,7 +5330,7 @@
           "owner": "rasbt",
           "forked_from": "rasbt/LLMs-from-scratch",
           "description": "Implement a ChatGPT-like LLM in PyTorch from scratch, step by step",
-          "stars": 96739,
+          "stars": 96849,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5340,7 +5340,7 @@
           "owner": "karpathy",
           "forked_from": "karpathy/autoresearch",
           "description": "AI agents running research on single-GPU nanochat training automatically",
-          "stars": 85327,
+          "stars": 85569,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5350,7 +5350,7 @@
           "owner": "karpathy",
           "forked_from": "karpathy/autoresearch",
           "description": "AI agents running research on single-GPU nanochat training automatically",
-          "stars": 85327,
+          "stars": 85569,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5360,7 +5360,7 @@
           "owner": "mlabonne",
           "forked_from": "mlabonne/llm-course",
           "description": "Course to get into Large Language Models (LLMs) with roadmaps and Colab notebooks.",
-          "stars": 79907,
+          "stars": 79948,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5370,7 +5370,7 @@
           "owner": "CompVis",
           "forked_from": "CompVis/stable-diffusion",
           "description": "A latent text-to-image diffusion model",
-          "stars": 73082,
+          "stars": 73087,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5380,7 +5380,7 @@
           "owner": "hiyouga",
           "forked_from": "hiyouga/LlamaFactory",
           "description": "Unified Efficient Fine-Tuning of 100+ LLMs & VLMs (ACL 2024)",
-          "stars": 71936,
+          "stars": 71990,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5390,14 +5390,14 @@
           "owner": "hiyouga",
           "forked_from": "hiyouga/LlamaFactory",
           "description": "Unified Efficient Fine-Tuning of 100+ LLMs & VLMs (ACL 2024)",
-          "stars": 71936,
+          "stars": 71990,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:skill_search",
-      "generatedAt": "2026-06-07T08:32:24.205Z"
+      "generatedAt": "2026-06-09T10:15:29.673Z"
     },
     "Tools for synthetic data generation": {
       "answer": "# Synthetic Data Generation Tools\n\nBased on the Reporium data, here are the key tools for synthetic data generation:\n\n## Tabular & Structured Data\n\n**sdv-dev/SDV** (3.5k★) is the strongest option for tabular synthetic data. It supports multiple data types (numerical, categorical, datetime) with customizable generation, and its 3,457 stars indicate strong community adoption and production-quality maturity.\n\n**joke2k/faker** (19.2k★) is excellent for generating realistic fake data across multiple locales. While it has massive adoption (19,185 stars), it's broader in scope—covering names, addresses, emails, and phone numbers rather than deep statistical synthesis.\n\n## Text & Unstructured Data\n\n**gretelai/gretel-synthetics** (677★) uniquely supports both structured and unstructured text synthesis with differential privacy built-in, making it valuable for regulatory compliance needs.\n\n## End-to-End Workflows\n\n**datadreamer-dev/DataDreamer** (1.1k★) takes a different approach—it combines prompt-driven synthetic data generation with model training and alignment in one workflow, ideal if you want to generate data *and* use it to train models.\n\n## ⚠️ Maintenance Caveat\nAll these repos show concerning community health signals (0% issue close rates, zero listed contributors, unknown test coverage). For production use, prioritize **sdv-dev/SDV** given its higher star count and explicit production-quality classification, but verify current maintenance status before deployment.",
@@ -5484,7 +5484,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-07T08:32:35.410Z"
+      "generatedAt": "2026-06-09T10:15:41.184Z"
     },
     "Tools for agent orchestration": {
       "answer": "# Agent Orchestration Frameworks\n\nBased on the Reporium library, here are the top frameworks for agent orchestration:\n\n## Production-Ready Options\n\n**kyegomez/swarms** (6.5k★) is described as an \"Enterprise-Grade Production-Ready Multi-Agent Orchestration Framework\" and appears to be the most mature option in this list for building production systems. It's specifically designed for orchestrating multiple agents at scale.\n\n**microsoft/agent-framework** (9.7k★) is a comprehensive framework supporting both Python and .NET, making it useful if you need cross-platform compatibility. It's designed for building, orchestrating, and deploying AI agents and multi-agent workflows, with strong community interest reflected in its star count.\n\n## Specialized & Feature-Rich Alternatives\n\n**ComposioHQ/agent-orchestrator** (6.4k★) is particularly strong if you're working with parallel coding agents—it specifically handles task planning, agent spawning, and autonomous CI/CD fixes and code reviews.\n\n**wshobson/agents** (34.1k★) has the highest star count and is specifically focused on Claude Code integration, making it ideal if you're building agents around Claude's capabilities.\n\n**2FastLabs/agent-squad** (7.6k★) excels at managing complex multi-agent conversations and coordination scenarios.\n\n## Important Note\nMost of these frameworks are still in active development with varying maturity levels. If production stability is critical, **kyegomez/swarms** appears to be your safest bet given its explicit \"production-ready\" positioning.",
@@ -5541,7 +5541,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-07T08:32:46.524Z"
+      "generatedAt": "2026-06-09T10:15:52.985Z"
     },
     "Which repos use the MIT license?": {
       "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nThe repo data provided doesn't include license information for any of the listed repositories. To answer your question about which repos use the MIT license, I would need that metadata included in the source material.\n\nIf you'd like, I can help you with questions like:\n- What repos are available for MCP servers or foundation models?\n- How do specific repos (like perditioinc/reporium-mcp or github/github-mcp-server) compare?\n- What repos solve particular AI development problems?",
@@ -5628,17 +5628,17 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-07T08:32:57.621Z"
+      "generatedAt": "2026-06-09T10:16:04.266Z"
     },
     "Which repos use Apache license?": {
-      "answer": "Repos with APACHE license (10 shown):\n\n- **tensorflow/tensorflow** (Apache-2.0) — 195,564 stars\n- **huggingface/transformers** (Apache-2.0) — 161,342 stars\n- **rust-lang/rust** (Apache-2.0) — 113,613 stars\n- **Shubhamsaboo/awesome-llm-apps** (Apache-2.0) — 113,418 stars\n- **microsoft/TypeScript** (Apache-2.0) — 109,118 stars\n- **google-gemini/gemini-cli** (Apache-2.0) — 104,988 stars\n- **supabase/supabase** (Apache-2.0) — 103,664 stars\n- **puppeteer/puppeteer** (Apache-2.0) — 94,451 stars\n- **microsoft/playwright** (Apache-2.0) — 90,389 stars\n- **openai/codex** (Apache-2.0) — 89,039 stars",
+      "answer": "Repos with APACHE license (10 shown):\n\n- **tensorflow/tensorflow** (Apache-2.0) — 195,606 stars\n- **huggingface/transformers** (Apache-2.0) — 161,413 stars\n- **Shubhamsaboo/awesome-llm-apps** (Apache-2.0) — 113,789 stars\n- **rust-lang/rust** (Apache-2.0) — 113,686 stars\n- **microsoft/TypeScript** (Apache-2.0) — 109,159 stars\n- **google-gemini/gemini-cli** (Apache-2.0) — 105,050 stars\n- **supabase/supabase** (Apache-2.0) — 103,823 stars\n- **puppeteer/puppeteer** (Apache-2.0) — 94,485 stars\n- **microsoft/playwright** (Apache-2.0) — 90,505 stars\n- **openai/codex** (Apache-2.0) — 89,528 stars",
       "sources": [
         {
           "name": "tensorflow",
           "owner": "tensorflow",
           "forked_from": "tensorflow/tensorflow",
           "description": "An Open Source Machine Learning Framework for Everyone",
-          "stars": 195564,
+          "stars": 195606,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5648,17 +5648,7 @@
           "owner": "huggingface",
           "forked_from": "huggingface/transformers",
           "description": "🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, for both inference and training. ",
-          "stars": 161342,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "rust",
-          "owner": "rust-lang",
-          "forked_from": "rust-lang/rust",
-          "description": "Empowering everyone to build reliable and efficient software.",
-          "stars": 113613,
+          "stars": 161413,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5668,7 +5658,17 @@
           "owner": "Shubhamsaboo",
           "forked_from": "Shubhamsaboo/awesome-llm-apps",
           "description": "Collection of awesome LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini and opensource models.",
-          "stars": 113418,
+          "stars": 113789,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "rust",
+          "owner": "rust-lang",
+          "forked_from": "rust-lang/rust",
+          "description": "Empowering everyone to build reliable and efficient software.",
+          "stars": 113686,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5678,7 +5678,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/TypeScript",
           "description": "TypeScript is a superset of JavaScript that compiles to clean JavaScript output.",
-          "stars": 109118,
+          "stars": 109159,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5688,7 +5688,7 @@
           "owner": "google-gemini",
           "forked_from": "google-gemini/gemini-cli",
           "description": "An open-source AI agent that brings the power of Gemini directly into your terminal.",
-          "stars": 104988,
+          "stars": 105050,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5698,7 +5698,7 @@
           "owner": "supabase",
           "forked_from": "supabase/supabase",
           "description": "The Postgres development platform. Supabase gives you a dedicated Postgres database to build your web, mobile, and AI applications.",
-          "stars": 103664,
+          "stars": 103823,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5708,7 +5708,7 @@
           "owner": "puppeteer",
           "forked_from": "puppeteer/puppeteer",
           "description": "JavaScript API for Chrome and Firefox",
-          "stars": 94451,
+          "stars": 94485,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5718,7 +5718,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/playwright",
           "description": "Playwright is a framework for Web Testing and Automation. It allows testing Chromium, Firefox and WebKit with a single API. ",
-          "stars": 90389,
+          "stars": 90505,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5728,24 +5728,24 @@
           "owner": "openai",
           "forked_from": "openai/codex",
           "description": "Lightweight coding agent that runs in your terminal",
-          "stars": 89039,
+          "stars": 89528,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:license_search",
-      "generatedAt": "2026-06-07T08:33:08.762Z"
+      "generatedAt": "2026-06-09T10:16:15.376Z"
     },
     "Which repos are built by Microsoft?": {
-      "answer": "Repos by \"Microsoft\" (10 shown):\n\n- **microsoft/vscode** — 185,994 stars (Learning Resources)\n- **microsoft/markitdown** — 145,716 stars (Foundation Models)\n- **microsoft/PowerToys** — 133,830 stars (Dev Tools & Automation)\n- **microsoft/generative-ai-for-beginners** — 111,714 stars (AI Agents)\n- **microsoft/TypeScript** — 109,118 stars (Learning Resources)\n- **microsoft/terminal** — 103,473 stars (Dev Tools & Automation)\n- **microsoft/Web-Dev-For-Beginners** — 95,874 stars (Dev Tools & Automation)\n- **microsoft/playwright** — 90,389 stars (Dev Tools & Automation)\n- **microsoft/ML-For-Beginners** — 86,402 stars (Dev Tools & Automation)\n- **microsoft/ai-agents-for-beginners** — 66,554 stars (AI Agents)",
+      "answer": "Repos by \"Microsoft\" (10 shown):\n\n- **microsoft/vscode** — 186,069 stars (Learning Resources)\n- **microsoft/markitdown** — 147,862 stars (Foundation Models)\n- **microsoft/PowerToys** — 133,912 stars (Dev Tools & Automation)\n- **microsoft/generative-ai-for-beginners** — 111,765 stars (AI Agents)\n- **microsoft/TypeScript** — 109,159 stars (Learning Resources)\n- **microsoft/terminal** — 103,511 stars (Dev Tools & Automation)\n- **microsoft/Web-Dev-For-Beginners** — 95,873 stars (Dev Tools & Automation)\n- **microsoft/playwright** — 90,505 stars (Dev Tools & Automation)\n- **microsoft/ML-For-Beginners** — 86,485 stars (Dev Tools & Automation)\n- **microsoft/ai-agents-for-beginners** — 66,687 stars (AI Agents)",
       "sources": [
         {
           "name": "vscode",
           "owner": "microsoft",
           "forked_from": "microsoft/vscode",
           "description": "Visual Studio Code",
-          "stars": 185994,
+          "stars": 186069,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5755,7 +5755,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/markitdown",
           "description": "Python tool for converting files and office documents to Markdown.",
-          "stars": 145716,
+          "stars": 147862,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5765,7 +5765,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/PowerToys",
           "description": "Microsoft PowerToys is a collection of utilities that supercharge productivity and customization on Windows",
-          "stars": 133830,
+          "stars": 133912,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5775,7 +5775,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/generative-ai-for-beginners",
           "description": "21 Lessons, Get Started Building with Generative AI ",
-          "stars": 111714,
+          "stars": 111765,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5785,7 +5785,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/TypeScript",
           "description": "TypeScript is a superset of JavaScript that compiles to clean JavaScript output.",
-          "stars": 109118,
+          "stars": 109159,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5795,7 +5795,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/terminal",
           "description": "The new Windows Terminal and the original Windows console host, all in the same place!",
-          "stars": 103473,
+          "stars": 103511,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5805,7 +5805,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/Web-Dev-For-Beginners",
           "description": "24 Lessons, 12 Weeks, Get Started as a Web Developer",
-          "stars": 95874,
+          "stars": 95873,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5815,7 +5815,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/playwright",
           "description": "Playwright is a framework for Web Testing and Automation. It allows testing Chromium, Firefox and WebKit with a single API. ",
-          "stars": 90389,
+          "stars": 90505,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5825,7 +5825,7 @@
           "owner": "microsoft",
           "forked_from": "microsoft/ML-For-Beginners",
           "description": "12 weeks, 26 lessons, 52 quizzes, classic Machine Learning for all",
-          "stars": 86402,
+          "stars": 86485,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5835,24 +5835,24 @@
           "owner": "microsoft",
           "forked_from": "microsoft/ai-agents-for-beginners",
           "description": "12 Lessons to Get Started Building AI Agents",
-          "stars": 66554,
+          "stars": 66687,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:builder_search",
-      "generatedAt": "2026-06-07T08:33:19.846Z"
+      "generatedAt": "2026-06-09T10:16:26.486Z"
     },
     "Which repos are built by Google?": {
-      "answer": "Repos by \"Google\" (10 shown):\n\n- **google-gemini/gemini-cli** — 104,988 stars (AI Agents)\n- **google/material-design-icons** — 53,393 stars (Learning Resources)\n- **google/guava** — 51,479 stars (Dev Tools & Automation)\n- **google/zx** — 45,532 stars (Dev Tools & Automation)\n- **google-research/bert** — 40,024 stars (Model Training)\n- **google/styleguide** — 39,360 stars (Learning Resources)\n- **google/googletest** — 38,683 stars (Learning Resources)\n- **google-research/google-research** — 38,077 stars (Model Training)\n- **google/langextract** — 36,812 stars (Foundation Models)\n- **google-ai-edge/mediapipe** — 35,496 stars (Learning Resources)",
+      "answer": "Repos by \"Google\" (10 shown):\n\n- **google-gemini/gemini-cli** — 105,050 stars (AI Agents)\n- **google/material-design-icons** — 53,408 stars (Learning Resources)\n- **google/guava** — 51,480 stars (Dev Tools & Automation)\n- **google/zx** — 45,535 stars (Dev Tools & Automation)\n- **google-research/bert** — 40,025 stars (Model Training)\n- **google/styleguide** — 39,359 stars (Learning Resources)\n- **google/googletest** — 38,693 stars (Learning Resources)\n- **google-research/google-research** — 38,089 stars (Model Training)\n- **google/langextract** — 36,830 stars (Foundation Models)\n- **google-ai-edge/mediapipe** — 35,519 stars (Learning Resources)",
       "sources": [
         {
           "name": "gemini-cli",
           "owner": "google-gemini",
           "forked_from": "google-gemini/gemini-cli",
           "description": "An open-source AI agent that brings the power of Gemini directly into your terminal.",
-          "stars": 104988,
+          "stars": 105050,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5862,7 +5862,7 @@
           "owner": "google",
           "forked_from": "google/material-design-icons",
           "description": "Material Design icons by Google (Material Symbols)",
-          "stars": 53393,
+          "stars": 53408,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5872,7 +5872,7 @@
           "owner": "google",
           "forked_from": "google/guava",
           "description": "Google core libraries for Java",
-          "stars": 51479,
+          "stars": 51480,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5882,7 +5882,7 @@
           "owner": "google",
           "forked_from": "google/zx",
           "description": "A tool for writing better scripts",
-          "stars": 45532,
+          "stars": 45535,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5892,7 +5892,7 @@
           "owner": "google-research",
           "forked_from": "google-research/bert",
           "description": "TensorFlow code and pre-trained models for BERT",
-          "stars": 40024,
+          "stars": 40025,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5902,7 +5902,7 @@
           "owner": "google",
           "forked_from": "google/styleguide",
           "description": "Style guides for Google-originated open-source projects",
-          "stars": 39360,
+          "stars": 39359,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5912,7 +5912,7 @@
           "owner": "google",
           "forked_from": "google/googletest",
           "description": "GoogleTest - Google Testing and Mocking Framework",
-          "stars": 38683,
+          "stars": 38693,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5922,7 +5922,7 @@
           "owner": "google-research",
           "forked_from": "google-research/google-research",
           "description": "Google Research",
-          "stars": 38077,
+          "stars": 38089,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5932,7 +5932,7 @@
           "owner": "google",
           "forked_from": "google/langextract",
           "description": "A Python library for extracting structured information from unstructured text using LLMs with precise source grounding and interactive visualization.",
-          "stars": 36812,
+          "stars": 36830,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5942,24 +5942,24 @@
           "owner": "google-ai-edge",
           "forked_from": "google-ai-edge/mediapipe",
           "description": "Cross-platform, customizable ML solutions for live and streaming media.",
-          "stars": 35496,
+          "stars": 35519,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:builder_search",
-      "generatedAt": "2026-06-07T08:33:30.916Z"
+      "generatedAt": "2026-06-09T10:16:37.575Z"
     },
     "Which repos are built by Anthropic?": {
-      "answer": "Repos by \"Anthropic\" (10 shown):\n\n- **anthropics/skills** — 147,045 stars (Foundation Models)\n- **anthropics/claude-code** — 130,505 stars (Foundation Models)\n- **anthropics/claude-cookbooks** — 45,011 stars (Learning Resources)\n- **anthropics/prompt-eng-interactive-tutorial** — 36,194 stars (AI Agents)\n- **anthropics/financial-services** — 30,190 stars (Learning Resources)\n- **anthropics/claude-plugins-official** — 29,462 stars (Dev Tools & Automation)\n- **anthropics/courses** — 21,736 stars (Foundation Models)\n- **anthropics/knowledge-work-plugins** — 19,303 stars (Foundation Models)\n- **anthropics/claude-quickstarts** — 16,927 stars (Learning Resources)\n- **anthropics/claude-code-action** — 7,891 stars (Dev Tools & Automation)",
+      "answer": "Repos by \"Anthropic\" (10 shown):\n\n- **anthropics/skills** — 147,798 stars (Foundation Models)\n- **anthropics/claude-code** — 131,001 stars (Foundation Models)\n- **anthropics/claude-cookbooks** — 45,118 stars (Learning Resources)\n- **anthropics/prompt-eng-interactive-tutorial** — 36,219 stars (AI Agents)\n- **anthropics/financial-services** — 30,465 stars (Learning Resources)\n- **anthropics/claude-plugins-official** — 29,616 stars (Dev Tools & Automation)\n- **anthropics/courses** — 21,761 stars (Foundation Models)\n- **anthropics/knowledge-work-plugins** — 19,620 stars (Foundation Models)\n- **anthropics/claude-quickstarts** — 16,952 stars (Learning Resources)\n- **anthropics/claude-code-action** — 7,905 stars (Dev Tools & Automation)",
       "sources": [
         {
           "name": "skills",
           "owner": "anthropics",
           "forked_from": "anthropics/skills",
           "description": "Public repository for Agent Skills",
-          "stars": 147045,
+          "stars": 147798,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5969,7 +5969,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/claude-code",
           "description": "Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster by executing routine tasks, explaining complex code, and handling git workflows - all through natural language commands.",
-          "stars": 130505,
+          "stars": 131001,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5979,7 +5979,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/claude-cookbooks",
           "description": "A collection of notebooks/recipes showcasing some fun and effective ways of using Claude.",
-          "stars": 45011,
+          "stars": 45118,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5989,7 +5989,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/prompt-eng-interactive-tutorial",
           "description": "Anthropic's Interactive Prompt Engineering Tutorial",
-          "stars": 36194,
+          "stars": 36219,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -5999,7 +5999,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/financial-services",
           "description": null,
-          "stars": 30190,
+          "stars": 30465,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6009,7 +6009,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/claude-plugins-official",
           "description": "Official, Anthropic-managed directory of high quality Claude Code Plugins.",
-          "stars": 29462,
+          "stars": 29616,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6019,7 +6019,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/courses",
           "description": "Anthropic's educational courses",
-          "stars": 21736,
+          "stars": 21761,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6029,7 +6029,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/knowledge-work-plugins",
           "description": "Open source repository of plugins primarily intended for knowledge workers to use in Claude Cowork",
-          "stars": 19303,
+          "stars": 19620,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6039,7 +6039,7 @@
           "owner": "anthropics",
           "forked_from": "anthropics/claude-quickstarts",
           "description": "A collection of projects designed to help developers quickly get started with building deployable applications using the Claude API",
-          "stars": 16927,
+          "stars": 16952,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6049,14 +6049,14 @@
           "owner": "anthropics",
           "forked_from": "anthropics/claude-code-action",
           "description": null,
-          "stars": 7891,
+          "stars": 7905,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:builder_search",
-      "generatedAt": "2026-06-07T08:33:41.984Z"
+      "generatedAt": "2026-06-09T10:16:48.664Z"
     },
     "Which repos are built by Hugging Face?": {
       "answer": "Based on the repo data provided, **none of the listed repos are built by Hugging Face**.\n\nAll the repos in the context are either:\n- **GitHubDaily/GitHubDaily** — a curated list of GitHub projects\n- **perditioinc/** repos — part of the Reporium platform (perditioinc/reporium-roadmap, perditioinc/reporium-db, perditioinc/reporium-mcp, perditioinc/reporium-system-design)\n\nIf you're looking for Hugging Face AI/ML tools or repos, that information isn't available in the current Reporium dataset. Would you like me to help you find something else about the repos listed above?",
@@ -6113,17 +6113,17 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-07T08:33:53.085Z"
+      "generatedAt": "2026-06-09T10:16:59.863Z"
     },
     "Which repos are built by NVIDIA?": {
-      "answer": "Repos by \"NVIDIA\" (10 shown):\n\n- **NVIDIA/NemoClaw** — 20,986 stars (Inference & Serving)\n- **NVIDIA/open-gpu-kernel-modules** — 17,065 stars (Dev Tools & Automation)\n- **NVIDIA/Megatron-LM** — 16,605 stars (Foundation Models)\n- **NVIDIA/DeepLearningExamples** — 14,813 stars (Inference & Serving)\n- **NVIDIA/TensorRT-LLM** — 13,810 stars (Inference & Serving)\n- **NVIDIA/TensorRT** — 13,041 stars (Inference & Serving)\n- **NVIDIA/FastPhotoStyle** — 11,184 stars (Learning Resources)\n- **NVIDIA/personaplex** — 9,965 stars (Foundation Models)\n- **NVIDIA/cutlass** — 9,847 stars (Dev Tools & Automation)\n- **NVIDIA/cosmos** — 9,493 stars (Foundation Models)",
+      "answer": "Repos by \"NVIDIA\" (10 shown):\n\n- **NVIDIA/NemoClaw** — 21,058 stars (Inference & Serving)\n- **NVIDIA/open-gpu-kernel-modules** — 17,068 stars (Dev Tools & Automation)\n- **NVIDIA/Megatron-LM** — 16,627 stars (Foundation Models)\n- **NVIDIA/DeepLearningExamples** — 14,813 stars (Inference & Serving)\n- **NVIDIA/TensorRT-LLM** — 13,825 stars (Inference & Serving)\n- **NVIDIA/TensorRT** — 13,045 stars (Inference & Serving)\n- **NVIDIA/FastPhotoStyle** — 11,183 stars (Learning Resources)\n- **NVIDIA/personaplex** — 9,969 stars (Foundation Models)\n- **NVIDIA/cutlass** — 9,860 stars (Dev Tools & Automation)\n- **NVIDIA/cosmos** — 9,699 stars (Foundation Models)",
       "sources": [
         {
           "name": "NemoClaw",
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/NemoClaw",
           "description": "NVIDIA plugin for secure installation of OpenClaw",
-          "stars": 20986,
+          "stars": 21058,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6133,7 +6133,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/open-gpu-kernel-modules",
           "description": "NVIDIA Linux open GPU kernel module source",
-          "stars": 17065,
+          "stars": 17068,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6143,7 +6143,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/Megatron-LM",
           "description": "Ongoing research training transformer models at scale",
-          "stars": 16605,
+          "stars": 16627,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6163,7 +6163,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/TensorRT-LLM",
           "description": "TensorRT LLM provides users with an easy-to-use Python API to define Large Language Models (LLMs) and supports state-of-the-art optimizations to perform inference efficiently on NVIDIA GPUs. TensorRT LLM also contains components to create Python and C++ runtimes that orchestrate the inference execution in a performant way.",
-          "stars": 13810,
+          "stars": 13825,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6173,7 +6173,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/TensorRT",
           "description": "NVIDIA® TensorRT™ is an SDK for high-performance deep learning inference on NVIDIA GPUs. This repository contains the open source components of TensorRT.",
-          "stars": 13041,
+          "stars": 13045,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6183,7 +6183,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/FastPhotoStyle",
           "description": "Style transfer, deep learning, feature transform",
-          "stars": 11184,
+          "stars": 11183,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6193,7 +6193,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/personaplex",
           "description": "PersonaPlex code.",
-          "stars": 9965,
+          "stars": 9969,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6203,7 +6203,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/cutlass",
           "description": "CUDA Templates and Python DSLs for High-Performance Linear Algebra",
-          "stars": 9847,
+          "stars": 9860,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6213,24 +6213,24 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/cosmos",
           "description": "New repo collection for NVIDIA Cosmos: https://github.com/nvidia-cosmos",
-          "stars": 9493,
+          "stars": 9699,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:builder_search",
-      "generatedAt": "2026-06-07T08:34:04.189Z"
+      "generatedAt": "2026-06-09T10:17:10.949Z"
     },
     "Which repos are built by Meta?": {
-      "answer": "Repos by \"Meta\" (8 shown):\n\n- **meta-llama/llama** — 59,454 stars (Model Training)\n- **meta-llama/llama3** — 29,287 stars (Foundation Models)\n- **meta-llama/llama-cookbook** — 18,343 stars (Foundation Models)\n- **open-metadata/OpenMetadata** — 14,119 stars (Dev Tools & Automation)\n- **meta-pytorch/torchtune** — 5,767 stars (Model Training)\n- **meta-llama/PurpleLlama** — 4,206 stars (Evals & Benchmarking)\n- **huggingface/OpenEnv** — 1,922 stars (Model Training)\n- **metauto-ai/GPTSwarm** — 1,007 stars (Foundation Models)",
+      "answer": "Repos by \"Meta\" (8 shown):\n\n- **meta-llama/llama** — 59,455 stars (Model Training)\n- **meta-llama/llama3** — 29,286 stars (Foundation Models)\n- **meta-llama/llama-cookbook** — 18,347 stars (Foundation Models)\n- **open-metadata/OpenMetadata** — 14,131 stars (Dev Tools & Automation)\n- **meta-pytorch/torchtune** — 5,768 stars (Model Training)\n- **meta-llama/PurpleLlama** — 4,210 stars (Evals & Benchmarking)\n- **huggingface/OpenEnv** — 1,933 stars (Model Training)\n- **metauto-ai/GPTSwarm** — 1,009 stars (Foundation Models)",
       "sources": [
         {
           "name": "llama",
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama",
           "description": "Inference code for Llama models",
-          "stars": 59454,
+          "stars": 59455,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6240,7 +6240,7 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama3",
           "description": "The official Meta Llama 3 GitHub site",
-          "stars": 29287,
+          "stars": 29286,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6250,7 +6250,7 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama-cookbook",
           "description": "Welcome to the Llama Cookbook! This is your go to guide for Building with Llama: Getting started with Inference, Fine-Tuning, RAG. We also show you how to solve end to end problems using Llama model family and using them on various provider services  ",
-          "stars": 18343,
+          "stars": 18347,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6260,7 +6260,7 @@
           "owner": "open-metadata",
           "forked_from": "open-metadata/OpenMetadata",
           "description": "OpenMetadata is a unified metadata platform for data discovery, data observability, and data governance powered by a central metadata repository, in-depth column level lineage, and seamless team collaboration.",
-          "stars": 14119,
+          "stars": 14131,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6270,7 +6270,7 @@
           "owner": "meta-pytorch",
           "forked_from": "meta-pytorch/torchtune",
           "description": "PyTorch native post-training library",
-          "stars": 5767,
+          "stars": 5768,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6280,7 +6280,7 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/PurpleLlama",
           "description": "Set of tools to assess and improve LLM security.",
-          "stars": 4206,
+          "stars": 4210,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6290,7 +6290,7 @@
           "owner": "huggingface",
           "forked_from": "huggingface/OpenEnv",
           "description": "An interface library for RL post training with environments. ",
-          "stars": 1922,
+          "stars": 1933,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6300,24 +6300,24 @@
           "owner": "metauto-ai",
           "forked_from": "metauto-ai/GPTSwarm",
           "description": "🐝  The First Self-Improving Agentic Solution",
-          "stars": 1007,
+          "stars": 1009,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:builder_search",
-      "generatedAt": "2026-06-07T08:34:15.258Z"
+      "generatedAt": "2026-06-09T10:17:22.038Z"
     },
     "Which repos have tests?": {
-      "answer": "Repos with tests (10 shown):\n\n- **openclaw/openclaw** — 377,172 stars (tests: True, CI: True)\n- **obra/superpowers** — 219,109 stars (tests: True, CI: True)\n- **vuejs/vue** — 209,870 stars (tests: True, CI: True)\n- **affaan-m/ECC** — 208,598 stars (tests: True, CI: True)\n- **trekhleb/javascript-algorithms** — 196,060 stars (tests: True, CI: True)\n- **ultraworkers/claw-code** — 193,366 stars (tests: True, CI: True)\n- **microsoft/vscode** — 185,994 stars (tests: True, CI: True)\n- **NousResearch/hermes-agent** — 183,796 stars (tests: True, CI: True)\n- **anomalyco/opencode** — 170,599 stars (tests: True, CI: True)\n- **yt-dlp/yt-dlp** — 168,444 stars (tests: True, CI: True)",
+      "answer": "Repos with tests (10 shown):\n\n- **openclaw/openclaw** — 377,521 stars (tests: True, CI: True)\n- **obra/superpowers** — 220,939 stars (tests: True, CI: True)\n- **affaan-m/ECC** — 210,263 stars (tests: True, CI: True)\n- **vuejs/vue** — 209,882 stars (tests: True, CI: True)\n- **trekhleb/javascript-algorithms** — 196,071 stars (tests: True, CI: True)\n- **ultraworkers/claw-code** — 193,466 stars (tests: True, CI: True)\n- **NousResearch/hermes-agent** — 186,636 stars (tests: True, CI: True)\n- **microsoft/vscode** — 186,069 stars (tests: True, CI: True)\n- **anomalyco/opencode** — 171,459 stars (tests: True, CI: True)\n- **yt-dlp/yt-dlp** — 169,114 stars (tests: True, CI: True)",
       "sources": [
         {
           "name": "openclaw",
           "owner": "openclaw",
           "forked_from": "openclaw/openclaw",
           "description": "Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 ",
-          "stars": 377172,
+          "stars": 377521,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6327,17 +6327,7 @@
           "owner": "obra",
           "forked_from": "obra/superpowers",
           "description": "An agentic skills framework & software development methodology that works.",
-          "stars": 219109,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "vue",
-          "owner": "vuejs",
-          "forked_from": "vuejs/vue",
-          "description": "This is the repo for Vue 2. For Vue 3, go to https://github.com/vuejs/core",
-          "stars": 209870,
+          "stars": 220939,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6347,7 +6337,17 @@
           "owner": "affaan-m",
           "forked_from": "affaan-m/ECC",
           "description": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond.",
-          "stars": 208598,
+          "stars": 210263,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "vue",
+          "owner": "vuejs",
+          "forked_from": "vuejs/vue",
+          "description": "This is the repo for Vue 2. For Vue 3, go to https://github.com/vuejs/core",
+          "stars": 209882,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6357,7 +6357,7 @@
           "owner": "trekhleb",
           "forked_from": "trekhleb/javascript-algorithms",
           "description": "📝 Algorithms and data structures implemented in JavaScript with explanations and links to further readings",
-          "stars": 196060,
+          "stars": 196071,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6367,17 +6367,7 @@
           "owner": "ultraworkers",
           "forked_from": "ultraworkers/claw-code",
           "description": "The fastest repo in history to surpass 50K stars ⭐, reaching the milestone in just 2 hours after publication. Better Harness Tools, not merely storing the archive of leaked Claude Code but also make real things done. Now rewriting in Rust.",
-          "stars": 193366,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "vscode",
-          "owner": "microsoft",
-          "forked_from": "microsoft/vscode",
-          "description": "Visual Studio Code",
-          "stars": 185994,
+          "stars": 193466,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6387,7 +6377,17 @@
           "owner": "NousResearch",
           "forked_from": "NousResearch/hermes-agent",
           "description": "The agent that grows with you",
-          "stars": 183796,
+          "stars": 186636,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "vscode",
+          "owner": "microsoft",
+          "forked_from": "microsoft/vscode",
+          "description": "Visual Studio Code",
+          "stars": 186069,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6397,7 +6397,7 @@
           "owner": "anomalyco",
           "forked_from": "anomalyco/opencode",
           "description": "The open source coding agent.",
-          "stars": 170599,
+          "stars": 171459,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6407,24 +6407,24 @@
           "owner": "yt-dlp",
           "forked_from": "yt-dlp/yt-dlp",
           "description": "A feature-rich command-line audio/video downloader",
-          "stars": 168444,
+          "stars": 169114,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:quality_filter",
-      "generatedAt": "2026-06-07T08:34:26.338Z"
+      "generatedAt": "2026-06-09T10:17:33.163Z"
     },
     "Which repos have CI?": {
-      "answer": "Repos tagged with \"ci\" (10 shown):\n\n- **codecrafters-io/build-your-own-x** — 512,316 stars (Dev Tools & Automation)\n- **sindresorhus/awesome** — 473,306 stars (Dev Tools & Automation)\n- **public-apis/public-apis** — 439,676 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 301,536 stars (Foundation Models)\n- **vinta/awesome-python** — 301,536 stars (Foundation Models)\n- **practical-tutorials/project-based-learning** — 267,843 stars (Dev Tools & Automation)\n- **practical-tutorials/project-based-learning** — 267,843 stars (Dev Tools & Automation)\n- **jackfrued/Python-100-Days** — 183,087 stars (Data Science & Analytics)\n- **Shubhamsaboo/awesome-llm-apps** — 113,418 stars (AI Agents)\n- **microsoft/generative-ai-for-beginners** — 111,714 stars (AI Agents)",
+      "answer": "Repos tagged with \"ci\" (10 shown):\n\n- **codecrafters-io/build-your-own-x** — 512,986 stars (Dev Tools & Automation)\n- **sindresorhus/awesome** — 473,889 stars (Dev Tools & Automation)\n- **public-apis/public-apis** — 440,138 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 301,873 stars (Foundation Models)\n- **vinta/awesome-python** — 301,873 stars (Foundation Models)\n- **practical-tutorials/project-based-learning** — 268,098 stars (Dev Tools & Automation)\n- **practical-tutorials/project-based-learning** — 268,098 stars (Dev Tools & Automation)\n- **jackfrued/Python-100-Days** — 183,173 stars (Data Science & Analytics)\n- **Shubhamsaboo/awesome-llm-apps** — 113,789 stars (AI Agents)\n- **microsoft/generative-ai-for-beginners** — 111,765 stars (AI Agents)",
       "sources": [
         {
           "name": "build-your-own-x",
           "owner": "codecrafters-io",
           "forked_from": "codecrafters-io/build-your-own-x",
           "description": "Master programming by recreating your favorite technologies from scratch.",
-          "stars": 512316,
+          "stars": 512986,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6434,7 +6434,7 @@
           "owner": "sindresorhus",
           "forked_from": "sindresorhus/awesome",
           "description": "😎 Awesome lists about all kinds of interesting topics",
-          "stars": 473306,
+          "stars": 473889,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6444,7 +6444,7 @@
           "owner": "public-apis",
           "forked_from": "public-apis/public-apis",
           "description": "A collective list of free APIs",
-          "stars": 439676,
+          "stars": 440138,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6454,7 +6454,7 @@
           "owner": "vinta",
           "forked_from": "vinta/awesome-python",
           "description": "An opinionated list of awesome Python frameworks, libraries, software and resources.",
-          "stars": 301536,
+          "stars": 301873,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6464,7 +6464,7 @@
           "owner": "vinta",
           "forked_from": "vinta/awesome-python",
           "description": "An opinionated list of awesome Python frameworks, libraries, software and resources.",
-          "stars": 301536,
+          "stars": 301873,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6474,7 +6474,7 @@
           "owner": "practical-tutorials",
           "forked_from": "practical-tutorials/project-based-learning",
           "description": "Curated list of project-based tutorials",
-          "stars": 267843,
+          "stars": 268098,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6484,7 +6484,7 @@
           "owner": "practical-tutorials",
           "forked_from": "practical-tutorials/project-based-learning",
           "description": "Curated list of project-based tutorials",
-          "stars": 267843,
+          "stars": 268098,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6494,7 +6494,7 @@
           "owner": "jackfrued",
           "forked_from": "jackfrued/Python-100-Days",
           "description": "Python - 100天从新手到大师",
-          "stars": 183087,
+          "stars": 183173,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6504,7 +6504,7 @@
           "owner": "Shubhamsaboo",
           "forked_from": "Shubhamsaboo/awesome-llm-apps",
           "description": "Collection of awesome LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini and opensource models.",
-          "stars": 113418,
+          "stars": 113789,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -6514,17 +6514,17 @@
           "owner": "microsoft",
           "forked_from": "microsoft/generative-ai-for-beginners",
           "description": "21 Lessons, Get Started Building with Generative AI ",
-          "stars": 111714,
+          "stars": 111765,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-07T08:34:37.394Z"
+      "generatedAt": "2026-06-09T10:17:44.337Z"
     },
     "Repos similar to LangChain": {
-      "answer": "Repos similar to **perditioinc/langchain** (5 shown):\n\n- **chatchat-space/Langchain-Chatchat** — 38,139 stars, similarity: 0.80 (Inference & Serving)\n- **langflow-ai/langflow** — 149,275 stars, similarity: 0.78 (AI Agents)\n- **patchy631/ai-engineering-hub** — 35,565 stars, similarity: 0.74 (AI Agents)\n- **langchain-ai/langgraph** — 34,012 stars, similarity: 0.74 (AI Agents)\n- **jina-ai/langchain-serve** — 1,641 stars, similarity: 0.74 (Dev Tools & Automation)",
+      "answer": "Repos similar to **perditioinc/langchain** (5 shown):\n\n- **chatchat-space/Langchain-Chatchat** — 38,139 stars, similarity: 0.80 (Inference & Serving)\n- **langflow-ai/langflow** — 149,395 stars, similarity: 0.78 (AI Agents)\n- **patchy631/ai-engineering-hub** — 35,622 stars, similarity: 0.74 (AI Agents)\n- **langchain-ai/langgraph** — 34,142 stars, similarity: 0.74 (AI Agents)\n- **jina-ai/langchain-serve** — 1,641 stars, similarity: 0.74 (Dev Tools & Automation)",
       "sources": [
         {
           "name": "Langchain-Chatchat",
@@ -6541,7 +6541,7 @@
           "owner": "langflow-ai",
           "forked_from": "langflow-ai/langflow",
           "description": "Langflow is a powerful tool for building and deploying AI-powered agents and workflows.",
-          "stars": 149275,
+          "stars": 149395,
           "relevance_score": 0.7823,
           "problem_solved": null,
           "integration_tags": []
@@ -6551,7 +6551,7 @@
           "owner": "patchy631",
           "forked_from": "patchy631/ai-engineering-hub",
           "description": "In-depth tutorials on LLMs, RAGs and real-world AI agent applications.",
-          "stars": 35565,
+          "stars": 35622,
           "relevance_score": 0.7412,
           "problem_solved": null,
           "integration_tags": []
@@ -6561,7 +6561,7 @@
           "owner": "langchain-ai",
           "forked_from": "langchain-ai/langgraph",
           "description": "Build resilient language agents as graphs.",
-          "stars": 34012,
+          "stars": 34142,
           "relevance_score": 0.7367,
           "problem_solved": null,
           "integration_tags": []
@@ -6578,17 +6578,17 @@
         }
       ],
       "model": "smart-route:similarity_redirect",
-      "generatedAt": "2026-06-07T08:34:48.471Z"
+      "generatedAt": "2026-06-09T10:17:55.760Z"
     },
     "Repos similar to vLLM": {
-      "answer": "Repos similar to **perditioinc/vllm** (5 shown):\n\n- **lyogavin/airllm** — 19,446 stars, similarity: 0.78 (Foundation Models)\n- **NVIDIA/TensorRT-LLM** — 13,810 stars, similarity: 0.77 (Inference & Serving)\n- **vllm-project/vllm-omni** — 4,967 stars, similarity: 0.75 (Foundation Models)\n- **mlc-ai/mlc-llm** — 22,764 stars, similarity: 0.75 (Foundation Models)\n- **LMCache/LMCache** — 8,428 stars, similarity: 0.75 (Inference & Serving)",
+      "answer": "Repos similar to **perditioinc/vllm** (5 shown):\n\n- **lyogavin/airllm** — 19,631 stars, similarity: 0.78 (Foundation Models)\n- **NVIDIA/TensorRT-LLM** — 13,825 stars, similarity: 0.77 (Inference & Serving)\n- **vllm-project/vllm-omni** — 4,992 stars, similarity: 0.75 (Foundation Models)\n- **mlc-ai/mlc-llm** — 22,772 stars, similarity: 0.75 (Foundation Models)\n- **LMCache/LMCache** — 8,445 stars, similarity: 0.75 (Inference & Serving)",
       "sources": [
         {
           "name": "airllm",
           "owner": "lyogavin",
           "forked_from": "lyogavin/airllm",
           "description": "AirLLM 70B inference with single 4GB GPU",
-          "stars": 19446,
+          "stars": 19631,
           "relevance_score": 0.7833,
           "problem_solved": null,
           "integration_tags": []
@@ -6598,7 +6598,7 @@
           "owner": "NVIDIA",
           "forked_from": "NVIDIA/TensorRT-LLM",
           "description": "TensorRT LLM provides users with an easy-to-use Python API to define Large Language Models (LLMs) and supports state-of-the-art optimizations to perform inference efficiently on NVIDIA GPUs. TensorRT LLM also contains components to create Python and C++ runtimes that orchestrate the inference execution in a performant way.",
-          "stars": 13810,
+          "stars": 13825,
           "relevance_score": 0.7653,
           "problem_solved": null,
           "integration_tags": []
@@ -6608,7 +6608,7 @@
           "owner": "vllm-project",
           "forked_from": "vllm-project/vllm-omni",
           "description": "A framework for efficient model inference with omni-modality models",
-          "stars": 4967,
+          "stars": 4992,
           "relevance_score": 0.7533,
           "problem_solved": null,
           "integration_tags": []
@@ -6618,7 +6618,7 @@
           "owner": "mlc-ai",
           "forked_from": "mlc-ai/mlc-llm",
           "description": "Universal LLM Deployment Engine with ML Compilation",
-          "stars": 22764,
+          "stars": 22772,
           "relevance_score": 0.749,
           "problem_solved": null,
           "integration_tags": []
@@ -6628,24 +6628,24 @@
           "owner": "LMCache",
           "forked_from": "LMCache/LMCache",
           "description": "Supercharge Your LLM with the Fastest KV Cache Layer",
-          "stars": 8428,
+          "stars": 8445,
           "relevance_score": 0.7486,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:similarity_redirect",
-      "generatedAt": "2026-06-07T08:34:59.547Z"
+      "generatedAt": "2026-06-09T10:18:06.899Z"
     },
     "Repos similar to Ollama": {
-      "answer": "Repos similar to **perditioinc/ollama** (5 shown):\n\n- **open-webui/open-webui** — 139,235 stars, similarity: 0.78 (Inference & Serving)\n- **allenai/OLMo** — 6,513 stars, similarity: 0.77 (Foundation Models)\n- **openai/gpt-oss** — 20,124 stars, similarity: 0.72 (Foundation Models)\n- **bentoml/OpenLLM** — 12,337 stars, similarity: 0.70 (Foundation Models)\n- **openai/openai-python** — 30,842 stars, similarity: 0.70 (AI Agents)",
+      "answer": "Repos similar to **perditioinc/ollama** (5 shown):\n\n- **open-webui/open-webui** — 140,571 stars, similarity: 0.78 (Inference & Serving)\n- **allenai/OLMo** — 6,530 stars, similarity: 0.77 (Foundation Models)\n- **openai/gpt-oss** — 20,145 stars, similarity: 0.72 (Foundation Models)\n- **bentoml/OpenLLM** — 12,351 stars, similarity: 0.70 (Foundation Models)\n- **openai/openai-python** — 30,937 stars, similarity: 0.70 (AI Agents)",
       "sources": [
         {
           "name": "open-webui",
           "owner": "open-webui",
           "forked_from": "open-webui/open-webui",
           "description": "User-friendly AI Interface (Supports Ollama, OpenAI API, ...)",
-          "stars": 139235,
+          "stars": 140571,
           "relevance_score": 0.7841,
           "problem_solved": null,
           "integration_tags": []
@@ -6655,7 +6655,7 @@
           "owner": "allenai",
           "forked_from": "allenai/OLMo",
           "description": "Modeling, training, eval, and inference code for OLMo",
-          "stars": 6513,
+          "stars": 6530,
           "relevance_score": 0.7705,
           "problem_solved": null,
           "integration_tags": []
@@ -6665,7 +6665,7 @@
           "owner": "openai",
           "forked_from": "openai/gpt-oss",
           "description": "gpt-oss-120b and gpt-oss-20b are two open-weight language models by OpenAI",
-          "stars": 20124,
+          "stars": 20145,
           "relevance_score": 0.7165,
           "problem_solved": null,
           "integration_tags": []
@@ -6675,7 +6675,7 @@
           "owner": "bentoml",
           "forked_from": "bentoml/OpenLLM",
           "description": "Run any open-source LLMs, such as DeepSeek and Llama, as OpenAI compatible API endpoint in the cloud.",
-          "stars": 12337,
+          "stars": 12351,
           "relevance_score": 0.7033,
           "problem_solved": null,
           "integration_tags": []
@@ -6685,24 +6685,24 @@
           "owner": "openai",
           "forked_from": "openai/openai-python",
           "description": "The official Python library for the OpenAI API",
-          "stars": 30842,
+          "stars": 30937,
           "relevance_score": 0.7025,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:similarity_redirect",
-      "generatedAt": "2026-06-03T11:13:50.629Z"
+      "generatedAt": "2026-06-09T10:18:17.997Z"
     },
     "Repos similar to LlamaIndex": {
-      "answer": "Based on the repo data provided, I can only cite repos that appear in the numbered list. Unfortunately, **the context doesn't include detailed information about repos similar to LlamaIndex (run-llama/llama_index)**.\n\nThe \"Related repos\" section at the end lists similar projects, but those repos aren't fully described in the numbered list I was given. From what's available, I can tell you that:\n\n**run-llama/llama_index** (49.8k★) is a RAG & retrieval platform focused on document processing, OCR, and data indexing/querying.\n\nThe related repos mentioned include frameworks like **meta-llama/llama-cookbook** (18.3k★) which covers inference, fine-tuning, and RAG workflows, and **abetlen/llama-cpp-python** (10.4k★) for local LLM inference—but I don't have enough detail in the source data to confidently compare their approaches to LlamaIndex's.\n\n**To get a proper comparison, you'd need the full descriptions of those related repos in the Reporium platform.** Would you like me to answer a different question about the repos I do have detailed information on?",
+      "answer": "Based on the repo data provided, I can see that **run-llama/llama_index** (50.0k★) is listed as a RAG & Retrieval platform for document processing and agent work.\n\nHowever, the sources don't include detailed information about repos explicitly marked as similar to LlamaIndex. The \"Related repos\" section at the end lists many repos (like awesome-llm-apps, txtai, MindSearch, etc.), but these are only mentioned by name without full descriptions or data in the Reporium sources provided.\n\nFrom the repos **that are fully documented** in this dataset, the closest functional overlap would be:\n\n- **meta-llama/llama-cookbook** (18.3k★) — covers RAG as part of its complete ML workflow, though it's more of a guide/cookbook than a specialized RAG framework like LlamaIndex.\n\nTo get a comprehensive list of repos similar to LlamaIndex with proper comparisons, I'd need access to the full Reporium data for those related repos (Shubhamsaboo/awesome-llm-apps, neuml/txtai, InternLM/MindSearch, etc.). The context provided doesn't have enough detail on those alternatives.",
       "sources": [
         {
           "name": "llama_index",
           "owner": "run-llama",
           "forked_from": "run-llama/llama_index",
           "description": "LlamaIndex is the leading document agent and OCR platform",
-          "stars": 49766,
+          "stars": 49990,
           "relevance_score": 0.5356,
           "problem_solved": null,
           "integration_tags": []
@@ -6712,7 +6712,7 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama3",
           "description": "The official Meta Llama 3 GitHub site",
-          "stars": 29287,
+          "stars": 29286,
           "relevance_score": 0.5098,
           "problem_solved": null,
           "integration_tags": []
@@ -6722,7 +6722,7 @@
           "owner": "cocktailpeanut",
           "forked_from": "cocktailpeanut/dalai",
           "description": "The simplest way to run LLaMA on your local machine",
-          "stars": 12930,
+          "stars": 12928,
           "relevance_score": 0.501,
           "problem_solved": null,
           "integration_tags": []
@@ -6732,7 +6732,7 @@
           "owner": "mozilla-ai",
           "forked_from": "mozilla-ai/llamafile",
           "description": "Distribute and run LLMs with a single file.",
-          "stars": 24539,
+          "stars": 24689,
           "relevance_score": 0.4971,
           "problem_solved": null,
           "integration_tags": []
@@ -6742,7 +6742,7 @@
           "owner": "CJackHwang",
           "forked_from": "CJackHwang/ds2api",
           "description": "DeepSeek-Compatible Middleware Interface: A technical exploration project in Go, focusing on high-concurrency protocol adaptation. It serves as a reference implementation for converting diverse web protocols into standardized formats.",
-          "stars": 4625,
+          "stars": 4659,
           "relevance_score": 0.4523,
           "problem_solved": null,
           "integration_tags": []
@@ -6752,7 +6752,7 @@
           "owner": "abetlen",
           "forked_from": "abetlen/llama-cpp-python",
           "description": "Python bindings for llama.cpp",
-          "stars": 10353,
+          "stars": 10377,
           "relevance_score": 0.4519,
           "problem_solved": null,
           "integration_tags": []
@@ -6762,7 +6762,7 @@
           "owner": "Helicone",
           "forked_from": "Helicone/helicone",
           "description": "🧊 Open source LLM observability platform. One line of code to monitor, evaluate, and experiment. YC W23 🍓",
-          "stars": 5755,
+          "stars": 5788,
           "relevance_score": 0.4503,
           "problem_solved": null,
           "integration_tags": []
@@ -6772,31 +6772,31 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama-cookbook",
           "description": "Welcome to the Llama Cookbook! This is your go to guide for Building with Llama: Getting started with Inference, Fine-Tuning, RAG. We also show you how to solve end to end problems using Llama model family and using them on various provider services  ",
-          "stars": 18338,
+          "stars": 18347,
           "relevance_score": 0.4495,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-03T11:14:05.856Z"
+      "generatedAt": "2026-06-09T10:18:33.833Z"
     },
     "Alternatives to transformers": {
-      "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nIf you're looking for **alternatives to the Transformers library**, I'd need repos in my knowledge base that provide similar functionality. Based on what I have available, I can tell you about **transformerlab/transformerlab-app** (5.0k★), which is an open-source application for working with large language models and diffusion models locally—but it's more of a UI/engineering platform than a direct Transformers alternative.\n\nCould you clarify what you're looking for?\n- Are you seeking **alternative frameworks** for building LLMs?\n- Are you looking for **local LLM tools** similar to transformerlab?\n- Or do you want alternatives for a specific task (fine-tuning, inference, etc.)?\n\nWith more context, I can point you to the right repos from Reporium.",
+      "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nThat said, if you're asking about **alternatives to the Transformers library for LLM work**, the context provided doesn't contain enough information to answer that question—it only includes data on **transformerlab/transformerlab-app** (5.1k★), which is an application for training and fine-tuning LLMs, not a direct alternative to the Transformers library itself.\n\nIf you'd like, you could ask me:\n- \"What repos in Reporium help with LLM fine-tuning or training?\"\n- \"What does transformerlab/transformerlab-app do?\"\n- \"Compare these specific LLM frameworks...\"\n\nI'd be happy to help with those!",
       "sources": [
         {
           "name": "transformerlab-app",
           "owner": "transformerlab",
           "forked_from": "transformerlab/transformerlab-app",
           "description": "Open Source Application for Advanced LLM + Diffusion Engineering: interact, train, fine-tune, and evaluate large language models on your own computer.",
-          "stars": 5025,
+          "stars": 5095,
           "relevance_score": 0.4339,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-04T11:07:19.758Z"
+      "generatedAt": "2026-06-09T10:18:47.384Z"
     },
     "What depends on PyTorch?": {
       "answer": "Based on the repo data provided, I can identify several tools and libraries that depend on or are built on PyTorch:\n\n**Direct PyTorch-based tools:**\n\n1. **Lightning-AI/pytorch-lightning** (31.1k★) — Built on PyTorch foundation, it eliminates boilerplate for distributed training across single to 10,000+ GPUs while ensuring compatibility with the existing PyTorch ecosystem.\n\n2. **meta-pytorch/torchtune** (5.7k★) — A PyTorch-native post-training library with seamless integration into existing PyTorch workflows through its modular architecture.\n\n3. **pytorch/ao** (2.8k★) — PyTorch-native quantization and sparsity library for training and inference, eliminating external dependency friction.\n\n4. **fab-jul/L3C-PyTorch** (409★) — A PyTorch implementation of learned lossless image compression research.\n\n5. **DeepGraphLearning/torchdrug** (1.6k★) — A PyTorch-based machine learning platform specialized for drug discovery.\n\n**Learning & Resource Collections:**\n\nThe data also lists **mrdbourke/pytorch-deep-learning** and **bharathgs/Awesome-pytorch-list** as comprehensive learning materials and curated lists of PyTorch-related content.\n\nHowever, the provided context doesn't include detailed dependency graphs showing what *else* depends on these PyTorch tools. For a complete dependency map, you'd need additional technical documentation or package manager data beyond what's in these repo summaries.",
@@ -6883,13 +6883,13 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-04T11:07:31.088Z"
+      "generatedAt": "2026-06-09T10:18:58.560Z"
     },
     "What depends on transformers?": {
       "answer": "I don't have enough relevant information in the Reporium knowledge base to answer that question. Try asking about specific AI dev tools, libraries, or repository categories.",
       "sources": [],
       "model": "early-exit",
-      "generatedAt": "2026-06-04T11:07:43.212Z"
+      "generatedAt": "2026-06-09T10:19:10.966Z"
     },
     "What depends on LangChain?": {
       "answer": "Based on the repo data provided, here are the tools that depend on LangChain:\n\n1. **jina-ai/langchain-serve** (1.6k★) — Designed to serve LangChain apps in production using Jina & FastAPI. It integrates LangChain with Jina's cloud infrastructure to reduce boilerplate for deploying LangChain chains and agents at scale.\n\n2. **chatchat-space/Langchain-Chatchat** (37.9k★) — A RAG and Agent application built on LangChain that supports multiple open-source LLMs like ChatGLM, Qwen, and Llama. It leverages LangChain's framework for LLM orchestration and local knowledge-based applications.\n\nBoth tools build directly on top of **langchain-ai/langchain** (135.4k★), which is the foundation framework providing the core LLM application stack (prompts, chains, agents).\n\n**Note:** The community health metrics for these repos show concerning signals (zero contributors, 0% issue close rates, unknown test coverage), which may indicate maintenance challenges despite their star counts.",
@@ -6926,7 +6926,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-04T11:07:54.489Z"
+      "generatedAt": "2026-06-09T10:19:22.176Z"
     },
     "What is built on FastAPI?": {
       "answer": "Based on the repo data provided, several projects are built on FastAPI:\n\n1. **tadata-org/fastapi_mcp** (11.8k★) — Exposes FastAPI endpoints as Model Context Protocol (MCP) tools with built-in authentication support.\n\n2. **vstorm-co/full-stack-ai-agent-template** (1.2k★) — A production-ready Full-Stack AI Agent Template that uses FastAPI as its backend, combined with Next.js frontend and 5 AI frameworks (PydanticAI, LangChain, LangGraph, CrewAI, DeepAgents). It includes WebSocket streaming, authentication, multi-database support, and 20+ integrations.\n\n3. **chenyme/grok2api** (4.6k★) — Built on FastAPI to provide a Grok2API service that's compatible with OpenAI's API format, supporting streaming/non-streaming conversations, image generation, video generation, and tool calling.\n\nThe core **fastapi/fastapi** (97.8k★) repository itself is the framework these projects depend on—a high-performance Python web framework based on Starlette and Pydantic for building modern APIs with async/await support.",
@@ -7013,13 +7013,13 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-04T11:08:05.711Z"
+      "generatedAt": "2026-06-09T10:19:33.365Z"
     },
     "What forks llama.cpp?": {
       "answer": "I don't have enough relevant information in the Reporium knowledge base to answer that question. Try asking about specific AI dev tools, libraries, or repository categories.",
       "sources": [],
       "model": "early-exit",
-      "generatedAt": "2026-06-04T11:08:17.724Z"
+      "generatedAt": "2026-06-09T10:19:45.391Z"
     }
   }
 }
