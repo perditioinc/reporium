@@ -1,5 +1,7 @@
 # Reporium
 
+![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)
+
 [![CI](https://github.com/perditioinc/reporium/actions/workflows/test.yml/badge.svg)](https://github.com/perditioinc/reporium/actions/workflows/test.yml)
 [![Vercel](https://img.shields.io/badge/deploy-Vercel-black)](https://vercel.com/)
 
