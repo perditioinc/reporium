@@ -1,16 +1,17 @@
 /** @jest-environment jsdom */
 
-// Smoke: the Ask surface does not leak NEXT_PUBLIC_APP_API_TOKEN into the
-// rendered DOM. Token transmission is via request body / X-App-Token header
-// only (see reporium-api/auth header reference: `app_token` body field and
-// `X-App-Token` header on the provider). Any DOM leak — value attribute,
-// data-*, text node — would be a credential exposure regression.
+// Smoke: the Ask surface does not leak the app token into the rendered DOM
+// or into any browser-side request options. Auth-hardening PR #5 removed the
+// browser-held token entirely — asks go through the same-origin proxy
+// (/api/intelligence/ask), which attaches the server-held REPORIUM_APP_TOKEN.
+// Any token appearing in the DOM or in provider options would be a
+// credential-exposure regression.
 //
 // We use a unique sentinel so a literal substring search is unambiguous.
 
-// AskPanel reads NEXT_PUBLIC_APP_API_TOKEN at module-load time. We must set
-// the env var BEFORE the import (so APP_TOKEN closes over our sentinel) and
-// must NOT use jest.resetModules — that would create a second React copy
+// Set the legacy env var BEFORE the import: even if a regression reintroduced
+// a module-load-time read of it, the sentinel must never surface anywhere.
+// We must NOT use jest.resetModules — that would create a second React copy
 // whose hooks don't match the React used by @testing-library/react, raising
 // "Cannot read properties of null (reading 'useState')".
 const TOKEN_SENTINEL = 'SMOKE_TOKEN_SENTINEL_q7Hn4xPv9zLbR';
@@ -29,9 +30,8 @@ jest.mock('next/navigation', () => ({
 }));
 
 // askQuestion is the only entry point AskPanel calls. We capture the
-// options it receives so we can also assert the token is being passed
-// THROUGH the provider — proving AskPanel doesn't render it but DOES use
-// it for auth.
+// options it receives so we can assert the token is NOT passed through the
+// browser at all — the same-origin proxy route holds it server-side.
 const askQuestion = jest.fn();
 jest.mock('@/lib/dataProvider', () => ({
   createDataProvider: () => ({
@@ -40,15 +40,13 @@ jest.mock('@/lib/dataProvider', () => ({
   }),
 }));
 
-describe('smoke: Ask surface does not expose NEXT_PUBLIC_APP_API_TOKEN', () => {
+describe('smoke: Ask surface never exposes the app token in the browser', () => {
   beforeEach(() => {
     askQuestion.mockReset();
     getSearchParams.mockReturnValue(new URLSearchParams());
   });
 
   test('rendered DOM never contains the token sentinel — initial mount', () => {
-    // Module evaluation reads NEXT_PUBLIC_APP_API_TOKEN at the top level, so
-    // the env value above is what AskPanel will use.
     const { AskPanel } = require('@/components/AskPanel');
 
     const { container } = render(<AskPanel />);
@@ -97,7 +95,7 @@ describe('smoke: Ask surface does not expose NEXT_PUBLIC_APP_API_TOKEN', () => {
     });
   });
 
-  test('token IS forwarded to the data provider — proves the value is wired, just not rendered', async () => {
+  test('token is NOT forwarded through the browser — the same-origin proxy holds it (auth-hardening PR #5)', async () => {
     askQuestion.mockResolvedValue({
       answer: 'ok',
       question: 'q',
@@ -118,10 +116,12 @@ describe('smoke: Ask surface does not expose NEXT_PUBLIC_APP_API_TOKEN', () => {
 
     await waitFor(() => expect(askQuestion).toHaveBeenCalled());
 
-    // The token MUST be in the options passed to askQuestion — that's the
-    // approved channel. If this fails, the provider isn't getting the
-    // token and the API will 401 in production.
+    // PR #5 inverted the old contract: the browser must NOT hold or forward
+    // the app token. The same-origin route handler attaches the server-held
+    // REPORIUM_APP_TOKEN instead. Any app_token in the provider options (or
+    // the sentinel anywhere in them) is a credential-exposure regression.
     const [, options] = askQuestion.mock.calls[0];
-    expect(options).toEqual(expect.objectContaining({ app_token: TOKEN_SENTINEL }));
+    expect(options).not.toHaveProperty('app_token');
+    expect(JSON.stringify(options ?? {})).not.toContain(TOKEN_SENTINEL);
   });
 });

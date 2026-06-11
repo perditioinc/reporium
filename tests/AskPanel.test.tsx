@@ -65,8 +65,10 @@ describe('AskPanel', () => {
     expect(screen.getByText('repo-a')).toBeTruthy();
     expect(screen.getByText('fork')).toBeTruthy();
     expect(screen.getByText('91%')).toBeTruthy();
+    // Auth-hardening PR #5: asks go through the same-origin proxy route,
+    // never directly to the API with a browser-held token.
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://api.example.com/intelligence/ask',
+      '/api/intelligence/ask',
       expect.objectContaining({ method: 'POST' }),
     );
   });
