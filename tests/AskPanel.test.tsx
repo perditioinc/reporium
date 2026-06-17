@@ -14,6 +14,17 @@ jest.mock('next/navigation', () => ({
   usePathname: () => '/',
 }));
 
+// IS_STATIC_DEPLOY is read at module load from REPORIUM_DEPLOY_TARGET. The CI
+// matrix runs Jest with that set to "github-pages" for one leg, which would
+// make AskPanel short-circuit with the static-unavailable message before ever
+// calling the same-origin proxy. These tests exercise the server-backed proxy
+// flow (auth-hardening PR #5), so pin IS_STATIC_DEPLOY false here regardless of
+// the deploy target the CI leg builds for. Keep every other askProxy export.
+jest.mock('@/lib/askProxy', () => ({
+  ...jest.requireActual('@/lib/askProxy'),
+  IS_STATIC_DEPLOY: false,
+}));
+
 describe('AskPanel', () => {
   const originalEnv = process.env;
 
