@@ -40,6 +40,17 @@ jest.mock('@/lib/dataProvider', () => ({
   }),
 }));
 
+// IS_STATIC_DEPLOY is read at module load from REPORIUM_DEPLOY_TARGET. The CI
+// matrix runs Jest with that set to "github-pages" for one leg, which would
+// make AskPanel short-circuit before calling askQuestion at all. This smoke
+// test must drive the server-backed proxy flow (auth-hardening PR #5), so pin
+// IS_STATIC_DEPLOY false regardless of the deploy target the CI leg builds for.
+// Keep every other askProxy export intact.
+jest.mock('@/lib/askProxy', () => ({
+  ...jest.requireActual('@/lib/askProxy'),
+  IS_STATIC_DEPLOY: false,
+}));
+
 describe('smoke: Ask surface never exposes the app token in the browser', () => {
   beforeEach(() => {
     askQuestion.mockReset();
