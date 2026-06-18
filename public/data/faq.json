@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T11:45:19.172Z",
+  "generatedAt": "2026-06-18T11:09:47.144Z",
   "sections": [
     {
       "title": "Library stats",
@@ -248,55 +248,55 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-17T10:24:12.039Z"
+      "generatedAt": "2026-06-18T10:03:48.769Z"
     },
     "What categories are available?": {
       "answer": "Reporium tracks repos across **19** categories:\n\n- **Foundation Models** (614 repos)\n- **Dev Tools & Automation** (342 repos)\n- **Learning Resources** (196 repos)\n- **AI Agents** (189 repos)\n- **Model Training** (110 repos)\n- **Inference & Serving** (101 repos)\n- **MLOps & Infrastructure** (57 repos)\n- **Data Science & Analytics** (55 repos)\n- **RAG & Retrieval** (54 repos)\n- **Robotics** (52 repos)\n- **Computer Vision** (50 repos)\n- **Evals & Benchmarking** (37 repos)\n- **Generative Media** (27 repos)\n- **Cloud & Platforms** (15 repos)\n- **Industry: Audio & Music** (5 repos)\n- **ML Platform & Infrastructure** (3 repos)\n- **Edge & Mobile AI** (2 repos)\n- **Security & Safety** (1 repos)\n- **Search & Knowledge** (1 repos)",
       "sources": [],
       "model": "smart-route:list_categories",
-      "generatedAt": "2026-06-17T10:24:23.120Z"
+      "generatedAt": "2026-06-18T10:03:59.847Z"
     },
     "What programming languages are used?": {
       "answer": "Top programming languages across Reporium:\n\n- **Python** (817 repos)\n- **TypeScript** (293 repos)\n- **Jupyter Notebook** (148 repos)\n- **C++** (118 repos)\n- **JavaScript** (87 repos)\n- **Go** (87 repos)\n- **Rust** (63 repos)\n- **C** (39 repos)\n- **C#** (30 repos)\n- **HTML** (22 repos)\n- **Java** (21 repos)\n- **Shell** (20 repos)\n- **Swift** (17 repos)\n- **Cuda** (8 repos)\n- **CSS** (7 repos)\n- **MDX** (6 repos)\n- **PHP** (6 repos)\n- **Ruby** (5 repos)\n- **Kotlin** (3 repos)\n- **Zig** (3 repos)",
       "sources": [],
       "model": "smart-route:list_languages",
-      "generatedAt": "2026-06-17T10:24:34.196Z"
+      "generatedAt": "2026-06-18T10:04:10.933Z"
     },
     "How many repos use Python?": {
       "answer": "There are **817** repos written in Python tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-06-17T10:24:45.270Z"
+      "generatedAt": "2026-06-18T10:04:22.025Z"
     },
     "How many repos use TypeScript?": {
       "answer": "There are **293** repos written in TypeScript tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-06-17T10:24:56.346Z"
+      "generatedAt": "2026-06-18T10:04:33.111Z"
     },
     "How many repos use Rust?": {
       "answer": "There are **63** repos written in Rust tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-06-17T10:25:07.428Z"
+      "generatedAt": "2026-06-18T10:04:44.200Z"
     },
     "How many repos are in the AI Agents category?": {
       "answer": "There are **1,950** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-06-17T10:25:18.570Z"
+      "generatedAt": "2026-06-18T10:04:55.274Z"
     },
     "How many repos are in the RAG & Retrieval category?": {
       "answer": "There are **1,950** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-06-17T10:25:29.645Z"
+      "generatedAt": "2026-06-18T10:05:06.349Z"
     },
     "How many repos are in the Foundation Models category?": {
       "answer": "There are **1,950** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-06-17T10:25:40.718Z"
+      "generatedAt": "2026-06-18T10:05:17.426Z"
     },
     "Show me Reporium stats": {
       "answer": "I can help you with that! Based on the Reporium repos tracked in the platform, here are the key stats-focused tools:\n\n**Core Stats & Metrics:**\n\n1. **perditioinc/reporium-dataset** — Public dataset mirror for reporium.com with nightly-updated AI dev tool statistics from reporium-db. It provides comprehensive analytics access for researchers and developers tracking AI tool trends.\n\n2. **perditioinc/reporium-metrics** — Platform performance tracking over time using ASCII trend charts and nightly automated collection. Lightweight Python-based approach that eliminates heavy dependencies.\n\n3. **perditioinc/reporium-roadmap** — Public product roadmap auto-updated nightly with live GitHub stats, providing transparency into Reporium's development priorities.\n\n4. **perditioinc/reporium-trust-score** — Hourly trust-score measurement for Reporium, computed as a composite of Reliability × Quality × Integrity × Freshness.\n\n**Quality Assessment:**\n\n5. **perditioinc/reporium-scoring** — Scores any GitHub repo 0-100 based on README quality, activity, community health, and CI/CD maturity.\n\nAll of these tools are Python-based and designed for automated nightly updates, ensuring fresh data. However, note that they all show minimal adoption (1 star, 0 contributors each) with 0% issue close rates, suggesting they're early-stage or experimental components of the broader Reporium platform.",
@@ -383,7 +383,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-15T11:43:42.681Z"
+      "generatedAt": "2026-06-18T10:05:28.677Z"
     },
     "What are the most starred repos?": {
       "answer": "Top 10 most-starred repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** (Dev Tools & Automation) — 515,219 stars\n- **sindresorhus/awesome** (Dev Tools & Automation) — 475,600 stars\n- **freeCodeCamp/freeCodeCamp** (Learning Resources) — 446,848 stars\n- **public-apis/public-apis** (Dev Tools & Automation) — 441,425 stars\n- **EbookFoundation/free-programming-books** (Dev Tools & Automation) — 390,217 stars\n- **openclaw/openclaw** (Dev Tools & Automation) — 378,615 stars\n- **vinta/awesome-python** (Foundation Models) — 302,812 stars\n- **practical-tutorials/project-based-learning** (Dev Tools & Automation) — 269,063 stars\n- **react/react** (Dev Tools & Automation) — 245,829 stars\n- **obra/superpowers** (Foundation Models) — 227,272 stars",
@@ -490,10 +490,10 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:43:53.751Z"
+      "generatedAt": "2026-06-18T10:05:39.752Z"
     },
     "What are the most forked repos?": {
-      "answer": "Most forked repos in Reporium:\n\n- **NVIDIA-NeMo/Guardrails** — 5,854 stars, activity: 0\n- **khanh-atom/n8n-atom-fork** — 55 stars, activity: 0\n- **dailydotdev/daily** — 19,886 stars, activity: 0\n- **Lightricks/ComfyUI-LTXVideo** — 3,770 stars, activity: 0\n- **iOfficeAI/AionUi** — 28,209 stars, activity: 0\n- **addyosmani/agent-skills** — 58,831 stars, activity: 0\n- **kiloreux/awesome-robotics** — 6,658 stars, activity: 0\n- **NVIDIA/waveglow** — 2,337 stars, activity: 0\n- **nextlevelbuilder/ui-ux-pro-max-skill** — 91,411 stars, activity: 0\n- **joke2k/faker** — 19,273 stars, activity: 0",
+      "answer": "Most forked repos in Reporium:\n\n- **NVIDIA-NeMo/Guardrails** — 5,854 stars, activity: 0\n- **khanh-atom/n8n-atom-fork** — 55 stars, activity: 0\n- **FlagOpen/FlagEmbedding** — 11,820 stars, activity: 0\n- **NVIDIA/waveglow** — 2,337 stars, activity: 0\n- **Lightricks/ComfyUI-LTXVideo** — 3,770 stars, activity: 0\n- **MarlinFirmware/Marlin** — 17,432 stars, activity: 0\n- **bevyengine/bevy** — 46,595 stars, activity: 0\n- **telegramdesktop/tdesktop** — 32,078 stars, activity: 0\n- **google/vertex-ai-nas** — 30 stars, activity: 0\n- **addyosmani/agent-skills** — 58,831 stars, activity: 0",
       "sources": [
         {
           "name": "Guardrails",
@@ -516,51 +516,11 @@
           "integration_tags": []
         },
         {
-          "name": "daily",
-          "owner": "dailydotdev",
-          "forked_from": "dailydotdev/daily",
+          "name": "FlagEmbedding",
+          "owner": "FlagOpen",
+          "forked_from": "FlagOpen/FlagEmbedding",
           "description": null,
-          "stars": 19886,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "ComfyUI-LTXVideo",
-          "owner": "Lightricks",
-          "forked_from": "Lightricks/ComfyUI-LTXVideo",
-          "description": null,
-          "stars": 3770,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "AionUi",
-          "owner": "iOfficeAI",
-          "forked_from": "iOfficeAI/AionUi",
-          "description": null,
-          "stars": 28209,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "agent-skills",
-          "owner": "addyosmani",
-          "forked_from": "addyosmani/agent-skills",
-          "description": null,
-          "stars": 58831,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "awesome-robotics",
-          "owner": "kiloreux",
-          "forked_from": "kiloreux/awesome-robotics",
-          "description": null,
-          "stars": 6658,
+          "stars": 11820,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -576,78 +536,88 @@
           "integration_tags": []
         },
         {
-          "name": "ui-ux-pro-max-skill",
-          "owner": "nextlevelbuilder",
-          "forked_from": "nextlevelbuilder/ui-ux-pro-max-skill",
+          "name": "ComfyUI-LTXVideo",
+          "owner": "Lightricks",
+          "forked_from": "Lightricks/ComfyUI-LTXVideo",
           "description": null,
-          "stars": 91411,
+          "stars": 3770,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "faker",
-          "owner": "joke2k",
-          "forked_from": "joke2k/faker",
+          "name": "Marlin",
+          "owner": "MarlinFirmware",
+          "forked_from": "MarlinFirmware/Marlin",
           "description": null,
-          "stars": 19273,
+          "stars": 17432,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "bevy",
+          "owner": "bevyengine",
+          "forked_from": "bevyengine/bevy",
+          "description": null,
+          "stars": 46595,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "tdesktop",
+          "owner": "telegramdesktop",
+          "forked_from": "telegramdesktop/tdesktop",
+          "description": null,
+          "stars": 32078,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "vertex-ai-nas",
+          "owner": "google",
+          "forked_from": "google/vertex-ai-nas",
+          "description": null,
+          "stars": 30,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "agent-skills",
+          "owner": "addyosmani",
+          "forked_from": "addyosmani/agent-skills",
+          "description": null,
+          "stars": 58831,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_forked",
-      "generatedAt": "2026-06-15T11:44:04.829Z"
+      "generatedAt": "2026-06-18T10:05:50.834Z"
     },
     "What are the most active repos?": {
-      "answer": "Most active repos in Reporium:\n\n- **GoogleCloudPlatform/golang-samples** — 4,624 stars, activity: 0\n- **dailydotdev/daily** — 19,886 stars, activity: 0\n- **joke2k/faker** — 19,273 stars, activity: 0\n- **Lightricks/ComfyUI-LTXVideo** — 3,770 stars, activity: 0\n- **iOfficeAI/AionUi** — 28,209 stars, activity: 0\n- **addyosmani/agent-skills** — 58,831 stars, activity: 0\n- **NVIDIA/waveglow** — 2,337 stars, activity: 0\n- **kiloreux/awesome-robotics** — 6,658 stars, activity: 0\n- **nextlevelbuilder/ui-ux-pro-max-skill** — 91,411 stars, activity: 0\n- **supabase/supabase** — 104,166 stars, activity: 0",
+      "answer": "Most active repos in Reporium:\n\n- **marcuswestin/store.js** — 13,984 stars, activity: 0\n- **FlagOpen/FlagEmbedding** — 11,820 stars, activity: 0\n- **addyosmani/agent-skills** — 58,831 stars, activity: 0\n- **NVIDIA/waveglow** — 2,337 stars, activity: 0\n- **Lightricks/ComfyUI-LTXVideo** — 3,770 stars, activity: 0\n- **MarlinFirmware/Marlin** — 17,432 stars, activity: 0\n- **telegramdesktop/tdesktop** — 32,078 stars, activity: 0\n- **bevyengine/bevy** — 46,595 stars, activity: 0\n- **google/vertex-ai-nas** — 30 stars, activity: 0\n- **Blaizzy/mlx-vlm** — 5,039 stars, activity: 0",
       "sources": [
         {
-          "name": "golang-samples",
-          "owner": "GoogleCloudPlatform",
-          "forked_from": "GoogleCloudPlatform/golang-samples",
+          "name": "store.js",
+          "owner": "marcuswestin",
+          "forked_from": "marcuswestin/store.js",
           "description": null,
-          "stars": 4624,
+          "stars": 13984,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "daily",
-          "owner": "dailydotdev",
-          "forked_from": "dailydotdev/daily",
+          "name": "FlagEmbedding",
+          "owner": "FlagOpen",
+          "forked_from": "FlagOpen/FlagEmbedding",
           "description": null,
-          "stars": 19886,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "faker",
-          "owner": "joke2k",
-          "forked_from": "joke2k/faker",
-          "description": null,
-          "stars": 19273,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "ComfyUI-LTXVideo",
-          "owner": "Lightricks",
-          "forked_from": "Lightricks/ComfyUI-LTXVideo",
-          "description": null,
-          "stars": 3770,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "AionUi",
-          "owner": "iOfficeAI",
-          "forked_from": "iOfficeAI/AionUi",
-          "description": null,
-          "stars": 28209,
+          "stars": 11820,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -673,38 +643,68 @@
           "integration_tags": []
         },
         {
-          "name": "awesome-robotics",
-          "owner": "kiloreux",
-          "forked_from": "kiloreux/awesome-robotics",
+          "name": "ComfyUI-LTXVideo",
+          "owner": "Lightricks",
+          "forked_from": "Lightricks/ComfyUI-LTXVideo",
           "description": null,
-          "stars": 6658,
+          "stars": 3770,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "ui-ux-pro-max-skill",
-          "owner": "nextlevelbuilder",
-          "forked_from": "nextlevelbuilder/ui-ux-pro-max-skill",
+          "name": "Marlin",
+          "owner": "MarlinFirmware",
+          "forked_from": "MarlinFirmware/Marlin",
           "description": null,
-          "stars": 91411,
+          "stars": 17432,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "supabase",
-          "owner": "supabase",
-          "forked_from": "supabase/supabase",
+          "name": "tdesktop",
+          "owner": "telegramdesktop",
+          "forked_from": "telegramdesktop/tdesktop",
           "description": null,
-          "stars": 104166,
+          "stars": 32078,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "bevy",
+          "owner": "bevyengine",
+          "forked_from": "bevyengine/bevy",
+          "description": null,
+          "stars": 46595,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "vertex-ai-nas",
+          "owner": "google",
+          "forked_from": "google/vertex-ai-nas",
+          "description": null,
+          "stars": 30,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "mlx-vlm",
+          "owner": "Blaizzy",
+          "forked_from": "Blaizzy/mlx-vlm",
+          "description": null,
+          "stars": 5039,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_active",
-      "generatedAt": "2026-06-15T11:44:15.899Z"
+      "generatedAt": "2026-06-18T10:06:01.913Z"
     },
     "What are the newest repos?": {
       "answer": "Most newest repos in Reporium:\n\n- **VoltAgent/awesome-design-md** — 90,069 stars, activity: 0\n- **ultraworkers/claw-code** — 193,758 stars, activity: 0\n- **mitkox/vllm-turboquant** — 600 stars, activity: 0\n- **capgym/cap-x** — 547 stars, activity: 0\n- **facebookresearch/tribev2** — 2,865 stars, activity: 0\n- **HKUDS/OpenSpace** — 6,523 stars, activity: 0\n- **zarazhangrui/codebase-to-course** — 4,635 stars, activity: 0\n- **perditioinc/repo-intelligence** — 1 stars, activity: 0\n- **aidancorrell/arcana** — 7 stars, activity: 0\n- **danveloper/flash-moe** — 3,920 stars, activity: 0",
@@ -811,7 +811,7 @@
         }
       ],
       "model": "smart-route:most_newest",
-      "generatedAt": "2026-06-15T11:44:26.978Z"
+      "generatedAt": "2026-06-18T10:06:13.005Z"
     },
     "What are the most popular repos?": {
       "answer": "Most popular repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** — 515,219 stars, activity: 0\n- **sindresorhus/awesome** — 475,600 stars, activity: 0\n- **freeCodeCamp/freeCodeCamp** — 446,848 stars, activity: 0\n- **public-apis/public-apis** — 441,425 stars, activity: 0\n- **EbookFoundation/free-programming-books** — 390,217 stars, activity: 0\n- **openclaw/openclaw** — 378,615 stars, activity: 0\n- **vinta/awesome-python** — 302,812 stars, activity: 0\n- **practical-tutorials/project-based-learning** — 269,063 stars, activity: 0\n- **react/react** — 245,829 stars, activity: 0\n- **obra/superpowers** — 227,272 stars, activity: 0",
@@ -918,7 +918,7 @@
         }
       ],
       "model": "smart-route:most_popular",
-      "generatedAt": "2026-06-15T11:44:38.106Z"
+      "generatedAt": "2026-06-18T10:06:24.163Z"
     },
     "What are the top 10 most starred repos?": {
       "answer": "Based on the repo data provided, here are the top 5 most starred repos I can identify:\n\n1. **perditioinc/awesome** (451.3k★) — A comprehensive collection of awesome lists covering all kinds of interesting topics, serving as a learning resource across multiple domains.\n\n2. **perditioinc/GitHubDaily** (45.9k★) — A curated list of cool, interesting, and practical open-source projects from GitHub, including technical tutorials, developer tools, programming resources, and tech news.\n\n3. **perditioinc/recommenders** (21.6k★) — Best practices and implementations for recommendation systems.\n\n4. **perditioinc/reporium-roadmap** — Public product roadmap for reporium.com with live GitHub stats (star count not provided in the data).\n\n5. **perditioinc/reporium-db** — Nightly GitHub metadata sync infrastructure powering reporium.com (star count not provided in the data).",
@@ -975,10 +975,10 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-15T11:44:49.249Z"
+      "generatedAt": "2026-06-18T10:06:35.325Z"
     },
     "What's new this week?": {
-      "answer": "Recently added repos (10 shown):\n\n- **apple/container** — 36,578 stars\n- **maziyarpanahi/openmed** — 3,429 stars\n- **apple/coreai-models** — 881 stars\n- **comet-ml/opik** — 19,627 stars\n- **music-assistant/server** — 2,069 stars\n- **run-llama/liteparse** — 10,021 stars\n- **nesquena/hermes-webui** — 14,383 stars\n- **eugeniughelbur/obsidian-second-brain** — 2,438 stars\n- **EveryInc/compound-engineering-plugin** — 21,210 stars\n- **revfactory/harness** — 6,945 stars",
+      "answer": "Recently added repos (10 shown):\n\n- **apple/container** — 36,578 stars\n- **maziyarpanahi/openmed** — 3,429 stars\n- **apple/coreai-models** — 881 stars\n- **music-assistant/server** — 2,069 stars\n- **comet-ml/opik** — 19,627 stars\n- **run-llama/liteparse** — 10,021 stars\n- **eugeniughelbur/obsidian-second-brain** — 2,438 stars\n- **nesquena/hermes-webui** — 14,383 stars\n- **EveryInc/compound-engineering-plugin** — 21,210 stars\n- **nicobailon/pi-subagents** — 2,180 stars",
       "sources": [
         {
           "name": "container",
@@ -1011,21 +1011,21 @@
           "integration_tags": []
         },
         {
-          "name": "opik",
-          "owner": "comet-ml",
-          "forked_from": "comet-ml/opik",
-          "description": "Debug, evaluate, and monitor your LLM applications, RAG systems, and agentic workflows with comprehensive tracing, automated evaluations, and production-ready dashboards.",
-          "stars": 19627,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
           "name": "server",
           "owner": "music-assistant",
           "forked_from": "music-assistant/server",
           "description": "Music Assistant is a free, opensource Media library manager that connects to your streaming services and a wide range of connected speakers. The server is the beating heart, the core of Music Assistant and must run on an always-on device like a Raspberry Pi, a NAS or an Intel NUC or alike.",
           "stars": 2069,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "opik",
+          "owner": "comet-ml",
+          "forked_from": "comet-ml/opik",
+          "description": "Debug, evaluate, and monitor your LLM applications, RAG systems, and agentic workflows with comprehensive tracing, automated evaluations, and production-ready dashboards.",
+          "stars": 19627,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -1041,21 +1041,21 @@
           "integration_tags": []
         },
         {
-          "name": "hermes-webui",
-          "owner": "nesquena",
-          "forked_from": "nesquena/hermes-webui",
-          "description": "Hermes WebUI: The best way to use Hermes Agent from the web or from your phone!",
-          "stars": 14383,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
           "name": "obsidian-second-brain",
           "owner": "eugeniughelbur",
           "forked_from": "eugeniughelbur/obsidian-second-brain",
           "description": "Cross-CLI skill for Obsidian: turn your vault into a living AI-first second brain across Claude Code, Codex, Gemini, and OpenCode. 43 commands - now with /obsidian-architect to document your codebase, key-less web research, Google Calendar, and self-rewriting notes.",
           "stars": 2438,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
+        {
+          "name": "hermes-webui",
+          "owner": "nesquena",
+          "forked_from": "nesquena/hermes-webui",
+          "description": "Hermes WebUI: The best way to use Hermes Agent from the web or from your phone!",
+          "stars": 14383,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -1071,24 +1071,24 @@
           "integration_tags": []
         },
         {
-          "name": "harness",
-          "owner": "revfactory",
-          "forked_from": "revfactory/harness",
-          "description": "A meta-skill that designs domain-specific agent teams, defines specialized agents, and generates the skills they use.",
-          "stars": 6945,
+          "name": "pi-subagents",
+          "owner": "nicobailon",
+          "forked_from": "nicobailon/pi-subagents",
+          "description": "Pi extension for async subagent delegation with truncation, artifacts, and session sharing",
+          "stars": 2180,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:recently_added",
-      "generatedAt": "2026-06-15T11:45:00.324Z"
+      "generatedAt": "2026-06-18T10:06:46.410Z"
     },
     "What was added recently?": {
       "answer": "I don't have enough relevant information in the Reporium knowledge base to answer that question. Try asking about specific AI dev tools, libraries, or repository categories.",
       "sources": [],
       "model": "early-exit",
-      "generatedAt": "2026-06-15T11:45:13.076Z"
+      "generatedAt": "2026-06-18T10:06:59.643Z"
     },
     "Show me the latest repos": {
       "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nIf you're looking to explore repos from the sources I have available, I can help you with:\n- **Specific repo comparisons** (e.g., \"Compare perditioinc/reporium-db and perditioinc/reporium-dataset\")\n- **Finding tools for a use case** (e.g., \"What repos help with GitHub metadata management?\")\n- **Understanding what a specific repo does** (e.g., \"What does perditioinc/reporium-mcp do?\")\n\nWhat would you like to know about the AI dev tools and repos I have?",
@@ -1175,7 +1175,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-15T11:45:24.200Z"
+      "generatedAt": "2026-06-18T10:07:10.797Z"
     },
     "What are the oldest repos?": {
       "answer": "Most oldest repos in Reporium:\n\n- **spree/spree** — 15,478 stars, activity: 0\n- **git/git** — 61,495 stars, activity: 0\n- **mongodb/mongo** — 28,361 stars, activity: 0\n- **biopython/biopython** — 5,074 stars, activity: 0\n- **redis/redis** — 74,859 stars, activity: 0\n- **nltk/nltk** — 14,643 stars, activity: 0\n- **aubio/aubio** — 3,713 stars, activity: 0\n- **mrdoob/three.js** — 113,040 stars, activity: 0\n- **marcuswestin/store.js** — 13,984 stars, activity: 0\n- **scikit-learn/scikit-learn** — 66,322 stars, activity: 0",
@@ -1282,7 +1282,7 @@
         }
       ],
       "model": "smart-route:most_oldest",
-      "generatedAt": "2026-06-15T11:45:35.274Z"
+      "generatedAt": "2026-06-18T10:07:21.883Z"
     },
     "Show me Foundation Model repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"foundation model\":\n\n- **vinta/awesome-python** (Foundation Models) — 302,812 stars\n- **obra/superpowers** (Foundation Models) — 227,272 stars\n- **ultraworkers/claw-code** (Foundation Models) — 193,758 stars\n- **NousResearch/hermes-agent** (Foundation Models) — 192,986 stars\n- **multica-ai/andrej-karpathy-skills** (Foundation Models) — 174,956 stars\n- **anomalyco/opencode** (Foundation Models) — 174,163 stars\n- **ollama/ollama** (Foundation Models) — 174,103 stars\n- **f/prompts.chat** (Foundation Models) — 163,689 stars\n- **AUTOMATIC1111/stable-diffusion-webui** (Foundation Models) — 163,683 stars\n- **huggingface/transformers** (Foundation Models) — 161,573 stars",
@@ -1389,7 +1389,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:45:46.345Z"
+      "generatedAt": "2026-06-18T10:07:32.965Z"
     },
     "Show me AI Agent repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"ai agent\":\n\n- **affaan-m/ECC** (AI Agents) — 215,107 stars\n- **langflow-ai/langflow** (AI Agents) — 149,641 stars\n- **firecrawl/firecrawl** (AI Agents) — 132,502 stars\n- **Shubhamsaboo/awesome-llm-apps** (AI Agents) — 114,495 stars\n- **microsoft/generative-ai-for-beginners** (AI Agents) — 111,942 stars\n- **google-gemini/gemini-cli** (AI Agents) — 105,258 stars\n- **puppeteer/puppeteer** (AI Agents) — 94,549 stars\n- **punkpeye/awesome-mcp-servers** (AI Agents) — 89,108 stars\n- **thedotmack/claude-mem** (AI Agents) — 82,178 stars\n- **mlabonne/llm-course** (AI Agents) — 80,117 stars",
@@ -1496,7 +1496,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:45:57.412Z"
+      "generatedAt": "2026-06-18T10:07:44.044Z"
     },
     "Show me RAG & Retrieval repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"rag & retrieval\":\n\n- **infiniflow/ragflow** (RAG & Retrieval) — 82,678 stars\n- **protocolbuffers/protobuf** (RAG & Retrieval) — 71,356 stars\n- **pathwaycom/llm-app** (RAG & Retrieval) — 59,359 stars\n- **zylon-ai/private-gpt** (RAG & Retrieval) — 57,245 stars\n- **run-llama/llama_index** (RAG & Retrieval) — 50,114 stars\n- **hiroi-sora/Umi-OCR** (RAG & Retrieval) — 45,188 stars\n- **milvus-io/milvus** (RAG & Retrieval) — 44,768 stars\n- **babysor/MockingBird** (RAG & Retrieval) — 36,900 stars\n- **HKUDS/LightRAG** (RAG & Retrieval) — 36,535 stars\n- **microsoft/graphrag** (RAG & Retrieval) — 33,708 stars",
@@ -1603,7 +1603,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:46:08.482Z"
+      "generatedAt": "2026-06-18T10:07:55.200Z"
     },
     "Show me Inference & Serving repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"inference & serving\":\n\n- **tensorflow/tensorflow** (Inference & Serving) — 195,644 stars\n- **open-webui/open-webui** (Inference & Serving) — 141,427 stars\n- **iptv-org/iptv** (Inference & Serving) — 119,559 stars\n- **hacksider/Deep-Live-Cam** (Inference & Serving) — 93,819 stars\n- **opencv/opencv** (Inference & Serving) — 89,089 stars\n- **vllm-project/vllm** (Inference & Serving) — 82,810 stars\n- **PaddlePaddle/PaddleOCR** (Inference & Serving) — 82,135 stars\n- **obsproject/obs-studio** (Inference & Serving) — 73,175 stars\n- **openinterpreter/openinterpreter** (Inference & Serving) — 63,945 stars\n- **pi-hole/pi-hole** (Inference & Serving) — 59,266 stars",
@@ -1710,7 +1710,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:46:19.553Z"
+      "generatedAt": "2026-06-18T10:08:06.276Z"
     },
     "Show me Model Training repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"model training\":\n\n- **pytorch/pytorch** (Model Training) — 100,735 stars\n- **rasbt/LLMs-from-scratch** (Model Training) — 97,129 stars\n- **hiyouga/LlamaFactory** (Model Training) — 72,143 stars\n- **meta-llama/llama** (Model Training) — 59,455 stars\n- **google-research/bert** (Model Training) — 40,027 stars\n- **google-research/google-research** (Model Training) — 38,128 stars\n- **xinntao/Real-ESRGAN** (Model Training) — 35,770 stars\n- **blakeblackshear/frigate** (Model Training) — 33,727 stars\n- **explosion/spaCy** (Model Training) — 33,657 stars\n- **tinygrad/tinygrad** (Model Training) — 33,076 stars",
@@ -1817,7 +1817,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:46:30.625Z"
+      "generatedAt": "2026-06-18T10:08:17.355Z"
     },
     "Show me Evals & Benchmarking repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"evals & benchmarking\":\n\n- **alacritty/alacritty** (Evals & Benchmarking) — 64,557 stars\n- **facebookresearch/faiss** (Evals & Benchmarking) — 40,278 stars\n- **alibaba/arthas** (Evals & Benchmarking) — 37,364 stars\n- **facebookresearch/detectron2** (Evals & Benchmarking) — 34,548 stars\n- **lightpanda-io/browser** (Evals & Benchmarking) — 31,094 stars\n- **Crosstalk-Solutions/project-nomad** (Evals & Benchmarking) — 30,743 stars\n- **facefusion/facefusion** (Evals & Benchmarking) — 28,786 stars\n- **SigNoz/signoz** (Evals & Benchmarking) — 27,330 stars\n- **elder-plinius/L1B3RT4S** (Evals & Benchmarking) — 19,657 stars\n- **confident-ai/deepeval** (Evals & Benchmarking) — 16,143 stars",
@@ -1924,7 +1924,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:46:41.687Z"
+      "generatedAt": "2026-06-18T10:08:28.434Z"
     },
     "Show me MLOps repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"mlops\":\n\n- **rustdesk/rustdesk** (MLOps & Infrastructure) — 116,123 stars\n- **sherlock-project/sherlock** (MLOps & Infrastructure) — 84,981 stars\n- **Z4nzu/hackingtool** (MLOps & Infrastructure) — 77,446 stars\n- **traefik/traefik** (MLOps & Infrastructure) — 63,600 stars\n- **usememos/memos** (MLOps & Infrastructure) — 60,734 stars\n- **spf13/cobra** (MLOps & Infrastructure) — 44,089 stars\n- **ray-project/ray** (MLOps & Infrastructure) — 42,864 stars\n- **paperless-ngx/paperless-ngx** (MLOps & Infrastructure) — 42,127 stars\n- **XTLS/Xray-core** (MLOps & Infrastructure) — 39,551 stars\n- **aquasecurity/trivy** (MLOps & Infrastructure) — 36,430 stars",
@@ -2031,7 +2031,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:46:52.755Z"
+      "generatedAt": "2026-06-18T10:08:39.517Z"
     },
     "Show me Computer Vision repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"computer vision\":\n\n- **ultralytics/ultralytics** (Computer Vision) — 58,364 stars\n- **lllyasviel/ControlNet** (Computer Vision) — 33,936 stars\n- **open-mmlab/mmdetection** (Computer Vision) — 32,755 stars\n- **matterport/Mask_RCNN** (Computer Vision) — 25,561 stars\n- **spmallick/learnopencv** (Computer Vision) — 22,970 stars\n- **graphdeco-inria/gaussian-splatting** (Computer Vision) — 22,348 stars\n- **PaddlePaddle/PaddleDetection** (Computer Vision) — 14,238 stars\n- **facebookresearch/dinov2** (Computer Vision) — 12,980 stars\n- **alicevision/Meshroom** (Computer Vision) — 12,789 stars\n- **openai/shap-e** (Computer Vision) — 12,244 stars",
@@ -2138,7 +2138,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:47:03.824Z"
+      "generatedAt": "2026-06-18T10:08:50.598Z"
     },
     "Show me Robotics repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"robotics\":\n\n- **Developer-Y/cs-video-courses** (Robotics) — 81,790 stars\n- **huggingface/lerobot** (Robotics) — 24,953 stars\n- **MarlinFirmware/Marlin** (Robotics) — 17,432 stars\n- **pascalorg/editor** (Robotics) — 16,770 stars\n- **bulletphysics/bullet3** (Robotics) — 14,543 stars\n- **google-deepmind/mujoco** (Robotics) — 13,861 stars\n- **jrouwe/JoltPhysics** (Robotics) — 10,496 stars\n- **pymupdf/PyMuPDF** (Robotics) — 9,996 stars\n- **TelegramMessenger/Telegram-iOS** (Robotics) — 8,605 stars\n- **bwya77/vscode-dark-islands** (Robotics) — 8,587 stars",
@@ -2245,7 +2245,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:47:14.907Z"
+      "generatedAt": "2026-06-18T10:09:01.673Z"
     },
     "Show me Generative Media repos with the most stars": {
       "answer": "Top 10 most-starred repos in \"generative media\":\n\n- **Comfy-Org/ComfyUI** (Generative Media) — 116,913 stars\n- **lllyasviel/Fooocus** (Generative Media) — 50,169 stars\n- **myshell-ai/OpenVoice** (Generative Media) — 36,701 stars\n- **huggingface/diffusers** (Generative Media) — 33,845 stars\n- **OpenBMB/VoxCPM** (Generative Media) — 29,001 stars\n- **sczhou/CodeFormer** (Generative Media) — 18,003 stars\n- **camenduru/stable-diffusion-webui-colab** (Generative Media) — 15,937 stars\n- **Tencent-Hunyuan/Hunyuan3D-2** (Generative Media) — 13,956 stars\n- **Lightricks/LTX-Video** (Generative Media) — 10,474 stars\n- **bentoml/BentoML** (Generative Media) — 8,672 stars",
@@ -2352,7 +2352,7 @@
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-06-15T11:47:25.983Z"
+      "generatedAt": "2026-06-18T10:09:12.746Z"
     },
     "Which repos use PyTorch?": {
       "answer": "Repos tagged with \"pytorch\" (10 shown):\n\n- **codecrafters-io/build-your-own-x** — 515,219 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **practical-tutorials/project-based-learning** — 269,063 stars (Dev Tools & Automation)\n- **AUTOMATIC1111/stable-diffusion-webui** — 163,683 stars (Foundation Models)\n- **huggingface/transformers** — 161,573 stars (Foundation Models)\n- **Comfy-Org/ComfyUI** — 116,913 stars (Generative Media)\n- **ggml-org/llama.cpp** — 116,446 stars (Foundation Models)\n- **deepseek-ai/DeepSeek-V3** — 103,747 stars (Foundation Models)\n- **openai/whisper** — 102,667 stars (Foundation Models)\n- **pytorch/pytorch** — 100,735 stars (Model Training)",
@@ -2459,7 +2459,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:47:37.076Z"
+      "generatedAt": "2026-06-18T10:09:23.844Z"
     },
     "Which repos use TensorFlow?": {
       "answer": "Repos tagged with \"tensorflow\" (10 shown):\n\n- **codecrafters-io/build-your-own-x** — 515,219 stars (Dev Tools & Automation)\n- **sindresorhus/awesome** — 475,600 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **practical-tutorials/project-based-learning** — 269,063 stars (Dev Tools & Automation)\n- **tensorflow/tensorflow** — 195,644 stars (Inference & Serving)\n- **pytorch/pytorch** — 100,735 stars (Model Training)\n- **josephmisiti/awesome-machine-learning** — 72,782 stars (Dev Tools & Automation)\n- **Avik-Jain/100-Days-Of-ML-Code** — 51,242 stars (Data Science & Analytics)\n- **microsoft/AI-For-Beginners** — 48,123 stars (AI Agents)\n- **microsoft/qlib** — 44,388 stars (Learning Resources)",
@@ -2566,7 +2566,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:47:48.165Z"
+      "generatedAt": "2026-06-18T10:09:34.939Z"
     },
     "Which repos use Hugging Face transformers?": {
       "answer": "Based on the repo data provided, I can identify the following repos that directly use or are part of the Hugging Face ecosystem:\n\n1. **huggingface/transformers** (160.1k★) - The core framework itself for state-of-the-art ML models in text, vision, audio, and multimodal domains.\n\n2. **huggingface/skills** (10.4k★) - Integrates with the Hugging Face ecosystem, leveraging popular pre-trained models from the transformers library for modular AI skill composition.\n\n3. **huggingface/course** (3.9k★) - The official Hugging Face course on Transformers that teaches the framework with hands-on tutorials across NLP, computer vision, and audio.\n\n4. **huggingface/agents-course** (28.3k★) - The official Hugging Face Agents Course covering end-to-end agent development using established Hugging Face tools.\n\nHowever, the repo data provided doesn't contain detailed information about which of the \"related repos\" listed (like transformerlab/transformerlab-app, mlabonne/llm-course, anthropics/skills, etc.) actually integrate with Hugging Face transformers. To give you a complete answer about all repos using transformers, I'd need more detailed documentation on those related projects.",
@@ -2623,7 +2623,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-06-15T11:47:59.434Z"
+      "generatedAt": "2026-06-18T10:09:46.300Z"
     },
     "Which repos use LangChain?": {
       "answer": "Repos tagged with \"langchain\" (10 shown):\n\n- **codecrafters-io/build-your-own-x** — 515,219 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **ollama/ollama** — 174,103 stars (Foundation Models)\n- **langchain-ai/langchain** — 139,232 stars (Foundation Models)\n- **microsoft/generative-ai-for-beginners** — 111,942 stars (AI Agents)\n- **microsoft/Web-Dev-For-Beginners** — 95,882 stars (Dev Tools & Automation)\n- **punkpeye/awesome-mcp-servers** — 89,108 stars (AI Agents)\n- **mlabonne/llm-course** — 80,117 stars (AI Agents)\n- **lobehub/lobehub** — 78,636 stars (Dev Tools & Automation)\n- **nomic-ai/gpt4all** — 77,364 stars (Foundation Models)",
@@ -2730,7 +2730,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:48:10.517Z"
+      "generatedAt": "2026-06-18T10:09:57.404Z"
     },
     "Which repos use LlamaIndex?": {
       "answer": "Repos tagged with \"llamaindex\" (10 shown):\n\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **ollama/ollama** — 174,103 stars (Foundation Models)\n- **modelcontextprotocol/servers** — 87,190 stars (Dev Tools & Automation)\n- **mlabonne/llm-course** — 80,117 stars (AI Agents)\n- **pathwaycom/pathway** — 62,989 stars (Foundation Models)\n- **docling-project/docling** — 61,513 stars (AI Agents)\n- **pathwaycom/llm-app** — 59,359 stars (RAG & Retrieval)\n- **zylon-ai/private-gpt** — 57,245 stars (RAG & Retrieval)\n- **run-llama/llama_index** — 50,114 stars (RAG & Retrieval)\n- **GitHubDaily/GitHubDaily** — 46,769 stars (Foundation Models)",
@@ -2837,7 +2837,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:48:21.605Z"
+      "generatedAt": "2026-06-18T10:10:08.551Z"
     },
     "Which repos use FastAPI?": {
       "answer": "Repos using or supporting **fastapi** (6 shown):\n\n- **fastapi/fastapi** — 99,177 stars (Dev Tools & Automation)\n- **tadata-org/fastapi_mcp** — 11,915 stars (Dev Tools & Automation)\n- **mjhea0/awesome-fastapi** — 11,433 stars (Dev Tools & Automation)\n- **chenyme/grok2api** — 5,214 stars (Dev Tools & Automation)\n- **jina-ai/langchain-serve** — 1,643 stars (Dev Tools & Automation)\n- **vstorm-co/full-stack-ai-agent-template** — 1,408 stars (AI Agents)",
@@ -2904,7 +2904,7 @@
         }
       ],
       "model": "smart-route:tech_search",
-      "generatedAt": "2026-06-15T11:48:32.980Z"
+      "generatedAt": "2026-06-18T10:10:19.995Z"
     },
     "Which repos use Streamlit?": {
       "answer": "Repos using or supporting **streamlit** (2 shown):\n\n- **Snowflake-Labs/cocoplus** — 597 stars (Foundation Models)\n- **anesriad/Regression_ML_EndtoEnd** — 199 stars (Data Science & Analytics)",
@@ -2931,7 +2931,7 @@
         }
       ],
       "model": "smart-route:tech_search",
-      "generatedAt": "2026-06-15T11:48:44.383Z"
+      "generatedAt": "2026-06-18T10:10:31.376Z"
     },
     "Which repos use Gradio?": {
       "answer": "Repos using or supporting **gradio** (2 shown):\n\n- **AUTOMATIC1111/stable-diffusion-webui** — 163,683 stars (Foundation Models)\n- **rsxdalv/TTS-WebUI** — 3,167 stars (Generative Media)",
@@ -2958,7 +2958,7 @@
         }
       ],
       "model": "smart-route:tech_search",
-      "generatedAt": "2026-06-15T11:48:55.748Z"
+      "generatedAt": "2026-06-18T10:10:42.747Z"
     },
     "Which repos use OpenAI?": {
       "answer": "Repos tagged with \"openai\" (10 shown):\n\n- **sindresorhus/awesome** — 475,600 stars (Dev Tools & Automation)\n- **openclaw/openclaw** — 378,615 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **affaan-m/ECC** — 215,107 stars (AI Agents)\n- **ultraworkers/claw-code** — 193,758 stars (Foundation Models)\n- **NousResearch/hermes-agent** — 192,986 stars (Foundation Models)\n- **Significant-Gravitas/AutoGPT** — 184,930 stars (Dev Tools & Automation)\n- **anomalyco/opencode** — 174,163 stars (Foundation Models)\n- **ollama/ollama** — 174,103 stars (Foundation Models)\n- **f/prompts.chat** — 163,689 stars (Foundation Models)",
@@ -3065,7 +3065,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:49:06.832Z"
+      "generatedAt": "2026-06-18T10:10:53.846Z"
     },
     "Which repos use Anthropic?": {
       "answer": "Repos tagged with \"anthropic\" (10 shown):\n\n- **sindresorhus/awesome** — 475,600 stars (Dev Tools & Automation)\n- **openclaw/openclaw** — 378,615 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **obra/superpowers** — 227,272 stars (Foundation Models)\n- **affaan-m/ECC** — 215,107 stars (AI Agents)\n- **ultraworkers/claw-code** — 193,758 stars (Foundation Models)\n- **NousResearch/hermes-agent** — 192,986 stars (Foundation Models)\n- **multica-ai/andrej-karpathy-skills** — 174,956 stars (Foundation Models)\n- **anomalyco/opencode** — 174,163 stars (Foundation Models)\n- **ollama/ollama** — 174,103 stars (Foundation Models)",
@@ -3172,7 +3172,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:49:17.917Z"
+      "generatedAt": "2026-06-18T10:11:04.936Z"
     },
     "Which repos support MCP?": {
       "answer": "Repos tagged with \"mcp\" (10 shown):\n\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **affaan-m/ECC** — 215,107 stars (AI Agents)\n- **NousResearch/hermes-agent** — 192,986 stars (Foundation Models)\n- **f/prompts.chat** — 163,689 stars (Foundation Models)\n- **microsoft/markitdown** — 152,940 stars (Foundation Models)\n- **anthropics/skills** — 150,460 stars (Foundation Models)\n- **langflow-ai/langflow** — 149,641 stars (AI Agents)\n- **firecrawl/firecrawl** — 132,502 stars (AI Agents)\n- **Shubhamsaboo/awesome-llm-apps** — 114,495 stars (AI Agents)\n- **msitarzewski/agency-agents** — 112,979 stars (Dev Tools & Automation)",
@@ -3279,7 +3279,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:49:29.082Z"
+      "generatedAt": "2026-06-18T10:11:16.038Z"
     },
     "Which repos use pgvector?": {
       "answer": "Repos tagged with \"pgvector\" (10 shown):\n\n- **open-webui/open-webui** — 141,427 stars (Inference & Serving)\n- **punkpeye/awesome-mcp-servers** — 89,108 stars (AI Agents)\n- **Mintplex-Labs/anything-llm** — 61,552 stars (Foundation Models)\n- **ruvnet/ruflo** — 59,355 stars (AI Agents)\n- **moeru-ai/airi** — 40,981 stars (Foundation Models)\n- **HKUDS/LightRAG** — 36,535 stars (RAG & Retrieval)\n- **multica-ai/multica** — 36,502 stars (Dev Tools & Automation)\n- **simstudioai/sim** — 28,761 stars (RAG & Retrieval)\n- **rohitg00/agentmemory** — 22,732 stars (AI Agents)\n- **pgvector/pgvector** — 21,741 stars (RAG & Retrieval)",
@@ -3386,7 +3386,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:49:40.196Z"
+      "generatedAt": "2026-06-18T10:11:27.127Z"
     },
     "Which repos support streaming?": {
       "answer": "Repos tagged with \"streaming\" (10 shown):\n\n- **sindresorhus/awesome** — 475,600 stars (Dev Tools & Automation)\n- **public-apis/public-apis** — 441,425 stars (Dev Tools & Automation)\n- **openclaw/openclaw** — 378,615 stars (Dev Tools & Automation)\n- **vinta/awesome-python** — 302,812 stars (Foundation Models)\n- **practical-tutorials/project-based-learning** — 269,063 stars (Dev Tools & Automation)\n- **NousResearch/hermes-agent** — 192,986 stars (Foundation Models)\n- **yt-dlp/yt-dlp** — 170,464 stars (Dev Tools & Automation)\n- **huggingface/transformers** — 161,573 stars (Foundation Models)\n- **open-webui/open-webui** — 141,427 stars (Inference & Serving)\n- **langchain-ai/langchain** — 139,232 stars (Foundation Models)",
@@ -3493,7 +3493,7 @@
         }
       ],
       "model": "smart-route:tag_search",
-      "generatedAt": "2026-06-15T11:49:51.280Z"
+      "generatedAt": "2026-06-18T10:11:38.235Z"
     },
     "Which repos support function calling?": {
       "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nThe repo data provided doesn't include information about function calling support. To answer your question accurately, I would need access to technical documentation or metadata about each repo's capabilities—which isn't present in the current sources.\n\nIf you'd like, you could ask me about:\n- What these repos do and their use cases\n- Comparisons between perditioinc/reporium-mcp, github/github-mcp-server, or yamadashy/repomix\n- Which repo might be best for a specific AI integration task",

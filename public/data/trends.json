@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-06-17T10:24:07.849Z",
+  "generatedAt": "2026-06-18T10:03:44.380Z",
   "period": {
     "from": "2026-03-22 16:57:33 -0700",
-    "to": "2026-06-16 11:51:42 +0000",
-    "snapshots": 96
+    "to": "2026-06-17 11:45:20 +0000",
+    "snapshots": 97
   },
   "trending": [],
   "emerging": [],
@@ -36,19 +36,6 @@
       ]
     },
     {
-      "name": "CLI Tool",
-      "type": "tag",
-      "currentActivity": 829,
-      "previousActivity": 829,
-      "changePercent": 0,
-      "repoCount": 207,
-      "representativeRepos": [
-        "yt-dlp",
-        "bun",
-        "mermaid"
-      ]
-    },
-    {
       "name": "Caching",
       "type": "tag",
       "currentActivity": 1484,
@@ -59,6 +46,19 @@
         "yt-dlp",
         "bun",
         "vllm"
+      ]
+    },
+    {
+      "name": "CLI Tool",
+      "type": "tag",
+      "currentActivity": 829,
+      "previousActivity": 829,
+      "changePercent": 0,
+      "repoCount": 207,
+      "representativeRepos": [
+        "yt-dlp",
+        "bun",
+        "mermaid"
       ]
     },
     {
