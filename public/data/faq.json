@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-15T07:16:36.157Z",
+  "generatedAt": "2026-08-16T06:07:18.764Z",
   "sections": [
     {
       "title": "Library stats",
@@ -248,31 +248,31 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-08-14T07:06:13.877Z"
+      "generatedAt": "2026-08-16T04:29:29.439Z"
     },
     "What categories are available?": {
       "answer": "Reporium tracks repos across **19** categories:\n\n- **Foundation Models** (614 repos)\n- **Dev Tools & Automation** (342 repos)\n- **Learning Resources** (196 repos)\n- **AI Agents** (189 repos)\n- **Model Training** (110 repos)\n- **Inference & Serving** (101 repos)\n- **MLOps & Infrastructure** (57 repos)\n- **Data Science & Analytics** (55 repos)\n- **RAG & Retrieval** (54 repos)\n- **Robotics** (52 repos)\n- **Computer Vision** (50 repos)\n- **Evals & Benchmarking** (37 repos)\n- **Generative Media** (27 repos)\n- **Cloud & Platforms** (15 repos)\n- **Industry: Audio & Music** (5 repos)\n- **ML Platform & Infrastructure** (3 repos)\n- **Edge & Mobile AI** (2 repos)\n- **Security & Safety** (1 repos)\n- **Search & Knowledge** (1 repos)",
       "sources": [],
       "model": "smart-route:list_categories",
-      "generatedAt": "2026-08-14T07:06:24.961Z"
+      "generatedAt": "2026-08-16T04:29:40.552Z"
     },
     "What programming languages are used?": {
       "answer": "Top programming languages across Reporium:\n\n- **Python** (853 repos)\n- **TypeScript** (307 repos)\n- **Jupyter Notebook** (148 repos)\n- **C++** (120 repos)\n- **Go** (89 repos)\n- **JavaScript** (89 repos)\n- **Rust** (64 repos)\n- **C** (40 repos)\n- **C#** (30 repos)\n- **HTML** (22 repos)\n- **Java** (21 repos)\n- **Shell** (20 repos)\n- **Swift** (19 repos)\n- **Cuda** (8 repos)\n- **CSS** (7 repos)\n- **PHP** (6 repos)\n- **MDX** (6 repos)\n- **Ruby** (5 repos)\n- **TeX** (3 repos)\n- **Zig** (3 repos)",
       "sources": [],
       "model": "smart-route:list_languages",
-      "generatedAt": "2026-08-14T07:06:36.043Z"
+      "generatedAt": "2026-08-16T04:29:51.660Z"
     },
     "How many repos use Python?": {
       "answer": "There are **853** repos written in Python tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-08-14T07:06:47.137Z"
+      "generatedAt": "2026-08-16T04:30:02.765Z"
     },
     "How many repos use TypeScript?": {
       "answer": "There are **307** repos written in TypeScript tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-08-14T07:06:58.227Z"
+      "generatedAt": "2026-08-16T04:30:13.868Z"
     },
     "How many repos use Rust?": {
       "answer": "There are **64** repos written in Rust tracked in Reporium.",
