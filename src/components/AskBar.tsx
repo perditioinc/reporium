@@ -2,6 +2,11 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { AskBudgetIndicator } from './AskBudgetIndicator';
+import {
+  ASK_STREAM_PROXY_PATH,
+  ASK_UNAVAILABLE_STATIC_MESSAGE,
+  IS_STATIC_DEPLOY,
+} from '@/lib/askProxy';
 
 // ---------------------------------------------------------------------------
 // Session ID management (KAN-158/KAN-159)
@@ -120,13 +125,13 @@ function parseSseLine(line: string): StreamEvent | null {
 // ---------------------------------------------------------------------------
 // AskBar component
 // ---------------------------------------------------------------------------
-const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
-
 interface AskBarProps {
-  apiUrl: string;
+  /** @deprecated unused — Ask goes through the same-origin proxy now. */
+  apiUrl?: string;
 }
 
-export function AskBar({ apiUrl }: AskBarProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function AskBar(_props: AskBarProps) {
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -185,6 +190,11 @@ export function AskBar({ apiUrl }: AskBarProps) {
       setError('Daily limit of 100 questions reached. Try again tomorrow.');
       return;
     }
+    // ADR-005: no server on the github-pages static export — proxy absent.
+    if (IS_STATIC_DEPLOY) {
+      setError(ASK_UNAVAILABLE_STATIC_MESSAGE);
+      return;
+    }
 
     // Reset state for new query
     setLoading(true);
@@ -207,12 +217,11 @@ export function AskBar({ apiUrl }: AskBarProps) {
       const sid = sessionId ?? getOrCreateSessionId();
       if (!sessionId) setSessionId(sid);
 
-      const res = await fetch(`${apiUrl}/intelligence/ask/stream`, {
+      // Same-origin proxy (auth-hardening PR #5): the route handler attaches
+      // the server-held app token; the browser sends no credentials.
+      const res = await fetch(ASK_STREAM_PROXY_PATH, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: q, top_k: 8, session_id: sid }),
         signal: controller.signal,
       });

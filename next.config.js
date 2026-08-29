@@ -20,8 +20,14 @@ const nextConfig = {
   // the default build-time inlining of `process.env.NEXT_PUBLIC_*`, leaving
   // the literal key in the bundle (resolves to undefined at runtime). Declaring
   // them here forces Next.js's DefinePlugin to replace the references.
+  //
+  // SECURITY (auth-hardening plan PR #5+#7): NEXT_PUBLIC_APP_API_TOKEN was
+  // removed from this block — the app token must never be inlined into the
+  // client bundle. The server-only REPORIUM_APP_TOKEN (no NEXT_PUBLIC_ prefix,
+  // intentionally NOT listed here) is read at runtime by the same-origin proxy
+  // routes under src/app/api/intelligence/. CI greps the built client chunks
+  // to keep both the env name and the token value out of the bundle.
   env: {
-    NEXT_PUBLIC_APP_API_TOKEN: process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '',
     NEXT_PUBLIC_REPORIUM_API_URL: process.env.NEXT_PUBLIC_REPORIUM_API_URL ?? '',
     NEXT_PUBLIC_GITHUB_USERNAME: process.env.NEXT_PUBLIC_GITHUB_USERNAME ?? '',
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN ?? '',
