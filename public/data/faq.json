@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-12T10:37:19.100Z",
+  "generatedAt": "2026-09-13T10:18:22.689Z",
   "sections": [
     {
       "title": "Library stats",
@@ -6695,14 +6695,14 @@
       "generatedAt": "2026-09-06T09:38:26.000Z"
     },
     "Repos similar to LlamaIndex": {
-      "answer": "Based on the repo data provided, I can identify similar repos that were referenced alongside run-llama/llama_index (52.0k★):\n\n**Most Similar Repos:**\n\n1. **meta-llama/llama-cookbook** (18.6k★, Foundation Models) — Covers complete ML workflows including inference, fine-tuning, and RAG with end-to-end examples. Like LlamaIndex, it provides a comprehensive guide for building with Llama models, though it's more educational/documentation-focused rather than a production framework.\n\n2. **abetlen/llama-cpp-python** (10.6k★, Foundation Models) — Provides Python bindings for local LLM inference with both high-level APIs and OpenAI-compatible server options. It shares LlamaIndex's goal of making LLMs accessible to developers, but focuses specifically on inference optimization rather than the broader document indexing and retrieval pipeline.\n\n3. **mozilla-ai/llamafile** (25.9k★, Foundation Models) — Simplifies LLM distribution and execution by packaging models into single files. While it addresses local LLM deployment like some LlamaIndex use cases, it's more narrowly focused on packaging rather than the full RAG and retrieval pipeline.\n\n**Important caveat:** The provided data doesn't include detailed descriptions of all \"similar approach\" repos listed in the sources (like neuml/txtai, InternLM/MindSearch, or Shubhamsaboo/awesome-llm-apps), so I can only speak to the repos with full summaries above. For a more comprehensive comparison, you'd need those additional repo details.",
+      "answer": "Based on the repo data provided, I can see that **run-llama/llama_index** (52.1k★) is listed, but the sources don't include explicit information about which repos are similar to it.\n\nHowever, the \"Related repos\" section at the end mentions several repos that share similar approaches to LlamaIndex:\n\n- **metainternal/llama-cookbook** (18.6k★) — covers the complete ML workflow including RAG, which is core to LlamaIndex's functionality\n- **abetlen/llama-cpp-python** (10.6k★) — provides Python bindings for local LLM inference, supporting integration patterns\n- **mozilla-ai/llamafile** (26.0k★) — simplifies LLM distribution and execution, addressing similar accessibility goals\n\nThe related repos list also references tools outside the provided sources (like `neuml/txtai`, `ggml-org/llama.cpp`, and others), but I can only speak to the repos with full data available above.\n\n**Note:** The context doesn't contain detailed comparison information about what makes these repos specifically similar to LlamaIndex beyond the general \"similar approach\" classification. For a more detailed comparison of features and trade-offs, you'd need additional information about each tool's specific strengths.",
       "sources": [
         {
           "name": "llama_index",
           "owner": "run-llama",
           "forked_from": "run-llama/llama_index",
           "description": "LlamaIndex is the leading document agent and OCR platform",
-          "stars": 51991,
+          "stars": 52129,
           "relevance_score": 0.5356,
           "problem_solved": null,
           "integration_tags": []
@@ -6712,7 +6712,7 @@
           "owner": "meta-llama",
           "forked_from": "meta-llama/llama3",
           "description": "The official Meta Llama 3 GitHub site",
-          "stars": 29242,
+          "stars": 29222,
           "relevance_score": 0.5098,
           "problem_solved": null,
           "integration_tags": []
@@ -6722,7 +6722,7 @@
           "owner": "cocktailpeanut",
           "forked_from": "cocktailpeanut/dalai",
           "description": "The simplest way to run LLaMA on your local machine",
-          "stars": 12897,
+          "stars": 12895,
           "relevance_score": 0.501,
           "problem_solved": null,
           "integration_tags": []
@@ -6732,7 +6732,7 @@
           "owner": "mozilla-ai",
           "forked_from": "mozilla-ai/llamafile",
           "description": "Distribute and run LLMs with a single file.",
-          "stars": 25864,
+          "stars": 25955,
           "relevance_score": 0.4971,
           "problem_solved": null,
           "integration_tags": []
@@ -6742,7 +6742,7 @@
           "owner": "CJackHwang",
           "forked_from": "CJackHwang/ds2api",
           "description": "DeepSeek-Compatible Middleware Interface: A technical exploration project in Go, focusing on high-concurrency protocol adaptation. It serves as a reference implementation for converting diverse web protocols into standardized formats.",
-          "stars": 4749,
+          "stars": 4747,
           "relevance_score": 0.4523,
           "problem_solved": null,
           "integration_tags": []
@@ -6752,7 +6752,7 @@
           "owner": "abetlen",
           "forked_from": "abetlen/llama-cpp-python",
           "description": "Python bindings for llama.cpp",
-          "stars": 10595,
+          "stars": 10615,
           "relevance_score": 0.4519,
           "problem_solved": null,
           "integration_tags": []
@@ -6762,41 +6762,41 @@
           "owner": "Helicone",
           "forked_from": "Helicone/helicone",
           "description": "🧊 Open source LLM observability platform. One line of code to monitor, evaluate, and experiment. YC W23 🍓",
-          "stars": 6129,
+          "stars": 6149,
           "relevance_score": 0.4503,
           "problem_solved": null,
           "integration_tags": []
         },
         {
           "name": "llama-cookbook",
-          "owner": "meta-llama",
-          "forked_from": "meta-llama/llama-cookbook",
+          "owner": "metainternal",
+          "forked_from": "metainternal/llama-cookbook",
           "description": "Welcome to the Llama Cookbook! This is your go to guide for Building with Llama: Getting started with Inference, Fine-Tuning, RAG. We also show you how to solve end to end problems using Llama model family and using them on various provider services  ",
-          "stars": 18557,
+          "stars": 18560,
           "relevance_score": 0.4495,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-06T09:38:43.039Z"
+      "generatedAt": "2026-09-13T10:17:06.254Z"
     },
     "Alternatives to transformers": {
-      "answer": "I can only see one repo in the provided context: **transformerlab/transformerlab-app** (5.2k★), which is an open-source desktop application for LLM and diffusion model engineering—letting you interact, train, fine-tune, and evaluate models locally.\n\nHowever, the context mentions several related repos with \"similar approach\":\n- **patchy631/ai-engineering-hub**\n- **rasbt/LLMs-from-scratch**\n- **huggingface/course**\n- **mlabonne/llm-course**\n\nUnfortunately, I don't have detailed summaries for these related repos in the data provided, so I can't properly compare them or explain what makes them alternatives.\n\n**To give you a useful answer about alternatives to transformers**, I'd need:\n1. The full repo data for those related projects, or\n2. Clarification on what you mean by \"alternatives to transformers\" (the Hugging Face library, the architecture, transformer-based frameworks, etc.)\n\nCould you rephrase your question or provide more context about what aspect of transformers you're looking for alternatives to?",
+      "answer": "I only help with questions about AI development tools and repositories in Reporium. Try asking about repos, tools, or frameworks instead.\n\nThat said, based on your question about alternatives, if you're looking for **alternatives to the Transformers library for LLM work**, the context provided doesn't include repos focused on that comparison.\n\nHowever, I can tell you that **transformerlab/transformerlab-app** (5.2k★) is an open-source application that lets you interact, train, fine-tune, and evaluate large language models locally without relying solely on the Transformers library—it supports both LLM and diffusion workflows in a single desktop application, which could serve as an alternative *approach* to traditional transformer-focused frameworks.\n\nIf you're looking for specific alternative frameworks or libraries to Transformers, please clarify your question and I can search the Reporium data for relevant tools.",
       "sources": [
         {
           "name": "transformerlab-app",
           "owner": "transformerlab",
           "forked_from": "transformerlab/transformerlab-app",
           "description": "Open Source Application for Advanced LLM + Diffusion Engineering: interact, train, fine-tune, and evaluate large language models on your own computer.",
-          "stars": 5184,
+          "stars": 5186,
           "relevance_score": 0.4339,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-06T09:38:58.276Z"
+      "generatedAt": "2026-09-13T10:17:19.932Z"
     },
     "What depends on PyTorch?": {
       "answer": "Based on the repo data provided, I can identify several tools and libraries that depend on or are built on PyTorch:\n\n**Direct PyTorch-based tools:**\n\n1. **Lightning-AI/pytorch-lightning** (31.1k★) — Built on PyTorch foundation, it eliminates boilerplate for distributed training across single to 10,000+ GPUs while ensuring compatibility with the existing PyTorch ecosystem.\n\n2. **meta-pytorch/torchtune** (5.7k★) — A PyTorch-native post-training library with seamless integration into existing PyTorch workflows through its modular architecture.\n\n3. **pytorch/ao** (2.8k★) — PyTorch-native quantization and sparsity library for training and inference, eliminating external dependency friction.\n\n4. **fab-jul/L3C-PyTorch** (409★) — A PyTorch implementation of learned lossless image compression research.\n\n5. **DeepGraphLearning/torchdrug** (1.6k★) — A PyTorch-based machine learning platform specialized for drug discovery.\n\n**Learning & Resource Collections:**\n\nThe data also lists **mrdbourke/pytorch-deep-learning** and **bharathgs/Awesome-pytorch-list** as comprehensive learning materials and curated lists of PyTorch-related content.\n\nHowever, the provided context doesn't include detailed dependency graphs showing what *else* depends on these PyTorch tools. For a complete dependency map, you'd need additional technical documentation or package manager data beyond what's in these repo summaries.",
@@ -6883,13 +6883,13 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-06T09:39:09.637Z"
+      "generatedAt": "2026-09-13T10:17:32.716Z"
     },
     "What depends on transformers?": {
       "answer": "I don't have enough relevant information in the Reporium knowledge base to answer that question. Try asking about specific AI dev tools, libraries, or repository categories.",
       "sources": [],
       "model": "early-exit",
-      "generatedAt": "2026-09-06T09:39:22.279Z"
+      "generatedAt": "2026-09-13T10:17:46.548Z"
     },
     "What depends on LangChain?": {
       "answer": "Based on the repo data provided, here are the tools that depend on LangChain:\n\n1. **jina-ai/langchain-serve** (1.6k★) — Designed to serve LangChain apps in production using Jina & FastAPI. It integrates LangChain with Jina's cloud infrastructure to reduce boilerplate for deploying LangChain chains and agents at scale.\n\n2. **chatchat-space/Langchain-Chatchat** (37.9k★) — A RAG and Agent application built on LangChain that supports multiple open-source LLMs like ChatGLM, Qwen, and Llama. It leverages LangChain's framework for LLM orchestration and local knowledge-based applications.\n\nBoth tools build directly on top of **langchain-ai/langchain** (135.4k★), which is the foundation framework providing the core LLM application stack (prompts, chains, agents).\n\n**Note:** The community health metrics for these repos show concerning signals (zero contributors, 0% issue close rates, unknown test coverage), which may indicate maintenance challenges despite their star counts.",
@@ -6926,7 +6926,7 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-06T09:39:33.593Z"
+      "generatedAt": "2026-09-13T10:17:57.842Z"
     },
     "What is built on FastAPI?": {
       "answer": "Based on the repo data provided, several projects are built on FastAPI:\n\n1. **tadata-org/fastapi_mcp** (11.8k★) — Exposes FastAPI endpoints as Model Context Protocol (MCP) tools with built-in authentication support.\n\n2. **vstorm-co/full-stack-ai-agent-template** (1.2k★) — A production-ready Full-Stack AI Agent Template that uses FastAPI as its backend, combined with Next.js frontend and 5 AI frameworks (PydanticAI, LangChain, LangGraph, CrewAI, DeepAgents). It includes WebSocket streaming, authentication, multi-database support, and 20+ integrations.\n\n3. **chenyme/grok2api** (4.6k★) — Built on FastAPI to provide a Grok2API service that's compatible with OpenAI's API format, supporting streaming/non-streaming conversations, image generation, video generation, and tool calling.\n\nThe core **fastapi/fastapi** (97.8k★) repository itself is the framework these projects depend on—a high-performance Python web framework based on Starlette and Pydantic for building modern APIs with async/await support.",
@@ -7013,13 +7013,13 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-06T09:39:45.074Z"
+      "generatedAt": "2026-09-13T10:18:09.677Z"
     },
     "What forks llama.cpp?": {
       "answer": "I don't have enough relevant information in the Reporium knowledge base to answer that question. Try asking about specific AI dev tools, libraries, or repository categories.",
       "sources": [],
       "model": "early-exit",
-      "generatedAt": "2026-09-06T09:39:57.614Z"
+      "generatedAt": "2026-09-13T10:18:22.689Z"
     }
   }
 }
