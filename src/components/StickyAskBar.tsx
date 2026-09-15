@@ -9,6 +9,11 @@ import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { API_URL } from '@/lib/apiUrl';
 import {
+  ASK_STREAM_PROXY_PATH,
+  ASK_UNAVAILABLE_STATIC_MESSAGE,
+  IS_STATIC_DEPLOY,
+} from '@/lib/askProxy';
+import {
   CITATION_HREF_PREFIX,
   buildSourceAnchorMap,
   findSourceByCitationHref,
@@ -290,8 +295,6 @@ const PHASE_COPY: Record<Phase, string> = {
   done: '',
   error: '',
 };
-
-const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
 
 // ---------------------------------------------------------------------------
 // Shimmer / skeleton primitives (no external deps)
@@ -1199,6 +1202,9 @@ export function StickyAskBar() {
     if (atMinuteLimit) { setError('Rate limit: 10 questions per minute. Please wait a moment.'); return; }
     if (atDayLimit) { setError('Daily limit of 100 questions reached. Try again tomorrow.'); return; }
     if (retryAfterSeconds !== null && retryAfterSeconds > 0) return;
+    // ADR-005: the github-pages static export has no server, so the
+    // same-origin ask proxy does not exist there. Degrade without a fetch.
+    if (IS_STATIC_DEPLOY) { setError(ASK_UNAVAILABLE_STATIC_MESSAGE); return; }
 
     // ── INSTANT first paint ──────────────────────────────────────────────────
     // Set ALL visual state synchronously before any await so React batches it
@@ -1239,12 +1245,11 @@ export function StickyAskBar() {
       // Advance phase right as fetch begins (still synchronous before await)
       setPhase('searching');
 
-      const res = await fetch(`${API_URL}/intelligence/ask/stream`, {
+      // Same-origin proxy (auth-hardening PR #5): the route handler attaches
+      // the server-held app token; the browser sends no credentials.
+      const res = await fetch(ASK_STREAM_PROXY_PATH, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: q, top_k: 8, session_id: sid }),
         signal: controller.signal,
       });
@@ -1273,11 +1278,13 @@ export function StickyAskBar() {
         return;
       }
       if (res.status === 401 || res.status === 403) {
-        setError(
-          APP_TOKEN
-            ? 'Ask is temporarily unavailable — the API rejected the app token.'
-            : 'Ask is not configured in this environment (missing NEXT_PUBLIC_APP_API_TOKEN). Contact the site owner.',
-        );
+        setError('Ask is temporarily unavailable — the API rejected the request. Contact the site owner.');
+        setPhase('error');
+        return;
+      }
+      if (res.status === 503) {
+        const body = await res.json().catch(() => ({}));
+        setError(body?.detail ?? 'Ask is not configured on this deployment. Contact the site owner.');
         setPhase('error');
         return;
       }

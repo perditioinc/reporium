@@ -44,6 +44,31 @@ jobs:
       - name: Build (${{ matrix.deploy_target }})
         run: npm run build
 
+      # Auth-hardening plan PR #7 guard (T11/T12): the app token env-var name
+      # and the production token value must never appear in client JS.
+      # .next/static = Vercel client chunks; out/_next/static = static export.
+      - name: Verify app token absent from client bundle
+        env:
+          PROD_APP_TOKEN_VALUE: ${{ secrets.NEXT_PUBLIC_APP_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          dirs=""
+          [ -d .next/static ] && dirs="$dirs .next/static"
+          [ -d out/_next/static ] && dirs="$dirs out/_next/static"
+          if [ -z "$dirs" ]; then
+            echo "::error::no client bundle output found to scan"
+            exit 1
+          fi
+          if grep -rl --include='*.js' 'NEXT_PUBLIC_APP_API_TOKEN' $dirs; then
+            echo "::error::NEXT_PUBLIC_APP_API_TOKEN literal found in client bundle"
+            exit 1
+          fi
+          if [ -n "${PROD_APP_TOKEN_VALUE:-}" ] && grep -rl --include='*.js' --fixed-strings "$PROD_APP_TOKEN_VALUE" $dirs; then
+            echo "::error::app token VALUE found in client bundle"
+            exit 1
+          fi
+          echo "PASS: client bundle contains neither the token env name nor its value"
+
   security:
     runs-on: ubuntu-latest
     steps:

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createDataProvider } from '@/lib/dataProvider';
+import { ASK_UNAVAILABLE_STATIC_MESSAGE, IS_STATIC_DEPLOY } from '@/lib/askProxy';
 
 // Mirror-aware repo display — see StickyAskBar.formatRepoDisplay for rationale.
 const MIRROR_OWNER = 'perditioinc';
@@ -44,7 +45,6 @@ interface QueryResponse {
 // ---------------------------------------------------------------------------
 // Inner panel — reads ?q= from URL on the client side
 // ---------------------------------------------------------------------------
-const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
 const SESSION_STORAGE_KEY = 'reporium:ask:session_id';
 
 /**
@@ -112,6 +112,12 @@ function AskPanelInner(_props: AskPanelProps) {
       setError('Query must be 500 characters or fewer.');
       return;
     }
+    // ADR-005: no server on the github-pages static export — the same-origin
+    // ask proxy (auth-hardening PR #5) does not exist there.
+    if (IS_STATIC_DEPLOY) {
+      setError(ASK_UNAVAILABLE_STATIC_MESSAGE);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -122,14 +128,13 @@ function AskPanelInner(_props: AskPanelProps) {
       const providerWithAsk = provider as typeof provider & {
         askQuestion?: (
           question: string,
-          options?: { top_k?: number; session_id?: string; app_token?: string }
+          options?: { top_k?: number; session_id?: string }
         ) => Promise<QueryResponse>
       };
       if (typeof providerWithAsk.askQuestion === 'function') {
         const data = await providerWithAsk.askQuestion(queryText, {
           top_k: 8,
           ...(sessionId ? { session_id: sessionId } : {}),
-          ...(APP_TOKEN ? { app_token: APP_TOKEN } : {}),
         });
         setResult(data);
       } else {

@@ -13,9 +13,11 @@
 
 import { useState, useRef } from 'react';
 import type { NLFilterResult } from '@/types/repo';
-import { API_URL } from '@/lib/apiUrl';
-
-const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN ?? '';
+import {
+  IS_STATIC_DEPLOY,
+  NL_FILTER_PROXY_PATH,
+  NL_FILTER_UNAVAILABLE_STATIC_MESSAGE,
+} from '@/lib/askProxy';
 
 interface NLFilterBarProps {
   onApply: (result: NLFilterResult) => void;
@@ -39,17 +41,21 @@ export function NLFilterBar({ onApply, onClear, activeInterpretation }: NLFilter
       setError('Query must be 300 characters or fewer.');
       return;
     }
+    // ADR-005: no server on the github-pages static export — proxy absent.
+    if (IS_STATIC_DEPLOY) {
+      setError(NL_FILTER_UNAVAILABLE_STATIC_MESSAGE);
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/intelligence/nl-filter`, {
+      // Same-origin proxy (auth-hardening PR #5): the route handler attaches
+      // the server-held app token; the browser sends no credentials.
+      const res = await fetch(NL_FILTER_PROXY_PATH, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(APP_TOKEN && { 'X-App-Token': APP_TOKEN }),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q }),
       });
 

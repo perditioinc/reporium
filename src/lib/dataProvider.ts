@@ -509,19 +509,18 @@ class ApiDataProvider implements DataProvider {
   }
 
   /**
-   * Build request headers, attaching `X-App-Token` when the NEXT_PUBLIC_APP_API_TOKEN
-   * env var is inlined at build time (see next.config.js). Without this header,
-   * protected endpoints (e.g. /intelligence/portfolio-insights) silently 403 and
-   * callers fall through to the JSON fallback path.
+   * Build request headers. Auth-hardening PR #5: the `X-App-Token` branch is
+   * gone — the browser never holds the app token anymore. Token-gated
+   * endpoints (/intelligence/ask, /ask/stream, /nl-filter) are reached via
+   * the same-origin proxy routes under /api/intelligence/*, which attach the
+   * server-held REPORIUM_APP_TOKEN. If a direct endpoint here 403s, callers
+   * fall through to the JSON fallback path as before.
    */
   private buildHeaders(extra?: Record<string, string>): Record<string, string> {
-    const headers: Record<string, string> = {
+    return {
       'Accept': 'application/json',
       ...(extra ?? {}),
     }
-    const token = process.env.NEXT_PUBLIC_APP_API_TOKEN
-    if (token) headers['X-App-Token'] = token
-    return headers
   }
 
   private async apiFetch<T>(path: string, timeoutMs?: number): Promise<T> {
@@ -925,7 +924,14 @@ class ApiDataProvider implements DataProvider {
     }
   }
 
-  async askQuestion(question: string, options?: { top_k?: number; session_id?: string; app_token?: string }): Promise<{
+  /**
+   * Client-only. Auth-hardening PR #5: asks go through the same-origin proxy
+   * (/api/intelligence/ask) instead of hitting reporium-api directly with a
+   * browser-held token. The route handler attaches the server-held
+   * REPORIUM_APP_TOKEN. Not available on the github-pages static export
+   * (ADR-005) — callers gate on REPORIUM_DEPLOY_TARGET before invoking.
+   */
+  async askQuestion(question: string, options?: { top_k?: number; session_id?: string }): Promise<{
     answer: string; sources: unknown[]; question: string; model: string;
     answered_at: string; embedding_candidates: number;
     tokens_used: { input: number; output: number; total: number };
@@ -934,11 +940,10 @@ class ApiDataProvider implements DataProvider {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     }
-    if (options?.app_token) headers['X-App-Token'] = options.app_token
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 30_000)
     try {
-      const res = await fetch(`${this.apiUrl}/intelligence/ask`, {
+      const res = await fetch('/api/intelligence/ask', {
         method: 'POST',
         headers,
         body: JSON.stringify({

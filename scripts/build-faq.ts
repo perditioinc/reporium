@@ -12,8 +12,10 @@
  *   npx tsx scripts/build-faq.ts
  *
  * Environment:
- *   NEXT_PUBLIC_REPORIUM_API_URL  — required
- *   NEXT_PUBLIC_APP_API_TOKEN     — required (X-App-Token for /intelligence/ask)
+ *   REPORIUM_API_URL    — required (falls back to legacy NEXT_PUBLIC_REPORIUM_API_URL)
+ *   REPORIUM_APP_TOKEN  — required (X-App-Token for /intelligence/ask; falls back
+ *                         to legacy NEXT_PUBLIC_APP_API_TOKEN during the
+ *                         auth-hardening PR #7 migration window)
  *
  * Output: public/data/faq.json shape:
  *   {
@@ -46,11 +48,14 @@ if (existsSync(envPath)) {
   }
 }
 
-const API_URL = process.env.NEXT_PUBLIC_REPORIUM_API_URL
-const APP_TOKEN = process.env.NEXT_PUBLIC_APP_API_TOKEN
+// Server-side script (CI / local only, never bundled): prefer the server-only
+// names; the legacy NEXT_PUBLIC_* fallbacks keep the nightly refresh-data job
+// working until its secrets are renamed (auth-hardening plan PR #7).
+const API_URL = process.env.REPORIUM_API_URL || process.env.NEXT_PUBLIC_REPORIUM_API_URL
+const APP_TOKEN = process.env.REPORIUM_APP_TOKEN || process.env.NEXT_PUBLIC_APP_API_TOKEN
 
 if (!API_URL || !APP_TOKEN) {
-  console.error('ERROR: NEXT_PUBLIC_REPORIUM_API_URL and NEXT_PUBLIC_APP_API_TOKEN are required.')
+  console.error('ERROR: REPORIUM_API_URL and REPORIUM_APP_TOKEN are required.')
   process.exit(1)
 }
 
