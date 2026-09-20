@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-20T10:01:56.933Z",
+  "generatedAt": "2026-09-20T11:45:22.073Z",
   "sections": [
     {
       "title": "Library stats",
@@ -248,55 +248,55 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-19T09:52:44.980Z"
+      "generatedAt": "2026-09-20T10:14:25.756Z"
     },
     "What categories are available?": {
       "answer": "Reporium tracks repos across **19** categories:\n\n- **Foundation Models** (614 repos)\n- **Dev Tools & Automation** (342 repos)\n- **Learning Resources** (196 repos)\n- **AI Agents** (189 repos)\n- **Model Training** (110 repos)\n- **Inference & Serving** (101 repos)\n- **MLOps & Infrastructure** (57 repos)\n- **Data Science & Analytics** (55 repos)\n- **RAG & Retrieval** (54 repos)\n- **Robotics** (52 repos)\n- **Computer Vision** (50 repos)\n- **Evals & Benchmarking** (37 repos)\n- **Generative Media** (27 repos)\n- **Cloud & Platforms** (15 repos)\n- **Industry: Audio & Music** (5 repos)\n- **ML Platform & Infrastructure** (3 repos)\n- **Edge & Mobile AI** (2 repos)\n- **Security & Safety** (1 repos)\n- **Search & Knowledge** (1 repos)",
       "sources": [],
       "model": "smart-route:list_categories",
-      "generatedAt": "2026-09-19T09:52:56.071Z"
+      "generatedAt": "2026-09-20T10:14:36.818Z"
     },
     "What programming languages are used?": {
-      "answer": "Top programming languages across Reporium:\n\n- **Python** (855 repos)\n- **TypeScript** (307 repos)\n- **Jupyter Notebook** (148 repos)\n- **C++** (120 repos)\n- **Go** (89 repos)\n- **JavaScript** (89 repos)\n- **Rust** (64 repos)\n- **C** (40 repos)\n- **C#** (30 repos)\n- **HTML** (22 repos)\n- **Java** (21 repos)\n- **Shell** (20 repos)\n- **Swift** (19 repos)\n- **Cuda** (8 repos)\n- **CSS** (7 repos)\n- **MDX** (6 repos)\n- **PHP** (6 repos)\n- **Ruby** (5 repos)\n- **Lua** (3 repos)\n- **TeX** (3 repos)",
+      "answer": "Top programming languages across Reporium:\n\n- **Python** (855 repos)\n- **TypeScript** (307 repos)\n- **Jupyter Notebook** (148 repos)\n- **C++** (120 repos)\n- **Go** (89 repos)\n- **JavaScript** (89 repos)\n- **Rust** (64 repos)\n- **C** (40 repos)\n- **C#** (30 repos)\n- **HTML** (22 repos)\n- **Java** (21 repos)\n- **Shell** (20 repos)\n- **Swift** (19 repos)\n- **Cuda** (8 repos)\n- **CSS** (7 repos)\n- **PHP** (6 repos)\n- **MDX** (6 repos)\n- **Ruby** (5 repos)\n- **TeX** (3 repos)\n- **Zig** (3 repos)",
       "sources": [],
       "model": "smart-route:list_languages",
-      "generatedAt": "2026-09-19T09:53:07.157Z"
+      "generatedAt": "2026-09-20T10:14:47.885Z"
     },
     "How many repos use Python?": {
       "answer": "There are **855** repos written in Python tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-09-19T09:53:18.249Z"
+      "generatedAt": "2026-09-20T10:14:58.952Z"
     },
     "How many repos use TypeScript?": {
       "answer": "There are **307** repos written in TypeScript tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-09-19T09:53:29.338Z"
+      "generatedAt": "2026-09-20T10:15:10.021Z"
     },
     "How many repos use Rust?": {
       "answer": "There are **64** repos written in Rust tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_language",
-      "generatedAt": "2026-09-19T09:53:40.418Z"
+      "generatedAt": "2026-09-20T10:15:21.087Z"
     },
     "How many repos are in the AI Agents category?": {
       "answer": "There are **2,022** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-09-19T09:53:51.517Z"
+      "generatedAt": "2026-09-20T10:15:32.151Z"
     },
     "How many repos are in the RAG & Retrieval category?": {
       "answer": "There are **2,022** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-09-19T09:54:02.611Z"
+      "generatedAt": "2026-09-20T10:15:43.211Z"
     },
     "How many repos are in the Foundation Models category?": {
       "answer": "There are **2,022** public repositories tracked in Reporium.",
       "sources": [],
       "model": "smart-route:count_total",
-      "generatedAt": "2026-09-19T09:54:13.700Z"
+      "generatedAt": "2026-09-20T10:15:54.275Z"
     },
     "Show me Reporium stats": {
       "answer": "I can help you with that! Based on the Reporium repos tracked in the platform, here are the key stats-focused tools:\n\n**Core Stats & Metrics:**\n\n1. **perditioinc/reporium-dataset** — Public dataset mirror for reporium.com with nightly-updated AI dev tool statistics from reporium-db. It provides comprehensive analytics access for researchers and developers tracking AI tool trends.\n\n2. **perditioinc/reporium-metrics** — Platform performance tracking over time using ASCII trend charts and nightly automated collection. Lightweight Python-based approach that eliminates heavy dependencies.\n\n3. **perditioinc/reporium-roadmap** — Public product roadmap auto-updated nightly with live GitHub stats, providing transparency into Reporium's development priorities.\n\n4. **perditioinc/reporium-trust-score** — Hourly trust-score measurement for Reporium, computed as a composite of Reliability × Quality × Integrity × Freshness.\n\n**Quality Assessment:**\n\n5. **perditioinc/reporium-scoring** — Scores any GitHub repo 0-100 based on README quality, activity, community health, and CI/CD maturity.\n\nAll of these tools are Python-based and designed for automated nightly updates, ensuring fresh data. However, note that they all show minimal adoption (1 star, 0 contributors each) with 0% issue close rates, suggesting they're early-stage or experimental components of the broader Reporium platform.",
@@ -383,17 +383,17 @@
         }
       ],
       "model": "claude-haiku-4-5-20251001",
-      "generatedAt": "2026-09-19T09:54:25.212Z"
+      "generatedAt": "2026-09-20T10:16:05.392Z"
     },
     "What are the most starred repos?": {
-      "answer": "Top 10 most-starred repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** (Dev Tools & Automation) — 547,980 stars\n- **sindresorhus/awesome** (Dev Tools & Automation) — 507,303 stars\n- **public-apis/public-apis** (Dev Tools & Automation) — 481,307 stars\n- **freeCodeCamp/freeCodeCamp** (Learning Resources) — 455,714 stars\n- **EbookFoundation/free-programming-books** (Dev Tools & Automation) — 397,075 stars\n- **openclaw/openclaw** (Dev Tools & Automation) — 390,027 stars\n- **vinta/awesome-python** (Foundation Models) — 321,422 stars\n- **obra/superpowers** (Foundation Models) — 288,298 stars\n- **practical-tutorials/project-based-learning** (Dev Tools & Automation) — 283,710 stars\n- **mattpocock/skills** (Learning Resources) — 264,879 stars",
+      "answer": "Top 10 most-starred repos in Reporium:\n\n- **codecrafters-io/build-your-own-x** (Dev Tools & Automation) — 548,151 stars\n- **sindresorhus/awesome** (Dev Tools & Automation) — 507,659 stars\n- **public-apis/public-apis** (Dev Tools & Automation) — 481,513 stars\n- **freeCodeCamp/freeCodeCamp** (Learning Resources) — 455,759 stars\n- **EbookFoundation/free-programming-books** (Dev Tools & Automation) — 397,182 stars\n- **openclaw/openclaw** (Dev Tools & Automation) — 390,067 stars\n- **vinta/awesome-python** (Foundation Models) — 321,624 stars\n- **obra/superpowers** (Foundation Models) — 288,636 stars\n- **practical-tutorials/project-based-learning** (Dev Tools & Automation) — 283,823 stars\n- **mattpocock/skills** (Learning Resources) — 265,458 stars",
       "sources": [
         {
           "name": "build-your-own-x",
           "owner": "codecrafters-io",
           "forked_from": "codecrafters-io/build-your-own-x",
           "description": "Master programming by recreating your favorite technologies from scratch.",
-          "stars": 547980,
+          "stars": 548151,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -403,7 +403,7 @@
           "owner": "sindresorhus",
           "forked_from": "sindresorhus/awesome",
           "description": "😎 Awesome lists about all kinds of interesting topics",
-          "stars": 507303,
+          "stars": 507659,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -413,7 +413,7 @@
           "owner": "public-apis",
           "forked_from": "public-apis/public-apis",
           "description": "A collective list of free APIs",
-          "stars": 481307,
+          "stars": 481513,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -423,7 +423,7 @@
           "owner": "freeCodeCamp",
           "forked_from": "freeCodeCamp/freeCodeCamp",
           "description": "freeCodeCamp.org's open-source codebase and curriculum. Learn math, programming, and computer science for free.",
-          "stars": 455714,
+          "stars": 455759,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -433,7 +433,7 @@
           "owner": "EbookFoundation",
           "forked_from": "EbookFoundation/free-programming-books",
           "description": ":books: Freely available programming books",
-          "stars": 397075,
+          "stars": 397182,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -443,7 +443,7 @@
           "owner": "openclaw",
           "forked_from": "openclaw/openclaw",
           "description": "Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 ",
-          "stars": 390027,
+          "stars": 390067,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -453,7 +453,7 @@
           "owner": "vinta",
           "forked_from": "vinta/awesome-python",
           "description": "An opinionated list of awesome Python frameworks, libraries, software and resources.",
-          "stars": 321422,
+          "stars": 321624,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -463,7 +463,7 @@
           "owner": "obra",
           "forked_from": "obra/superpowers",
           "description": "An agentic skills framework & software development methodology that works.",
-          "stars": 288298,
+          "stars": 288636,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -473,7 +473,7 @@
           "owner": "practical-tutorials",
           "forked_from": "practical-tutorials/project-based-learning",
           "description": "Curated list of project-based tutorials",
-          "stars": 283710,
+          "stars": 283823,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -483,17 +483,17 @@
           "owner": "mattpocock",
           "forked_from": "mattpocock/skills",
           "description": "Skills for Real Engineers. Straight from my .claude directory.",
-          "stars": 264879,
+          "stars": 265458,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:top_starred",
-      "generatedAt": "2026-09-19T09:54:36.323Z"
+      "generatedAt": "2026-09-20T10:16:16.457Z"
     },
     "What are the most forked repos?": {
-      "answer": "Most forked repos in Reporium:\n\n- **NVIDIA-NeMo/Guardrails** — 5,854 stars, activity: 0\n- **khanh-atom/n8n-atom-fork** — 55 stars, activity: 0\n- **microsoft/farmvibes-ai** — 898 stars, activity: 0\n- **huangyangyi/TeCH** — 423 stars, activity: 0\n- **rust-lang/rust** — 118,923 stars, activity: 0\n- **DLTK/DLTK** — 1,458 stars, activity: 0\n- **anthropics/claude-ai-mcp** — 479 stars, activity: 0\n- **studio-dots-ai/dots.ocr** — 9,121 stars, activity: 0\n- **frankkramer-lab/MIScnn** — 423 stars, activity: 0\n- **farmOS/farmOS** — 1,352 stars, activity: 0",
+      "answer": "Most forked repos in Reporium:\n\n- **NVIDIA-NeMo/Guardrails** — 5,854 stars, activity: 0\n- **khanh-atom/n8n-atom-fork** — 55 stars, activity: 0\n- **protectai/ai-exploits** — 1,747 stars, activity: 0\n- **huangyangyi/TeCH** — 423 stars, activity: 0\n- **hiyouga/EasyR1** — 5,165 stars, activity: 0\n- **1jehuang/jcode** — 19,886 stars, activity: 0\n- **BigBodyCobain/Shadowbroker** — 11,188 stars, activity: 0\n- **bwya77/vscode-dark-islands** — 8,532 stars, activity: 0\n- **z-lab/dflash** — 6,102 stars, activity: 0\n- **soxoj/maigret** — 37,784 stars, activity: 0",
       "sources": [
         {
           "name": "Guardrails",
@@ -516,11 +516,11 @@
           "integration_tags": []
         },
         {
-          "name": "farmvibes-ai",
-          "owner": "microsoft",
-          "forked_from": "microsoft/farmvibes-ai",
+          "name": "ai-exploits",
+          "owner": "protectai",
+          "forked_from": "protectai/ai-exploits",
           "description": null,
-          "stars": 898,
+          "stars": 1747,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -536,72 +536,82 @@
           "integration_tags": []
         },
         {
-          "name": "rust",
-          "owner": "rust-lang",
-          "forked_from": "rust-lang/rust",
+          "name": "EasyR1",
+          "owner": "hiyouga",
+          "forked_from": "hiyouga/EasyR1",
           "description": null,
-          "stars": 118923,
+          "stars": 5165,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "DLTK",
-          "owner": "DLTK",
-          "forked_from": "DLTK/DLTK",
+          "name": "jcode",
+          "owner": "1jehuang",
+          "forked_from": "1jehuang/jcode",
           "description": null,
-          "stars": 1458,
+          "stars": 19886,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "claude-ai-mcp",
-          "owner": "anthropics",
-          "forked_from": "anthropics/claude-ai-mcp",
+          "name": "Shadowbroker",
+          "owner": "BigBodyCobain",
+          "forked_from": "BigBodyCobain/Shadowbroker",
           "description": null,
-          "stars": 479,
+          "stars": 11188,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "dots.ocr",
-          "owner": "studio-dots-ai",
-          "forked_from": "studio-dots-ai/dots.ocr",
+          "name": "vscode-dark-islands",
+          "owner": "bwya77",
+          "forked_from": "bwya77/vscode-dark-islands",
           "description": null,
-          "stars": 9121,
+          "stars": 8532,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "MIScnn",
-          "owner": "frankkramer-lab",
-          "forked_from": "frankkramer-lab/MIScnn",
+          "name": "dflash",
+          "owner": "z-lab",
+          "forked_from": "z-lab/dflash",
           "description": null,
-          "stars": 423,
+          "stars": 6102,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "farmOS",
-          "owner": "farmOS",
-          "forked_from": "farmOS/farmOS",
+          "name": "maigret",
+          "owner": "soxoj",
+          "forked_from": "soxoj/maigret",
           "description": null,
-          "stars": 1352,
+          "stars": 37784,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_forked",
-      "generatedAt": "2026-09-19T09:54:47.453Z"
+      "generatedAt": "2026-09-20T10:16:27.518Z"
     },
     "What are the most active repos?": {
-      "answer": "Most active repos in Reporium:\n\n- **protectai/ai-exploits** — 1,747 stars, activity: 0\n- **microsoft/farmvibes-ai** — 898 stars, activity: 0\n- **farmOS/farmOS** — 1,352 stars, activity: 0\n- **huangyangyi/TeCH** — 423 stars, activity: 0\n- **rust-lang/rust** — 118,923 stars, activity: 0\n- **DLTK/DLTK** — 1,458 stars, activity: 0\n- **studio-dots-ai/dots.ocr** — 9,121 stars, activity: 0\n- **anthropics/claude-ai-mcp** — 479 stars, activity: 0\n- **frankkramer-lab/MIScnn** — 423 stars, activity: 0\n- **Fraud-Detection-Handbook/fraud-detection-handbook** — 733 stars, activity: 0",
+      "answer": "Most active repos in Reporium:\n\n- **mattpocock/skills** — 265,458 stars, activity: 0\n- **protectai/ai-exploits** — 1,747 stars, activity: 0\n- **soxoj/maigret** — 37,784 stars, activity: 0\n- **huangyangyi/TeCH** — 423 stars, activity: 0\n- **hiyouga/EasyR1** — 5,165 stars, activity: 0\n- **1jehuang/jcode** — 19,886 stars, activity: 0\n- **bwya77/vscode-dark-islands** — 8,532 stars, activity: 0\n- **BigBodyCobain/Shadowbroker** — 11,188 stars, activity: 0\n- **z-lab/dflash** — 6,102 stars, activity: 0\n- **chatboxai/chatbox** — 41,807 stars, activity: 0",
       "sources": [
+        {
+          "name": "skills",
+          "owner": "mattpocock",
+          "forked_from": "mattpocock/skills",
+          "description": null,
+          "stars": 265458,
+          "relevance_score": 1,
+          "problem_solved": null,
+          "integration_tags": []
+        },
         {
           "name": "ai-exploits",
           "owner": "protectai",
@@ -613,21 +623,11 @@
           "integration_tags": []
         },
         {
-          "name": "farmvibes-ai",
-          "owner": "microsoft",
-          "forked_from": "microsoft/farmvibes-ai",
+          "name": "maigret",
+          "owner": "soxoj",
+          "forked_from": "soxoj/maigret",
           "description": null,
-          "stars": 898,
-          "relevance_score": 1,
-          "problem_solved": null,
-          "integration_tags": []
-        },
-        {
-          "name": "farmOS",
-          "owner": "farmOS",
-          "forked_from": "farmOS/farmOS",
-          "description": null,
-          "stars": 1352,
+          "stars": 37784,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
@@ -643,68 +643,68 @@
           "integration_tags": []
         },
         {
-          "name": "rust",
-          "owner": "rust-lang",
-          "forked_from": "rust-lang/rust",
+          "name": "EasyR1",
+          "owner": "hiyouga",
+          "forked_from": "hiyouga/EasyR1",
           "description": null,
-          "stars": 118923,
+          "stars": 5165,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "DLTK",
-          "owner": "DLTK",
-          "forked_from": "DLTK/DLTK",
+          "name": "jcode",
+          "owner": "1jehuang",
+          "forked_from": "1jehuang/jcode",
           "description": null,
-          "stars": 1458,
+          "stars": 19886,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "dots.ocr",
-          "owner": "studio-dots-ai",
-          "forked_from": "studio-dots-ai/dots.ocr",
+          "name": "vscode-dark-islands",
+          "owner": "bwya77",
+          "forked_from": "bwya77/vscode-dark-islands",
           "description": null,
-          "stars": 9121,
+          "stars": 8532,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "claude-ai-mcp",
-          "owner": "anthropics",
-          "forked_from": "anthropics/claude-ai-mcp",
+          "name": "Shadowbroker",
+          "owner": "BigBodyCobain",
+          "forked_from": "BigBodyCobain/Shadowbroker",
           "description": null,
-          "stars": 479,
+          "stars": 11188,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "MIScnn",
-          "owner": "frankkramer-lab",
-          "forked_from": "frankkramer-lab/MIScnn",
+          "name": "dflash",
+          "owner": "z-lab",
+          "forked_from": "z-lab/dflash",
           "description": null,
-          "stars": 423,
+          "stars": 6102,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         },
         {
-          "name": "fraud-detection-handbook",
-          "owner": "Fraud-Detection-Handbook",
-          "forked_from": "Fraud-Detection-Handbook/fraud-detection-handbook",
+          "name": "chatbox",
+          "owner": "chatboxai",
+          "forked_from": "chatboxai/chatbox",
           "description": null,
-          "stars": 733,
+          "stars": 41807,
           "relevance_score": 1,
           "problem_solved": null,
           "integration_tags": []
         }
       ],
       "model": "smart-route:most_active",
-      "generatedAt": "2026-09-19T09:54:58.547Z"
+      "generatedAt": "2026-09-20T10:16:38.611Z"
     },
     "What are the newest repos?": {
       "answer": "Most newest repos in Reporium:\n\n- **VoltAgent/awesome-design-md** — 116,469 stars, activity: 0\n- **ultraworkers/claw-code** — 195,263 stars, activity: 0\n- **mitkox/vllm-turboquant** — 619 stars, activity: 0\n- **capgym/cap-x** — 808 stars, activity: 0\n- **facebookresearch/tribev2** — 3,225 stars, activity: 0\n- **HKUDS/OpenSpace** — 7,705 stars, activity: 0\n- **zarazhangrui/codebase-to-course** — 5,565 stars, activity: 0\n- **perditioinc/repo-intelligence** — 1 stars, activity: 0\n- **aidancorrell/arcana** — 8 stars, activity: 0\n- **danveloper/flash-moe** — 4,139 stars, activity: 0",
