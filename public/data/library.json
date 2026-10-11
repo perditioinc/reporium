@@ -1,6 +1,6 @@
 {
   "username": "perditioinc",
-  "generatedAt": "2026-10-11T10:26:27.639980+00:00",
+  "generatedAt": "2026-10-11T11:38:13.038005+00:00",
   "page": 1,
   "pageSize": 200,
   "totalRepos": 2024,
@@ -397066,10 +397066,10 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -397345,8 +397345,8 @@
         "Computer Vision",
         "Course",
         "Curated List",
-        "Data Science",
         "Database",
+        "Data Science",
         "Deep Learning",
         "Embeddings",
         "Evals",
@@ -397385,8 +397385,8 @@
         "Computer Vision",
         "Course",
         "Curated List",
-        "Data Science",
         "Database",
+        "Data Science",
         "Deep Learning",
         "Embeddings",
         "Evals",
@@ -397526,11 +397526,11 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Healthcare & Medicine",
@@ -398138,8 +398138,8 @@
         "Data Science",
         "Forked",
         "Large Language Models",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Planning / CoT",
         "Python",
         "Real-Time / Streaming",
@@ -398313,9 +398313,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -399091,18 +399091,18 @@
         "JAX",
         "Jupyter",
         "Keras",
-        "LLM Serving",
         "LangChain",
         "Large Language Models",
         "LlamaIndex",
+        "LLM Serving",
         "MLOps",
         "Model Optimization",
         "Multimodal AI",
         "Node.js",
         "NumPy",
         "ONNX",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Speech to Text",
         "TensorFlow",
@@ -399129,18 +399129,18 @@
         "JAX",
         "Jupyter",
         "Keras",
-        "LLM Serving",
         "LangChain",
         "Large Language Models",
         "LlamaIndex",
+        "LLM Serving",
         "MLOps",
         "Model Optimization",
         "Multimodal AI",
         "Node.js",
         "NumPy",
         "ONNX",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Speech to Text",
         "TensorFlow",
@@ -399303,9 +399303,9 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
+        "Data & Evaluation",
         "Scale & Reliability",
-        "Data & Evaluation"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -399925,17 +399925,17 @@
         "C++",
         "Docker",
         "Forked",
+        "Google Cloud",
         "GPT",
         "GPU / CUDA",
-        "Google Cloud",
         "HuggingFace",
         "Kubernetes",
+        "llama.cpp",
         "OpenAI",
         "Prompt Engineering",
         "Python",
         "Quantization",
-        "Roadmap",
-        "llama.cpp"
+        "Roadmap"
       ],
       "enrichedTags": [
         "Code Generation Models",
@@ -399947,17 +399947,17 @@
         "C++",
         "Docker",
         "Forked",
+        "Google Cloud",
         "GPT",
         "GPU / CUDA",
-        "Google Cloud",
         "HuggingFace",
         "Kubernetes",
+        "llama.cpp",
         "OpenAI",
         "Prompt Engineering",
         "Python",
         "Quantization",
-        "Roadmap",
-        "llama.cpp"
+        "Roadmap"
       ],
       "stars": 10932,
       "forks": 704,
@@ -400406,8 +400406,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia"
@@ -400651,14 +400651,14 @@
         "C++",
         "CrewAI",
         "Curated List",
-        "DSPy",
-        "Data Science",
         "Database",
-        "Deep Learning",
+        "Data Science",
         "DeepEval",
+        "Deep Learning",
         "DeepSeek",
         "DeepSpeed",
         "Document Processing",
+        "DSPy",
         "Embeddings",
         "Evals",
         "Forked",
@@ -400670,38 +400670,39 @@
         "Inference",
         "Interview Prep",
         "Knowledge Graph",
-        "LLM Serving",
         "LangChain",
+        "Langflow",
         "LangGraph",
         "LangSmith",
-        "Langflow",
         "Large Language Models",
         "Letta / MemGPT",
         "LiteLLM",
+        "llama.cpp",
         "LlamaIndex",
+        "LLM Serving",
         "LoRA / PEFT",
-        "MCP",
-        "MLOps",
-        "MLflow",
         "Machine Learning",
+        "MCP",
         "Mem0",
         "MergeKit",
         "Mistral",
+        "MLflow",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Multi-Agent",
         "NeMo Guardrails",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Pandas",
         "Phoenix",
         "Prompt Engineering",
         "Prompt Injection",
-        "PyTorch",
         "Pydantic",
         "Python",
         "Python Web Framework",
+        "PyTorch",
         "Quantization",
         "RAG",
         "RAGAS",
@@ -400711,15 +400712,14 @@
         "Security",
         "Structured Output",
         "Synthetic Data",
-        "TRL",
         "TensorRT",
         "TorchTune",
         "Transformers",
+        "TRL",
         "Unsloth",
+        "vLLM",
         "Watermarking",
-        "Weights & Biases",
-        "llama.cpp",
-        "vLLM"
+        "Weights & Biases"
       ],
       "enrichedTags": [
         "AI Engineering Best Practices",
@@ -400735,14 +400735,14 @@
         "C++",
         "CrewAI",
         "Curated List",
-        "DSPy",
-        "Data Science",
         "Database",
-        "Deep Learning",
+        "Data Science",
         "DeepEval",
+        "Deep Learning",
         "DeepSeek",
         "DeepSpeed",
         "Document Processing",
+        "DSPy",
         "Embeddings",
         "Evals",
         "Forked",
@@ -400754,38 +400754,39 @@
         "Inference",
         "Interview Prep",
         "Knowledge Graph",
-        "LLM Serving",
         "LangChain",
+        "Langflow",
         "LangGraph",
         "LangSmith",
-        "Langflow",
         "Large Language Models",
         "Letta / MemGPT",
         "LiteLLM",
+        "llama.cpp",
         "LlamaIndex",
+        "LLM Serving",
         "LoRA / PEFT",
-        "MCP",
-        "MLOps",
-        "MLflow",
         "Machine Learning",
+        "MCP",
         "Mem0",
         "MergeKit",
         "Mistral",
+        "MLflow",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Multi-Agent",
         "NeMo Guardrails",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Pandas",
         "Phoenix",
         "Prompt Engineering",
         "Prompt Injection",
-        "PyTorch",
         "Pydantic",
         "Python",
         "Python Web Framework",
+        "PyTorch",
         "Quantization",
         "RAG",
         "RAGAS",
@@ -400795,15 +400796,14 @@
         "Security",
         "Structured Output",
         "Synthetic Data",
-        "TRL",
         "TensorRT",
         "TorchTune",
         "Transformers",
+        "TRL",
         "Unsloth",
+        "vLLM",
         "Watermarking",
-        "Weights & Biases",
-        "llama.cpp",
-        "vLLM"
+        "Weights & Biases"
       ],
       "stars": 10883,
       "forks": 1711,
@@ -400907,13 +400907,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -401509,13 +401509,14 @@
         "GPU / CUDA",
         "HuggingFace",
         "Kubernetes",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "Mistral",
         "OpenAI",
         "OpenTelemetry",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Real-Time / Streaming",
         "Research / Papers",
@@ -401524,9 +401525,8 @@
         "TGI",
         "Transformers",
         "Tutorial",
-        "Watermarking",
-        "llama.cpp",
-        "vLLM"
+        "vLLM",
+        "Watermarking"
       ],
       "enrichedTags": [
         "Distributed Inference",
@@ -401546,13 +401546,14 @@
         "GPU / CUDA",
         "HuggingFace",
         "Kubernetes",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "Mistral",
         "OpenAI",
         "OpenTelemetry",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Real-Time / Streaming",
         "Research / Papers",
@@ -401561,9 +401562,8 @@
         "TGI",
         "Transformers",
         "Tutorial",
-        "Watermarking",
-        "llama.cpp",
-        "vLLM"
+        "vLLM",
+        "Watermarking"
       ],
       "stars": 10880,
       "forks": 1288,
@@ -401656,8 +401656,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -403001,8 +403001,8 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -403145,8 +403145,8 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "AWS",
         "Anthropic / Claude",
+        "AWS",
         "Claude",
         "Context Engineering",
         "Forked",
@@ -403160,8 +403160,8 @@
       ],
       "enrichedTags": [
         "AI Agents",
-        "AWS",
         "Anthropic / Claude",
+        "AWS",
         "Claude",
         "Context Engineering",
         "Forked",
@@ -403564,9 +403564,9 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
+        "Developer Platform",
         "Scale & Reliability",
-        "Developer Platform"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -404189,8 +404189,8 @@
         "Large Language Models",
         "Machine Learning",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Spark",
         "Transformers",
         "Tutorial"
@@ -404213,8 +404213,8 @@
         "Large Language Models",
         "Machine Learning",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Spark",
         "Transformers",
         "Tutorial"
@@ -404546,8 +404546,8 @@
       "forkedFrom": "huggingface/ml-intern",
       "language": "Python",
       "topics": [
-        "AI Agents",
         "Active",
+        "AI Agents",
         "Anthropic / Claude",
         "Claude",
         "Forked",
@@ -404561,8 +404561,8 @@
         "Tutorial"
       ],
       "enrichedTags": [
-        "AI Agents",
         "Active",
+        "AI Agents",
         "Anthropic / Claude",
         "Claude",
         "Forked",
@@ -404686,10 +404686,10 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -404938,10 +404938,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools"
@@ -405193,30 +405193,30 @@
         "Distillation",
         "Evals",
         "Forked",
+        "Gemma",
         "GPU / CUDA",
         "GRPO",
-        "Gemma",
         "HuggingFace",
         "Inference",
         "Jupyter",
-        "LLM Serving",
-        "LangGraph",
         "Langfuse",
+        "LangGraph",
         "Large Language Models",
+        "LLM Serving",
         "LoRA / PEFT",
         "MCP",
-        "Open Source",
         "OpenAI",
-        "PyTorch",
+        "Open Source",
         "Python",
+        "PyTorch",
         "Qwen",
         "Reinforcement Learning",
-        "TRL",
         "TorchTune",
         "Transformers",
+        "TRL",
         "Unsloth",
-        "Weights & Biases",
-        "vLLM"
+        "vLLM",
+        "Weights & Biases"
       ],
       "enrichedTags": [
         "Agent-based AI Systems",
@@ -405232,30 +405232,30 @@
         "Distillation",
         "Evals",
         "Forked",
+        "Gemma",
         "GPU / CUDA",
         "GRPO",
-        "Gemma",
         "HuggingFace",
         "Inference",
         "Jupyter",
-        "LLM Serving",
-        "LangGraph",
         "Langfuse",
+        "LangGraph",
         "Large Language Models",
+        "LLM Serving",
         "LoRA / PEFT",
         "MCP",
-        "Open Source",
         "OpenAI",
-        "PyTorch",
+        "Open Source",
         "Python",
+        "PyTorch",
         "Qwen",
         "Reinforcement Learning",
-        "TRL",
         "TorchTune",
         "Transformers",
+        "TRL",
         "Unsloth",
-        "Weights & Biases",
-        "vLLM"
+        "vLLM",
+        "Weights & Biases"
       ],
       "stars": 10789,
       "forks": 1002,
@@ -405407,10 +405407,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
         "Data & Evaluation",
-        "Developer Platform",
-        "AI-Native Architecture"
+        "Developer Platform"
       ],
       "industries": [
         "Research & Academia"
@@ -405803,8 +405803,8 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "User Experience",
-        "Developer Platform"
+        "Developer Platform",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -406407,11 +406407,11 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -407332,9 +407332,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -407562,21 +407562,21 @@
         "Chroma",
         "Claude",
         "Claude Code",
-        "Data Science",
         "Database",
+        "Data Science",
         "DeepSeek",
         "DeepSpeed",
         "Fine-Tuning",
         "Forked",
         "Google Cloud",
         "Kubernetes",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Mistral",
         "Ollama",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Qwen",
         "Research / Papers",
         "SGLang",
@@ -407600,21 +407600,21 @@
         "Chroma",
         "Claude",
         "Claude Code",
-        "Data Science",
         "Database",
+        "Data Science",
         "DeepSeek",
         "DeepSpeed",
         "Fine-Tuning",
         "Forked",
         "Google Cloud",
         "Kubernetes",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Mistral",
         "Ollama",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Qwen",
         "Research / Papers",
         "SGLang",
@@ -407781,8 +407781,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -408165,11 +408165,12 @@
         "Docker",
         "Embeddings",
         "Forked",
-        "GPU / CUDA",
         "Gemma",
+        "GPU / CUDA",
         "HuggingFace",
         "LangChain",
         "Large Language Models",
+        "llama.cpp",
         "LlamaIndex",
         "Multimodal AI",
         "OpenAI",
@@ -408182,8 +408183,7 @@
         "Structured Output",
         "Tool Use",
         "Transformers",
-        "Unsloth",
-        "llama.cpp"
+        "Unsloth"
       ],
       "enrichedTags": [
         "CPU/GPU Optimization",
@@ -408198,11 +408198,12 @@
         "Docker",
         "Embeddings",
         "Forked",
-        "GPU / CUDA",
         "Gemma",
+        "GPU / CUDA",
         "HuggingFace",
         "LangChain",
         "Large Language Models",
+        "llama.cpp",
         "LlamaIndex",
         "Multimodal AI",
         "OpenAI",
@@ -408215,8 +408216,7 @@
         "Structured Output",
         "Tool Use",
         "Transformers",
-        "Unsloth",
-        "llama.cpp"
+        "Unsloth"
       ],
       "stars": 10641,
       "forks": 1464,
@@ -408301,12 +408301,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -408609,8 +408609,8 @@
         "Forked",
         "HuggingFace",
         "Large Language Models",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers"
       ],
@@ -408622,8 +408622,8 @@
         "Forked",
         "HuggingFace",
         "Large Language Models",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers"
       ],
@@ -408704,9 +408704,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia"
@@ -408851,8 +408851,8 @@
         "GPU / CUDA",
         "Node.js",
         "Open Source",
-        "PyTorch",
-        "Python"
+        "Python",
+        "PyTorch"
       ],
       "enrichedTags": [
         "CUDA Programming",
@@ -408873,8 +408873,8 @@
         "GPU / CUDA",
         "Node.js",
         "Open Source",
-        "PyTorch",
-        "Python"
+        "Python",
+        "PyTorch"
       ],
       "stars": 10546,
       "forks": 2117,
@@ -409030,8 +409030,8 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Developer Platform"
+        "Developer Platform",
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools",
@@ -409423,8 +409423,8 @@
       "aiDevSkills": [],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -409716,8 +409716,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -409930,10 +409930,10 @@
       "language": "Rust",
       "topics": [
         "AI Agents",
-        "AWS Bedrock",
         "Anthropic / Claude",
-        "CLI Tool",
+        "AWS Bedrock",
         "Claude",
+        "CLI Tool",
         "DeepSeek",
         "Embeddings",
         "Forked",
@@ -409959,10 +409959,10 @@
         "Retrieval-Augmented Generation",
         "Shell Integration and Automation",
         "AI Agents",
-        "AWS Bedrock",
         "Anthropic / Claude",
-        "CLI Tool",
+        "AWS Bedrock",
         "Claude",
+        "CLI Tool",
         "DeepSeek",
         "Embeddings",
         "Forked",
@@ -410083,9 +410083,9 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools"
@@ -410591,8 +410591,8 @@
         "HuggingFace",
         "Machine Learning",
         "Music Tech",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers",
         "Transformers",
@@ -410615,8 +410615,8 @@
         "HuggingFace",
         "Machine Learning",
         "Music Tech",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers",
         "Transformers",
@@ -410714,8 +410714,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Media & Entertainment",
@@ -411150,10 +411150,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -411761,6 +411761,7 @@
         "Image Generation",
         "Large Language Models",
         "Llama",
+        "llama.cpp",
         "Mistral",
         "Mobile",
         "Model Optimization",
@@ -411775,8 +411776,7 @@
         "Structured Output",
         "Systems",
         "Tool Use",
-        "TypeScript",
-        "llama.cpp"
+        "TypeScript"
       ],
       "enrichedTags": [
         "AI Model Optimization",
@@ -411792,6 +411792,7 @@
         "Image Generation",
         "Large Language Models",
         "Llama",
+        "llama.cpp",
         "Mistral",
         "Mobile",
         "Model Optimization",
@@ -411806,8 +411807,7 @@
         "Structured Output",
         "Systems",
         "Tool Use",
-        "TypeScript",
-        "llama.cpp"
+        "TypeScript"
       ],
       "stars": 10312,
       "forks": 388,
@@ -411951,10 +411951,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Audio & Music",
@@ -412679,8 +412679,8 @@
         "DeepSeek",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Roadmap"
       ],
@@ -412690,8 +412690,8 @@
         "DeepSeek",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Roadmap"
       ],
@@ -412871,8 +412871,8 @@
         "GraphQL",
         "JavaScript",
         "MCP",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Prompt Engineering",
         "Pydantic",
@@ -412900,8 +412900,8 @@
         "GraphQL",
         "JavaScript",
         "MCP",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Prompt Engineering",
         "Pydantic",
@@ -413028,11 +413028,11 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -413251,8 +413251,8 @@
         "Image Generation",
         "LangChain",
         "Music Tech",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Research / Papers",
         "Speech to Text",
         "Stable Diffusion",
@@ -413275,8 +413275,8 @@
         "Image Generation",
         "LangChain",
         "Music Tech",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Research / Papers",
         "Speech to Text",
         "Stable Diffusion",
@@ -413851,13 +413851,13 @@
         "Forked",
         "GPT",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "MCP",
         "Multi-Agent",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Research / Papers",
@@ -413886,13 +413886,13 @@
         "Forked",
         "GPT",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "MCP",
         "Multi-Agent",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Research / Papers",
@@ -414009,11 +414009,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -414657,8 +414657,8 @@
         "C++",
         "Caching",
         "CrewAI",
-        "DSPy",
         "Database",
+        "DSPy",
         "FinTech",
         "Forked",
         "HuggingFace",
@@ -414690,8 +414690,8 @@
         "C++",
         "Caching",
         "CrewAI",
-        "DSPy",
         "Database",
+        "DSPy",
         "FinTech",
         "Forked",
         "HuggingFace",
@@ -414858,10 +414858,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -415392,9 +415392,9 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools",
@@ -415865,9 +415865,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "User Experience"
       ],
       "industries": [
         "Finance & FinTech",
@@ -416166,15 +416166,15 @@
       "language": "Python",
       "topics": [
         "Course",
-        "Data Science",
         "Database",
+        "Data Science",
         "Docker",
         "Forked",
         "Jupyter",
         "Kubernetes",
         "Machine Learning",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Statistics",
         "Tutorial"
@@ -416190,15 +416190,15 @@
         "Remote Execution",
         "Secure Multi-Party Computation",
         "Course",
-        "Data Science",
         "Database",
+        "Data Science",
         "Docker",
         "Forked",
         "Jupyter",
         "Kubernetes",
         "Machine Learning",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Statistics",
         "Tutorial"
@@ -416295,8 +416295,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -416591,8 +416591,8 @@
       "language": null,
       "topics": [
         "AI Agents",
-        "AWS",
         "Autonomous Systems",
+        "AWS",
         "Cheat Sheet",
         "Course",
         "Curated List",
@@ -416606,11 +416606,11 @@
         "Mobile",
         "Motion Planning",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
@@ -416633,8 +416633,8 @@
         "Reinforcement Learning",
         "Temporal Difference Learning",
         "AI Agents",
-        "AWS",
         "Autonomous Systems",
+        "AWS",
         "Cheat Sheet",
         "Course",
         "Curated List",
@@ -416648,11 +416648,11 @@
         "Mobile",
         "Motion Planning",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
@@ -416764,8 +416764,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Scale & Reliability"
       ],
       "industries": [
         "Gaming & Entertainment",
@@ -417192,10 +417192,10 @@
         "Jupyter",
         "Large Language Models",
         "Music Tech",
-        "Open Source",
         "OpenAI",
-        "PyTorch",
+        "Open Source",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Speech to Text",
@@ -417234,10 +417234,10 @@
         "Jupyter",
         "Large Language Models",
         "Music Tech",
-        "Open Source",
         "OpenAI",
-        "PyTorch",
+        "Open Source",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Speech to Text",
@@ -417425,12 +417425,12 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -418274,8 +418274,8 @@
         "Docker",
         "Forked",
         "Jupyter",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Open Source",
         "Python",
         "Scikit-learn",
@@ -418302,8 +418302,8 @@
         "Docker",
         "Forked",
         "Jupyter",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Open Source",
         "Python",
         "Scikit-learn",
@@ -418423,8 +418423,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -418999,11 +418999,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia"
@@ -419452,8 +419452,8 @@
         }
       ],
       "pmSkills": [
-        "Data & Evaluation",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Data & Evaluation"
       ],
       "industries": [
         "Developer Tools",
@@ -419975,15 +419975,15 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "API",
         "Airflow",
+        "API",
         "Automation",
         "Backend",
         "Caching",
         "Course",
+        "Database",
         "Data Engineering",
         "Data Science",
-        "Database",
         "Docker",
         "Document Processing",
         "Embeddings",
@@ -419991,10 +419991,10 @@
         "Forked",
         "Hybrid Search",
         "Jupyter",
-        "LLM Serving",
-        "LangGraph",
         "Langfuse",
+        "LangGraph",
         "Large Language Models",
+        "LLM Serving",
         "Mobile",
         "Ollama",
         "Prompt Engineering",
@@ -420014,25 +420014,25 @@
         "Natural Language Processing",
         "Retrieval-Augmented Generation",
         "AI Agents",
-        "API",
         "Airflow",
+        "API",
         "Automation",
         "Backend",
         "Caching",
         "Course",
+        "Database",
         "Data Engineering",
         "Data Science",
-        "Database",
         "Docker",
         "Embeddings",
         "Evals",
         "Forked",
         "Hybrid Search",
         "Jupyter",
-        "LLM Serving",
-        "LangGraph",
         "Langfuse",
+        "LangGraph",
         "Large Language Models",
+        "LLM Serving",
         "Mobile",
         "Ollama",
         "Prompt Engineering",
@@ -420171,12 +420171,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -420629,9 +420629,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -421052,9 +421052,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "User Experience",
+        "Developer Platform",
         "Scale & Reliability",
-        "Developer Platform"
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -421332,9 +421332,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -421965,12 +421965,13 @@
         "GPU / CUDA",
         "HuggingFace",
         "Jupyter",
-        "KV Cache",
         "Kubernetes",
-        "LLM Serving",
+        "KV Cache",
         "LangChain",
         "Large Language Models",
+        "llama.cpp",
         "LlamaIndex",
+        "LLM Serving",
         "MCP",
         "MLOps",
         "Model Optimization",
@@ -421985,7 +421986,6 @@
         "TensorRT",
         "Tool Use",
         "Tutorial",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -422006,12 +422006,13 @@
         "GPU / CUDA",
         "HuggingFace",
         "Jupyter",
-        "KV Cache",
         "Kubernetes",
-        "LLM Serving",
+        "KV Cache",
         "LangChain",
         "Large Language Models",
+        "llama.cpp",
         "LlamaIndex",
+        "LLM Serving",
         "MCP",
         "MLOps",
         "Model Optimization",
@@ -422026,7 +422027,6 @@
         "TensorRT",
         "Tool Use",
         "Tutorial",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 9606,
@@ -422180,13 +422180,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -423230,8 +423230,8 @@
         "Machine Learning",
         "NumPy",
         "Pandas",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Scikit-learn",
         "Transformers",
@@ -423258,8 +423258,8 @@
         "Machine Learning",
         "NumPy",
         "Pandas",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Scikit-learn",
         "Transformers",
@@ -423420,9 +423420,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -423740,17 +423740,18 @@
       "forkedFrom": "NVIDIA/garak",
       "language": "HTML",
       "topics": [
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "C++",
-        "CLI Tool",
         "Claude",
+        "CLI Tool",
         "Forked",
         "Garak",
         "HuggingFace",
         "Large Language Models",
         "LiteLLM",
         "Llama",
+        "llama.cpp",
         "Mistral",
         "OpenAI",
         "Prompt Engineering",
@@ -423761,8 +423762,7 @@
         "Research / Papers",
         "Security",
         "Transformers",
-        "Tutorial",
-        "llama.cpp"
+        "Tutorial"
       ],
       "enrichedTags": [
         "Adversarial Machine Learning",
@@ -423773,17 +423773,18 @@
         "Natural Language Processing Security",
         "Prompt Injection Detection",
         "Red Team Testing",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "C++",
-        "CLI Tool",
         "Claude",
+        "CLI Tool",
         "Forked",
         "Garak",
         "HuggingFace",
         "Large Language Models",
         "LiteLLM",
         "Llama",
+        "llama.cpp",
         "Mistral",
         "OpenAI",
         "Prompt Engineering",
@@ -423794,8 +423795,7 @@
         "Research / Papers",
         "Security",
         "Transformers",
-        "Tutorial",
-        "llama.cpp"
+        "Tutorial"
       ],
       "stars": 9508,
       "forks": 1351,
@@ -423945,8 +423945,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "Developer Platform"
+        "Developer Platform",
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools",
@@ -424732,8 +424732,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Developer Platform"
+        "Developer Platform",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -424872,9 +424872,9 @@
       "forkedFrom": "anthropics/claude-code-action",
       "language": "TypeScript",
       "topics": [
-        "AWS Bedrock",
         "Anthropic / Claude",
         "Automation",
+        "AWS Bedrock",
         "Claude",
         "Claude Code",
         "Forked",
@@ -424891,9 +424891,9 @@
         "Developer Tooling",
         "IDE Extension Development",
         "Large Language Model Integration",
-        "AWS Bedrock",
         "Anthropic / Claude",
         "Automation",
+        "AWS Bedrock",
         "Claude",
         "Claude Code",
         "Forked",
@@ -425034,8 +425034,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Developer Platform"
+        "Developer Platform",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -425606,40 +425606,40 @@
         "Anthropic / Claude",
         "Automation",
         "Curated List",
-        "DPO",
         "DeepSeek",
         "DeepSpeed",
         "Distillation",
         "Docker",
+        "DPO",
         "Evals",
-        "FSDP",
         "Fine-Tuning",
         "Forked",
-        "GRPO",
+        "FSDP",
         "Gemma",
         "Google AI",
         "Google Cloud",
+        "GRPO",
         "HuggingFace",
         "Jupyter",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "LoRA / PEFT",
         "MCP",
         "Mistral",
         "Multimodal AI",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Phi",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Research / Papers",
         "SGLang",
         "Synthetic Data",
-        "TRL",
         "Transformers",
+        "TRL",
         "Tutorial",
         "Vertex AI",
         "vLLM"
@@ -425654,40 +425654,40 @@
         "Anthropic / Claude",
         "Automation",
         "Curated List",
-        "DPO",
         "DeepSeek",
         "DeepSpeed",
         "Distillation",
         "Docker",
+        "DPO",
         "Evals",
-        "FSDP",
         "Fine-Tuning",
         "Forked",
-        "GRPO",
+        "FSDP",
         "Gemma",
         "Google AI",
         "Google Cloud",
+        "GRPO",
         "HuggingFace",
         "Jupyter",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "LoRA / PEFT",
         "MCP",
         "Mistral",
         "Multimodal AI",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Phi",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Research / Papers",
         "SGLang",
         "Synthetic Data",
-        "TRL",
         "Transformers",
+        "TRL",
         "Tutorial",
         "Vertex AI",
         "vLLM"
@@ -425832,12 +425832,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -426166,15 +426166,15 @@
       "forkedFrom": "BoundaryML/baml",
       "language": "Rust",
       "topics": [
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Azure AI",
         "DeepSeek",
         "Forked",
         "Google AI",
         "Google Cloud",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "Ollama",
         "OpenAI",
         "Prompt Engineering",
@@ -426216,15 +426216,15 @@
         "Type-Safe Language Model Integration",
         "Type Safety in AI",
         "Type System Design for AI Outputs",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Azure AI",
         "DeepSeek",
         "Forked",
         "Google AI",
         "Google Cloud",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "Ollama",
         "OpenAI",
         "Python",
@@ -426466,8 +426466,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -427246,9 +427246,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -427685,8 +427685,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "User Experience"
       ],
       "industries": [
         "Research & Academia"
@@ -427888,13 +427888,13 @@
       "forkedFrom": "NVlabs/Sana",
       "language": "Python",
       "topics": [
-        "AI Safety",
         "Active",
+        "AI Safety",
         "ComfyUI",
         "ControlNet",
         "Distillation",
-        "FSDP",
         "Forked",
+        "FSDP",
         "GPU / CUDA",
         "GRPO",
         "HuggingFace",
@@ -427904,8 +427904,8 @@
         "LoRA / PEFT",
         "Music Tech",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Real-Time / Streaming",
         "Reinforcement Learning",
@@ -427916,13 +427916,13 @@
         "Video Generation"
       ],
       "enrichedTags": [
-        "AI Safety",
         "Active",
+        "AI Safety",
         "ComfyUI",
         "ControlNet",
         "Distillation",
-        "FSDP",
         "Forked",
+        "FSDP",
         "GPU / CUDA",
         "GRPO",
         "HuggingFace",
@@ -427932,8 +427932,8 @@
         "LoRA / PEFT",
         "Music Tech",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Real-Time / Streaming",
         "Reinforcement Learning",
@@ -428261,11 +428261,11 @@
       "forkedFrom": "MervinPraison/PraisonAI",
       "language": "Python",
       "topics": [
-        "AI Agents",
-        "AWS Bedrock",
         "Agent Memory",
+        "AI Agents",
         "Anthropic / Claude",
         "Automation",
+        "AWS Bedrock",
         "Azure AI",
         "Benchmarking",
         "Caching",
@@ -428277,16 +428277,16 @@
         "Docker",
         "Evals",
         "Forked",
-        "GPT",
         "Gemini CLI",
         "Google AI",
         "Google Cloud",
+        "GPT",
         "HuggingFace",
         "Image Generation",
         "JavaScript",
-        "LLM Serving",
         "LangChain",
         "Large Language Models",
+        "LLM Serving",
         "MCP",
         "Mem0",
         "Mistral",
@@ -428312,11 +428312,11 @@
         "multi-agent-ai",
         "telegram",
         "whatsapp",
-        "AI Agents",
-        "AWS Bedrock",
         "Agent Memory",
+        "AI Agents",
         "Anthropic / Claude",
         "Automation",
+        "AWS Bedrock",
         "Azure AI",
         "Benchmarking",
         "Caching",
@@ -428328,16 +428328,16 @@
         "Docker",
         "Evals",
         "Forked",
-        "GPT",
         "Gemini CLI",
         "Google AI",
         "Google Cloud",
+        "GPT",
         "HuggingFace",
         "Image Generation",
         "JavaScript",
-        "LLM Serving",
         "LangChain",
         "Large Language Models",
+        "LLM Serving",
         "MCP",
         "Mem0",
         "Mistral",
@@ -428500,13 +428500,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -429054,8 +429054,8 @@
       "forkedFrom": "LearningCircuit/local-deep-research",
       "language": "Python",
       "topics": [
-        "API",
         "Anthropic / Claude",
+        "API",
         "Benchmarking",
         "Chroma",
         "Claude",
@@ -429066,9 +429066,9 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPT",
         "Gemma",
         "Google AI",
+        "GPT",
         "Healthcare AI",
         "LangChain",
         "Large Language Models",
@@ -429078,8 +429078,8 @@
         "Ollama",
         "OpenAI",
         "Pinecone",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Security",
@@ -429097,8 +429097,8 @@
         "Privacy-Preserving AI",
         "Retrieval-Augmented Generation",
         "Search Engine Development",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Benchmarking",
         "Chroma",
         "Claude",
@@ -429109,9 +429109,9 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPT",
         "Gemma",
         "Google AI",
+        "GPT",
         "Healthcare AI",
         "LangChain",
         "Large Language Models",
@@ -429121,8 +429121,8 @@
         "Ollama",
         "OpenAI",
         "Pinecone",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Security",
@@ -429285,10 +429285,10 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -430217,11 +430217,11 @@
         "Multimodal AI",
         "NumPy",
         "Pose Estimation",
-        "PyTorch",
         "Python",
         "Python Web Framework",
-        "ROS 2",
+        "PyTorch",
         "Real-Time / Streaming",
+        "ROS 2",
         "Segmentation",
         "TensorRT",
         "Transformers",
@@ -430250,11 +430250,11 @@
         "Multimodal AI",
         "NumPy",
         "Pose Estimation",
-        "PyTorch",
         "Python",
         "Python Web Framework",
-        "ROS 2",
+        "PyTorch",
         "Real-Time / Streaming",
+        "ROS 2",
         "Segmentation",
         "TensorRT",
         "Transformers",
@@ -430340,9 +430340,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "Developer Platform",
         "Scale & Reliability",
-        "Developer Platform"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -430593,11 +430593,11 @@
       "topics": [
         "AI Agents",
         "AI Safety",
-        "API",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "API",
         "AutoGen",
         "Automation",
+        "AWS Bedrock",
         "Axolotl",
         "Benchmarking",
         "C++",
@@ -430611,29 +430611,29 @@
         "Course",
         "CrewAI",
         "Curated List",
-        "DPO",
-        "Data Science",
         "Database",
-        "Deep Learning",
+        "Data Science",
         "DeepEval",
+        "Deep Learning",
         "DeepSeek",
         "Distillation",
         "Docker",
         "Document Processing",
+        "DPO",
         "Embeddings",
         "Evals",
-        "FSDP",
-        "FinTech",
         "Fine-Tuning",
+        "FinTech",
         "Flowise",
         "Forked",
-        "GPT",
-        "GRPO",
+        "FSDP",
         "Gemini CLI",
         "Gemma",
         "Go",
         "Google AI",
+        "GPT",
         "GraphRAG",
+        "GRPO",
         "Healthcare AI",
         "HuggingFace",
         "Hybrid Search",
@@ -430643,67 +430643,67 @@
         "Kilocode",
         "Knowledge Graph",
         "Kubernetes",
-        "LLM Serving",
-        "LM Eval Harness",
         "LangChain",
         "Large Language Models",
         "Letta / MemGPT",
         "LiteLLM",
         "Llama",
+        "llama.cpp",
         "LlamaIndex",
-        "LoRA / PEFT",
+        "LLM Serving",
+        "LM Eval Harness",
         "Long Context",
-        "MCP",
-        "MLOps",
+        "LoRA / PEFT",
         "Machine Learning",
+        "MCP",
         "Mem0",
         "MergeKit",
         "Mistral",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Multi-Agent",
         "Multimodal AI",
         "Ollama",
+        "OpenAI",
         "Open Source",
         "Open WebUI",
-        "OpenAI",
         "Phi",
         "Prompt Engineering",
-        "PyTorch",
         "Pydantic",
         "Python",
         "Python Web Framework",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "RAG",
         "RAGAS",
-        "RLHF",
         "Real-Time / Streaming",
         "Reasoning Models",
         "Reinforcement Learning",
         "Reranking",
         "Research / Papers",
+        "RLHF",
         "Roadmap",
         "Rust",
-        "SGLang",
         "Security",
+        "SGLang",
         "Speech to Text",
         "Structured Output",
         "Synthetic Data",
-        "TRL",
         "TensorRT",
         "Tool Use",
         "TorchTune",
         "Transformers",
+        "TRL",
         "Tutorial",
         "Unsloth",
         "Vertex AI",
         "Video Generation",
         "Visualization",
+        "vLLM",
         "Weaviate",
-        "Weights & Biases",
-        "llama.cpp",
-        "vLLM"
+        "Weights & Biases"
       ],
       "enrichedTags": [
         "Agentic AI Systems",
@@ -430722,11 +430722,11 @@
         "Vision-Language Models",
         "AI Agents",
         "AI Safety",
-        "API",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "API",
         "AutoGen",
         "Automation",
+        "AWS Bedrock",
         "Axolotl",
         "Benchmarking",
         "C++",
@@ -430740,29 +430740,29 @@
         "Course",
         "CrewAI",
         "Curated List",
-        "DPO",
-        "Data Science",
         "Database",
-        "Deep Learning",
+        "Data Science",
         "DeepEval",
+        "Deep Learning",
         "DeepSeek",
         "Distillation",
         "Docker",
         "Document Processing",
+        "DPO",
         "Embeddings",
         "Evals",
-        "FSDP",
-        "FinTech",
         "Fine-Tuning",
+        "FinTech",
         "Flowise",
         "Forked",
-        "GPT",
-        "GRPO",
+        "FSDP",
         "Gemini CLI",
         "Gemma",
         "Go",
         "Google AI",
+        "GPT",
         "GraphRAG",
+        "GRPO",
         "Healthcare AI",
         "HuggingFace",
         "Hybrid Search",
@@ -430772,64 +430772,64 @@
         "Kilocode",
         "Knowledge Graph",
         "Kubernetes",
-        "LLM Serving",
-        "LM Eval Harness",
         "LangChain",
         "Letta / MemGPT",
         "LiteLLM",
         "Llama",
+        "llama.cpp",
         "LlamaIndex",
-        "LoRA / PEFT",
+        "LLM Serving",
+        "LM Eval Harness",
         "Long Context",
-        "MCP",
-        "MLOps",
+        "LoRA / PEFT",
         "Machine Learning",
+        "MCP",
         "Mem0",
         "MergeKit",
         "Mistral",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Multi-Agent",
         "Ollama",
+        "OpenAI",
         "Open Source",
         "Open WebUI",
-        "OpenAI",
         "Phi",
-        "PyTorch",
         "Pydantic",
         "Python",
         "Python Web Framework",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "RAG",
         "RAGAS",
-        "RLHF",
         "Real-Time / Streaming",
         "Reasoning Models",
         "Reinforcement Learning",
         "Reranking",
         "Research / Papers",
+        "RLHF",
         "Roadmap",
         "Rust",
-        "SGLang",
         "Security",
+        "SGLang",
         "Speech to Text",
         "Structured Output",
         "Synthetic Data",
-        "TRL",
         "TensorRT",
         "Tool Use",
         "TorchTune",
         "Transformers",
+        "TRL",
         "Tutorial",
         "Unsloth",
         "Vertex AI",
         "Video Generation",
         "Visualization",
+        "vLLM",
         "Weaviate",
-        "Weights & Biases",
-        "llama.cpp",
-        "vLLM"
+        "Weights & Biases"
       ],
       "stars": 9012,
       "forks": 1015,
@@ -431016,14 +431016,14 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -431929,8 +431929,8 @@
         "CLI Tool",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
-        "Python"
+        "Python",
+        "PyTorch"
       ],
       "enrichedTags": [
         "Automatic Mixed Precision (AMP)",
@@ -431944,8 +431944,8 @@
         "CLI Tool",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
-        "Python"
+        "Python",
+        "PyTorch"
       ],
       "stars": 9005,
       "forks": 1530,
@@ -432293,8 +432293,8 @@
         "Evals",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Tutorial"
       ],
@@ -432309,8 +432309,8 @@
         "Evals",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Tutorial"
       ],
@@ -432636,18 +432636,18 @@
       "language": "Jupyter Notebook",
       "topics": [
         "AWS",
-        "DVC",
         "Docker",
+        "DVC",
         "Forked",
         "HuggingFace",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Monitoring",
         "ONNX",
-        "PyTorch",
         "Python Web Framework",
+        "PyTorch",
         "Scikit-learn",
         "TensorFlow",
         "Transformers",
@@ -432665,18 +432665,18 @@
         "Model Versioning",
         "Production ML Systems",
         "AWS",
-        "DVC",
         "Docker",
+        "DVC",
         "Forked",
         "HuggingFace",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Monitoring",
         "ONNX",
-        "PyTorch",
         "Python Web Framework",
+        "PyTorch",
         "Scikit-learn",
         "TensorFlow",
         "Transformers",
@@ -433423,9 +433423,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -433631,26 +433631,26 @@
       "forkedFrom": "deepseek-ai/DeepGEMM",
       "language": "Cuda",
       "topics": [
-        "AI Safety",
         "Active",
+        "AI Safety",
         "Benchmarking",
         "C++",
         "DeepSeek",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
-        "Python"
+        "Python",
+        "PyTorch"
       ],
       "enrichedTags": [
-        "AI Safety",
         "Active",
+        "AI Safety",
         "Benchmarking",
         "C++",
         "DeepSeek",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
-        "Python"
+        "Python",
+        "PyTorch"
       ],
       "stars": 8889,
       "forks": 1399,
@@ -433750,8 +433750,8 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Safety & Alignment",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Safety & Alignment"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -433861,14 +433861,14 @@
         "Forked",
         "GPU / CUDA",
         "Image Generation",
-        "LLM Serving",
         "LangGraph",
         "Llama",
-        "MLOps",
+        "LLM Serving",
         "Machine Learning",
         "Mistral",
-        "PyTorch",
+        "MLOps",
         "Python",
+        "PyTorch",
         "Roadmap",
         "Stable Diffusion",
         "Tool Use",
@@ -433896,14 +433896,14 @@
         "Forked",
         "GPU / CUDA",
         "Image Generation",
-        "LLM Serving",
         "LangGraph",
         "Llama",
-        "MLOps",
+        "LLM Serving",
         "Machine Learning",
         "Mistral",
-        "PyTorch",
+        "MLOps",
         "Python",
+        "PyTorch",
         "Roadmap",
         "Stable Diffusion",
         "Tool Use",
@@ -434063,11 +434063,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -435132,8 +435132,8 @@
         "Healthcare AI",
         "Jupyter",
         "NumPy",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Tutorial"
       ],
@@ -435155,8 +435155,8 @@
         "Healthcare AI",
         "Jupyter",
         "NumPy",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Tutorial"
       ],
@@ -435316,8 +435316,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Healthcare",
@@ -435612,9 +435612,9 @@
       "language": "Python",
       "topics": [
         "AI Agents",
+        "Anthropic / Claude",
         "API",
         "AWS Bedrock",
-        "Anthropic / Claude",
         "C++",
         "Claude",
         "Forked",
@@ -435622,6 +435622,7 @@
         "Large Language Models",
         "LiteLLM",
         "Llama",
+        "llama.cpp",
         "MCP",
         "Mistral",
         "Mobile",
@@ -435631,8 +435632,7 @@
         "Python",
         "Real-Time / Streaming",
         "SageMaker",
-        "Security",
-        "llama.cpp"
+        "Security"
       ],
       "enrichedTags": [
         "Agent-Based AI Systems",
@@ -435641,9 +435641,9 @@
         "Model-Driven Development",
         "SDK Development",
         "AI Agents",
+        "Anthropic / Claude",
         "API",
         "AWS Bedrock",
-        "Anthropic / Claude",
         "C++",
         "Claude",
         "Forked",
@@ -435651,6 +435651,7 @@
         "Large Language Models",
         "LiteLLM",
         "Llama",
+        "llama.cpp",
         "MCP",
         "Mistral",
         "Mobile",
@@ -435660,8 +435661,7 @@
         "Python",
         "Real-Time / Streaming",
         "SageMaker",
-        "Security",
-        "llama.cpp"
+        "Security"
       ],
       "stars": 8751,
       "forks": 1346,
@@ -435798,10 +435798,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -436060,10 +436060,10 @@
       "topics": [
         "Anthropic / Claude",
         "Benchmarking",
-        "CLI Tool",
         "Caching",
         "Claude",
         "Claude Code",
+        "CLI Tool",
         "Docker",
         "Forked",
         "Machine Learning",
@@ -436079,10 +436079,10 @@
       "enrichedTags": [
         "Anthropic / Claude",
         "Benchmarking",
-        "CLI Tool",
         "Caching",
         "Claude",
         "Claude Code",
+        "CLI Tool",
         "Docker",
         "Forked",
         "Machine Learning",
@@ -436152,11 +436152,11 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -436323,8 +436323,8 @@
         "Docker",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "TensorFlow",
         "Tutorial"
@@ -436343,8 +436343,8 @@
         "Docker",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "TensorFlow",
         "Tutorial"
@@ -437066,9 +437066,9 @@
       "forkedFrom": "maximhq/bifrost",
       "language": "Go",
       "topics": [
+        "Anthropic / Claude",
         "API",
         "AWS Bedrock",
-        "Anthropic / Claude",
         "Benchmarking",
         "Caching",
         "Docker",
@@ -437096,9 +437096,9 @@
         "Load Balancing for ML Systems",
         "Model Routing and Selection",
         "Request Orchestration",
+        "Anthropic / Claude",
         "API",
         "AWS Bedrock",
-        "Anthropic / Claude",
         "Benchmarking",
         "Caching",
         "Docker",
@@ -437269,10 +437269,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -437715,8 +437715,8 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools",
@@ -438137,8 +438137,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -438521,8 +438521,8 @@
         }
       ],
       "pmSkills": [
-        "Developer Platform",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Developer Platform"
       ],
       "industries": [
         "Developer Tools"
@@ -438979,8 +438979,8 @@
         "Docker",
         "Forked",
         "Node.js",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "React / Next.js",
         "TypeScript"
       ],
@@ -438990,8 +438990,8 @@
         "Docker",
         "Forked",
         "Node.js",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "React / Next.js",
         "TypeScript"
       ],
@@ -439106,8 +439106,8 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -439207,18 +439207,18 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "API",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "API",
         "Automation",
+        "AWS Bedrock",
         "Claude",
         "Embeddings",
         "Forked",
         "Large Language Models",
         "MCP",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "OpenTelemetry",
         "Pydantic",
         "Python",
@@ -439233,18 +439233,18 @@
         "Tool Integration Patterns",
         "Workflow Orchestration",
         "AI Agents",
-        "API",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "API",
         "Automation",
+        "AWS Bedrock",
         "Claude",
         "Embeddings",
         "Forked",
         "Large Language Models",
         "MCP",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "OpenTelemetry",
         "Pydantic",
         "Python",
@@ -439327,9 +439327,9 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools"
@@ -439764,8 +439764,8 @@
         "HuggingFace",
         "Large Language Models",
         "LoRA / PEFT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers",
         "Transformers"
@@ -439785,8 +439785,8 @@
         "HuggingFace",
         "Large Language Models",
         "LoRA / PEFT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers",
         "Transformers"
@@ -439849,11 +439849,11 @@
       "languagePercentages": {
         "Python": 100
       },
-      "primaryCategory": "Inference & Serving",
+      "primaryCategory": "Model Training",
       "allCategories": [
+        "Model Training",
         "Inference & Serving",
         "Learning Resources",
-        "Model Training",
         "Foundation Models",
         "Search & Knowledge"
       ],
@@ -440311,9 +440311,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -440472,15 +440472,16 @@
         "Forked",
         "Google AI",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "MCP",
         "Multi-Agent",
         "Multimodal AI",
         "Music Tech",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Quantization",
@@ -440489,7 +440490,6 @@
         "Research / Papers",
         "SGLang",
         "Speech to Text",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -440511,15 +440511,16 @@
         "Forked",
         "Google AI",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "MCP",
         "Multi-Agent",
         "Multimodal AI",
         "Music Tech",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Quantization",
@@ -440528,7 +440529,6 @@
         "Research / Papers",
         "SGLang",
         "Speech to Text",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 8423,
@@ -440676,11 +440676,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Finance & FinTech",
@@ -441181,9 +441181,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -441335,8 +441335,8 @@
         "Forked",
         "Mobile",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers"
       ],
@@ -441355,8 +441355,8 @@
         "Forked",
         "Mobile",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers"
       ],
@@ -441952,9 +441952,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -442103,8 +442103,8 @@
         "Python",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Sim-to-Real",
         "Simulation",
         "Tutorial"
@@ -442780,9 +442780,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -443124,8 +443124,8 @@
         }
       ],
       "pmSkills": [
-        "Developer Platform",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Developer Platform"
       ],
       "industries": [
         "Developer Tools"
@@ -443231,8 +443231,8 @@
         "Model Optimization",
         "Multimodal AI",
         "Node.js",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Robotics",
         "Simulation",
@@ -443267,8 +443267,8 @@
         "Model Optimization",
         "Multimodal AI",
         "Node.js",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Robotics",
         "Simulation",
@@ -443336,11 +443336,11 @@
       "languagePercentages": {
         "Jupyter Notebook": 100
       },
-      "primaryCategory": "Foundation Models",
+      "primaryCategory": "Robotics",
       "allCategories": [
+        "Robotics",
         "Foundation Models",
         "Model Training",
-        "Robotics",
         "Evals & Benchmarking",
         "Observability & Monitoring",
         "Inference & Serving",
@@ -443440,9 +443440,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "Data & Evaluation",
         "Scale & Reliability",
-        "Data & Evaluation"
+        "User Experience"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -444379,8 +444379,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -444674,9 +444674,9 @@
         "Jupyter",
         "KV Cache",
         "Machine Learning",
-        "PyTorch",
         "Pydantic",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Structured Output",
@@ -444696,9 +444696,9 @@
         "Jupyter",
         "KV Cache",
         "Machine Learning",
-        "PyTorch",
         "Pydantic",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Structured Output",
@@ -444822,10 +444822,10 @@
       "aiDevSkills": [],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -445293,8 +445293,8 @@
       "forkedFrom": "nullclaw/nullclaw",
       "language": "Zig",
       "topics": [
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Azure AI",
         "Benchmarking",
         "Claude",
@@ -445329,8 +445329,8 @@
         "Low-level AI Infrastructure",
         "Performance Optimization",
         "Systems Programming",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Azure AI",
         "Benchmarking",
         "Claude",
@@ -445500,11 +445500,11 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Finance & FinTech",
@@ -446000,9 +446000,9 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools"
@@ -446231,22 +446231,22 @@
         "DeepSpeed",
         "Evals",
         "Forked",
+        "Gemma",
         "GPT",
         "GPU / CUDA",
-        "Gemma",
         "HuggingFace",
         "Inference",
         "KV Cache",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Long Context",
         "Mistral",
         "Multimodal AI",
         "OpenAI",
         "Phi",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Research / Papers",
@@ -446268,22 +446268,22 @@
         "DeepSpeed",
         "Evals",
         "Forked",
+        "Gemma",
         "GPT",
         "GPU / CUDA",
-        "Gemma",
         "HuggingFace",
         "Inference",
         "KV Cache",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Long Context",
         "Mistral",
         "Multimodal AI",
         "OpenAI",
         "Phi",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Research / Papers",
@@ -446437,8 +446437,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -446779,8 +446779,8 @@
         "Model Optimization",
         "ONNX",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Security"
       ],
       "enrichedTags": [
@@ -446801,8 +446801,8 @@
         "Large Language Models",
         "ONNX",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Security"
       ],
       "stars": 8087,
@@ -447581,8 +447581,8 @@
         "Jupyter",
         "Music Tech",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Transformers"
       ],
@@ -447603,8 +447603,8 @@
         "Jupyter",
         "Music Tech",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Transformers"
       ],
@@ -447701,8 +447701,8 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Product Discovery"
+        "Product Discovery",
+        "Safety & Alignment"
       ],
       "industries": [
         "Audio & Music",
@@ -447966,8 +447966,8 @@
         "Music Tech",
         "Node.js",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Real-Time / Streaming",
         "Speech to Text",
@@ -447991,8 +447991,8 @@
         "Music Tech",
         "Node.js",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Real-Time / Streaming",
         "Speech to Text",
@@ -448118,11 +448118,11 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -448551,8 +448551,8 @@
         "Multimodal AI",
         "Music Tech",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Real-Time / Streaming",
         "Speech to Text",
@@ -448579,8 +448579,8 @@
         "Multimodal AI",
         "Music Tech",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Real-Time / Streaming",
         "Speech to Text",
@@ -448740,10 +448740,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
+        "Developer Platform",
         "Safety & Alignment",
-        "User Experience",
         "Scale & Reliability",
-        "Developer Platform"
+        "User Experience"
       ],
       "industries": [
         "Healthcare & Medicine",
@@ -449188,10 +449188,10 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Product Discovery",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -449751,8 +449751,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Cloud Infrastructure",
@@ -449998,9 +449998,9 @@
       "topics": [
         "Forked",
         "Node.js",
-        "ROS 2",
         "Real-Time / Streaming",
         "Robotics",
+        "ROS 2",
         "SLAM",
         "Tutorial"
       ],
@@ -450012,9 +450012,9 @@
         "SLAM",
         "Forked",
         "Node.js",
-        "ROS 2",
         "Real-Time / Streaming",
         "Robotics",
+        "ROS 2",
         "Tutorial"
       ],
       "stars": 7986,
@@ -450369,9 +450369,9 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Safety & Alignment"
       ],
       "industries": [
         "Research & Academia",
@@ -450638,8 +450638,8 @@
         "Data Science",
         "Forked",
         "Healthcare AI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Tutorial"
       ],
@@ -450658,8 +450658,8 @@
         "Data Science",
         "Forked",
         "Healthcare AI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Tutorial"
       ],
@@ -451057,26 +451057,27 @@
         "ExLlama",
         "Fine-Tuning",
         "Forked",
+        "Gemma",
         "GPT",
         "GPU / CUDA",
-        "Gemma",
         "Haystack",
         "HuggingFace",
         "HumanEval",
-        "LLM Serving",
         "LangChain",
         "Large Language Models",
         "Llama",
+        "llama.cpp",
+        "LLM Serving",
         "LoRA / PEFT",
-        "MMLU",
         "Mistral",
+        "MMLU",
         "Node.js",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Prompt Engineering",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Reinforcement Learning",
@@ -451085,7 +451086,6 @@
         "Security",
         "Transformers",
         "Tutorial",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -451111,26 +451111,27 @@
         "ExLlama",
         "Fine-Tuning",
         "Forked",
+        "Gemma",
         "GPT",
         "GPU / CUDA",
-        "Gemma",
         "Haystack",
         "HuggingFace",
         "HumanEval",
-        "LLM Serving",
         "LangChain",
         "Large Language Models",
         "Llama",
+        "llama.cpp",
+        "LLM Serving",
         "LoRA / PEFT",
-        "MMLU",
         "Mistral",
+        "MMLU",
         "Node.js",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Prompt Engineering",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Reinforcement Learning",
@@ -451139,7 +451140,6 @@
         "Security",
         "Transformers",
         "Tutorial",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 7833,
@@ -451238,10 +451238,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -452110,18 +452110,18 @@
       "forkedFrom": "2FastLabs/agent-squad",
       "language": "Python",
       "topics": [
-        "AI Agents",
-        "AWS Bedrock",
         "Agent Memory",
+        "AI Agents",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Claude",
         "Context Engineering",
         "Forked",
         "Healthcare AI",
         "Large Language Models",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Python Web Framework",
@@ -452139,18 +452139,18 @@
         "Multi-Agent Systems",
         "Natural Language Processing",
         "Workflow Management",
-        "AI Agents",
-        "AWS Bedrock",
         "Agent Memory",
+        "AI Agents",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Claude",
         "Context Engineering",
         "Forked",
         "Healthcare AI",
         "Large Language Models",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Python Web Framework",
@@ -452248,8 +452248,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Scale & Reliability"
       ],
       "industries": [
         "Healthcare & Medicine",
@@ -452812,14 +452812,14 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -453425,8 +453425,8 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Claude",
         "Course",
         "Database",
@@ -453448,8 +453448,8 @@
         "LlamaIndex",
         "Mistral",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Python Web Framework",
         "RAG",
@@ -453469,8 +453469,8 @@
         "Text Chunking and Preprocessing",
         "Vector Database Management",
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Claude",
         "Course",
         "Database",
@@ -453492,8 +453492,8 @@
         "LlamaIndex",
         "Mistral",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Python Web Framework",
         "RAG",
@@ -453595,13 +453595,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -454060,10 +454060,10 @@
       "allCategories": [
         "Data Science & Analytics",
         "MLOps & Infrastructure",
+        "Foundation Models",
         "Dev Tools & Automation",
         "Cloud & Platforms",
-        "Learning Resources",
-        "Foundation Models"
+        "Learning Resources"
       ],
       "commitStats": {
         "today": 0,
@@ -454427,8 +454427,8 @@
         "Claude Code",
         "Course",
         "Forked",
-        "GPT",
         "Google AI",
+        "GPT",
         "Jupyter",
         "Large Language Models",
         "Llama",
@@ -454448,8 +454448,8 @@
         "Claude Code",
         "Course",
         "Forked",
-        "GPT",
         "Google AI",
+        "GPT",
         "Jupyter",
         "Large Language Models",
         "Llama",
@@ -454520,9 +454520,9 @@
         "Cloud & Platforms",
         "Learning Resources",
         "Data Science & Analytics",
-        "Other AI / ML",
         "Foundation Models",
-        "AI Agents"
+        "AI Agents",
+        "Other AI / ML"
       ],
       "commitStats": {
         "today": 0,
@@ -454830,8 +454830,8 @@
         "Machine Learning",
         "Multi-Agent",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Pandas",
         "Planning / CoT",
         "Python",
@@ -454866,8 +454866,8 @@
         "Machine Learning",
         "Multi-Agent",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Pandas",
         "Planning / CoT",
         "Python",
@@ -455026,11 +455026,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Research & Academia"
@@ -455397,33 +455397,33 @@
       "forkedFrom": "GoogleCloudPlatform/kubectl-ai",
       "language": "Go",
       "topics": [
-        "AWS",
-        "AWS Bedrock",
         "Anthropic / Claude",
         "Automation",
+        "AWS",
+        "AWS Bedrock",
         "Azure AI",
         "C++",
         "Claude",
         "Docker",
         "Forked",
-        "GPT",
         "Gemma",
         "Google AI",
         "Google Cloud",
+        "GPT",
         "Kubernetes",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "MCP",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Prompt Engineering",
         "Quantization",
         "Qwen",
         "Security",
         "Tool Use",
-        "Vertex AI",
-        "llama.cpp"
+        "Vertex AI"
       ],
       "enrichedTags": [
         "Command Line Interface Design",
@@ -455431,33 +455431,33 @@
         "Kubernetes API Integration",
         "Large Language Model Integration",
         "Natural Language Processing",
-        "AWS",
-        "AWS Bedrock",
         "Anthropic / Claude",
         "Automation",
+        "AWS",
+        "AWS Bedrock",
         "Azure AI",
         "C++",
         "Claude",
         "Docker",
         "Forked",
-        "GPT",
         "Gemma",
         "Google AI",
         "Google Cloud",
+        "GPT",
         "Kubernetes",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "MCP",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Prompt Engineering",
         "Quantization",
         "Qwen",
         "Security",
         "Tool Use",
-        "Vertex AI",
-        "llama.cpp"
+        "Vertex AI"
       ],
       "stars": 7576,
       "forks": 724,
@@ -455568,8 +455568,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -455888,26 +455888,26 @@
       "language": "C++",
       "topics": [
         "C++",
-        "CLI Tool",
         "Caching",
         "Chroma",
+        "CLI Tool",
         "ComfyUI",
         "Docker",
         "Forked",
-        "GPU / CUDA",
         "Go",
+        "GPU / CUDA",
         "HuggingFace",
         "Image Generation",
+        "llama.cpp",
         "LoRA / PEFT",
         "Mobile",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Rust",
         "SD WebUI",
-        "Stable Diffusion",
-        "llama.cpp"
+        "Stable Diffusion"
       ],
       "enrichedTags": [
         "C/C++ Systems Programming",
@@ -455920,26 +455920,26 @@
         "Model Quantization",
         "Performance Engineering",
         "C++",
-        "CLI Tool",
         "Caching",
         "Chroma",
+        "CLI Tool",
         "ComfyUI",
         "Docker",
         "Forked",
-        "GPU / CUDA",
         "Go",
+        "GPU / CUDA",
         "HuggingFace",
         "Image Generation",
+        "llama.cpp",
         "LoRA / PEFT",
         "Mobile",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Rust",
         "SD WebUI",
-        "Stable Diffusion",
-        "llama.cpp"
+        "Stable Diffusion"
       ],
       "stars": 7571,
       "forks": 857,
@@ -456092,8 +456092,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -456425,10 +456425,10 @@
       "forkedFrom": "plastic-labs/honcho",
       "language": "Python",
       "topics": [
-        "AI Agents",
-        "API",
         "Agent Memory",
+        "AI Agents",
         "Anthropic / Claude",
+        "API",
         "Benchmarking",
         "Caching",
         "Context Engineering",
@@ -456437,20 +456437,20 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPT",
         "Google AI",
+        "GPT",
         "Hybrid Search",
         "Large Language Models",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
+        "pgvector",
         "Python",
         "Python Web Framework",
         "Security",
         "Tutorial",
         "TypeScript",
-        "Vector Database",
-        "pgvector"
+        "Vector Database"
       ],
       "enrichedTags": [
         "Agent Architecture",
@@ -456459,10 +456459,10 @@
         "Context Persistence",
         "Conversational AI",
         "Stateful AI Systems",
-        "AI Agents",
-        "API",
         "Agent Memory",
+        "AI Agents",
         "Anthropic / Claude",
+        "API",
         "Benchmarking",
         "Caching",
         "Context Engineering",
@@ -456471,20 +456471,20 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPT",
         "Google AI",
+        "GPT",
         "Hybrid Search",
         "Large Language Models",
         "Multi-Agent",
-        "Open Source",
         "OpenAI",
+        "Open Source",
+        "pgvector",
         "Python",
         "Python Web Framework",
         "Security",
         "Tutorial",
         "TypeScript",
-        "Vector Database",
-        "pgvector"
+        "Vector Database"
       ],
       "stars": 7544,
       "forks": 930,
@@ -456629,12 +456629,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -457813,10 +457813,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -458202,8 +458202,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -458467,8 +458467,8 @@
       "language": "Python",
       "topics": [
         "AI Safety",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Claude",
         "Claude Code",
         "Forked",
@@ -458489,8 +458489,8 @@
         "SEO Analysis",
         "Text Analysis",
         "AI Safety",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Claude",
         "Claude Code",
         "Forked",
@@ -458615,10 +458615,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -459073,8 +459073,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Research & Academia"
@@ -459361,8 +459361,8 @@
       "forkedFrom": "traceloop/openllmetry",
       "language": "Python",
       "topics": [
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Azure AI",
         "Chroma",
         "CrewAI",
@@ -459372,8 +459372,8 @@
         "Haystack",
         "HuggingFace",
         "LangChain",
-        "LangGraph",
         "Langflow",
+        "LangGraph",
         "Large Language Models",
         "LiteLLM",
         "LlamaIndex",
@@ -459401,8 +459401,8 @@
         "Large Language Model Operations",
         "Observability Engineering",
         "OpenTelemetry Implementation",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Azure AI",
         "Chroma",
         "CrewAI",
@@ -459412,8 +459412,8 @@
         "Haystack",
         "HuggingFace",
         "LangChain",
-        "LangGraph",
         "Langflow",
+        "LangGraph",
         "Large Language Models",
         "LiteLLM",
         "LlamaIndex",
@@ -459573,10 +459573,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Research & Academia",
@@ -459907,10 +459907,10 @@
         "AWS",
         "CLI Tool",
         "Course",
-        "DPO",
         "Deep Learning",
         "DeepSpeed",
         "Docker",
+        "DPO",
         "Embeddings",
         "Evals",
         "Fine-Tuning",
@@ -459918,19 +459918,19 @@
         "GPU / CUDA",
         "HuggingFace",
         "Kubernetes",
-        "LM Eval Harness",
         "Large Language Models",
+        "LM Eval Harness",
         "Machine Learning",
         "Mistral",
         "Multimodal AI",
         "Node.js",
-        "Open Source",
         "OpenAI",
-        "PyTorch",
+        "Open Source",
         "Python",
-        "RLHF",
+        "PyTorch",
         "Reinforcement Learning",
         "Research / Papers",
+        "RLHF",
         "TensorFlow",
         "Transformers",
         "Tutorial",
@@ -459949,10 +459949,10 @@
         "AWS",
         "CLI Tool",
         "Course",
-        "DPO",
         "Deep Learning",
         "DeepSpeed",
         "Docker",
+        "DPO",
         "Embeddings",
         "Evals",
         "Fine-Tuning",
@@ -459960,19 +459960,19 @@
         "GPU / CUDA",
         "HuggingFace",
         "Kubernetes",
-        "LM Eval Harness",
         "Large Language Models",
+        "LM Eval Harness",
         "Machine Learning",
         "Mistral",
         "Multimodal AI",
         "Node.js",
-        "Open Source",
         "OpenAI",
-        "PyTorch",
+        "Open Source",
         "Python",
-        "RLHF",
+        "PyTorch",
         "Reinforcement Learning",
         "Research / Papers",
+        "RLHF",
         "TensorFlow",
         "Transformers",
         "Tutorial",
@@ -460077,11 +460077,11 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -460576,10 +460576,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools",
@@ -461223,8 +461223,8 @@
         "MergeKit",
         "Mistral",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Speculative Decoding",
         "Transformers"
       ],
@@ -461249,8 +461249,8 @@
         "MergeKit",
         "Mistral",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Speculative Decoding",
         "Transformers"
       ],
@@ -461631,8 +461631,8 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Benchmarking",
         "C++",
         "Claude",
@@ -461652,8 +461652,8 @@
         "MCP",
         "Node.js",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Python Web Framework",
         "Roadmap",
@@ -461665,8 +461665,8 @@
       ],
       "enrichedTags": [
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Benchmarking",
         "C++",
         "Claude",
@@ -461686,8 +461686,8 @@
         "MCP",
         "Node.js",
         "Ollama",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Python Web Framework",
         "Roadmap",
@@ -461817,12 +461817,12 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -462229,8 +462229,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -462439,8 +462439,8 @@
       "language": "Python",
       "topics": [
         "Caching",
-        "Data Science",
         "Database",
+        "Data Science",
         "Feature Store",
         "Forked",
         "Google Cloud",
@@ -462466,8 +462466,8 @@
         "Real-time ML Serving",
         "Stream Processing",
         "Caching",
-        "Data Science",
         "Database",
+        "Data Science",
         "Feature Store",
         "Forked",
         "Google Cloud",
@@ -462637,10 +462637,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -462919,19 +462919,19 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "AWS Bedrock",
         "Anthropic / Claude",
-        "CLI Tool",
+        "AWS Bedrock",
         "Claude",
+        "CLI Tool",
         "Docker",
         "Forked",
-        "GPU / CUDA",
         "Google AI",
+        "GPU / CUDA",
         "Large Language Models",
         "Machine Learning",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "enrichedTags": [
@@ -462946,19 +462946,19 @@
         "Scientific Paper Generation",
         "Tree Search Algorithms",
         "AI Agents",
-        "AWS Bedrock",
         "Anthropic / Claude",
-        "CLI Tool",
+        "AWS Bedrock",
         "Claude",
+        "CLI Tool",
         "Docker",
         "Forked",
-        "GPU / CUDA",
         "Google AI",
+        "GPU / CUDA",
         "Large Language Models",
         "Machine Learning",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "stars": 7288,
@@ -463060,9 +463060,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -463375,21 +463375,21 @@
         "Forked",
         "HuggingFace",
         "HumanEval",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Long Context",
         "MMLU",
         "Music Tech",
         "Ollama",
         "OpenAI",
         "Prompt Engineering",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Qwen",
-        "RLHF",
         "Reinforcement Learning",
         "Research / Papers",
+        "RLHF",
         "SGLang",
         "Transformers",
         "vLLM"
@@ -463412,21 +463412,21 @@
         "Forked",
         "HuggingFace",
         "HumanEval",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Long Context",
         "MMLU",
         "Music Tech",
         "Ollama",
         "OpenAI",
         "Prompt Engineering",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Qwen",
-        "RLHF",
         "Reinforcement Learning",
         "Research / Papers",
+        "RLHF",
         "SGLang",
         "Transformers",
         "vLLM"
@@ -464200,11 +464200,11 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -464786,8 +464786,8 @@
       "forkedFrom": "kyegomez/swarms",
       "language": "Python",
       "topics": [
-        "AI Agents",
         "Active",
+        "AI Agents",
         "Anthropic / Claude",
         "AutoGen",
         "Automation",
@@ -464819,8 +464819,8 @@
         "Tutorial"
       ],
       "enrichedTags": [
-        "AI Agents",
         "Active",
+        "AI Agents",
         "Anthropic / Claude",
         "AutoGen",
         "Automation",
@@ -464974,10 +464974,10 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -465227,8 +465227,8 @@
       "language": "C++",
       "topics": [
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Automation",
         "C++",
         "Claude",
@@ -465236,8 +465236,8 @@
         "Forked",
         "JavaScript",
         "MCP",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Robotics",
         "Systems"
@@ -465249,8 +465249,8 @@
         "Real-time Data Visualization",
         "Time Series Data Processing",
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Automation",
         "C++",
         "Claude",
@@ -465258,8 +465258,8 @@
         "Forked",
         "JavaScript",
         "MCP",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Robotics",
         "Systems"
@@ -465398,9 +465398,9 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "Developer Platform",
-        "AI-Native Architecture"
+        "Developer Platform"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -465695,12 +465695,12 @@
         "OpenAI",
         "Planning / CoT",
         "Python",
-        "ROS",
-        "ROS 2",
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
         "Robotics",
+        "ROS",
+        "ROS 2",
         "Simulation",
         "Tutorial"
       ],
@@ -465732,12 +465732,12 @@
         "OpenAI",
         "Planning / CoT",
         "Python",
-        "ROS",
-        "ROS 2",
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
         "Robotics",
+        "ROS",
+        "ROS 2",
         "Simulation",
         "Tutorial"
       ],
@@ -465850,9 +465850,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -466280,8 +466280,8 @@
         "GPU / CUDA",
         "Jupyter",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Robotics",
         "Simulation",
         "Tutorial",
@@ -466302,8 +466302,8 @@
         "GPU / CUDA",
         "Jupyter",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Robotics",
         "Simulation",
         "Tutorial",
@@ -466756,12 +466756,12 @@
       "forkedFrom": "Osmantic/ODS",
       "language": "Python",
       "topics": [
-        "AI Agents",
-        "AI Safety",
-        "API",
         "Active",
         "Agent Memory",
+        "AI Agents",
+        "AI Safety",
         "Anthropic / Claude",
+        "API",
         "Automation",
         "Batching",
         "Benchmarking",
@@ -466774,18 +466774,20 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Game Dev",
         "Gemma",
+        "GPU / CUDA",
         "Image Generation",
         "Inference",
         "Langfuse",
         "Large Language Models",
         "LiteLLM",
+        "llama.cpp",
+        "n8n",
         "No-Code Automation",
         "Ollama",
-        "Open WebUI",
         "OpenAI",
+        "Open WebUI",
         "Prompt Injection",
         "Python",
         "Python Web Framework",
@@ -466800,17 +466802,15 @@
         "Speech to Text",
         "Stable Diffusion",
         "Vector Database",
-        "llama.cpp",
-        "n8n",
         "vLLM"
       ],
       "enrichedTags": [
-        "AI Agents",
-        "AI Safety",
-        "API",
         "Active",
         "Agent Memory",
+        "AI Agents",
+        "AI Safety",
         "Anthropic / Claude",
+        "API",
         "Automation",
         "Batching",
         "Benchmarking",
@@ -466823,18 +466823,20 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Game Dev",
         "Gemma",
+        "GPU / CUDA",
         "Image Generation",
         "Inference",
         "Langfuse",
         "Large Language Models",
         "LiteLLM",
+        "llama.cpp",
+        "n8n",
         "No-Code Automation",
         "Ollama",
-        "Open WebUI",
         "OpenAI",
+        "Open WebUI",
         "Prompt Injection",
         "Python",
         "Python Web Framework",
@@ -466849,8 +466851,6 @@
         "Speech to Text",
         "Stable Diffusion",
         "Vector Database",
-        "llama.cpp",
-        "n8n",
         "vLLM"
       ],
       "stars": 7176,
@@ -466971,14 +466971,14 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -467513,10 +467513,10 @@
         }
       ],
       "pmSkills": [
+        "Data & Evaluation",
         "Safety & Alignment",
-        "User Experience",
         "Scale & Reliability",
-        "Data & Evaluation"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -468721,12 +468721,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -469060,8 +469060,8 @@
       "language": "Go",
       "topics": [
         "Active",
-        "CLI Tool",
         "Caching",
+        "CLI Tool",
         "Docker",
         "FinTech",
         "Forked",
@@ -469074,8 +469074,8 @@
       ],
       "enrichedTags": [
         "Active",
-        "CLI Tool",
         "Caching",
+        "CLI Tool",
         "Docker",
         "FinTech",
         "Forked",
@@ -469201,8 +469201,8 @@
       "aiDevSkills": [],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -469333,16 +469333,16 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Google Cloud",
+        "GPU / CUDA",
         "HuggingFace",
         "Image Generation",
         "Jupyter",
         "LoRA / PEFT",
         "Music Tech",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers",
         "Stable Diffusion",
@@ -469365,16 +469365,16 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Google Cloud",
+        "GPU / CUDA",
         "HuggingFace",
         "Image Generation",
         "Jupyter",
         "LoRA / PEFT",
         "Music Tech",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers",
         "Stable Diffusion",
@@ -469487,9 +469487,9 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -469900,10 +469900,11 @@
         "Evals",
         "Forked",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
-        "LoRA / PEFT",
+        "llama.cpp",
+        "LLM Serving",
         "Long Context",
+        "LoRA / PEFT",
         "Machine Learning",
         "Mobile",
         "Music Tech",
@@ -469920,7 +469921,6 @@
         "Synthetic Data",
         "Tool Use",
         "Transformers",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -469941,10 +469941,11 @@
         "Evals",
         "Forked",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
-        "LoRA / PEFT",
+        "llama.cpp",
+        "LLM Serving",
         "Long Context",
+        "LoRA / PEFT",
         "Machine Learning",
         "Mobile",
         "Music Tech",
@@ -469961,7 +469962,6 @@
         "Synthetic Data",
         "Tool Use",
         "Transformers",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 7067,
@@ -470070,11 +470070,11 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
         "Data & Evaluation",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Safety & Alignment",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -470642,10 +470642,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -470895,8 +470895,8 @@
         "NumPy",
         "Open Source",
         "Pandas",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Scikit-learn",
         "TensorFlow",
         "Tutorial",
@@ -470925,8 +470925,8 @@
         "NumPy",
         "Open Source",
         "Pandas",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Scikit-learn",
         "TensorFlow",
         "Tutorial",
@@ -471046,8 +471046,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Healthcare",
@@ -471386,9 +471386,9 @@
       "forkedFrom": "tech-leads-club/agent-skills",
       "language": "TypeScript",
       "topics": [
-        "AI Agents",
         "Active",
         "Agent Memory",
+        "AI Agents",
         "Aider",
         "Anthropic / Claude",
         "Automation",
@@ -471403,16 +471403,16 @@
         "Kilocode",
         "MCP",
         "Node.js",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Security",
         "TypeScript"
       ],
       "enrichedTags": [
-        "AI Agents",
         "Active",
         "Agent Memory",
+        "AI Agents",
         "Aider",
         "Anthropic / Claude",
         "Automation",
@@ -471427,8 +471427,8 @@
         "Kilocode",
         "MCP",
         "Node.js",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Security",
         "TypeScript"
@@ -471548,9 +471548,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Developer Platform",
-        "AI-Native Architecture"
+        "Developer Platform"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -471842,10 +471842,10 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -472375,10 +472375,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -472965,8 +472965,8 @@
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Segmentation",
         "Speech to Text",
         "TensorFlow",
@@ -473006,8 +473006,8 @@
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Segmentation",
         "Speech to Text",
         "TensorFlow",
@@ -473102,12 +473102,12 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
         "Product Discovery",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -473526,8 +473526,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -473906,8 +473906,8 @@
         "Forked",
         "GPU / CUDA",
         "Grasping",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "TensorFlow",
         "Tutorial"
@@ -473925,8 +473925,8 @@
         "Forked",
         "GPU / CUDA",
         "Grasping",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "TensorFlow",
         "Tutorial"
@@ -474774,9 +474774,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -475086,8 +475086,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Developer Platform"
+        "Developer Platform",
+        "User Experience"
       ],
       "industries": [
         "Research & Academia",
@@ -475684,16 +475684,16 @@
         "AI Safety",
         "Benchmarking",
         "Course",
-        "DPO",
         "Data Science",
+        "DPO",
         "Evals",
         "Forked",
         "HuggingFace",
         "Large Language Models",
         "Machine Learning",
         "Multimodal AI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Reinforcement Learning",
         "Synthetic Data",
         "Transformers"
@@ -475711,16 +475711,16 @@
         "AI Safety",
         "Benchmarking",
         "Course",
-        "DPO",
         "Data Science",
+        "DPO",
         "Evals",
         "Forked",
         "HuggingFace",
         "Large Language Models",
         "Machine Learning",
         "Multimodal AI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Reinforcement Learning",
         "Synthetic Data",
         "Transformers"
@@ -475835,9 +475835,9 @@
         }
       ],
       "pmSkills": [
+        "Data & Evaluation",
         "Safety & Alignment",
-        "User Experience",
-        "Data & Evaluation"
+        "User Experience"
       ],
       "industries": [
         "Research & Academia"
@@ -476467,10 +476467,10 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -476651,8 +476651,8 @@
         "Google AI",
         "Large Language Models",
         "Mistral",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Prompt Engineering",
         "React / Next.js"
       ],
@@ -476670,8 +476670,8 @@
         "Google AI",
         "Large Language Models",
         "Mistral",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "React / Next.js"
       ],
       "stars": 6737,
@@ -476772,8 +476772,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Finance",
@@ -702604,11 +702604,11 @@
       "topics": [
         "AI Safety",
         "API",
-        "AWS",
         "Automation",
+        "AWS",
         "CLI Tool",
-        "Data Science",
         "Database",
+        "Data Science",
         "Docker",
         "Forked",
         "Google Cloud",
@@ -702621,11 +702621,11 @@
       "enrichedTags": [
         "AI Safety",
         "API",
-        "AWS",
         "Automation",
+        "AWS",
         "CLI Tool",
-        "Data Science",
         "Database",
+        "Data Science",
         "Docker",
         "Forked",
         "Google Cloud",
@@ -702749,10 +702749,10 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -702968,16 +702968,16 @@
         "Forked",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS 2",
-        "Research / Papers"
+        "Research / Papers",
+        "ROS 2"
       ],
       "enrichedTags": [
         "Course",
         "Forked",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS 2",
-        "Research / Papers"
+        "Research / Papers",
+        "ROS 2"
       ],
       "stars": 675,
       "forks": 79,
@@ -703837,10 +703837,10 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia",
@@ -704031,8 +704031,8 @@
         "HuggingFace",
         "NumPy",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
@@ -704049,8 +704049,8 @@
         "HuggingFace",
         "NumPy",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
@@ -704150,9 +704150,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -704658,8 +704658,8 @@
       "topics": [
         "Forked",
         "Robot Arms",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Simulation"
       ],
       "enrichedTags": [
@@ -704671,8 +704671,8 @@
         "Workflow Management",
         "Forked",
         "Robot Arms",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Simulation"
       ],
       "stars": 646,
@@ -705096,8 +705096,8 @@
         "Forked",
         "GPU / CUDA",
         "Large Language Models",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Triton"
@@ -705113,8 +705113,8 @@
         "Forked",
         "GPU / CUDA",
         "Large Language Models",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Triton"
@@ -705252,8 +705252,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -705582,11 +705582,11 @@
         "Forked",
         "GPU / CUDA",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "LoRA / PEFT",
-        "MLOps",
         "Mistral",
+        "MLOps",
         "OpenAI",
         "Real-Time / Streaming",
         "Research / Papers",
@@ -705622,11 +705622,11 @@
         "Forked",
         "GPU / CUDA",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "LoRA / PEFT",
-        "MLOps",
         "Mistral",
+        "MLOps",
         "OpenAI",
         "Real-Time / Streaming",
         "Research / Papers",
@@ -705799,8 +705799,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Product Discovery"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -706216,10 +706216,10 @@
         "Model Optimization",
         "NumPy",
         "Python",
-        "ROS 2",
         "Robotics",
-        "SLAM",
+        "ROS 2",
         "Simulation",
+        "SLAM",
         "TensorRT"
       ],
       "enrichedTags": [
@@ -706241,10 +706241,10 @@
         "Model Optimization",
         "NumPy",
         "Python",
-        "ROS 2",
         "Robotics",
-        "SLAM",
+        "ROS 2",
         "Simulation",
+        "SLAM",
         "TensorRT"
       ],
       "stars": 613,
@@ -706651,15 +706651,15 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Google AI",
+        "GPU / CUDA",
         "Grasping",
         "HuggingFace",
         "Image Generation",
         "Large Language Models",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Robot Arms",
         "Semantic Search",
@@ -706680,15 +706680,15 @@
         "Embeddings",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Google AI",
+        "GPU / CUDA",
         "Grasping",
         "HuggingFace",
         "Image Generation",
         "Large Language Models",
         "OpenAI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Robot Arms",
         "Semantic Search",
@@ -706819,11 +706819,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Product Discovery",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -707274,10 +707274,10 @@
         "Mobile",
         "Multi-Agent",
         "Python",
-        "ROS 2",
         "Research / Papers",
         "Robot Arms",
         "Robotics",
+        "ROS 2",
         "Simulation",
         "Tutorial"
       ],
@@ -707297,10 +707297,10 @@
         "Mobile",
         "Multi-Agent",
         "Python",
-        "ROS 2",
         "Research / Papers",
         "Robot Arms",
         "Robotics",
+        "ROS 2",
         "Simulation",
         "Tutorial"
       ],
@@ -707440,8 +707440,8 @@
         }
       ],
       "pmSkills": [
-        "Data & Evaluation",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Data & Evaluation"
       ],
       "industries": [
         "Developer Tools"
@@ -707626,9 +707626,9 @@
       "language": "Python",
       "topics": [
         "Anthropic / Claude",
-        "CLI Tool",
         "Chroma",
         "Claude",
+        "CLI Tool",
         "Database",
         "Embeddings",
         "Forked",
@@ -707648,9 +707648,9 @@
         "Semantic Search Systems",
         "Vector Database Management",
         "Anthropic / Claude",
-        "CLI Tool",
         "Chroma",
         "Claude",
+        "CLI Tool",
         "Database",
         "Embeddings",
         "Forked",
@@ -707742,8 +707742,8 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
-        "Developer Platform"
+        "Developer Platform",
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools"
@@ -707980,8 +707980,8 @@
       "forkedFrom": "awslabs/fullstack-solution-template-for-agentcore",
       "language": "TypeScript",
       "topics": [
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Claude",
         "Claude Code",
         "Cline",
@@ -708003,8 +708003,8 @@
         "Conversational AI",
         "Full-stack Development",
         "Serverless Computing",
-        "AWS Bedrock",
         "Anthropic / Claude",
+        "AWS Bedrock",
         "Claude",
         "Claude Code",
         "Cline",
@@ -708156,9 +708156,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "AI-Native Architecture",
         "Scale & Reliability",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -708389,8 +708389,8 @@
         "Evals",
         "Forked",
         "Jupyter",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Tutorial"
       ],
       "enrichedTags": [
@@ -708407,8 +708407,8 @@
         "Evals",
         "Forked",
         "Jupyter",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Tutorial"
       ],
       "stars": 597,
@@ -708769,8 +708769,8 @@
         "GPU / CUDA",
         "HuggingFace",
         "Large Language Models",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Qwen",
         "Research / Papers"
       ],
@@ -708786,8 +708786,8 @@
         "GPU / CUDA",
         "HuggingFace",
         "Large Language Models",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Qwen",
         "Research / Papers"
       ],
@@ -709025,8 +709025,8 @@
         "Forked",
         "Jupyter",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Speech to Text",
         "Tutorial"
@@ -709046,8 +709046,8 @@
         "Forked",
         "Jupyter",
         "Open Source",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Speech to Text",
         "Tutorial"
@@ -709140,8 +709140,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "User Experience"
       ],
       "industries": [
         "Research & Academia",
@@ -709677,8 +709677,8 @@
         "Computer Vision",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "enrichedTags": [
@@ -709692,8 +709692,8 @@
         "AWS",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "stars": 575,
@@ -710098,8 +710098,8 @@
         "Forked",
         "Haystack",
         "HuggingFace",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Transformers"
       ],
@@ -710116,8 +710116,8 @@
         "Forked",
         "Haystack",
         "HuggingFace",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Transformers"
       ],
@@ -710399,9 +710399,9 @@
         "Forked",
         "HuggingFace",
         "HumanEval",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "LLM Serving",
         "Open Source",
         "Quantization",
         "Real-Time / Streaming",
@@ -710419,8 +710419,8 @@
         "Forked",
         "HuggingFace",
         "HumanEval",
-        "LLM Serving",
         "Llama",
+        "LLM Serving",
         "Open Source",
         "Quantization",
         "Real-Time / Streaming",
@@ -710495,9 +710495,9 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia"
@@ -710774,20 +710774,20 @@
         "GPU / CUDA",
         "HuggingFace",
         "Large Language Models",
+        "llama.cpp",
         "LoRA / PEFT",
         "Machine Learning",
         "Mobile",
         "Model Optimization",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Quantization",
         "Real-Time / Streaming",
         "Research / Papers",
         "Speech to Text",
         "TensorFlow",
         "Transformers",
-        "Tutorial",
-        "llama.cpp"
+        "Tutorial"
       ],
       "enrichedTags": [
         "Deep Learning Architecture Design",
@@ -710811,19 +710811,19 @@
         "GPU / CUDA",
         "HuggingFace",
         "Large Language Models",
+        "llama.cpp",
         "LoRA / PEFT",
         "Machine Learning",
         "Mobile",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Quantization",
         "Real-Time / Streaming",
         "Research / Papers",
         "Speech to Text",
         "TensorFlow",
         "Transformers",
-        "Tutorial",
-        "llama.cpp"
+        "Tutorial"
       ],
       "stars": 546,
       "forks": 64,
@@ -710916,11 +710916,11 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -711415,9 +711415,9 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "AI-Native Architecture"
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools"
@@ -711643,8 +711643,8 @@
       "topics": [
         "Forked",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Tutorial"
       ],
       "enrichedTags": [
@@ -711657,8 +711657,8 @@
         "System-level Programming",
         "Forked",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Tutorial"
       ],
       "stars": 527,
@@ -711719,10 +711719,10 @@
       "languagePercentages": {
         "C++": 100
       },
-      "primaryCategory": "Learning Resources",
+      "primaryCategory": "AI Agents",
       "allCategories": [
-        "Learning Resources",
         "AI Agents",
+        "Learning Resources",
         "Model Training"
       ],
       "commitStats": {
@@ -712723,10 +712723,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "Scale & Reliability",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -713130,8 +713130,8 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools"
@@ -713638,8 +713638,8 @@
         "GPU / CUDA",
         "HuggingFace",
         "Jupyter",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Transformers"
       ],
@@ -713655,8 +713655,8 @@
         "GPU / CUDA",
         "HuggingFace",
         "Jupyter",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Transformers"
       ],
@@ -714090,8 +714090,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics",
@@ -714341,9 +714341,9 @@
         "Machine Learning",
         "NumPy",
         "Pandas",
-        "PyTorch",
         "Python",
         "Python Web Framework",
+        "PyTorch",
         "Visualization"
       ],
       "enrichedTags": [
@@ -714364,9 +714364,9 @@
         "Machine Learning",
         "NumPy",
         "Pandas",
-        "PyTorch",
         "Python",
         "Python Web Framework",
+        "PyTorch",
         "Visualization"
       ],
       "stars": 497,
@@ -714702,8 +714702,8 @@
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
-        "TRL",
-        "TensorRT"
+        "TensorRT",
+        "TRL"
       ],
       "enrichedTags": [
         "computer-vision",
@@ -714724,8 +714724,8 @@
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
-        "TRL",
-        "TensorRT"
+        "TensorRT",
+        "TRL"
       ],
       "stars": 494,
       "forks": 34,
@@ -714820,8 +714820,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -715021,8 +715021,8 @@
         "Reasoning Models",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Sim-to-Real",
         "Simulation",
         "Transformers"
@@ -715055,8 +715055,8 @@
         "Reasoning Models",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Sim-to-Real",
         "Simulation",
         "Transformers"
@@ -715209,12 +715209,12 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
         "Product Discovery",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -717420,8 +717420,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -718718,8 +718718,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Robotics",
@@ -718934,8 +718934,8 @@
       "topics": [
         "Forked",
         "Jupyter",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Python",
         "Research / Papers",
         "TensorFlow",
@@ -718950,8 +718950,8 @@
         "Responsible AI Practices",
         "Forked",
         "Jupyter",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Python",
         "Research / Papers",
         "TensorFlow",
@@ -719351,9 +719351,9 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
+        "Developer Platform",
         "Safety & Alignment",
-        "Scale & Reliability",
-        "Developer Platform"
+        "Scale & Reliability"
       ],
       "industries": [],
       "programmingLanguages": [
@@ -720166,9 +720166,9 @@
         "Computer Vision",
         "Course",
         "Curated List",
-        "DPO",
         "Distillation",
         "Document Processing",
+        "DPO",
         "Embeddings",
         "Evals",
         "Fine-Tuning",
@@ -720191,8 +720191,8 @@
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Sim-to-Real",
         "Simulation",
         "Synthetic Data",
@@ -720215,9 +720215,9 @@
         "Computer Vision",
         "Course",
         "Curated List",
-        "DPO",
         "Distillation",
         "Document Processing",
+        "DPO",
         "Embeddings",
         "Evals",
         "Fine-Tuning",
@@ -720240,8 +720240,8 @@
         "Real-Time / Streaming",
         "Reinforcement Learning",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
+        "Robot Learning",
         "Sim-to-Real",
         "Simulation",
         "Synthetic Data",
@@ -720392,14 +720392,14 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -720991,8 +720991,8 @@
         "Model Optimization",
         "Node.js",
         "ONNX",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Quantization",
         "Real-Time / Streaming",
@@ -721017,8 +721017,8 @@
         "Model Optimization",
         "Node.js",
         "ONNX",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Python",
         "Quantization",
         "Real-Time / Streaming",
@@ -722169,10 +722169,10 @@
         "Motion Planning",
         "Open Source",
         "Planning / CoT",
-        "ROS",
-        "ROS 2",
         "Robot Arms",
         "Robotics",
+        "ROS",
+        "ROS 2",
         "Simulation",
         "Tutorial"
       ],
@@ -722196,10 +722196,10 @@
         "Mobile",
         "Open Source",
         "Planning / CoT",
-        "ROS",
-        "ROS 2",
         "Robot Arms",
         "Robotics",
+        "ROS",
+        "ROS 2",
         "Simulation",
         "Tutorial"
       ],
@@ -723057,8 +723057,8 @@
         "Evals",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers"
       ],
@@ -723075,8 +723075,8 @@
         "Evals",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Research / Papers"
       ],
@@ -723413,11 +723413,11 @@
         "Forked",
         "Interview Prep",
         "Large Language Models",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Multimodal AI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Security",
@@ -723442,11 +723442,11 @@
         "Forked",
         "Interview Prep",
         "Large Language Models",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Multimodal AI",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Security",
@@ -723592,10 +723592,10 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Media & Entertainment",
@@ -724259,12 +724259,12 @@
         "GPT4All",
         "HuggingFace",
         "Large Language Models",
-        "Open Source",
         "OpenAI",
-        "RLHF",
+        "Open Source",
         "Red Teaming",
         "Reinforcement Learning",
-        "Research / Papers"
+        "Research / Papers",
+        "RLHF"
       ],
       "enrichedTags": [
         "AI Safety",
@@ -724277,12 +724277,12 @@
         "GPT4All",
         "HuggingFace",
         "Large Language Models",
-        "Open Source",
         "OpenAI",
-        "RLHF",
+        "Open Source",
         "Red Teaming",
         "Reinforcement Learning",
-        "Research / Papers"
+        "Research / Papers",
+        "RLHF"
       ],
       "stars": 394,
       "forks": 19,
@@ -724336,8 +724336,8 @@
       },
       "aiDevSkills": [],
       "pmSkills": [
-        "Safety & Alignment",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Safety & Alignment"
       ],
       "industries": [],
       "programmingLanguages": [],
@@ -725268,8 +725268,8 @@
         "GPU / CUDA",
         "Healthcare AI",
         "MLOps",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "TensorFlow",
@@ -725293,8 +725293,8 @@
         "GPU / CUDA",
         "Healthcare AI",
         "MLOps",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "TensorFlow",
@@ -725399,8 +725399,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Healthcare",
@@ -725774,8 +725774,8 @@
         "Mobile",
         "Open Source",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Roadmap",
         "Robotics",
@@ -725803,8 +725803,8 @@
         "Mobile",
         "Open Source",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Roadmap",
         "Robotics",
@@ -725909,9 +725909,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -726541,11 +726541,11 @@
         "Docker",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Google Cloud",
+        "GPU / CUDA",
         "HuggingFace",
-        "MCP",
         "Machine Learning",
+        "MCP",
         "Mobile",
         "Model Optimization",
         "Object Detection",
@@ -726572,11 +726572,11 @@
         "Docker",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Google Cloud",
+        "GPU / CUDA",
         "HuggingFace",
-        "MCP",
         "Machine Learning",
+        "MCP",
         "Mobile",
         "Model Optimization",
         "Python",
@@ -726740,9 +726740,9 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -727728,9 +727728,9 @@
         "Automation",
         "Forked",
         "Point Cloud / 3D Vision",
-        "ROS",
         "Research / Papers",
-        "Robotics"
+        "Robotics",
+        "ROS"
       ],
       "enrichedTags": [
         "3D Geometry Processing",
@@ -727744,9 +727744,9 @@
         "Automation",
         "Forked",
         "Point Cloud / 3D Vision",
-        "ROS",
         "Research / Papers",
-        "Robotics"
+        "Robotics",
+        "ROS"
       ],
       "stars": 341,
       "forks": 30,
@@ -728165,8 +728165,8 @@
       "topics": [
         "Forked",
         "Point Cloud / 3D Vision",
-        "ROS",
         "Robotics",
+        "ROS",
         "SLAM",
         "Tutorial"
       ],
@@ -728182,8 +728182,8 @@
         "SLAM (Simultaneous Localization and Mapping)",
         "Forked",
         "Point Cloud / 3D Vision",
-        "ROS",
         "Robotics",
+        "ROS",
         "SLAM",
         "Tutorial"
       ],
@@ -728852,9 +728852,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Finance & FinTech",
@@ -729151,8 +729151,8 @@
         "Caching",
         "Chroma",
         "CrewAI",
-        "Data Science",
         "Database",
+        "Data Science",
         "Forked",
         "LangChain",
         "Large Language Models",
@@ -729175,8 +729175,8 @@
         "Caching",
         "Chroma",
         "CrewAI",
-        "Data Science",
         "Database",
+        "Data Science",
         "Forked",
         "LangChain",
         "Large Language Models",
@@ -729269,10 +729269,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
         "Data & Evaluation",
-        "Product Discovery",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Enterprise Software",
@@ -729832,8 +729832,8 @@
         "C++",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Rust",
         "Tutorial"
@@ -729852,8 +729852,8 @@
         "C++",
         "Forked",
         "GPU / CUDA",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers",
         "Rust",
         "Tutorial"
@@ -730543,14 +730543,14 @@
         "Docker",
         "Forked",
         "HuggingFace",
-        "LLM Serving",
         "Llama",
+        "llama.cpp",
+        "LLM Serving",
         "MCP",
         "Ollama",
         "OpenAI",
         "Python",
         "Robotics",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -730564,14 +730564,14 @@
         "Docker",
         "Forked",
         "HuggingFace",
-        "LLM Serving",
         "Llama",
+        "llama.cpp",
+        "LLM Serving",
         "MCP",
         "Ollama",
         "OpenAI",
         "Python",
         "Robotics",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 299,
@@ -730709,8 +730709,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -731102,12 +731102,12 @@
         "Reinforcement Learning",
         "Research / Papers",
         "Robot Arms",
-        "Robot Learning",
         "Robotics",
-        "SLAM",
+        "Robot Learning",
         "Segmentation",
         "Sim-to-Real",
         "Simulation",
+        "SLAM",
         "Statistics",
         "Tutorial"
       ],
@@ -731134,12 +731134,12 @@
         "Reinforcement Learning",
         "Research / Papers",
         "Robot Arms",
-        "Robot Learning",
         "Robotics",
-        "SLAM",
+        "Robot Learning",
         "Segmentation",
         "Sim-to-Real",
         "Simulation",
+        "SLAM",
         "Statistics",
         "Tutorial"
       ],
@@ -731227,8 +731227,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -731686,8 +731686,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools",
@@ -732054,9 +732054,9 @@
         "Forked",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS 2",
         "Research / Papers",
         "Robotics",
+        "ROS 2",
         "Simulation"
       ],
       "enrichedTags": [
@@ -732077,9 +732077,9 @@
         "Forked",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS 2",
         "Research / Papers",
         "Robotics",
+        "ROS 2",
         "Simulation"
       ],
       "stars": 270,
@@ -732195,9 +732195,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -732774,18 +732774,18 @@
         "Backend",
         "Benchmarking",
         "Evals",
-        "FSDP",
         "Forked",
+        "FSDP",
         "HuggingFace",
         "LLM Serving",
         "LoRA / PEFT",
         "Python",
         "Real-Time / Streaming",
         "Research / Papers",
-        "Robot Learning",
         "Robotics",
-        "Weights & Biases",
-        "vLLM"
+        "Robot Learning",
+        "vLLM",
+        "Weights & Biases"
       ],
       "enrichedTags": [
         "Behavioral Cloning",
@@ -732799,8 +732799,8 @@
         "Backend",
         "Benchmarking",
         "Evals",
-        "FSDP",
         "Forked",
+        "FSDP",
         "HuggingFace",
         "LLM Serving",
         "LoRA / PEFT",
@@ -732808,8 +732808,8 @@
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
-        "Weights & Biases",
-        "vLLM"
+        "vLLM",
+        "Weights & Biases"
       ],
       "stars": 269,
       "forks": 57,
@@ -732959,9 +732959,9 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
+        "Data & Evaluation",
         "Safety & Alignment",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -734216,8 +734216,8 @@
       "language": null,
       "topics": [
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Automation",
         "Azure AI",
         "Benchmarking",
@@ -734227,8 +734227,8 @@
         "Document Processing",
         "Embeddings",
         "Evals",
-        "FinTech",
         "Fine-Tuning",
+        "FinTech",
         "Forked",
         "GPT",
         "HuggingFace",
@@ -734236,12 +734236,12 @@
         "Interview Prep",
         "Large Language Models",
         "Llama",
-        "MCP",
         "Machine Learning",
+        "MCP",
         "Mistral",
         "Multimodal AI",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Real-Time / Streaming",
@@ -734258,8 +734258,8 @@
         "Natural Language Processing",
         "Text Classification",
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Automation",
         "Azure AI",
         "Benchmarking",
@@ -734269,8 +734269,8 @@
         "Document Processing",
         "Embeddings",
         "Evals",
-        "FinTech",
         "Fine-Tuning",
+        "FinTech",
         "Forked",
         "GPT",
         "HuggingFace",
@@ -734278,12 +734278,12 @@
         "Interview Prep",
         "Large Language Models",
         "Llama",
-        "MCP",
         "Machine Learning",
+        "MCP",
         "Mistral",
         "Multimodal AI",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Planning / CoT",
         "Python",
         "Real-Time / Streaming",
@@ -734435,12 +734435,12 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Enterprise Software",
@@ -734793,8 +734793,8 @@
       "topics": [
         "Computer Vision",
         "Forked",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "enrichedTags": [
@@ -734806,8 +734806,8 @@
         "Rate-Distortion Optimization",
         "Video Encoding",
         "Forked",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "stars": 239,
@@ -735098,8 +735098,8 @@
         "Docker",
         "Evals",
         "Forked",
-        "MLflow",
         "Machine Learning",
+        "MLflow",
         "NumPy",
         "Pandas",
         "Python",
@@ -735122,8 +735122,8 @@
         "Docker",
         "Evals",
         "Forked",
-        "MLflow",
         "Machine Learning",
+        "MLflow",
         "NumPy",
         "Pandas",
         "Python",
@@ -735214,10 +735214,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -735707,12 +735707,12 @@
         "Point Cloud / 3D Vision",
         "Pose Estimation",
         "Python",
-        "ROS 2",
         "Real-Time / Streaming",
         "Robot Arms",
         "Robotics",
-        "SLAM",
+        "ROS 2",
         "Simulation",
+        "SLAM",
         "Tutorial"
       ],
       "enrichedTags": [
@@ -735737,12 +735737,12 @@
         "Point Cloud / 3D Vision",
         "Pose Estimation",
         "Python",
-        "ROS 2",
         "Real-Time / Streaming",
         "Robot Arms",
         "Robotics",
-        "SLAM",
+        "ROS 2",
         "Simulation",
+        "SLAM",
         "Tutorial"
       ],
       "stars": 232,
@@ -735850,8 +735850,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics & Manufacturing",
@@ -736861,12 +736861,12 @@
         "Planning / CoT",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS",
-        "ROS 2",
         "Robot Arms",
         "Robotics",
-        "SLAM",
+        "ROS",
+        "ROS 2",
         "Simulation",
+        "SLAM",
         "Tutorial"
       ],
       "enrichedTags": [
@@ -736888,12 +736888,12 @@
         "Planning / CoT",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS",
-        "ROS 2",
         "Robot Arms",
         "Robotics",
-        "SLAM",
+        "ROS",
+        "ROS 2",
         "Simulation",
+        "SLAM",
         "Tutorial"
       ],
       "stars": 221,
@@ -738366,17 +738366,17 @@
       "topics": [
         "AI Agents",
         "AI Safety",
-        "AWS",
         "Anthropic / Claude",
         "Automation",
+        "AWS",
         "Benchmarking",
         "Claude",
         "Evals",
         "Forked",
         "GPU / CUDA",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "MMLU",
         "OpenAI",
         "Python Web Framework",
@@ -738394,17 +738394,17 @@
         "Regulatory ML",
         "AI Agents",
         "AI Safety",
-        "AWS",
         "Anthropic / Claude",
         "Automation",
+        "AWS",
         "Benchmarking",
         "Claude",
         "Evals",
         "Forked",
         "GPU / CUDA",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "MMLU",
         "OpenAI",
         "Python Web Framework",
@@ -738555,11 +738555,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools",
@@ -739252,8 +739252,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics",
@@ -739471,8 +739471,8 @@
         "Computer Vision",
         "Curated List",
         "Forked",
-        "GPU / CUDA",
         "Game Dev",
+        "GPU / CUDA",
         "Grasping",
         "Machine Learning",
         "Mobile",
@@ -739481,12 +739481,12 @@
         "Planning / CoT",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS",
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
-        "SLAM",
+        "ROS",
         "Simulation",
+        "SLAM",
         "Spark",
         "Tutorial"
       ],
@@ -739506,8 +739506,8 @@
         "Computer Vision",
         "Curated List",
         "Forked",
-        "GPU / CUDA",
         "Game Dev",
+        "GPU / CUDA",
         "Grasping",
         "Machine Learning",
         "Mobile",
@@ -739515,12 +739515,12 @@
         "Planning / CoT",
         "Point Cloud / 3D Vision",
         "Python",
-        "ROS",
         "Real-Time / Streaming",
         "Research / Papers",
         "Robotics",
-        "SLAM",
+        "ROS",
         "Simulation",
+        "SLAM",
         "Spark",
         "Tutorial"
       ],
@@ -739619,9 +739619,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Gaming & Entertainment",
@@ -740913,8 +740913,8 @@
         "Forked",
         "GPT",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "Mistral",
         "Ollama",
         "OpenAI",
@@ -740938,8 +740938,8 @@
         "Forked",
         "GPT",
         "HuggingFace",
-        "LLM Serving",
         "Large Language Models",
+        "LLM Serving",
         "Mistral",
         "Ollama",
         "OpenAI",
@@ -741027,11 +741027,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia",
@@ -741273,22 +741273,22 @@
         "Forked",
         "Motion Planning",
         "Planning / CoT",
+        "Robotics",
         "ROS",
         "ROS 2",
-        "Robotics",
-        "SLAM",
-        "Simulation"
+        "Simulation",
+        "SLAM"
       ],
       "enrichedTags": [
         "Course",
         "Forked",
         "Motion Planning",
         "Planning / CoT",
+        "Robotics",
         "ROS",
         "ROS 2",
-        "Robotics",
-        "SLAM",
-        "Simulation"
+        "Simulation",
+        "SLAM"
       ],
       "stars": 164,
       "forks": 43,
@@ -741623,10 +741623,10 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
         "Product Discovery",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -742079,8 +742079,8 @@
         "Evals",
         "Forked",
         "Inference",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Multimodal AI",
@@ -742116,8 +742116,8 @@
         "Evals",
         "Forked",
         "Inference",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Multimodal AI",
@@ -742294,10 +742294,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -742724,8 +742724,8 @@
         "Machine Learning",
         "Open Source",
         "Pandas",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Scikit-learn",
         "Spark",
         "Statistics",
@@ -742750,8 +742750,8 @@
         "Machine Learning",
         "Open Source",
         "Pandas",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Scikit-learn",
         "Spark",
         "Statistics",
@@ -743134,8 +743134,8 @@
         "Benchmarking",
         "Course",
         "Curated List",
-        "Data Science",
         "Database",
+        "Data Science",
         "Deep Learning",
         "Docker",
         "Evals",
@@ -743144,11 +743144,11 @@
         "Machine Learning",
         "Open Source",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
-        "ROS",
+        "PyTorch",
         "Research / Papers",
         "Robotics",
+        "ROS",
         "TensorFlow"
       ],
       "enrichedTags": [
@@ -743166,8 +743166,8 @@
         "Benchmarking",
         "Course",
         "Curated List",
-        "Data Science",
         "Database",
+        "Data Science",
         "Docker",
         "Evals",
         "Forked",
@@ -743175,11 +743175,11 @@
         "Machine Learning",
         "Open Source",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
-        "ROS",
+        "PyTorch",
         "Research / Papers",
         "Robotics",
+        "ROS",
         "TensorFlow"
       ],
       "stars": 145,
@@ -743277,9 +743277,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia",
@@ -743637,10 +743637,10 @@
         "Forked",
         "JavaScript",
         "LangChain",
+        "n8n",
         "No-Code Automation",
         "Node.js",
-        "Python",
-        "n8n"
+        "Python"
       ],
       "enrichedTags": [
         "API Client Development",
@@ -743662,10 +743662,10 @@
         "Forked",
         "JavaScript",
         "LangChain",
+        "n8n",
         "No-Code Automation",
         "Node.js",
-        "Python",
-        "n8n"
+        "Python"
       ],
       "stars": 136,
       "forks": 23,
@@ -743784,9 +743784,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -744328,8 +744328,8 @@
         "Forked",
         "GPU / CUDA",
         "Music Tech",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Weights & Biases"
@@ -744346,8 +744346,8 @@
         "Forked",
         "GPU / CUDA",
         "Music Tech",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Real-Time / Streaming",
         "Research / Papers",
         "Weights & Biases"
@@ -744438,8 +744438,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Audio & Music",
@@ -744650,8 +744650,8 @@
         "Docker",
         "Forked",
         "Kubernetes",
-        "MLflow",
         "Machine Learning",
+        "MLflow",
         "Python",
         "Reinforcement Learning",
         "Roadmap",
@@ -744667,8 +744667,8 @@
         "Docker",
         "Forked",
         "Kubernetes",
-        "MLflow",
         "Machine Learning",
+        "MLflow",
         "Python",
         "Reinforcement Learning",
         "Roadmap",
@@ -744805,8 +744805,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Healthcare & Medicine",
@@ -745314,8 +745314,8 @@
         "Forked",
         "Healthcare AI",
         "Inference",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Privacy",
@@ -745326,9 +745326,9 @@
         "Reinforcement Learning",
         "Research / Papers",
         "Roadmap",
-        "SLAM",
         "Security",
         "Segmentation",
+        "SLAM",
         "Synthetic Data",
         "TensorFlow",
         "Transformers",
@@ -745357,8 +745357,8 @@
         "Forked",
         "Healthcare AI",
         "Inference",
-        "MLOps",
         "Machine Learning",
+        "MLOps",
         "Mobile",
         "Model Optimization",
         "Privacy",
@@ -745369,9 +745369,9 @@
         "Reinforcement Learning",
         "Research / Papers",
         "Roadmap",
-        "SLAM",
         "Security",
         "Segmentation",
+        "SLAM",
         "Synthetic Data",
         "TensorFlow",
         "Transformers",
@@ -745482,10 +745482,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery"
+        "Product Discovery",
+        "Safety & Alignment",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia",
@@ -745999,10 +745999,10 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -747713,9 +747713,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability"
       ],
       "industries": [
         "Cloud Infrastructure",
@@ -748015,8 +748015,8 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Product Discovery"
       ],
       "industries": [
         "Enterprise Software",
@@ -748812,9 +748812,9 @@
         "Embeddings",
         "FinTech",
         "Forked",
-        "GPT",
         "Gemma",
         "Google AI",
+        "GPT",
         "HuggingFace",
         "Large Language Models",
         "Llama",
@@ -748836,9 +748836,9 @@
         "Embeddings",
         "FinTech",
         "Forked",
-        "GPT",
         "Gemma",
         "Google AI",
+        "GPT",
         "HuggingFace",
         "Large Language Models",
         "Llama",
@@ -748986,9 +748986,9 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
+        "AI-Native Architecture",
         "Product Discovery",
-        "AI-Native Architecture"
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -749674,8 +749674,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Product Discovery"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Enterprise Software",
@@ -750010,8 +750010,8 @@
         }
       ],
       "pmSkills": [
-        "Product Discovery",
-        "Developer Platform"
+        "Developer Platform",
+        "Product Discovery"
       ],
       "industries": [
         "Enterprise Software",
@@ -750945,8 +750945,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -751105,8 +751105,8 @@
         "Mobile",
         "Model Optimization",
         "Multimodal AI",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Point Cloud / 3D Vision",
         "Qwen",
         "Real-Time / Streaming",
@@ -751132,8 +751132,8 @@
         "Mobile",
         "Model Optimization",
         "Multimodal AI",
-        "Open Source",
         "OpenAI",
+        "Open Source",
         "Point Cloud / 3D Vision",
         "Qwen",
         "Real-Time / Streaming",
@@ -751284,10 +751284,10 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Scale & Reliability",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Healthcare & Medicine",
@@ -751648,8 +751648,8 @@
         "GPU / CUDA",
         "Machine Learning",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "enrichedTags": [
@@ -751667,8 +751667,8 @@
         "GPU / CUDA",
         "Machine Learning",
         "Point Cloud / 3D Vision",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Research / Papers"
       ],
       "stars": 57,
@@ -752462,22 +752462,22 @@
       "forkedFrom": "khanh-atom/n8n-atom-fork",
       "language": "TypeScript",
       "topics": [
-        "Workflow Orchestration",
-        "API Integration",
-        "Visual Programming",
-        "Process Automation",
         "Agentic AI",
-        "Text",
-        "Code Editor Integration",
+        "API Integration",
+        "API Workflow Design",
         "Automation Pipeline Management",
         "Cloud API",
-        "Self-hosted",
         "Code",
+        "Code Editor Integration",
         "Developer Tools",
+        "Process Automation",
+        "Self-hosted",
+        "Text",
+        "TypeScript",
+        "Visual Programming",
         "Workflow Automation",
-        "API Workflow Design",
         "Workflow Development",
-        "TypeScript"
+        "Workflow Orchestration"
       ],
       "enrichedTags": [
         "API Integration",
@@ -752485,17 +752485,17 @@
         "Visual Programming",
         "Workflow Orchestration",
         "Agentic AI",
-        "Text",
-        "Code Editor Integration",
+        "API Workflow Design",
         "Automation Pipeline Management",
         "Cloud API",
-        "Self-hosted",
         "Code",
+        "Code Editor Integration",
         "Developer Tools",
+        "Self-hosted",
+        "Text",
+        "TypeScript",
         "Workflow Automation",
-        "API Workflow Design",
-        "Workflow Development",
-        "TypeScript"
+        "Workflow Development"
       ],
       "stars": 55,
       "forks": 13,
@@ -752567,8 +752567,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -754461,8 +754461,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -754621,14 +754621,15 @@
         "Docker",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Gemma",
+        "GPU / CUDA",
         "HuggingFace",
         "Inference",
         "KV Cache",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "llama.cpp",
+        "LLM Serving",
         "Mistral",
         "Multimodal AI",
         "Ollama",
@@ -754639,7 +754640,6 @@
         "Speculative Decoding",
         "Structured Output",
         "Tool Use",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -754662,14 +754662,15 @@
         "Docker",
         "Evals",
         "Forked",
-        "GPU / CUDA",
         "Gemma",
+        "GPU / CUDA",
         "HuggingFace",
         "Inference",
         "KV Cache",
-        "LLM Serving",
         "Large Language Models",
         "Llama",
+        "llama.cpp",
+        "LLM Serving",
         "Mistral",
         "Multimodal AI",
         "Ollama",
@@ -754680,7 +754681,6 @@
         "Speculative Decoding",
         "Structured Output",
         "Tool Use",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 44,
@@ -754825,12 +754825,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Research & Academia"
@@ -755244,8 +755244,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics",
@@ -755550,8 +755550,9 @@
         "Fine-Tuning",
         "Forked",
         "KV Cache",
-        "LLM Serving",
         "Large Language Models",
+        "llama.cpp",
+        "LLM Serving",
         "LoRA / PEFT",
         "Mobile",
         "Model Optimization",
@@ -755569,7 +755570,6 @@
         "Stable Diffusion",
         "TensorFlow",
         "TensorRT",
-        "llama.cpp",
         "vLLM"
       ],
       "enrichedTags": [
@@ -755595,6 +755595,7 @@
         "Fine-Tuning",
         "Forked",
         "KV Cache",
+        "llama.cpp",
         "LLM Serving",
         "LoRA / PEFT",
         "Mobile",
@@ -755613,7 +755614,6 @@
         "Stable Diffusion",
         "TensorFlow",
         "TensorRT",
-        "llama.cpp",
         "vLLM"
       ],
       "stars": 41,
@@ -755720,13 +755720,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -756158,8 +756158,8 @@
       "forkedFrom": "synaptic-ai-consulting/crewai-LL-series",
       "language": "Python",
       "topics": [
-        "AI Agents",
         "Agent Memory",
+        "AI Agents",
         "Automation",
         "Course",
         "CrewAI",
@@ -756180,8 +756180,8 @@
         "Multi-Agent Systems",
         "Task Planning",
         "Workflow Automation",
-        "AI Agents",
         "Agent Memory",
+        "AI Agents",
         "Automation",
         "Course",
         "CrewAI",
@@ -756273,10 +756273,10 @@
         }
       ],
       "pmSkills": [
-        "Safety & Alignment",
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Safety & Alignment"
       ],
       "industries": [
         "Developer Tools",
@@ -756661,8 +756661,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Spatial & Immersive"
@@ -756987,8 +756987,8 @@
         "Point Cloud / 3D Vision",
         "Pose Estimation",
         "Research / Papers",
-        "SLAM",
         "Segmentation",
+        "SLAM",
         "Statistics"
       ],
       "enrichedTags": [
@@ -757005,8 +757005,8 @@
         "Point Cloud / 3D Vision",
         "Pose Estimation",
         "Research / Papers",
-        "SLAM",
         "Segmentation",
+        "SLAM",
         "Statistics"
       ],
       "stars": 33,
@@ -758285,8 +758285,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "User Experience"
       ],
       "industries": [
         "Spatial & Immersive",
@@ -758681,8 +758681,8 @@
         }
       ],
       "pmSkills": [
-        "User Experience",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "User Experience"
       ],
       "industries": [
         "Research & Academia",
@@ -759529,6 +759529,7 @@
         "Multi-Agent",
         "Music / Audio AI",
         "Music Tech",
+        "n8n",
         "No-Code Automation",
         "Ollama",
         "OpenAI",
@@ -759537,8 +759538,7 @@
         "Python",
         "Real-Time / Streaming",
         "Speech to Text",
-        "Text to Speech",
-        "n8n"
+        "Text to Speech"
       ],
       "enrichedTags": [
         "AI Tool Evaluation",
@@ -759568,6 +759568,7 @@
         "Multi-Agent",
         "Music / Audio AI",
         "Music Tech",
+        "n8n",
         "No-Code Automation",
         "Ollama",
         "OpenAI",
@@ -759575,8 +759576,7 @@
         "Python",
         "Real-Time / Streaming",
         "Speech to Text",
-        "Text to Speech",
-        "n8n"
+        "Text to Speech"
       ],
       "stars": 23,
       "forks": 31,
@@ -759657,13 +759657,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "Safety & Alignment",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Safety & Alignment",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools",
@@ -760037,8 +760037,8 @@
         "GPT",
         "Hybrid Search",
         "LangChain",
-        "LangGraph",
         "Langfuse",
+        "LangGraph",
         "Large Language Models",
         "OpenAI",
         "Prompt Engineering",
@@ -760066,8 +760066,8 @@
         "GPT",
         "Hybrid Search",
         "LangChain",
-        "LangGraph",
         "Langfuse",
+        "LangGraph",
         "Large Language Models",
         "OpenAI",
         "Prompt Engineering",
@@ -760230,10 +760230,10 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Product Discovery",
+        "AI-Native Architecture",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability"
       ],
       "industries": [
         "Enterprise Software",
@@ -760635,8 +760635,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Robotics",
@@ -761649,8 +761649,8 @@
       "language": "Python",
       "topics": [
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Backend",
         "Caching",
         "Claude",
@@ -761660,6 +761660,7 @@
         "Embeddings",
         "Forked",
         "MCP",
+        "pgvector",
         "Pydantic",
         "Python",
         "Python Web Framework",
@@ -761668,8 +761669,7 @@
         "Roadmap",
         "Structured Output",
         "Transformers",
-        "TypeScript",
-        "pgvector"
+        "TypeScript"
       ],
       "enrichedTags": [
         "API Development",
@@ -761677,8 +761677,8 @@
         "Streaming Architecture",
         "Web Application Development",
         "AI Agents",
-        "API",
         "Anthropic / Claude",
+        "API",
         "Backend",
         "Caching",
         "Claude",
@@ -761688,6 +761688,7 @@
         "Embeddings",
         "Forked",
         "MCP",
+        "pgvector",
         "Pydantic",
         "Python",
         "Python Web Framework",
@@ -761696,8 +761697,7 @@
         "Roadmap",
         "Structured Output",
         "Transformers",
-        "TypeScript",
-        "pgvector"
+        "TypeScript"
       ],
       "stars": 16,
       "forks": 2,
@@ -761830,12 +761830,12 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -762925,9 +762925,9 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
+        "Developer Platform",
         "Product Discovery",
-        "Developer Platform"
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools",
@@ -763801,8 +763801,8 @@
       ],
       "pmSkills": [
         "Cost & Efficiency",
-        "Scale & Reliability",
-        "Data & Evaluation"
+        "Data & Evaluation",
+        "Scale & Reliability"
       ],
       "industries": [
         "Developer Tools"
@@ -764500,8 +764500,8 @@
         }
       ],
       "pmSkills": [
-        "Scale & Reliability",
-        "Developer Platform"
+        "Developer Platform",
+        "Scale & Reliability"
       ],
       "industries": [
         "Research & Academia"
@@ -764856,8 +764856,8 @@
         }
       ],
       "pmSkills": [
-        "Developer Platform",
-        "AI-Native Architecture"
+        "AI-Native Architecture",
+        "Developer Platform"
       ],
       "industries": [
         "Developer Tools",
@@ -765472,8 +765472,8 @@
       "forkedFrom": "CelestialCreator/mtp-lm",
       "language": "Python",
       "topics": [
-        "AWS",
         "Automation",
+        "AWS",
         "Benchmarking",
         "CLI Tool",
         "Course",
@@ -765481,25 +765481,25 @@
         "Distillation",
         "Embeddings",
         "Evals",
-        "FSDP",
         "Fine-Tuning",
         "Forked",
-        "GPU / CUDA",
+        "FSDP",
         "Gemma",
+        "GPU / CUDA",
         "HuggingFace",
         "Jupyter",
-        "LM Eval Harness",
         "Large Language Models",
         "Llama",
-        "LoRA / PEFT",
+        "LM Eval Harness",
         "Long Context",
-        "MMLU",
+        "LoRA / PEFT",
         "Mistral",
+        "MMLU",
         "Mobile",
         "OpenAI",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Research / Papers",
@@ -765517,8 +765517,8 @@
         "Neural Network Optimization",
         "Self-Distillation",
         "Transformer Architecture",
-        "AWS",
         "Automation",
+        "AWS",
         "Benchmarking",
         "CLI Tool",
         "Course",
@@ -765526,25 +765526,25 @@
         "Distillation",
         "Embeddings",
         "Evals",
-        "FSDP",
         "Fine-Tuning",
         "Forked",
-        "GPU / CUDA",
+        "FSDP",
         "Gemma",
+        "GPU / CUDA",
         "HuggingFace",
         "Jupyter",
-        "LM Eval Harness",
         "Large Language Models",
         "Llama",
-        "LoRA / PEFT",
+        "LM Eval Harness",
         "Long Context",
-        "MMLU",
+        "LoRA / PEFT",
         "Mistral",
+        "MMLU",
         "Mobile",
         "OpenAI",
         "Planning / CoT",
-        "PyTorch",
         "Python",
+        "PyTorch",
         "Quantization",
         "Qwen",
         "Research / Papers",
@@ -765679,11 +765679,11 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery"
       ],
       "industries": [
         "Developer Tools",
@@ -766324,15 +766324,15 @@
       "forkedFrom": null,
       "language": "Python",
       "topics": [
-        "API",
         "Active",
+        "API",
         "Backend",
         "Built by Me",
         "Caching",
         "Database",
         "GraphQL",
-        "Python",
-        "pgvector"
+        "pgvector",
+        "Python"
       ],
       "enrichedTags": [
         "Automated Data Collection",
@@ -766340,15 +766340,15 @@
         "Metrics Pipeline Development",
         "Performance Monitoring",
         "Time Series Analysis",
-        "API",
         "Active",
+        "API",
         "Backend",
         "Built by Me",
         "Caching",
         "Database",
         "GraphQL",
-        "Python",
-        "pgvector"
+        "pgvector",
+        "Python"
       ],
       "stars": 1,
       "forks": 0,
@@ -766642,10 +766642,10 @@
       "forkedFrom": null,
       "language": "Python",
       "topics": [
-        "AI Agents",
-        "API",
         "Active",
+        "AI Agents",
         "Anthropic / Claude",
+        "API",
         "Backend",
         "Benchmarking",
         "Built by Me",
@@ -766663,22 +766663,22 @@
         "Long Context",
         "MCP",
         "Multimodal AI",
+        "pgvector",
         "Python",
         "Real-Time / Streaming",
         "Semantic Search",
         "Statistics",
-        "Transformers",
-        "pgvector"
+        "Transformers"
       ],
       "enrichedTags": [
         "API Development",
         "Authentication and Authorization",
         "Data Access Layer Design",
         "Database Management",
-        "AI Agents",
-        "API",
         "Active",
+        "AI Agents",
         "Anthropic / Claude",
+        "API",
         "Backend",
         "Benchmarking",
         "Built by Me",
@@ -766696,12 +766696,12 @@
         "Long Context",
         "MCP",
         "Multimodal AI",
+        "pgvector",
         "Python",
         "Real-Time / Streaming",
         "Semantic Search",
         "Statistics",
-        "Transformers",
-        "pgvector"
+        "Transformers"
       ],
       "stars": 1,
       "forks": 0,
@@ -766826,13 +766826,13 @@
         }
       ],
       "pmSkills": [
+        "AI-Native Architecture",
         "Cost & Efficiency",
-        "User Experience",
-        "Scale & Reliability",
         "Data & Evaluation",
-        "Product Discovery",
         "Developer Platform",
-        "AI-Native Architecture"
+        "Product Discovery",
+        "Scale & Reliability",
+        "User Experience"
       ],
       "industries": [
         "Developer Tools"
@@ -776377,7 +776377,7 @@
     }
   ],
   "gapAnalysis": {
-    "generatedAt": "2026-10-11T10:26:27.639995+00:00",
+    "generatedAt": "2026-10-11T11:38:13.038021+00:00",
     "gaps": []
   },
   "stats": {
